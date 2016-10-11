@@ -1,15 +1,19 @@
 package dataStructure;
 
 import java.time.LocalDateTime;
-
 import com.google.gson.Gson;
 //import java.util.ArrayList;
 
+/**
+ * 
+ * @author Michael Piccoli
+ * @version 1.0
+ * @since 10th October 2016
+ * 
+ * This class contains the definition of the Feedback object
+ *
+ */
 public class Feedback {
-	
-	//Class Constants
-	private final static String INVALID_STRING="Invalid String";
-	private final static int INVALID_INT=-1;
 	
 	//Global Variables
 	private int id, performance;
@@ -19,8 +23,8 @@ public class Feedback {
 	
 	//Empty Constructor
 	public Feedback(){
-		this.id=INVALID_INT;
-		this.performance=INVALID_INT;
+		this.id=Constants.INVALID_INT;
+		this.performance=Constants.INVALID_INT;
 		this.fromWho="";
 		this.description="";
 		this.type="";
@@ -47,7 +51,7 @@ public class Feedback {
 		if(id>0)
 			this.id=id;
 		else
-			this.id=INVALID_INT;
+			this.id=Constants.INVALID_INT;
 	}
 	
 	public int getID(){
@@ -58,18 +62,23 @@ public class Feedback {
 		if(performance>=0 && performance<=100)
 			this.performance=performance;
 		else
-			this.performance=INVALID_INT;
+			this.performance=Constants.INVALID_INT;
 	}
 	
 	public int getPerformance(){
 		return this.performance;
 	}
 	
+	/**
+	 * 
+	 * @param from this string contains the name of who left the feedback and it
+	 * must not exceed the 150 characters
+	 */
 	public void setFromWho(String from){
-		if(from!=null && from!="")
+		if(from!=null && from!="" && from.length()<150)
 			this.fromWho=from;
 		else
-			this.fromWho=INVALID_STRING;
+			this.fromWho=Constants.INVALID_STRING;
 	}
 	
 	public String getFromWho(){
@@ -84,7 +93,7 @@ public class Feedback {
 		if(description!=null && description.length()<1001)
 			this.description=description;
 		else
-			this.description=INVALID_STRING;
+			this.description=Constants.INVALID_STRING;
 	}
 	
 	public String getDescription(){
@@ -99,7 +108,7 @@ public class Feedback {
 		if(type!=null && (type.toLowerCase().equals("internal") || type.toLowerCase().equals("external")))
 			this.type=type;
 		else
-			this.type=INVALID_STRING;
+			this.type=Constants.INVALID_STRING;
 	}
 	
 	public String getType(){
@@ -114,7 +123,7 @@ public class Feedback {
 		if(source!=null && source.length()<30)
 			this.source=source;
 		else
-			this.source=INVALID_STRING;
+			this.source=Constants.INVALID_STRING;
 	}
 	
 	public String getSource(){
@@ -126,9 +135,9 @@ public class Feedback {
 	 * This method saves the current DateTime inside the timeStamp object only if the object does not
 	 * contain anything yet
 	 */
-	public void setTimeStamp(){
+	private void setTimeStamp(){
 		if(this.timeStamp==null)
-			timeStamp=LocalDateTime.now();
+			this.timeStamp=LocalDateTime.now();
 	}
 	
 	public LocalDateTime getTimeStamp(){
@@ -137,13 +146,13 @@ public class Feedback {
 	
 	public String toString(){
 		String s="";
-		s+="ID "+this.id+"\n"
-				+ "Performance "+this.performance+"\n"
-				+ "From "+this.fromWho+"\n"
-				+ "Description "+this.description+"\n"
-				+ "Type "+this.type+"\n"
-				+ "Source "+this.source+"\n"
-				+ "TimeStamp "+this.timeStamp;
+		s+="ID "+this.id+"/n"
+			+ "Performance "+this.performance+"/n"
+			+ "From "+this.fromWho+"/n"
+			+ "Description "+this.description+"/n"
+			+ "Type "+this.type+"/n"
+			+ "Source "+this.source+"/n"
+			+ "TimeStamp "+this.timeStamp;
 		return s;
 	}
 	

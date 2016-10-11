@@ -3,6 +3,15 @@ package dataStructure;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 
+ * @author Michael Piccoli
+ * @version 1.0
+ * @since 10th October 2016
+ * 
+ * This class contains the definition of the Employee object
+ *
+ */
 public class Employee {
 	
 	//Global Variables
