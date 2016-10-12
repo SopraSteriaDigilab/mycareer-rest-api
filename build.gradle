@@ -42,6 +42,7 @@ dependencies {
     // tag::actuator[]
     compile("org.springframework.boot:spring-boot-starter-actuator")
     compile 'com.google.code.gson:gson:2.7'
+    compile("org.springframework.boot:spring-boot-starter-data-mongodb")
     // end::actuator[]
     testCompile("junit:junit")
     testCompile("org.springframework.boot:spring-boot-starter-test")

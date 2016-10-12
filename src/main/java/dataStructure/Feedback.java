@@ -1,8 +1,6 @@
 package dataStructure;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 import com.google.gson.Gson;
 //import java.util.ArrayList;
 
@@ -170,9 +168,7 @@ public class Feedback {
 	}
 	
 	public boolean isFeedbackValid(){
-		if(this.getID()!=-1 && this.getTimeStamp()!=null)
-			return true;
-		return false;
+		return (this.getID()!=-1 && this.getTimeStamp()!=null);
 	}
 
 }

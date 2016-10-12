@@ -5,9 +5,6 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.yaml.snakeyaml.scanner.Constant;
-
 import com.google.gson.Gson;
 
 /**
@@ -202,5 +199,8 @@ public class Objective {
 			return feedback.add(obj);
 		return false;
 	}
-
+	
+	public boolean isObjectiveValid(){
+		 return (this.getID()>0 && !this.getTitle().equals("") && !this.getDescription().equals("") && this.getTimeStamp()!=null && this.getTimeToCompleteBy()!=null);
+	}
 }

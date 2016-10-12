@@ -1,10 +1,8 @@
 package dataStructure;
 
-import java.awt.Container;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import javax.management.InvalidAttributeValueException;
 import com.google.gson.Gson;
 
 /**
@@ -243,6 +241,37 @@ public class Employee {
 		return this.objectives;
 	}
 	
+	public List<Objective> getLatestVersionObjectives(){
+		List<Objective> organisedList=new ArrayList<Objective>();
+		if(objectives==null)
+			return null;
+		else{
+			//If the list if not empty, retrieve all the elements and add them to the list
+			//that is going to be returned
+			for(List<Objective> subList:objectives){
+				//The last element contains the latest version for the objective
+				organisedList.add(subList.get(subList.size()-1));
+			}
+			//Once the list if full, return it to the user
+			return organisedList;
+		}
+	}
+	
+	public Objective getLatestVersionOfSpecificObjective(int id){
+		//Verify if the id is valid
+		if(id<0)
+			return null;
+		//Search for the objective with the given ID
+		for(List<Objective> subList:objectives){
+			if(((Objective)(subList.get(0))).getID()==id){
+				//Now that the Objective has been found, return the latest version of it
+				//which is stored at the end of the List
+				return (Objective)(subList.get(subList.size()-1));
+			}
+		}
+		return null;
+	}
+	
 	public void setNoteList(List<Note> notes){
 		if(notes!=null)
 			this.notes=notes;
@@ -304,22 +333,99 @@ public class Employee {
 	public boolean addGenericFeedback(Feedback obj){
 		if(feedback==null)
 			feedback=new ArrayList<Feedback>();
+		//Verify that the object is not null
+		if(obj==null)
+			return false;
+		//At this point the Feedback hasn't got an ID, let's create it
+		obj.setID(feedback.size()+1);
 		if(obj.isFeedbackValid())
 			return feedback.add(obj);
 		return false;
 	}
 	
 	public boolean addFeedbackToObjective(int objectiveID, Feedback obj){
+		//Verify the data is valid
+		if(objectiveID<0 && obj==null)
+			return false;
 		//Search for the objective ID within the list of objectives
 		//add the objective if the ID is found
 		for(int i=0; i<objectives.size(); i++){
 			//If the appropriate objective is found, add the feedback to its list
-			if(((Objective) objectives.get(i)).getID()==objectiveID)
-				return ((Objective) objectives.get(i)).addFeedback(obj); 
+			if(((Objective) objectives.get(i)).getID()==objectiveID){
+				//Now that the related objective is found, create an ID for this feedback
+				obj.setID(objectives.get(i).size()+1);
+				//Validate the data
+				if(obj.isFeedbackValid())
+					//Try to add the new feedback
+					return ((Objective) objectives.get(i)).addFeedback(obj);
+				else
+					return false;
+			}
 		}
 		return false;
 	}
 	
+	public boolean addObjective(Objective obj){
+		if(objectives==null)
+			objectives=new ArrayList<List<Objective>>();
+		//Verify that the objective is not null
+		if(obj==null)
+			return false;
+		//At this point, the objective hasn't got an ID, let's create one
+		obj.setID(objectives.size()+1);
+		if(obj.isObjectiveValid()){
+			List<Objective> tempList=new ArrayList<Objective>();
+			//add the first version of this objective
+			boolean res1=tempList.add(obj);
+			boolean res2=objectives.add(tempList);
+			//Action completed, verify the results
+			return (res1 && res2);
+		}
+		return false;
+	}
 	
+	public boolean editObjective(Objective obj){
+		//Verify that the object is not null
+		if(obj==null)
+			return false;
+		//Step 1: Verify that the object contains valid data 
+		if(obj.isObjectiveValid()){
+			//Step 2: Verify that the ID contained within the Objective object is in the system
+			for(int i=0; i<objectives.size(); i++){
+				List<Objective> listTemp=objectives.get(i);
+				//The elements within each list has all the same ID, so pick the first one and compare it
+				if(((Objective)(listTemp.get(0))).getID()==obj.getID()){
+					//Add the objective to the end of the list
+					return objectives.get(i).add(obj);
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean addNote(Note obj){
+		//Verify that the note is valid
+		if(notes==null)
+			notes=new ArrayList<Note>();
+		//Make sure the object contains valid data
+		if(obj==null)
+			return false;
+		//The note currently doesn't have an ID, create one and validate its data
+		obj.setID(notes.size()+1);
+		if(obj.isNoteValid())
+			return notes.add(obj);
+		return false;
+	}
+	
+	/*
+	 * This methods are not needed at the minute
+	public Feedback getSpecificFeedback(int id){
+		
+	}
+	
+	public Note getSpecificNote(int id){
+	
+	}
+	*/
 
 }

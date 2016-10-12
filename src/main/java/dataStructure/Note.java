@@ -87,5 +87,9 @@ public class Note {
 		Gson gsonData=new Gson();
 		return gsonData.toJson(this);
 	}
+	
+	public boolean isNoteValid(){
+		return (this.getID()>0 && !this.getBody().equals(""));
+	}
 
 }

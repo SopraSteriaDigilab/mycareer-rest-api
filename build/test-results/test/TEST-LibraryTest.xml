@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="LibraryTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2016-10-12T12:18:15" hostname="ITEM-S31509" time="0.0">
+<testsuite name="LibraryTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2016-10-12T14:50:20" hostname="ITEM-S31509" time="0.005">
   <properties/>
-  <testcase name="testSomeLibraryMethod" classname="LibraryTest" time="0.0"/>
+  <testcase name="testSomeLibraryMethod" classname="LibraryTest" time="0.005"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
