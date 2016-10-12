@@ -71,15 +71,15 @@ public class Note {
 			this.timeStamp=LocalDateTime.now();
 	}
 	
-	public LocalDateTime getTimeStamp(){
-		return this.timeStamp;
+	public String getTimeStamp(){
+		return this.timeStamp.format(Constants.DATE_TIME_FORMAT);
 	}
 	
 	public String toString(){
 		String s="";
 		s+="ID "+this.id+"/n"
 			+ "Body "+this.body+"/n"
-			+ "Time "+this.timeStamp;
+			+ "Time "+this.timeStamp.format(Constants.DATE_TIME_FORMAT);
 		return s;
 	}
 	

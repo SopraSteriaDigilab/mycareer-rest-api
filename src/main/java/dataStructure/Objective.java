@@ -2,8 +2,12 @@ package dataStructure;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.yaml.snakeyaml.scanner.Constant;
+
 import com.google.gson.Gson;
 
 /**
@@ -21,7 +25,7 @@ public class Objective {
 	private int id, progress, performance;
 	private String title, description;
 	private LocalDateTime timeStamp;
-	private LocalDate timeToCompleteBy;
+	private YearMonth timeToCompleteBy;
 	private List<Feedback> feedback;
 	
 	//Empty Constructor
@@ -37,7 +41,13 @@ public class Objective {
 	}
 	
 	//Constructor with Parameters
-	public Objective(int id, int prog, int perf, String title, String descr, LocalDate dateToCompleteBy){
+	public Objective(
+			int id, 
+			int prog, 
+			int perf, 
+			String title, 
+			String descr, 
+			String dateToCompleteBy){
 		this.setID(id);
 		this.setProgress(prog);
 		this.setPerformance(perf);
@@ -132,19 +142,24 @@ public class Objective {
 			timeStamp=LocalDateTime.now();
 	}
 	
-	public LocalDateTime getTimeStamp(){
-		return this.timeStamp;
+	public String getTimeStamp(){
+		return this.timeStamp.format(Constants.DATE_TIME_FORMAT);
 	}
 	
-	public void setTimeToCompleteBy(LocalDate date){
-		if(date!=null && date.isAfter(LocalDate.now()))
-			this.timeToCompleteBy=date;
+	public void setTimeToCompleteBy(String date){
+		//Convert the String to a YearMonth object
+		if(date!=null){
+			YearMonth temp=YearMonth.parse(date,Constants.YEAR_MONTH_FORMAT);
+			//Verify that the month and year inserted are greater than the current month and year
+			if((temp.getMonth().compareTo(LocalDate.now().getMonth())>0) && (temp.getYear()>=LocalDate.now().getYear()))
+				this.timeToCompleteBy=temp;
+		}
 		else
 			this.timeToCompleteBy=null;
 	}
 	
-	public LocalDate getTimeToCompleteBy(){
-		return this.timeToCompleteBy;
+	public String getTimeToCompleteBy(){
+		return this.timeToCompleteBy.format(Constants.YEAR_MONTH_FORMAT);
 	}
 	
 	public void setFeedback(List<Feedback> listData){
@@ -167,8 +182,8 @@ public class Objective {
 			+ "Performance "+this.performance+"/n"
 			+ "Title "+this.title+"/n"
 			+ "Description "+this.description+"/n"
-			+ "TimeStamp "+this.timeStamp+"/n"
-			+ "TimeToCompleteBy "+this.timeToCompleteBy+"/n";
+			+ "TimeStamp "+this.getTimeStamp()+"/n"
+			+ "TimeToCompleteBy "+this.getTimeToCompleteBy()+"/n";
 		for(Feedback temp: this.feedback){
 			s+=temp.toString();
 		}
@@ -178,6 +193,14 @@ public class Objective {
 	public String toGson(){
 		Gson gsonData=new Gson();
 		return gsonData.toJson(this);
+	}
+	
+	public boolean addFeedback(Feedback obj){
+		if(feedback==null)
+			feedback=new ArrayList<Feedback>();
+		if(obj.isFeedbackValid())
+			return feedback.add(obj);
+		return false;
 	}
 
 }

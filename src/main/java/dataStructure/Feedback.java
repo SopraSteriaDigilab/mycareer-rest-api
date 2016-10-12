@@ -1,6 +1,8 @@
 package dataStructure;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import com.google.gson.Gson;
 //import java.util.ArrayList;
 
@@ -34,7 +36,13 @@ public class Feedback {
 	}
 	
 	//Constructor with parameters
-	public Feedback(int id, int perf, String from, String desc, String type, String source){
+	public Feedback(
+			int id, 
+			int perf, 
+			String from, 
+			String desc, 
+			String type, 
+			String source){
 		this.setID(id);
 		this.setPerformance(perf);
 		this.setFromWho(from);
@@ -140,8 +148,8 @@ public class Feedback {
 			this.timeStamp=LocalDateTime.now();
 	}
 	
-	public LocalDateTime getTimeStamp(){
-		return this.timeStamp;
+	public String getTimeStamp(){
+		return this.timeStamp.format(Constants.DATE_TIME_FORMAT);
 	}
 	
 	public String toString(){
@@ -152,13 +160,19 @@ public class Feedback {
 			+ "Description "+this.description+"/n"
 			+ "Type "+this.type+"/n"
 			+ "Source "+this.source+"/n"
-			+ "TimeStamp "+this.timeStamp;
+			+ "TimeStamp "+this.getTimeStamp();
 		return s;
 	}
 	
 	public String toGson(){
 		Gson gsonData=new Gson();
 		return gsonData.toJson(this);
+	}
+	
+	public boolean isFeedbackValid(){
+		if(this.getID()!=-1 && this.getTimeStamp()!=null)
+			return true;
+		return false;
 	}
 
 }

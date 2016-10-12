@@ -1,5 +1,7 @@
 package dataStructure;
 
+import java.time.format.DateTimeFormatter;
+
 /**
  * 
  * @author Michael Piccoli
@@ -12,8 +14,12 @@ package dataStructure;
 public final class Constants {
 	
 	//Constants for the DataStructure package
-	public final static int INVALID_INT=-1;
+	public static final  int INVALID_INT=-1;
 	public static final String INVALID_STRING="Invalid Value";
+	public static final String INVALID_EMAIL="Invalid Email Address";
+	public static final DateTimeFormatter DATE_FORMAT=DateTimeFormatter.ISO_LOCAL_DATE;
+	public static final DateTimeFormatter DATE_TIME_FORMAT=DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+	public static final DateTimeFormatter YEAR_MONTH_FORMAT=DateTimeFormatter.ofPattern("MM.yyyy");
 	
 	//Constants for the Functionalities package
 
