@@ -75,6 +75,7 @@ public class Note {
 		return this.timeStamp.format(Constants.DATE_TIME_FORMAT);
 	}
 	
+	@Override
 	public String toString(){
 		String s="";
 		s+="ID "+this.id+"/n"
