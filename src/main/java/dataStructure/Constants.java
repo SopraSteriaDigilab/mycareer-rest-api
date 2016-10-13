@@ -19,7 +19,9 @@ public final class Constants {
 	public static final String INVALID_EMAIL="Invalid Email Address";
 	public static final DateTimeFormatter DATE_FORMAT=DateTimeFormatter.ISO_LOCAL_DATE;
 	public static final DateTimeFormatter DATE_TIME_FORMAT=DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-	public static final DateTimeFormatter YEAR_MONTH_FORMAT=DateTimeFormatter.ofPattern("MM.yyyy");
+	public static final DateTimeFormatter YEAR_MONTH_FORMAT=DateTimeFormatter.ofPattern("yyyy-MM");
+	public static final String SIMPLE_DATE_FORMAT="yyyy-mm-dd";
+	public static final String COMPLETE_DATE_TIME_FORMAT="yyyy-mm-dd hh:mm:ss";
 	
 	//Constants for the Functionalities package
 
