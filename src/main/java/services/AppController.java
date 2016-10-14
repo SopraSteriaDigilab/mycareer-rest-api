@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import functionalities.EmployeeDAO;
+
 /**
  * 
  * @author Michael Piccoli
@@ -20,7 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AppController {
 
 	@RequestMapping(value="/", method=RequestMethod.GET)
-	public ResponseEntity<?> welcomePage(){
-		return ResponseEntity.ok("Welcome to the MyCareer Project");
+	public void welcomePage(){
+		//return ResponseEntity.ok("Welcome to the MyCareer Project");
+		EmployeeDAO.insertTempData();
+		EmployeeDAO.getData();
 	}
 }
