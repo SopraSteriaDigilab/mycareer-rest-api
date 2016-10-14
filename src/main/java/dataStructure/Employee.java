@@ -537,6 +537,11 @@ public class Employee implements Serializable{
 	public Note getSpecificNote(int id){
 
 	}
+	
+	public void calculatePerformance(int ibjectiveID){
+		//Based on feedback performance values
+		 //once calculated pass it to the specific objective
+	}
 	 */
 
 }

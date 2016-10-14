@@ -17,6 +17,9 @@ import functionalities.EmployeeDAO;
  * This class contains all the available roots of the web service
  *
  */
+
+//The cross origin value is ALL for now, it will be set to accept connections only from front-end machine
+//IP-address 
 @CrossOrigin(origins = "*")
 @RestController
 public class AppController {
@@ -27,4 +30,7 @@ public class AppController {
 		EmployeeDAO.insertTempData();
 		EmployeeDAO.getData();
 	}
+	
+	
+	
 }
