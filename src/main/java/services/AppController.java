@@ -38,7 +38,4 @@ public class AppController {
 		return EmployeeDAO.getObjectivesForUser(employeeID);
 		
 	}
-	
-	
-	
 }
