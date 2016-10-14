@@ -59,7 +59,6 @@ public  class EmployeeDAO {
 			e1.addFeedbackToObjective(2, fe4);
 			e1.addFeedbackToObjective(1, fe4);
 
-			//Add the data to the DB
 			datastore.save(e1);
 		}
 		catch(Exception e){
