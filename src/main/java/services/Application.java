@@ -1,4 +1,4 @@
-/*package services;
+package services;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,13 +10,13 @@ public class Application {
     public static void main(String[] args) {
     	System.out.println("Welcome! :)");
     	System.out.println("MyCareer is booting... It won't take a while!");
-        @SuppressWarnings("unused")
-		ApplicationContext ctx = SpringApplication.run(Application.class, args);
+		//ApplicationContext ctx = SpringApplication.run(Application.class, args);
+		SpringApplication.run(Application.class, args);
         System.out.println("MyCareer is up and running! Enjoy ;)");
     }
 
-} */
-
+}
+/*
 package services;
 
 import java.net.UnknownHostException;
@@ -37,7 +37,7 @@ public class Application{
 
 	public static void main(String[] args) throws UnknownHostException, MongoException {
 		System.out.println("Welcome! :)");
-		String mongoClientURI = "mongodb://" + "michael" + ":" + "leahcim" + "@" + "172.25.111.64" + ":" + 27777 + "/" + "Development";;
+		String mongoClientURI = "mongodb://" + "michael" + ":" + "leahcim" + "@" + "172.25.111.64" + ":" + 27777 + "/" + "Development";
 		MongoClient client = new MongoClient(new MongoClientURI(mongoClientURI));
 		final Morphia morphia =new Morphia();
 		//Add packages
@@ -86,3 +86,4 @@ public class Application{
 	}
 
 }
+*/
