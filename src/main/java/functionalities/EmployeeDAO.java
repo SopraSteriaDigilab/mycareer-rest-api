@@ -92,5 +92,4 @@ public  class EmployeeDAO {
 		datastore.ensureIndexes();
 		return datastore;
 	}
-
 }
