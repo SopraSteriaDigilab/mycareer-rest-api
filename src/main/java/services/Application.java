@@ -2,6 +2,7 @@ package services;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 
 @SpringBootApplication
 public class Application {
@@ -71,8 +72,8 @@ public class Application{
 			e1.addFeedbackToObjective(2, fe4);
 			e1.addFeedbackToObjective(1, fe4);
 
-			//datastore.save(e1);
-			Query<Employee> query = datastore.createQuery(Employee.class).filter("employeeID =", 2342);
+			datastore.save(e1);
+			Query<Employee> query = datastore.createQuery(Employee.class).field("feedback.fromWho").contains("William");
 			for(Employee e:query.asList()){
 				System.out.println(e.toString());
 				System.out.print("\n----------------------------------------------------------------\n");
@@ -86,4 +87,3 @@ public class Application{
 
 }
 */
-
