@@ -27,11 +27,14 @@ import dataStructure.Objective;
  *
  */
 public  class EmployeeDAO {
+	
+	//There is only 1 instance of the Datastore in the whole system
+	private static Datastore dbConnection=null;
 
 
-	public static List<Objective> getObjectivesForUser(int epmloyeeID) throws InvalidAttributeValueException{
+	public static List<Objective> getObjectivesForUser(int employeeID) throws InvalidAttributeValueException{
 		Datastore datastore = getMongoDBConnection();
-		Query<Employee> query = datastore.createQuery(Employee.class).filter("employeeID =", epmloyeeID);
+		Query<Employee> query = datastore.createQuery(Employee.class).filter("employeeID =", employeeID);
 		if(query.get()==null)
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
@@ -65,15 +68,13 @@ public  class EmployeeDAO {
 				Datastore conn=getMongoDBConnection();
 				//Retrieve Employee with the given ID
 				Query<Employee> querySearch = conn.createQuery(Employee.class).filter("employeeID =", employeeID);
-				if(querySearch.get()==null)
-					throw new InvalidAttributeValueException("No user with such ID");
-				Employee e = querySearch.get();
-				if(e!=null){
+				if(querySearch.get()!=null){
+					Employee e = querySearch.get();
 					//Extract its List of Objectives
 					List<List<Objective>> dataFromDB=e.getObjectiveList();
 					//Add the new objective to the list
 					if(e.addObjective((Objective)data)){
-						//Update the List<objective> in the DB passing the new list
+						//Update the List<List<objective>> in the DB passing the new list
 						UpdateOperations<Employee> ops = conn.createUpdateOperations(Employee.class).set("objectives", dataFromDB);
 						//Commit the changes to the DB
 						conn.update(querySearch, ops);
@@ -87,9 +88,56 @@ public  class EmployeeDAO {
 			}
 			else
 				throw new InvalidAttributeValueException("The data provided is not valid");
-
 		}else
 			throw new InvalidAttributeValueException("The ID provided is not valid");
+	}
+
+	public static boolean addNewVersionObjective(int employeeID, int objectiveID, Object data) throws InvalidAttributeValueException, MongoException{
+		//Check EmployeeID and ObjectiveID
+		if(employeeID>0 && objectiveID>0){
+			if(data!=null && data instanceof Objective){
+				//Connect to the DB
+				Datastore conn=getMongoDBConnection();
+				//Retrieve Employee with the given ID
+				Query<Employee> querySearch = conn.createQuery(Employee.class).filter("employeeID =", employeeID);
+				if(querySearch.get()!=null){
+					Employee e = querySearch.get();
+					//Extract its List of Objectives
+					List<List<Objective>> dataFromDB=e.getObjectiveList();
+					//Search for the objective Id within the list of objectives
+					int indexObjectiveList=-1;
+					for(int i=0; i<dataFromDB.size(); i++){
+						//Save the index of the list when the objectiveID is found
+						if(dataFromDB.get(i).get(0).getID()==objectiveID){
+							indexObjectiveList=i;
+							//Exit the for loop once the value has been found
+							break;
+						}
+					}
+					//verify that the index variable has changed its value
+					if(indexObjectiveList!=-1){ 
+						//Add the updated version of the objective
+						if(e.editObjective((Objective)data)){
+							//Update the List<List<objective>> in the DB passing the new list
+							UpdateOperations<Employee> ops = conn.createUpdateOperations(Employee.class).set("objectives", e.getObjectiveList());
+							//Commit the changes to the DB
+							conn.update(querySearch, ops);
+							return true;
+						}
+					}
+					//if the index hasn't changed its value it means that there is no objective with such ID, therefore throw and exception
+					else
+						throw new InvalidAttributeValueException("The given ObjectiveID is invalid");
+				}
+				else
+					throw new InvalidAttributeValueException("No employee found with the ID provided");
+			}
+			else
+				throw new InvalidAttributeValueException("The data provided is not valid");
+		}
+		else
+			throw new InvalidAttributeValueException("The given EmployeeID or ObjectiveID are invalid");
+		return false;
 	}
 
 	/*
@@ -142,13 +190,18 @@ public  class EmployeeDAO {
 
 
 	private static Datastore getMongoDBConnection() throws MongoException{
-		String mongoClientURI = "mongodb://" + "michael" + ":" + "leahcim" + "@" + "172.25.111.64" + ":" + 27777 + "/" + "Development";
-		MongoClient client = new MongoClient(new MongoClientURI(mongoClientURI));
-		final Morphia morphia =new Morphia();
-		//Add packages
-		morphia.mapPackage("dataStructure.Employee");
-		final Datastore datastore =morphia.createDatastore(client, "Development");
-		datastore.ensureIndexes();
-		return datastore;
+		if(dbConnection==null){
+			String mongoClientURI = "mongodb://" + "michael" + ":" + "leahcim" + "@" + "172.25.111.64" + ":" + 27777 + "/" + "Development";
+			MongoClient client = new MongoClient(new MongoClientURI(mongoClientURI));
+			final Morphia morphia =new Morphia();
+			//Add packages
+			morphia.mapPackage("dataStructure.Employee");
+			dbConnection=morphia.createDatastore(client, "Development");
+			dbConnection.ensureIndexes();
+			//final Datastore datastore =morphia.createDatastore(client, "Development");
+			//datastore.ensureIndexes();
+		}
+		//return datastore;
+		return dbConnection;
 	}
 }
