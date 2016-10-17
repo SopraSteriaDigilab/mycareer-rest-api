@@ -1,5 +1,7 @@
 package services;
 
+import javax.management.InvalidAttributeValueException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,29 +29,32 @@ public class AppController {
 	public ResponseEntity<?> welcomePage(){
 		return ResponseEntity.ok("Welcome to the MyCareer Project");
 	}
-	
+
 	@RequestMapping(value="/getObjectives/{employeeID}", method=RequestMethod.GET)
 	public ResponseEntity<?> getObjectives(@PathVariable int employeeID){
 		if(employeeID>0)
-			return ResponseEntity.ok(EmployeeDAO.getObjectivesForUser(employeeID));
+			try {
+				return ResponseEntity.ok(EmployeeDAO.getObjectivesForUser(employeeID));
+			} catch (Exception e) {
+				return ResponseEntity.badRequest().body(e.getMessage());
+			}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
-	
+
 	@RequestMapping(value="/getFeedback/{employeeID}", method=RequestMethod.GET)
 	public ResponseEntity<?> getFeedback(@PathVariable int employeeID){
 		if(employeeID>0)
 			try{
-				error here,  not returning the actual error
-			return ResponseEntity.ok(EmployeeDAO.getFeedbackForUser(employeeID));
+				return ResponseEntity.ok(EmployeeDAO.getFeedbackForUser(employeeID));
 			}catch(Exception e){
-				return ResponseEntity.badRequest().body(e);
+				return ResponseEntity.badRequest().body(e.getMessage());
 			}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
-		
+
 	}
-	
+
 	/**
 	 * 
 	 * @param employeeID A value >0
@@ -74,10 +79,10 @@ public class AppController {
 			return ResponseEntity.ok(EmployeeDAO.insertNewObjective(employeeID,obj));
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e);
+			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
-	
-	
+
+
+
 }

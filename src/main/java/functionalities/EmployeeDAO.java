@@ -29,18 +29,22 @@ import dataStructure.Objective;
 public  class EmployeeDAO {
 
 
-	public static List<Objective> getObjectivesForUser(int epmloyeeID){
+	public static List<Objective> getObjectivesForUser(int epmloyeeID) throws InvalidAttributeValueException{
 		Datastore datastore = getMongoDBConnection();
 		Query<Employee> query = datastore.createQuery(Employee.class).filter("employeeID =", epmloyeeID);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
 		return e.getLatestVersionObjectives();
 
 	}
 
-	public static List<Feedback> getFeedbackForUser(int employeeID){
+	public static List<Feedback> getFeedbackForUser(int employeeID) throws InvalidAttributeValueException{
 
 		Datastore datastore = getMongoDBConnection();
 		Query<Employee> query = datastore.createQuery(Employee.class).filter("employeeID =", employeeID);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
 		return e.getFeedbackList();
 	}//getFeedbackForUser
@@ -61,6 +65,8 @@ public  class EmployeeDAO {
 				Datastore conn=getMongoDBConnection();
 				//Retrieve Employee with the given ID
 				Query<Employee> querySearch = conn.createQuery(Employee.class).filter("employeeID =", employeeID);
+				if(querySearch.get()==null)
+					throw new InvalidAttributeValueException("No user with such ID");
 				Employee e = querySearch.get();
 				if(e!=null){
 					//Extract its List of Objectives
