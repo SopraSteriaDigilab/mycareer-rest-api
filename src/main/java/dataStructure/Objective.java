@@ -65,6 +65,23 @@ public class Objective implements Serializable{
 		feedback=new ArrayList<Feedback>();	
 	}
 	
+	//Constructor with Parameters
+		public Objective( 
+				int prog, 
+				int perf, 
+				String title, 
+				String descr, 
+				String dateToCompleteBy) throws InvalidAttributeValueException{
+			this.setProgress(prog);
+			this.setPerformance(perf);
+			this.setTitle(title);
+			this.setDescription(descr);
+			this.timeStamp=null;
+			this.setTimeStamp();
+			this.setTimeToCompleteBy(dateToCompleteBy);
+			feedback=new ArrayList<Feedback>();	
+		}
+	
 	public void setID(int id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.id=id;
@@ -123,7 +140,7 @@ public class Objective implements Serializable{
 	 * @param title The title of the object cannot exceed the 150 characters
 	 */
 	public void setTitle(String title) throws InvalidAttributeValueException{
-		if(title!=null && title.length()<150)
+		if(title!=null && title.length()<151)
 			this.title=title;
 		else{
 			this.title=Constants.INVALID_STRING;
@@ -251,6 +268,9 @@ public class Objective implements Serializable{
 	}
 	
 	public boolean isObjectiveValid(){
-		 return (this.getID()>0 && !this.getTitle().equals("") && !this.getDescription().equals("") && this.getTimeStamp()!=null && this.getTimeToCompleteBy()!=null);
+		 return (this.getID()>0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.getTimeStamp()!=null && this.getTimeToCompleteBy()!=null);
+	}
+	public boolean isObjectiveValidWithoutID(){
+		 return (this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.getTimeStamp()!=null && this.getTimeToCompleteBy()!=null);
 	}
 }

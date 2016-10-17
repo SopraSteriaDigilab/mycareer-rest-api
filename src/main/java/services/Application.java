@@ -1,17 +1,21 @@
 package services;
 
+import javax.management.InvalidAttributeValueException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
+import com.mongodb.MongoException;
 
 @SpringBootApplication
 public class Application {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InvalidAttributeValueException, MongoException {
     	System.out.println("Welcome! :)");
     	System.out.println("MyCareer is booting... It won't take a while!");
 		//ApplicationContext ctx = SpringApplication.run(Application.class, args);
 		SpringApplication.run(Application.class, args);
+    	//Objective o1=new Objective(0,1,"Third Objective","This is the third objective that Michael has added to the system","2016-12");
+    	//EmployeeDAO.insertNewObjective(4323, o1);
+    	//System.out.println(EmployeeDAO.getFeedbackForUser(4323));
         System.out.println("MyCareer is up and running! Enjoy ;)");
     }
 
