@@ -1,7 +1,5 @@
 package services;
 
-import javax.management.InvalidAttributeValueException;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -71,12 +69,26 @@ public class AppController {
 			@RequestParam(value="description") String description,
 			@RequestParam(value="completedBy") String completedBy,
 			@RequestParam(value="progress") int progress){
-		//Validate the data
-		//boolean val=DataComingInValidator.validateAddObjective(employeeID,title,description,completedBy,progress);
-		//if(val){
 		try{
 			Objective obj=new Objective(progress,0,title,description,completedBy);
 			return ResponseEntity.ok(EmployeeDAO.insertNewObjective(employeeID,obj));
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
+	@RequestMapping(value="/editObjective/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> addNewVersionObjectiveToAUser(
+			@PathVariable("employeeID") int employeeID,
+			@RequestParam(value="objectiveID") int objectiveID,
+			@RequestParam(value="title") String title,
+			@RequestParam(value="description") String description,
+			@RequestParam(value="completedBy") String completedBy,
+			@RequestParam(value="progress") int progress){
+		try{
+			Objective obj=new Objective(objectiveID,progress,0,title,description,completedBy);
+			return ResponseEntity.ok(EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj));
 		}
 		catch(Exception e){
 			return ResponseEntity.badRequest().body(e.getMessage());
