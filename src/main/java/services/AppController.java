@@ -71,7 +71,11 @@ public class AppController {
 			@RequestParam(value="progress") int progress){
 		try{
 			Objective obj=new Objective(progress,0,title,description,completedBy);
-			return ResponseEntity.ok(EmployeeDAO.insertNewObjective(employeeID,obj));
+			boolean inserted=EmployeeDAO.insertNewObjective(employeeID,obj);
+			if(inserted)
+				return ResponseEntity.ok("Objective inserted correctly!");
+			else
+				return ResponseEntity.badRequest().body("Error while adding the objective");
 		}
 		catch(Exception e){
 			return ResponseEntity.badRequest().body(e.getMessage());
@@ -88,7 +92,11 @@ public class AppController {
 			@RequestParam(value="progress") int progress){
 		try{
 			Objective obj=new Objective(objectiveID,progress,0,title,description,completedBy);
-			return ResponseEntity.ok(EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj));
+			boolean inserted=EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj);
+			if(inserted)
+				return ResponseEntity.ok("Objective modified correctly!");
+			else
+				return ResponseEntity.badRequest().body("Error while editing the objective");
 		}
 		catch(Exception e){
 			return ResponseEntity.badRequest().body(e.getMessage());
