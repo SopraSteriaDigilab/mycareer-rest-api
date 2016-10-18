@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 
 import com.mongodb.MongoException;
 
+import smtpService.SMTPConfig;
+
 //@SpringBootApplication
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 public class Application {
@@ -16,7 +18,10 @@ public class Application {
     	System.out.println("Welcome! :)");
     	System.out.println("MyCareer is booting... It won't take a while!");
 		//ApplicationContext ctx = SpringApplication.run(Application.class, args);
-		SpringApplication.run(Application.class, args);
+		//SpringApplication.run(Application.class, args);
+    	SMTPConfig conf=new SMTPConfig();
+    	conf.sendTemplateFeedbackEmail("michael.piccoli@soprasteria.com");
+    	
     	//Objective o1=new Objective(0,1,"Third Objective","This is the third objective that Michael has added to the system","2016-12");
     	//EmployeeDAO.insertNewObjective(4323, o1);
     	//System.out.println(EmployeeDAO.getFeedbackForUser(4323));
