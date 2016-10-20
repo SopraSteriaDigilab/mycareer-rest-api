@@ -1,5 +1,6 @@
 package services;
 
+import org.mongodb.morphia.Datastore;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -7,6 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.mongodb.MongoException;
+
 import dataStructure.Objective;
 import functionalities.EmployeeDAO;
 
@@ -33,9 +37,13 @@ public class AppController {
 		if(employeeID>0)
 			try {
 				return ResponseEntity.ok(EmployeeDAO.getObjectivesForUser(employeeID));
-			} catch (Exception e) {
-				return ResponseEntity.badRequest().body(e.getMessage());
 			}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
@@ -45,7 +53,11 @@ public class AppController {
 		if(employeeID>0)
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getFeedbackForUser(employeeID));
-			}catch(Exception e){
+			}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
 				return ResponseEntity.badRequest().body(e.getMessage());
 			}
 		else
@@ -76,11 +88,14 @@ public class AppController {
 			else
 				return ResponseEntity.badRequest().body("Error while adding the objective");
 		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
 		catch(Exception e){
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
 	@RequestMapping(value="/editObjective/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNewVersionObjectiveToAUser(
 			@PathVariable("employeeID") int employeeID,
@@ -97,11 +112,11 @@ public class AppController {
 			else
 				return ResponseEntity.badRequest().body("Error while editing the objective");
 		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
 		catch(Exception e){
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-
-
-
 }
