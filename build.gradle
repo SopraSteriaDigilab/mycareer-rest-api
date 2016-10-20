@@ -16,7 +16,6 @@ buildscript {
 }
 
 apply plugin: 'eclipse'
-apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'spring-boot'
 
@@ -26,25 +25,39 @@ jar {
 }
 
 repositories {
+	maven { url "https://repo.spring.io/libs-release" }
     mavenCentral()
 }
 
+//Java version for which this project works on
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    // tag::jetty[]
+
+	//Development suits
     compile("org.springframework.boot:spring-boot-starter-web") {
         exclude module: "spring-boot-starter-tomcat"
     }
     compile("org.springframework.boot:spring-boot-starter-jetty")
-    // end::jetty[]
-    // tag::actuator[]
     compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile 'org.springframework:spring-context-support:4.1.3.RELEASE'
+    
+    //GSON library
     compile ("com.google.code.gson:gson:2.7")
+    
+    //Morphia library for the communication with MongoDB
     compile ("org.mongodb.morphia:morphia:1.2.1")
-    //compile("org.springframework.boot:spring-boot-starter-data-mongodb")
-    // end::actuator[]
+    
+    //JavaMail library for the communication with the SMTP Email Server
+    //compile ("javax.mail:mail:1.5.0-b01")
+    //compile ("jaf:activation:1.0.2")
+    
+    //Library for the Exchange Server
+    compile group: 'com.microsoft.ews-java-api', name: 'ews-java-api', version: '2.0'
+    
+    
+    //Test suits
     testCompile("junit:junit")
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
