@@ -358,10 +358,10 @@ public class Employee implements Serializable{
 			return null;
 		//Search for the objective with the given ID
 		for(List<Objective> subList:objectives){
-			if(((Objective)(subList.get(0))).getID()==id){
+			if((subList.get(0)).getID()==id){
 				//Now that the Objective has been found, return the latest version of it
 				//which is stored at the end of the List
-				return (Objective)(subList.get(subList.size()-1));
+				return (subList.get(subList.size()-1));
 			}
 		}
 		return null;
@@ -391,6 +391,7 @@ public class Employee implements Serializable{
 		return this.notes;
 	}
 
+	@Override
 	public String toString(){
 		String s="";
 		//Add the generic information
@@ -460,7 +461,7 @@ public class Employee implements Serializable{
 		//add the objective if the ID is found
 		for(int i=0; i<this.objectives.size(); i++){
 			//If the appropriate objective is found, add the feedback to its list
-			if(((Objective) this.objectives.get(i).get(0)).getID()==objectiveID){
+			if(this.objectives.get(i).get(0).getID()==objectiveID){
 				//Now that the related objective is found, create an ID for this feedback
 				obj.setID(this.objectives.get(i).size()+1);
 				//Validate the data
@@ -503,7 +504,7 @@ public class Employee implements Serializable{
 			for(int i=0; i<objectives.size(); i++){
 				List<Objective> listTemp=objectives.get(i);
 				//The elements within each list has all the same ID, so pick the first one and compare it
-				if(((Objective)(listTemp.get(0))).getID()==obj.getID()){
+				if((listTemp.get(0)).getID()==obj.getID()){
 					//Add the objective to the end of the list
 					return objectives.get(i).add(obj);
 				}

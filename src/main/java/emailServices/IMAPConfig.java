@@ -1,153 +1,87 @@
 package emailServices;
 
-import java.util.Properties;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.EnumSet;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.mail.Address;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.internet.MimeMessage.RecipientType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-
 import dataStructure.Constants;
+import microsoft.exchange.webservices.data.core.ExchangeService;
+import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
+import microsoft.exchange.webservices.data.core.enumeration.misc.TraceFlags;
+import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
+import microsoft.exchange.webservices.data.core.service.folder.Folder;
+import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
+import microsoft.exchange.webservices.data.credential.WebCredentials;
+import microsoft.exchange.webservices.data.misc.ITraceListener;
 
-@Configuration
 public final class IMAPConfig {
-	
-	//Global Variables
-		@Autowired
-		//private static MailReceiver mailSender;
-		private static Session session;
-		private static Properties properties;
-		
-		static{
-			//mailSender=null;
-			session=null;
-			properties=null;
-		}
-		
-		private IMAPConfig(){}
-		
-		public static void initiateIMAPService(){
-			Timer timer = new Timer();
-			  long interval = (10*60*1000) ; // 10 minutes
 
-			  timer.schedule( new TimerTask() {
-			       public void run() {
-			    	   retrieveNewEmails();
-			       }
-			  }, 0, interval);
-		}
-		
-		public static void retrieveNewEmails(){
-			
-		}
-		
-		public static void initiateIMAPConnection() throws MessagingException{
-			//Create a new instance only if the element has not been initiated before
-			//if(mailSender==null)
-				//mailSender = new JavaMailSenderImpl();
-			//Create a new instance only if the element has not been initiated before
-			if(properties==null){
-				properties = new Properties();
-				//Set the Host
-				properties.setProperty("mail.imaps.host", Constants.IMAP_HOST);
-				//Set the port
-				properties.setProperty("mail.imaps.port", Constants.IMAP_HOST_PORT);
-				//Set the protocol
-				properties.setProperty("mail.store.protocol", "imaps");
-				//Set the authentication to true since the host needs a username and password to login into the mailbox
-				properties.setProperty("mail.imaps.auth", "true");
-				//Enable TLS 
-				//properties.setProperty("mail.imaps.starttls.enable", "true");
-				properties.setProperty("mail.imaps.socketFactory.fallback", "false");
-				properties.setProperty("mail.imaps.auth.plain.disable", "true");
-				properties.setProperty("mail.imaps.auth.ntlm.disable", "true");
-				//properties.put("mail.imaps.sasl.enable", "true");
-				//properties.put("mail.imaps.sasl.mechanisms", "XOAUTH2");
-				//Set the Charset
-				//properties.setProperty("mail.mime.charset", Constants.MAIL_ENCODING_CHARSET);
-				//properties.setProperty("mail.imaps.allow8bitmime", "true");
-				//Set debug to true during development
-				properties.setProperty("mail.debug", "true");
-				
-				//properties.put("mail.imaps.auth.plain.disable", "false");
-				//properties.put("mail.imaps.auth.ntlm.disable", "true");
-				//properties.put("mail.imaps.auth.gssapi.disable", "false");
+	//Global Variables
+	private static ExchangeService emailService;
+	private static ExchangeCredentials credentials;
+	private static Timer timer;
+
+	static{
+		emailService=null;
+		credentials=null;
+		timer=null;
+	}
+
+	private IMAPConfig(){}
+
+	public static void initiateIMAPService() throws URISyntaxException{
+		//Schedule a task to run every 10 minutes
+		timer = new Timer();
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					//Create a connection with the server;
+					System.out.println("Establishing a connection with the Exchange Server");
+					initiateIMAPConnection();
+					System.out.println("Checking for new Emails");
+					retrieveNewEmails();
+					System.out.println("Close connection with the server");
+					closeIMAPConnection();
+					System.out.println("Task Completed");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
-			//Create a new instance only if the element has not been initiated before
-			if(session==null){
-				session = Session.getInstance(properties,
-						new javax.mail.Authenticator() {
-					protected PasswordAuthentication getPasswordAuthentication() {
-						return new PasswordAuthentication(Constants.MAIL_USERNAME, Constants.MAIL_PASSWORD);
-					}
-				});
-				//mailSender.setSession(session);
-			}
-			Store store=session.getStore("imaps");
-			store.connect();
+		}, 0, Constants.MAIL_REFRESH_TIME);
+	}
+
+	private static void retrieveNewEmails() throws Exception{
+		//Open the Inbox folder for the given mailbox
+		Folder inbox = Folder.bind(emailService, WellKnownFolderName.Inbox);
+		//Verify if there are unread emails
+		if(inbox.getUnreadCount()>0){
 			
-			Folder inboxFolder=store.getFolder("INBOX");
-			inboxFolder.open(Folder.READ_ONLY);
-			
-			Message[] messages=inboxFolder.getMessages();
-			for (int i = 0; i < messages.length; i++) {
-                Message msg = messages[i];
-                Address[] fromAddress = msg.getFrom();
-                String from = fromAddress[0].toString();
-                String subject = msg.getSubject();
-                String toList = parseAddresses(msg.getRecipients(RecipientType.TO));
-                String ccList = parseAddresses(msg.getRecipients(RecipientType.CC));
-                String sentDate = msg.getSentDate().toString();
- 
-                String contentType = msg.getContentType();
-                String messageContent = "";
- 
-                if (contentType.contains("text/plain")
-                        || contentType.contains("text/html")) {
-                    try {
-                        Object content = msg.getContent();
-                        if (content != null) {
-                            messageContent = content.toString();
-                        }
-                    } catch (Exception ex) {
-                        messageContent = "[Error downloading content]";
-                        ex.printStackTrace();
-                    }
-                }
- 
-                // print out details of each message
-                System.out.println("Message #" + (i + 1) + ":");
-                System.out.println("\t From: " + from);
-                System.out.println("\t To: " + toList);
-                System.out.println("\t CC: " + ccList);
-                System.out.println("\t Subject: " + subject);
-                System.out.println("\t Sent Date: " + sentDate);
-                System.out.println("\t Message: " + messageContent);
-            }
- 
 		}
-		
-		private static String parseAddresses(Address[] address) {
-	        String listAddress = "";
-	 
-	        if (address != null) {
-	            for (int i = 0; i < address.length; i++) {
-	                listAddress += address[i].toString() + ", ";
-	            }
-	        }
-	        if (listAddress.length() > 1) {
-	            listAddress = listAddress.substring(0, listAddress.length() - 2);
-	        }
-	 
-	        return listAddress;
-	    }
-		
+		System.out.println("Number of emails: " + inbox.getTotalCount());
+	}
+
+	private static void initiateIMAPConnection() throws URISyntaxException{
+		emailService = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
+		emailService.setMaximumPoolingConnections(1);
+		credentials = new WebCredentials(Constants.MAIL_USERNAME, Constants.MAIL_PASSWORD);
+		emailService.setCredentials(credentials);
+		emailService.setUrl(new URI(Constants.MAIL_EXCHANGE_URI));
+		//This allows the trace listener to listen to requests and responses
+		//emailService.setTraceEnabled(true);
+		//emailService.setTraceFlags(EnumSet.allOf(TraceFlags.class));
+//		emailService.setTraceListener(new ITraceListener() {
+//            public void trace(String traceType, String traceMessage) {
+//                // do some logging-mechanism here
+//                log("Type:" + traceType + " Message:" + traceMessage);
+//            }
+//        });
+	}
+
+	private static void closeIMAPConnection(){
+		if(emailService!=null)
+			emailService.close();
+	}
 
 }

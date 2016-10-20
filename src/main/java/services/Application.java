@@ -1,7 +1,5 @@
 package services;
 
-import javax.mail.MessagingException;
-import javax.management.InvalidAttributeValueException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -10,25 +8,26 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import com.mongodb.MongoException;
 
 import emailServices.IMAPConfig;
-import emailServices.SMTPConfig;
+import emailServices.SMTP;
 
 //@SpringBootApplication
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 public class Application {
 
-    public static void main(String[] args) throws InvalidAttributeValueException, MongoException {
+    public static void main(String[] args) throws Exception {
     	System.out.println("Welcome! :)");
     	System.out.println("MyCareer is booting... It won't take a while!");
-		try {
-			IMAPConfig.initiateIMAPConnection();
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	SpringApplication.run(Application.class, args);
+//		try {
+//			IMAPConfig.initiateIMAPService();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
     	//Objective o1=new Objective(0,1,"Third Objective","This is the third objective that Michael has added to the system","2016-12");
     	//EmployeeDAO.insertNewObjective(4323, o1);
     	//System.out.println(EmployeeDAO.getFeedbackForUser(4323));
-        System.out.println("MyCareer is up and running! Enjoy ;)");
+		System.out.println("MyCareer is up and running! Enjoy ;)");
     }
 
 }

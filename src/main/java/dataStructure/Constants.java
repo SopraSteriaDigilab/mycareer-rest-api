@@ -30,14 +30,17 @@ public final class Constants {
 	//Common Constants
 	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
 	public static final String MAIL_PASSWORD="MikeSopra16$";
+	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
+	public static final long MAIL_REFRESH_TIME=(1*60*1000); //10 minutes
 	//SMTP Constants
-	public static final String SMTP_HOST="smtp.office365.com";
-	public static final String SMTP_HOST_PORT="587";
+	//public static final String SMTP_HOST="smtp.office365.com";
+	//public static final String SMTP_HOST_PORT="587";
 		//SSL Port: 465 TSL:587 Plain:25
 	//IMAP Constants
-	public static final String IMAP_HOST="outlook.office365.com";
-	public static final String IMAP_HOST_PORT="993";
+	//public static final String IMAP_HOST="outlook.office365.com";
+	//public static final String IMAP_HOST_PORT="993";
+
 	
 	
 	
