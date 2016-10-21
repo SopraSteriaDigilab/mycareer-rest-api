@@ -53,7 +53,18 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
 		return e.getFeedbackList();
-	}//getFeedbackForUser
+	}
+
+	public static int getUserIDFromEmailAddress(String email) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("emaiAddress =", email);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such Email");
+		Employee e = query.get();
+		return e.getEmployeeID();
+
+	}
 
 
 	/**
@@ -91,7 +102,56 @@ public  class EmployeeDAO {
 			}
 			else
 				throw new InvalidAttributeValueException("The data provided is not valid");
-		}else
+		}
+		else
+			throw new InvalidAttributeValueException("The ID provided is not valid");
+	}
+
+//	public static boolean updateEmail(String email) throws InvalidAttributeValueException, MongoException{
+//		if(dbConnection==null)
+//			dbConnection=getMongoDBConnection();
+//		//Check the employeeID
+//		Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", 4323);
+//		if(querySearch.get()!=null){
+//			//Update the List<List<objective>> in the DB passing the new list
+//			UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("emaiAddress", email);
+//			//Commit the changes to the DB
+//			dbConnection.update(querySearch, ops);
+//			return true;
+//		}
+//		return false;
+//	}
+
+	public static boolean insertNewGeneralFeedback(int employeeID, Object data)throws InvalidAttributeValueException, MongoException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		//Check the employeeID
+		if(employeeID>0){
+			if(data!=null && data instanceof Feedback){
+				//Retrieve Employee with the given ID
+				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+				if(querySearch.get()!=null){
+					Employee e = querySearch.get();
+					//Extract its List of Objectives
+					List<Feedback> dataFromDB=e.getFeedbackList();
+					//Add the new objective to the list
+					if(e.addGenericFeedback((Feedback)data)){
+						//Update the List<List<objective>> in the DB passing the new list
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback", dataFromDB);
+						//Commit the changes to the DB
+						dbConnection.update(querySearch, ops);
+						return true;
+					}
+					else
+						throw new InvalidAttributeValueException("The given object couldn't be added to the feedback list");
+				}
+				else
+					throw new InvalidAttributeValueException("No employee found with the ID provided");
+			}
+			else
+				throw new InvalidAttributeValueException("The data provided is not valid");
+		}
+		else
 			throw new InvalidAttributeValueException("The ID provided is not valid");
 	}
 
@@ -192,13 +252,14 @@ public  class EmployeeDAO {
 	//	}
 
 
-	@SuppressWarnings("deprecation")
+	//@SuppressWarnings("deprecation")
 	public static Datastore getMongoDBConnection() throws MongoException{
 		if(dbConnection==null){
 			String mongoClientURI = "mongodb://" + "michael" + ":" + "leahcim" + "@" + "172.25.111.64" + ":" + 27777 + "/" + "Development";
 			MongoClient client = new MongoClient(new MongoClientURI(mongoClientURI));
+			//MongoClient client=new MongoClient();
 			final Morphia morphia =new Morphia();
-			client.getMongoOptions().setMaxWaitTime(10);
+			//client.getMongoOptions().setMaxWaitTime(10);
 			//Add packages
 			morphia.mapPackage("dataStructure.Employee");
 			dbConnection=morphia.createDatastore(client, "Development");

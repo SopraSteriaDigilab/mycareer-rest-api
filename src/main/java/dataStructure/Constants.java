@@ -28,6 +28,7 @@ public final class Constants {
 	
 	//Constants for the emailServices package
 	//Common Constants
+	public static final String MAILBOX_ADDRESS="mycareer.feedback@soprasteria.com";
 	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
 	public static final String MAIL_PASSWORD="MikeSopra16$";
 	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
