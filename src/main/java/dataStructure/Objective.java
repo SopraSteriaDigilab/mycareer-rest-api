@@ -140,7 +140,7 @@ public class Objective implements Serializable{
 	 * @param title The title of the object cannot exceed the 150 characters
 	 */
 	public void setTitle(String title) throws InvalidAttributeValueException{
-		if(title!=null && title.length()<151)
+		if(title!=null && title.length()>0 && title.length()<151)
 			this.title=title;
 		else{
 			this.title=Constants.INVALID_STRING;
@@ -157,7 +157,7 @@ public class Objective implements Serializable{
 	 * @param description The description of the objective cannot exceed the 1000 characters
 	 */
 	public void setDescription(String description) throws InvalidAttributeValueException{
-		if(description!=null && description.length()<1001)
+		if(description!=null && description.length()>0 && description.length()<1001)
 			this.description=description;
 		else{
 			this.description=Constants.INVALID_STRING;

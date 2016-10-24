@@ -59,6 +59,24 @@ public class Feedback implements Serializable{
 		//this.attachments=attac;
 	}
 	
+	//Constructor with parameters
+		public Feedback(
+				int perf, 
+				String from, 
+				String desc, 
+				String type, 
+				String source) throws InvalidAttributeValueException{
+			this.setPerformance(perf);
+			this.setFromWho(from);
+			this.setDescription(desc);
+			this.setType(type);
+			this.setSource(source);
+			this.timeStamp=null;
+			this.setTimeStamp();
+			//this.attachments=new ArrayList<String>;
+			//this.attachments=attac;
+		}
+	
 	public void setID(int id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.id=id;
@@ -192,6 +210,10 @@ public class Feedback implements Serializable{
 	
 	public boolean isFeedbackValid(){
 		return (this.getID()!=-1 && this.getTimeStamp()!=null);
+	}
+	
+	public boolean compare(Feedback obj){
+		return ((this.description.contains(obj.getDescription())) && (this.fromWho.equals(obj.getFromWho())) && (this.source.equals(obj.getSource())));
 	}
 
 }

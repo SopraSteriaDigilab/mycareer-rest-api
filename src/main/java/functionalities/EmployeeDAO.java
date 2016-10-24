@@ -1,18 +1,16 @@
 package functionalities;
 
 import java.util.List;
-
 import javax.management.InvalidAttributeValueException;
-
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
-
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
 
+import dataStructure.Constants;
 import dataStructure.Employee;
 import dataStructure.Feedback;
 import dataStructure.Objective;
@@ -27,14 +25,15 @@ import dataStructure.Objective;
  *
  */
 public  class EmployeeDAO {
-	
+
 	//There is only 1 instance of the Datastore in the whole system
 	private static Datastore dbConnection=null;
 
 
 	public static List<Objective> getObjectivesForUser(int employeeID) throws InvalidAttributeValueException{
-		Datastore datastore = getMongoDBConnection();
-		Query<Employee> query = datastore.createQuery(Employee.class).filter("employeeID =", employeeID);
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 		if(query.get()==null)
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
@@ -43,14 +42,25 @@ public  class EmployeeDAO {
 	}
 
 	public static List<Feedback> getFeedbackForUser(int employeeID) throws InvalidAttributeValueException{
-
-		Datastore datastore = getMongoDBConnection();
-		Query<Employee> query = datastore.createQuery(Employee.class).filter("employeeID =", employeeID);
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 		if(query.get()==null)
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
 		return e.getFeedbackList();
-	}//getFeedbackForUser
+	}
+
+	public static int getUserIDFromEmailAddress(String email) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("emaiAddress =", email);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such Email");
+		Employee e = query.get();
+		return e.getEmployeeID();
+
+	}
 
 
 	/**
@@ -61,13 +71,13 @@ public  class EmployeeDAO {
 	 * @throws InvalidAttributeValueException 
 	 */
 	public static boolean insertNewObjective(int employeeID, Object data) throws InvalidAttributeValueException, MongoException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
 		//Check the employeeID
 		if(employeeID>0){
 			if(data!=null && data instanceof Objective){
-				//Connect to the DB
-				Datastore conn=getMongoDBConnection();
 				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = conn.createQuery(Employee.class).filter("employeeID =", employeeID);
+				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 				if(querySearch.get()!=null){
 					Employee e = querySearch.get();
 					//Extract its List of Objectives
@@ -75,9 +85,9 @@ public  class EmployeeDAO {
 					//Add the new objective to the list
 					if(e.addObjective((Objective)data)){
 						//Update the List<List<objective>> in the DB passing the new list
-						UpdateOperations<Employee> ops = conn.createUpdateOperations(Employee.class).set("objectives", dataFromDB);
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives", dataFromDB);
 						//Commit the changes to the DB
-						conn.update(querySearch, ops);
+						dbConnection.update(querySearch, ops);
 						return true;
 					}
 					else
@@ -88,18 +98,72 @@ public  class EmployeeDAO {
 			}
 			else
 				throw new InvalidAttributeValueException("The data provided is not valid");
-		}else
+		}
+		else
 			throw new InvalidAttributeValueException("The ID provided is not valid");
 	}
 
-	public static boolean addNewVersionObjective(int employeeID, int objectiveID, Object data) throws InvalidAttributeValueException, MongoException{
+//	public static boolean updateEmail(String email) throws InvalidAttributeValueException, MongoException{
+//		if(dbConnection==null)
+//			dbConnection=getMongoDBConnection();
+//		//Check the employeeID
+//		Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", 4323);
+//		if(querySearch.get()!=null){
+//			//Update the List<List<objective>> in the DB passing the new list
+//			UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("emaiAddress", email);
+//			//Commit the changes to the DB
+//			dbConnection.update(querySearch, ops);
+//			return true;
+//		}
+//		return false;
+//	}
+
+	public static boolean insertNewGeneralFeedback(int employeeID, Object data)throws InvalidAttributeValueException, MongoException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		//Check the employeeID
+		if(employeeID>0){
+			if(data!=null && data instanceof Feedback){
+				//Retrieve Employee with the given ID
+				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+				if(querySearch.get()!=null){
+					Employee e = querySearch.get();
+					//Extract its List of Objectives
+					List<Feedback> dataFromDB=e.getFeedbackList();
+					//Verify if the feedback is already within the user DB to avoid adding duplicated feedback
+					for(Feedback f:dataFromDB){
+						if(f.compare((Feedback)data))
+							throw new InvalidAttributeValueException("The given feedback is a duplicate");
+					}
+					//Add the new objective to the list
+					if(e.addGenericFeedback((Feedback)data)){
+						//Update the List<List<objective>> in the DB passing the new list
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback", dataFromDB);
+						//Commit the changes to the DB
+						dbConnection.update(querySearch, ops);
+						return true;
+					}
+					else
+						throw new InvalidAttributeValueException("The given object couldn't be added to the feedback list");
+				}
+				else
+					throw new InvalidAttributeValueException("No employee found with the ID provided");
+			}
+			else
+				throw new InvalidAttributeValueException("The data provided is not valid");
+		}
+		else
+			throw new InvalidAttributeValueException("The ID provided is not valid");
+	}
+
+	public static boolean addNewVersionObjective(int employeeID, int objectiveID, Object data) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
 		//Check EmployeeID and ObjectiveID
 		if(employeeID>0 && objectiveID>0){
 			if(data!=null && data instanceof Objective){
-				//Connect to the DB
-				Datastore conn=getMongoDBConnection();
 				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = conn.createQuery(Employee.class).filter("employeeID =", employeeID);
+				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 				if(querySearch.get()!=null){
 					Employee e = querySearch.get();
 					//Extract its List of Objectives
@@ -119,9 +183,9 @@ public  class EmployeeDAO {
 						//Add the updated version of the objective
 						if(e.editObjective((Objective)data)){
 							//Update the List<List<objective>> in the DB passing the new list
-							UpdateOperations<Employee> ops = conn.createUpdateOperations(Employee.class).set("objectives", e.getObjectiveList());
+							UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives", e.getObjectiveList());
 							//Commit the changes to the DB
-							conn.update(querySearch, ops);
+							dbConnection.update(querySearch, ops);
 							return true;
 						}
 					}
@@ -173,35 +237,23 @@ public  class EmployeeDAO {
 		}
 	}
 	 */
-	//
-	//	public static void getData(){
-	//		try{
-	//			Datastore datastore=getMongoDBConnection();
-	//			Query<Employee> query = datastore.createQuery(Employee.class).filter("employeeID =", 2342);
-	//			for(Employee e:query.asList()){
-	//				System.out.println(e.toString());
-	//				System.out.print("\n----------------------------------------------------------------\n");
-	//			}
-	//		}
-	//		catch(Exception e){
-	//			System.out.println("There has been a problem!");
-	//		}
-	//	}
 
-
-	private static Datastore getMongoDBConnection() throws MongoException{
+	public static Datastore getMongoDBConnection() throws MongoException{
 		if(dbConnection==null){
-			String mongoClientURI = "mongodb://" + "michael" + ":" + "leahcim" + "@" + "172.25.111.64" + ":" + 27777 + "/" + "Development";
+			String mongoClientURI = "mongodb://"
+					+ "" + Constants.MONGODB_USERNAME + ":"
+					+ "" + Constants.MONGODB_PASSWORD + "@"
+					+ "" + Constants.MONGODB_HOST + ":"
+					+ "" + Constants.MONGODB_PORT + "/"
+					+ "" + Constants.MONGODB_COLECTION_NAME;
 			MongoClient client = new MongoClient(new MongoClientURI(mongoClientURI));
 			final Morphia morphia =new Morphia();
+			//client.getMongoOptions().setMaxWaitTime(10);
 			//Add packages
 			morphia.mapPackage("dataStructure.Employee");
-			dbConnection=morphia.createDatastore(client, "Development");
+			dbConnection=morphia.createDatastore(client, Constants.MONGODB_COLECTION_NAME);
 			dbConnection.ensureIndexes();
-			//final Datastore datastore =morphia.createDatastore(client, "Development");
-			//datastore.ensureIndexes();
 		}
-		//return datastore;
 		return dbConnection;
 	}
 }
