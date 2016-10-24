@@ -20,7 +20,7 @@ public class Application {
 			//IMAPConfig.initiateIMAPService();
 		} catch (Exception e) {
 			//e.printStackTrace();
-			System.err.println("Application Error: "+e.getCause());
+			System.err.println("Application Error: "+e.getMessage());
 		}
     	//Objective o1=new Objective(0,1,"Third Objective","This is the third objective that Michael has added to the system","2016-12");
     	//EmployeeDAO.insertNewObjective(4323, o1);

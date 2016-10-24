@@ -66,7 +66,7 @@ public final class IMAPConfig {
 					closeIMAPConnection();
 					System.out.println("\t"+LocalTime.now()+" - Task Completed\n");
 				} catch (Exception e) {
-					System.out.println(LocalTime.now()+" - Email Service: "+e.getMessage());
+					System.out.println(LocalTime.now()+" - Email Service Error: "+e.getMessage());
 				}
 			}
 		}, 0, Constants.MAIL_REFRESH_TIME);

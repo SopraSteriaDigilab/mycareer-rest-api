@@ -27,7 +27,7 @@ public final class Constants {
 	public static final String MONGODB_USERNAME="michael";
 	public static final String MONGODB_PASSWORD="leahcim";
 	public static final String MONGODB_HOST="127.0.0.1";
-	public static final int MONGODB_PORT=27777;
+	public static final int MONGODB_PORT=27017;
 	public static final String MONGODB_COLECTION_NAME="Development";
 	
 	//Constants for the emailServices package
