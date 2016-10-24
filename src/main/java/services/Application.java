@@ -4,26 +4,24 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-
-import com.mongodb.MongoException;
-
 import emailServices.IMAPConfig;
-import emailServices.SMTP;
 
 //@SpringBootApplication
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
     	System.out.println("Welcome! :)");
     	System.out.println("MyCareer is booting... It won't take a while!");
-    	SpringApplication.run(Application.class, args);
-//		try {
-//			IMAPConfig.initiateIMAPService();
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		try {
+			//Start the Restful WebService
+			SpringApplication.run(Application.class, args);
+			//Start the EmailService that checks for new emails and add the feedback to a user
+			//IMAPConfig.initiateIMAPService();
+		} catch (Exception e) {
+			//e.printStackTrace();
+			System.err.println("Application Error: "+e.getCause());
+		}
     	//Objective o1=new Objective(0,1,"Third Objective","This is the third objective that Michael has added to the system","2016-12");
     	//EmployeeDAO.insertNewObjective(4323, o1);
     	//System.out.println(EmployeeDAO.getFeedbackForUser(4323));

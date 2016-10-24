@@ -24,10 +24,15 @@ public final class Constants {
 	public static final String COMPLETE_DATE_TIME_FORMAT="yyyy-mm-dd hh:mm:ss";
 	
 	//Constants for the Functionalities package
-	
+	public static final String MONGODB_USERNAME="michael";
+	public static final String MONGODB_PASSWORD="leahcim";
+	public static final String MONGODB_HOST="127.0.0.1";
+	public static final int MONGODB_PORT=27777;
+	public static final String MONGODB_COLECTION_NAME="Development";
 	
 	//Constants for the emailServices package
 	//Common Constants
+	public static final String MAILBOX_ADDRESS="mycareer.feedback@soprasteria.com";
 	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
 	public static final String MAIL_PASSWORD="MikeSopra16$";
 	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
