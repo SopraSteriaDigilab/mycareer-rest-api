@@ -132,7 +132,7 @@ public class Employee implements Serializable{
 	 * @param name The name must not exceed 200 characters
 	 */
 	public void setForename(String name) throws InvalidAttributeValueException{
-		if(name!=null && name.length()<201)
+		if(name!=null && name.length()>0 && name.length()<201)
 			this.forename=name;
 		else{
 			this.forename=Constants.INVALID_STRING;
@@ -149,7 +149,7 @@ public class Employee implements Serializable{
 	 * @param surname The surname cannot exceed the 200 characters
 	 */
 	public void setSurname(String surname) throws InvalidAttributeValueException{
-		if(surname!=null && surname.length()<201)
+		if(surname!=null && surname.length()>0 && surname.length()<201)
 			this.surname=surname;
 		else{
 			this.surname=Constants.INVALID_STRING;
@@ -162,7 +162,7 @@ public class Employee implements Serializable{
 	}
 
 	public void setEmailAddress(String email) throws InvalidAttributeValueException{
-		if(email!=null && email.contains("@"))
+		if(email!=null && email.length()>0 && email.contains("@"))
 			this.emaiAddress=email;
 		else{
 			this.emaiAddress=Constants.INVALID_EMAIL;
@@ -179,7 +179,7 @@ public class Employee implements Serializable{
 	 * @param role the role value does not exceed the 250 characters
 	 */
 	public void setRole(String role) throws InvalidAttributeValueException{
-		if(role!=null && role.length()<251)
+		if(role!=null && role.length()>0 && role.length()<251)
 			this.role=role;
 		else{
 			this.role=Constants.INVALID_STRING;
@@ -204,7 +204,7 @@ public class Employee implements Serializable{
 	 * @param name The name of the line manager does not exceed the 250 characters
 	 */
 	public void setLineManagerName(String name) throws InvalidAttributeValueException{
-		if(name!=null && name.length()<251)
+		if(name!=null && name.length()>0 && name.length()<251)
 			this.LM_Name=name;
 		else{
 			this.LM_Name=Constants.INVALID_STRING;

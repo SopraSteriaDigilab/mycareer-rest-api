@@ -109,7 +109,7 @@ public class Feedback implements Serializable{
 	 * must not exceed the 150 characters
 	 */
 	public void setFromWho(String from) throws InvalidAttributeValueException{
-		if(from!=null && from!="" && from.length()<150)
+		if(from!=null && from.length()>0 && from.length()<150)
 			this.fromWho=from;
 		else{
 			this.fromWho=Constants.INVALID_STRING;
@@ -126,7 +126,7 @@ public class Feedback implements Serializable{
 	 * @param description This string must be valid and with a length less than 1000 characters
 	 */
 	public void setDescription(String description) throws InvalidAttributeValueException{
-		if(description!=null && description.length()<1001)
+		if(description!=null && description.length()>0 && description.length()<1001)
 			this.description=description;
 		else{
 			this.description=Constants.INVALID_STRING;
@@ -143,7 +143,7 @@ public class Feedback implements Serializable{
 	 * @param type This string must be valid and can only contain the value Internal or External
 	 */
 	public void setType(String type) throws InvalidAttributeValueException{
-		if(type!=null && (type.toLowerCase().equals("internal") || type.toLowerCase().equals("external")))
+		if(type!=null && type.length()>0 && (type.toLowerCase().equals("internal") || type.toLowerCase().equals("external")))
 			this.type=type;
 		else{
 			this.type=Constants.INVALID_STRING;
@@ -160,7 +160,7 @@ public class Feedback implements Serializable{
 	 * @param source This string must be valid and its length must be contained within 30 characters
 	 */
 	public void setSource(String source) throws InvalidAttributeValueException{
-		if(source!=null && source.length()<30)
+		if(source!=null && source.length()>0 && source.length()<30)
 			this.source=source;
 		else{
 			this.source=Constants.INVALID_STRING;
