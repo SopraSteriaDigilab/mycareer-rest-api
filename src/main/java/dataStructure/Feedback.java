@@ -211,5 +211,9 @@ public class Feedback implements Serializable{
 	public boolean isFeedbackValid(){
 		return (this.getID()!=-1 && this.getTimeStamp()!=null);
 	}
+	
+	public boolean compare(Feedback obj){
+		return ((this.description.contains(obj.getDescription())) && (this.fromWho.equals(obj.getFromWho())) && (this.source.equals(obj.getSource())));
+	}
 
 }

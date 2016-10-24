@@ -1,20 +1,16 @@
 package functionalities;
 
 import java.util.List;
-
 import javax.management.InvalidAttributeValueException;
-
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
-
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
-import com.mongodb.MongoOptions;
 
+import dataStructure.Constants;
 import dataStructure.Employee;
 import dataStructure.Feedback;
 import dataStructure.Objective;
@@ -134,6 +130,11 @@ public  class EmployeeDAO {
 					Employee e = querySearch.get();
 					//Extract its List of Objectives
 					List<Feedback> dataFromDB=e.getFeedbackList();
+					//Verify if the feedback is already within the user DB to avoid adding duplicated feedback
+					for(Feedback f:dataFromDB){
+						if(f.compare((Feedback)data))
+							throw new InvalidAttributeValueException("The given feedback is a duplicate");
+					}
 					//Add the new objective to the list
 					if(e.addGenericFeedback((Feedback)data)){
 						//Update the List<List<objective>> in the DB passing the new list
@@ -236,38 +237,23 @@ public  class EmployeeDAO {
 		}
 	}
 	 */
-	//
-	//	public static void getData(){
-	//		try{
-	//			Datastore datastore=getMongoDBConnection();
-	//			Query<Employee> query = datastore.createQuery(Employee.class).filter("employeeID =", 2342);
-	//			for(Employee e:query.asList()){
-	//				System.out.println(e.toString());
-	//				System.out.print("\n----------------------------------------------------------------\n");
-	//			}
-	//		}
-	//		catch(Exception e){
-	//			System.out.println("There has been a problem!");
-	//		}
-	//	}
 
-
-	//@SuppressWarnings("deprecation")
 	public static Datastore getMongoDBConnection() throws MongoException{
 		if(dbConnection==null){
-			String mongoClientURI = "mongodb://" + "michael" + ":" + "leahcim" + "@" + "172.25.111.64" + ":" + 27777 + "/" + "Development";
+			String mongoClientURI = "mongodb://"
+					+ "" + Constants.MONGODB_USERNAME + ":"
+					+ "" + Constants.MONGODB_PASSWORD + "@"
+					+ "" + Constants.MONGODB_HOST + ":"
+					+ "" + Constants.MONGODB_PORT + "/"
+					+ "" + Constants.MONGODB_COLECTION_NAME;
 			MongoClient client = new MongoClient(new MongoClientURI(mongoClientURI));
-			//MongoClient client=new MongoClient();
 			final Morphia morphia =new Morphia();
 			//client.getMongoOptions().setMaxWaitTime(10);
 			//Add packages
 			morphia.mapPackage("dataStructure.Employee");
-			dbConnection=morphia.createDatastore(client, "Development");
+			dbConnection=morphia.createDatastore(client, Constants.MONGODB_COLECTION_NAME);
 			dbConnection.ensureIndexes();
-			//final Datastore datastore =morphia.createDatastore(client, "Development");
-			//datastore.ensureIndexes();
 		}
-		//return datastore;
 		return dbConnection;
 	}
 }

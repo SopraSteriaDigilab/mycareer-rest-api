@@ -40,8 +40,8 @@ dependencies {
         exclude module: "spring-boot-starter-tomcat"
     }
     compile("org.springframework.boot:spring-boot-starter-jetty")
-    compile("org.springframework.boot:spring-boot-starter-actuator")
-    compile 'org.springframework:spring-context-support:4.1.3.RELEASE'
+    //compile("org.springframework.boot:spring-boot-starter-actuator")
+    //compile 'org.springframework:spring-context-support:4.1.3.RELEASE'
     
     //GSON library
     compile ("com.google.code.gson:gson:2.7")
@@ -56,8 +56,13 @@ dependencies {
     //Library for the Exchange Server
     compile group: 'com.microsoft.ews-java-api', name: 'ews-java-api', version: '2.0'
     
+    //Library used to interact with HTML tags inside the email body
+    compile group: 'org.jsoup', name: 'jsoup', version: '1.7.2'
+    
+    //Add a logging library to log crucial events that happen in the system
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.7'
     
     //Test suits
     testCompile("junit:junit")
-    testCompile("org.springframework.boot:spring-boot-starter-test")
+    //testCompile("org.springframework.boot:spring-boot-starter-test")
 }

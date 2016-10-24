@@ -24,7 +24,11 @@ public final class Constants {
 	public static final String COMPLETE_DATE_TIME_FORMAT="yyyy-mm-dd hh:mm:ss";
 	
 	//Constants for the Functionalities package
-	
+	public static final String MONGODB_USERNAME="michael";
+	public static final String MONGODB_PASSWORD="leahcim";
+	public static final String MONGODB_HOST="127.0.0.1";
+	public static final int MONGODB_PORT=27777;
+	public static final String MONGODB_COLECTION_NAME="Development";
 	
 	//Constants for the emailServices package
 	//Common Constants
