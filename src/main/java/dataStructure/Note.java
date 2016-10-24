@@ -56,7 +56,7 @@ public class Note implements Serializable{
 	 * @param body This contains the notes of the user, but the text must not exceed the 1000 characters
 	 */
 	public void setBody(String body) throws InvalidAttributeValueException{
-		if(body!=null && body.length()<1001)
+		if(body!=null && body.length()>0 && body.length()<1001)
 			this.body=body;
 		else{
 			this.body=Constants.INVALID_STRING;
