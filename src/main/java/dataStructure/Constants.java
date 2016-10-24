@@ -28,13 +28,13 @@ public final class Constants {
 	public static final String MONGODB_PASSWORD="leahcim";
 	public static final String MONGODB_HOST="127.0.0.1";
 	public static final int MONGODB_PORT=27017;
-	public static final String MONGODB_COLECTION_NAME="Development";
+	public static final String MONGODB_COLLECTION_NAME="Development";
 	
 	//Constants for the emailServices package
 	//Common Constants
 	public static final String MAILBOX_ADDRESS="mycareer.feedback@soprasteria.com";
 	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
-	public static final String MAIL_PASSWORD="MikeSopra16$";
+	public static final String MAIL_PASSWORD="";
 	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
 	public static final long MAIL_REFRESH_TIME=(1*60*1000); //10 minutes

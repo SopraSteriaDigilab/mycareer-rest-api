@@ -245,13 +245,13 @@ public  class EmployeeDAO {
 					+ "" + Constants.MONGODB_PASSWORD + "@"
 					+ "" + Constants.MONGODB_HOST + ":"
 					+ "" + Constants.MONGODB_PORT + "/"
-					+ "" + Constants.MONGODB_COLECTION_NAME;
+					+ "" + Constants.MONGODB_COLLECTION_NAME;
 			MongoClient client = new MongoClient(new MongoClientURI(mongoClientURI));
 			final Morphia morphia =new Morphia();
 			//client.getMongoOptions().setMaxWaitTime(10);
 			//Add packages
 			morphia.mapPackage("dataStructure.Employee");
-			dbConnection=morphia.createDatastore(client, Constants.MONGODB_COLECTION_NAME);
+			dbConnection=morphia.createDatastore(client, Constants.MONGODB_COLLECTION_NAME);
 			dbConnection.ensureIndexes();
 		}
 		return dbConnection;

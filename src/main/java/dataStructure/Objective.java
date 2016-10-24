@@ -195,6 +195,8 @@ public class Objective implements Serializable{
 			int totalMonthsApart=yearDifference+monthDifference;
 			if(totalMonthsApart>=0)
 				this.timeToCompleteBy=temp.toString();
+			else
+				throw new InvalidAttributeValueException("The given date is invalid because it is in the past");
 		}
 		else{
 			this.timeToCompleteBy=null;
