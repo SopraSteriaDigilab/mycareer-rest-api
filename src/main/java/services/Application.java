@@ -17,7 +17,7 @@ public class Application {
 			//Start the Restful WebService
 			SpringApplication.run(Application.class, args);
 			//Start the EmailService that checks for new emails and add the feedback to a user
-			IMAPConfig.initiateIMAPService();
+			//IMAPConfig.initiateIMAPService();
 		} catch (Exception e) {
 			//e.printStackTrace();
 			System.err.println("Application Error: "+e.getMessage());
