@@ -80,6 +80,13 @@ public class AppController {
 
 	}
 	
+	/**
+	 * 
+	 * This method allows the front-end to retrieve all the notes associated to a specific user
+	 * 
+	 * @param employeeID the ID of an employee
+	 * @return list of noted (only the latest version for each of them)
+	 */
 	@RequestMapping(value="/getNotes/{employeeID}", method=RequestMethod.GET)
 	public ResponseEntity<?> getNotes(@PathVariable int employeeID){
 		if(employeeID>0)
@@ -189,7 +196,7 @@ public class AppController {
 			@RequestParam(value="from") String from,
 			@RequestParam(value="body") String body){
 		try{
-			Note obj=new Note(0,body,from);
+			Note obj=new Note(1,body,from);
 			boolean inserted=EmployeeDAO.insertNewNote(employeeID,obj);
 			if(inserted)
 				return ResponseEntity.ok("Note inserted correctly!");
