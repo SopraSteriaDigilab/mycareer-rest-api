@@ -79,6 +79,23 @@ public class AppController {
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 
 	}
+	
+	@RequestMapping(value="/getNotes/{employeeID}", method=RequestMethod.GET)
+	public ResponseEntity<?> getNotes(@PathVariable int employeeID){
+		if(employeeID>0)
+			try{
+				return ResponseEntity.ok(EmployeeDAO.getNotesForUser(employeeID));
+			}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+				return ResponseEntity.badRequest().body(e.getMessage());
+			}
+		else
+			return ResponseEntity.badRequest().body("The given ID is invalid");
+
+	}
 
 	/**
 	 * 
@@ -191,11 +208,11 @@ public class AppController {
 	 * 
 	 * This method allows the front-end to edit a new version of a note currently stored within the system
 	 * 
-	 * @param employeeID
-	 * @param noteID
-	 * @param from
-	 * @param body
-	 * @return
+	 * @param employeeID the employeeID (>0)
+	 * @param noteID the ID of the note to edit (>0)
+	 * @param from the author of the note (<150)
+	 * @param body the content of the note (<1000)
+	 * @return a message explaining if the note has been added or if there was an error while completing the task
 	 */
 	@RequestMapping(value="/editNote/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNewVersionNoteToAUser(
