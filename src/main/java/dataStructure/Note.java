@@ -51,7 +51,7 @@ public class Note implements Serializable{
 			this.id=id;
 		else{
 			this.id=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The value "+id+" is not valid in this context");
+			throw new InvalidAttributeValueException("An ID with value "+id+" is not valid in this context");
 		}
 	}
 	

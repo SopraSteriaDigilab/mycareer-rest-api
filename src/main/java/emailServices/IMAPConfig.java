@@ -81,8 +81,8 @@ public final class IMAPConfig {
 
 	/**
 	 * 
-	 * This method establishes a connection with the email server, get the unread emails, loop through them to extract the data
-	 * and move the emails into specific folders depending on if the result of the action
+	 * This method establishes a connection with the email server, gets the unread emails, loop through them to extract the data
+	 * and moves the emails into specific folders depending on if the result of the action taken
 	 * 
 	 * 
 	 * @throws Exception
@@ -180,29 +180,47 @@ public final class IMAPConfig {
 		}
 	}
 
+	/**
+	 * 
+	 * This method cleans the body of the email from html tags
+	 * 
+	 * @param body the HTML body of the email to clean
+	 * @return The message contained within the body of the html email
+	 */
 	private static String cleanEmailBody(String body) {
 		String s="";
 		Document docHtml=Jsoup.parse(body);
 		for(Element el: docHtml.select("p")){
 			//Remove this line from the body of the email to save space
 			if(!el.text().contains("Before printing, think about the")){
-				//System.out.println("___________"+el.text().length()+":::: "+el.text());
 				s+=el.text();
 			}
 		}
 		return s;
 	}
 
+	/**
+	 * 
+	 * This method looks up for an employee ID from a given email address
+	 * 
+	 * @param emailAddress email address of the employee
+	 * @return the ID which identifies a Sopra Steria employee
+	 */
 	private static int findEmployeeOfTOField(String emailAddress){
-		int employeeID;
 		try {
-			employeeID = EmployeeDAO.getUserIDFromEmailAddress(emailAddress);
+			//Call to the EmployeeDAO to retrieve the employee ID
+			return EmployeeDAO.getUserIDFromEmailAddress(emailAddress);
 		} catch (InvalidAttributeValueException e) {
 			return -1;
 		}
-		return employeeID;
 	}
 
+	/**
+	 * 
+	 * This method initiates the authentication with the email server
+	 * 
+	 * @throws Exception
+	 */
 	private static void initiateIMAPConnection() throws Exception{
 		emailService = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
 		emailService.setMaximumPoolingConnections(1);
@@ -221,6 +239,11 @@ public final class IMAPConfig {
 		//        });
 	}
 
+	/**
+	 * 
+	 * This method closes the communication with the email server 
+	 * 
+	 */
 	private static void closeIMAPConnection(){
 		if(emailService!=null)
 			emailService.close();
