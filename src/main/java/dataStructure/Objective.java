@@ -28,9 +28,7 @@ public class Objective implements Serializable{
 	private static final long serialVersionUID = -274154678364673992L;
 	//Global Variables
 	private int id, progress, performance;
-	private String title, description;
-	private String timeStamp;
-	private String timeToCompleteBy;
+	private String title, description, timeStamp, timeToCompleteBy;
 	@Embedded
 	private List<Feedback> feedback;
 	
@@ -87,7 +85,7 @@ public class Objective implements Serializable{
 			this.id=id;
 		else{
 			this.id=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The value "+id+" is not valid in this context");
+			throw new InvalidAttributeValueException("The ID with value "+id+" is not valid in this context");
 		}
 	}
 	
@@ -145,7 +143,7 @@ public class Objective implements Serializable{
 			this.title=title;
 		else{
 			this.title=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'title' value is not valid in this context");
+			throw new InvalidAttributeValueException("The given 'title' is not valid in this context");
 		}
 	}
 	
@@ -162,7 +160,7 @@ public class Objective implements Serializable{
 			this.description=description;
 		else{
 			this.description=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'description' value is not valid in this context");
+			throw new InvalidAttributeValueException("The given 'description' is not valid in this context");
 		}
 	}
 	

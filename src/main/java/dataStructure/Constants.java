@@ -22,6 +22,7 @@ public final class Constants {
 	public static final DateTimeFormatter YEAR_MONTH_FORMAT=DateTimeFormatter.ofPattern("yyyy-MM");
 	public static final String SIMPLE_DATE_FORMAT="yyyy-mm-dd";
 	public static final String COMPLETE_DATE_TIME_FORMAT="yyyy-mm-dd hh:mm:ss";
+	public static final String COMPLETE_DATE_NOT_SET="Not Set";
 	
 	//Constants for the Functionalities package
 	public static final String MONGODB_USERNAME="michael";

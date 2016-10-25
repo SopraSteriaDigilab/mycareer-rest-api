@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
+import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
 import functionalities.EmployeeDAO;
@@ -77,7 +78,6 @@ public class AppController {
 			}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
-
 	}
 	
 	/**
@@ -85,7 +85,7 @@ public class AppController {
 	 * This method allows the front-end to retrieve all the notes associated to a specific user
 	 * 
 	 * @param employeeID the ID of an employee
-	 * @return list of noted (only the latest version for each of them)
+	 * @return list of notes (only the latest version for each of them)
 	 */
 	@RequestMapping(value="/getNotes/{employeeID}", method=RequestMethod.GET)
 	public ResponseEntity<?> getNotes(@PathVariable int employeeID){
@@ -101,7 +101,29 @@ public class AppController {
 			}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
-
+	}
+	
+	/**
+	 * 
+	 * This method allows the front-end to retrieve all the development needs associated to a user
+	 * 
+	 * @param employeeID the ID of an employee
+	 * @return list of development needs (only latest version for each one of them)
+	 */
+	@RequestMapping(value="/getDevelopmentNeeds/{employeeID}", method=RequestMethod.GET)
+	public ResponseEntity<?> getDevelomentNeeds(@PathVariable int employeeID){
+		if(employeeID>0)
+			try{
+				return ResponseEntity.ok(EmployeeDAO.getDevelopmentNeedsForUser(employeeID));
+			}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+				return ResponseEntity.badRequest().body(e.getMessage());
+			}
+		else
+			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
 
 	/**
@@ -234,6 +256,82 @@ public class AppController {
 				return ResponseEntity.ok("Note modified correctly!");
 			else
 				return ResponseEntity.badRequest().body("Error while editing the Note");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 
+	 * This method allows the front-end to insert a new development need in the system
+	 * 
+	 * @param employeeID the employee ID (>0)
+	 * @param title title of the development need (<150)
+	 * @param description content of the development need (<1000)
+	 * @param timeToCompleteBy String containing a date with format yyyy-MM or empty ""
+	 * @return a message explaining if the development need has been added or if there was an error while completing the task
+	 */
+	@RequestMapping(value="/addDevelopmentNeed/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> addDevelopmentNeedToAUser(
+			@PathVariable("employeeID") int employeeID,
+			@RequestParam(value="title") String title,
+			@RequestParam(value="description") String description,
+			@RequestParam(value="timeToCompleteBy") String timeToCompleteBy){
+		try{
+			DevelopmentNeed obj;
+			//Verify if a time to complete the task by is given
+			if(timeToCompleteBy.equals(""))
+				obj=new DevelopmentNeed(1,title,description);
+			else
+				obj=new DevelopmentNeed(1,title,description,timeToCompleteBy);
+			boolean inserted=EmployeeDAO.insertNewDevelopmentNeed(employeeID,obj);
+			if(inserted)
+				return ResponseEntity.ok("Development need inserted correctly!");
+			else
+				return ResponseEntity.badRequest().body("Error while adding the Development need");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 
+	 * This method allows the front-end to edit a development need previously inserted in the system
+	 * 
+	 * @param employeeID employeeID of the employee (>0)
+	 * @param devNeedID ID of the development need to edit (>0)
+	 * @param title title of the development need (<150>
+	 * @param description content of the development need (<1000)
+	 * @param timeToCompleteBy String containing a date with format yyyy-MM or empty ""
+	 * @return a message explaining if the development need has been added or if there was an error while completing the task
+	 */
+	@RequestMapping(value="/editDevelopmentNeed/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
+			@PathVariable("employeeID") int employeeID,
+			@RequestParam(value="devNeedID") int devNeedID,
+			@RequestParam(value="title") String title,
+			@RequestParam(value="description") String description,
+			@RequestParam(value="timeToCompleteBy") String timeToCompleteBy){
+		try{
+			DevelopmentNeed obj;
+			//Verify if a time to complete the task by is given
+			if(timeToCompleteBy.equals(""))
+				obj=new DevelopmentNeed(1,title,description);
+			else
+				obj=new DevelopmentNeed(1,title,description,timeToCompleteBy);
+			boolean inserted=EmployeeDAO.addNewVersionDevelopmentNeed(employeeID, devNeedID, obj);
+			if(inserted)
+				return ResponseEntity.ok("Development need modified correctly!");
+			else
+				return ResponseEntity.badRequest().body("Error while editing the Development need");
 		}
 		catch(MongoException me){
 			return ResponseEntity.badRequest().body("DataBase Connection Error");
