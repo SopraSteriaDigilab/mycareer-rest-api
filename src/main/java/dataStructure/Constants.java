@@ -37,7 +37,7 @@ public final class Constants {
 	public static final String MAIL_PASSWORD="";
 	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
-	public static final long MAIL_REFRESH_TIME=(1*60*1000); //10 minutes
+	public static final long MAIL_REFRESH_TIME=(1*60*1000); //1 minute
 	//SMTP Constants
 	//public static final String SMTP_HOST="smtp.office365.com";
 	//public static final String SMTP_HOST_PORT="587";
