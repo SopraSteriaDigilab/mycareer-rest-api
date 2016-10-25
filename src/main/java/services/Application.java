@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import emailServices.IMAPConfig;
+import functionalities.EmployeeDAO;
 
 //@SpringBootApplication
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
@@ -18,6 +19,7 @@ public class Application {
 			SpringApplication.run(Application.class, args);
 			//Start the EmailService that checks for new emails and add the feedback to a user
 			//IMAPConfig.initiateIMAPService();
+			//EmployeeDAO.changeEmployeeNotes(2312);
 		} catch (Exception e) {
 			//e.printStackTrace();
 			System.err.println("Application Error: "+e.getMessage());

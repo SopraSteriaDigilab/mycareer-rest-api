@@ -36,7 +36,7 @@ public class Employee implements Serializable{
 	@Embedded
 	private List<List<Objective>> objectives;
 	@Embedded
-	private List<Note> notes;
+	private List<List<Note>> notes;
 	private boolean isAManager;
 
 	//Empty Constructor
@@ -53,7 +53,7 @@ public class Employee implements Serializable{
 		this.joinDate=null;
 		this.feedback=new ArrayList<Feedback>();
 		this.objectives=new ArrayList<List<Objective>>();
-		this.notes=new ArrayList<Note>();
+		this.notes=new ArrayList<List<Note>>();
 		this.isAManager=false;
 	}
 
@@ -72,7 +72,7 @@ public class Employee implements Serializable{
 			String joinDate,
 			List<Feedback> feeds,
 			List<List<Objective>> objectives,
-			List<Note> notes) throws InvalidAttributeValueException, InvalidClassException{
+			List<List<Note>> notes) throws InvalidAttributeValueException, InvalidClassException{
 		this.setEmployeeID(id);
 		this.setLevel(level);
 		this.setForename(name);
@@ -161,6 +161,11 @@ public class Employee implements Serializable{
 		return this.surname;
 	}
 
+	/**
+	 * 
+	 * @param email The user email address
+	 * @throws InvalidAttributeValueException
+	 */
 	public void setEmailAddress(String email) throws InvalidAttributeValueException{
 		if(email!=null && email.length()>0 && email.contains("@"))
 			this.emaiAddress=email;
@@ -191,6 +196,10 @@ public class Employee implements Serializable{
 		return this.role;
 	}
 
+	/**
+	 * 
+	 * @param value boolean value that says whether a user is a manager or not
+	 */
 	public void setIsAManager(boolean value){
 		this.isAManager=value;
 	}
@@ -216,6 +225,11 @@ public class Employee implements Serializable{
 		return this.LM_Name;
 	}
 
+	/**
+	 * 
+	 * @param id The line manager ID
+	 * @throws InvalidAttributeValueException
+	 */
 	public void setLineManagerID(int id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.LM_ID=id;
@@ -229,10 +243,16 @@ public class Employee implements Serializable{
 		return this.LM_ID;
 	}
 
+	/**
+	 * 
+	 * @param date The date of birth of the employee
+	 * @throws InvalidAttributeValueException
+	 */
 	public void setDateOFBirth(String date) throws InvalidAttributeValueException{
 		if(date!=null){
 			try{
 				LocalDate tempD=LocalDate.parse(date,Constants.DATE_FORMAT);
+				//Verify if the date given is valid
 				if(tempD.isBefore(LocalDate.now()))
 					this.dob=tempD.toString();
 				else
@@ -252,10 +272,16 @@ public class Employee implements Serializable{
 		return this.dob;
 	}
 
+	/**
+	 * 
+	 * @param date the date when the employee joined the company
+	 * @throws InvalidAttributeValueException
+	 */
 	public void setJoinDate(String date) throws InvalidAttributeValueException{
 		if(date!=null){
 			try{
 				LocalDate tempD=LocalDate.parse(date,Constants.DATE_FORMAT);
+				//Verify if the given data is before the current date
 				if(tempD.isBefore(LocalDate.now()))
 					this.joinDate=tempD.toString();
 				else
@@ -275,6 +301,12 @@ public class Employee implements Serializable{
 		return this.joinDate;
 	}
 
+	/**
+	 * 
+	 * @param feeds the list of feedback to assign to an employee
+	 * @throws InvalidClassException
+	 * @throws InvalidAttributeValueException
+	 */
 	public void setFeedbackList(List<Feedback> feeds)throws InvalidClassException, InvalidAttributeValueException{
 		if(feeds!=null){
 			//Create a counter that keeps count of the error produced
@@ -302,6 +334,11 @@ public class Employee implements Serializable{
 		return this.feedback;
 	}
 
+	/**
+	 * 
+	 * @param objectives the list fo objectives to assign to an employee
+	 * @throws InvalidAttributeValueException
+	 */
 	public void setObjectiveList(List<List<Objective>> objectives) throws InvalidAttributeValueException{
 		if(objectives!=null){
 			//Counter that keeps tracks of the error while adding elements
@@ -336,6 +373,10 @@ public class Employee implements Serializable{
 		return this.objectives;
 	}
 
+	/**
+	 * 
+	 * @return a list containing only the latest version of each objective
+	 */
 	public List<Objective> getLatestVersionObjectives(){
 		List<Objective> organisedList=new ArrayList<Objective>();
 		if(objectives==null)
@@ -352,6 +393,11 @@ public class Employee implements Serializable{
 		}
 	}
 
+	/**
+	 * 
+	 * @param id id of the objective to search
+	 * @return the objective data
+	 */
 	public Objective getLatestVersionOfSpecificObjective(int id){
 		//Verify if the id is valid
 		if(id<0)
@@ -367,28 +413,84 @@ public class Employee implements Serializable{
 		return null;
 	}
 
-	public void setNoteList(List<Note> notes) throws InvalidAttributeValueException{
+	/**
+	 * 
+	 * @param notes the list of notes to assign to an employee
+	 * @throws InvalidAttributeValueException
+	 */
+	public void setNoteList(List<List<Note>> notes) throws InvalidAttributeValueException{
 		if(notes!=null){
+			//Counter that keeps tracks of the error while adding elements
 			int errorCounter=0;
-			this.notes=new ArrayList<Note>();
-			//Validate all the objects inside the list
-			for(Note temp:notes){
-				if(temp.isNoteValid())
-					this.notes.add(temp);
+			this.notes=new ArrayList<List<Note>>();
+			//Verify if each each objective is valid
+			for(int i=0; i<notes.size(); i++){
+				//Add a new List to the list of Objectives
+				this.notes.add(new ArrayList<Note>());
+				if(notes.get(i)!=null){
+					for(int j=0; j<notes.get(i).size(); j++){
+						//Check iof the current note is valid
+						if(notes.get(i).get(j).isNoteValid())
+							this.notes.get(this.notes.size()-1).add( notes.get(i).get(j));
+						else
+							errorCounter++;
+					}
+				}
 				else
-					errorCounter++;
+					throw new InvalidAttributeValueException("The given list of notes is null");
 			}
+			//Verify if there were errors during the import of objectives
 			if(errorCounter!=0)
 				throw new InvalidAttributeValueException("Not all note elements were valid");
 		}
 		else{
 			this.notes=null;
-			//throw new InvalidAttributeValueException("The list of notes is null");
+			throw new InvalidAttributeValueException("The list of feedback given is null");
 		}
 	}
 
-	public List<Note> getNoteList(){
+	public List<List<Note>> getNoteList(){
 		return this.notes;
+	}
+	
+	/**
+	 * 
+	 * @return a list containing the latest version of each note
+	 */
+	public List<Note> getLatestVersionNotes(){
+		List<Note> organisedList=new ArrayList<Note>();
+		if(notes==null)
+			return null;
+		else{
+			//If the list if not empty, retrieve all the elements and add them to the list
+			//that is going to be returned
+			for(List<Note> subList:notes){
+				//The last element contains the latest version for the note
+				organisedList.add(subList.get(subList.size()-1));
+			}
+			//Once the list if full, return it to the user
+			return organisedList;
+		}
+	}
+
+	/**
+	 * 
+	 * @param id id of the note
+	 * @return the note data
+	 */
+	public Note getLatestVersionOfSpecificNotee(int id){
+		//Verify if the id is valid
+		if(id<0)
+			return null;
+		//Search for the note with the given ID
+		for(List<Note> subList:notes){
+			if((subList.get(0)).getID()==id){
+				//Now that the note has been found, return the latest version of it
+				//which is stored at the end of the List
+				return (subList.get(subList.size()-1));
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -423,8 +525,12 @@ public class Employee implements Serializable{
 		}
 		//Add the Notes
 		s+="Notes:\n";
-		for(Note tempN:notes){
-			s+=tempN.toString()+"\n";
+		for(List<Note> noteList: notes){
+			s+="Note "+counter++ +"\n";
+			int version=1;
+			for(Note obj: noteList){
+				s+="Version "+version++ +"\n"+obj.toString()+"\n";
+			}
 		}
 		return s;
 	}
@@ -453,6 +559,13 @@ public class Employee implements Serializable{
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param objectiveID
+	 * @param obj objective data
+	 * @return true if the objective has been added correctly
+	 * @throws InvalidAttributeValueException
+	 */
 	public boolean addFeedbackToObjective(int objectiveID, Feedback obj) throws InvalidAttributeValueException{
 		//Verify the data is valid
 		if(objectiveID<0 && obj==null)
@@ -475,6 +588,12 @@ public class Employee implements Serializable{
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param obj objective data
+	 * @return
+	 * @throws InvalidAttributeValueException
+	 */
 	public boolean addObjective(Objective obj) throws InvalidAttributeValueException{
 		if(objectives==null)
 			objectives=new ArrayList<List<Objective>>();
@@ -494,6 +613,12 @@ public class Employee implements Serializable{
 		return false;
 	}
 
+	/**
+	 * This method adds a new updated version of the objective
+	 * 
+	 * @param obj objective data
+	 * @return
+	 */
 	public boolean editObjective(Objective obj){
 		//Verify that the object is not null
 		if(obj==null)
@@ -512,28 +637,61 @@ public class Employee implements Serializable{
 		}
 		return false;
 	}
-
+	
+	/**
+	 * 
+	 * @param obj note object
+	 * @return
+	 * @throws InvalidAttributeValueException
+	 */
 	public boolean addNote(Note obj) throws InvalidAttributeValueException{
-		//Verify that the note is valid
 		if(notes==null)
-			notes=new ArrayList<Note>();
-		//Make sure the object contains valid data
+			notes=new ArrayList<List<Note>>();
+		//Verify that the note is not null
 		if(obj==null)
 			return false;
-		//The note currently doesn't have an ID, create one and validate its data
+		//At this point, the note hasn't got an ID, let's create one
 		obj.setID(notes.size()+1);
-		if(obj.isNoteValid())
-			return notes.add(obj);
+		if(obj.isNoteValid()){
+			List<Note> tempList=new ArrayList<Note>();
+			//add the first version of this note
+			boolean res1=tempList.add(obj);
+			boolean res2=notes.add(tempList);
+			//Action completed, verify the results
+			return (res1 && res2);
+		}
+		return false;
+	}
+
+	/**
+	 * 
+	 * This method adds a new version of the note
+	 * 
+	 * @param obj note data
+	 * @return
+	 */
+	public boolean editNote(Note obj){
+		//Verify that the object is not null
+		if(obj==null)
+			return false;
+		//Step 1: Verify that the object contains valid data 
+		if(obj.isNoteValid()){
+			//Step 2: Verify that the ID contained within the note object is in the system
+			for(int i=0; i<notes.size(); i++){
+				List<Note> listTemp=notes.get(i);
+				//The elements within each list has all the same ID, so pick the first one and compare it
+				if((listTemp.get(0)).getID()==obj.getID()){
+					//Add the note to the end of the list
+					return notes.get(i).add(obj);
+				}
+			}
+		}
 		return false;
 	}
 
 	/*
 	 * This methods are not needed at the minute
 	public Feedback getSpecificFeedback(int id){
-
-	}
-
-	public Note getSpecificNote(int id){
 
 	}
 	 */

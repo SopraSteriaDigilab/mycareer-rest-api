@@ -97,13 +97,14 @@ public class Objective implements Serializable{
 	
 	/**
 	 * 
-	 * @param progress This variable can assume only 3 values:
+	 * @param progress This variable can assume only 4 values:
+	 * -1 => Not Relevant to my career anymore
 	 *  0 => Awaiting
 	 *  1 => In Flight
 	 *  2 => Done
 	 */
 	public void setProgress(int progress) throws InvalidAttributeValueException{
-		if(progress>=0 && progress<=2)
+		if(progress>=-1 && progress<=2)
 			this.progress=progress;
 		else{
 			this.progress=Constants.INVALID_INT;
@@ -169,6 +170,9 @@ public class Objective implements Serializable{
 		return this.description;
 	}
 	
+	/**
+	 * This method creates a timestamp when the object is created
+	 */
 	private void setTimeStamp(){
 		//Check if the timeStamp has already a value assigned
 		if(timeStamp==null){
@@ -183,6 +187,11 @@ public class Objective implements Serializable{
 		return this.timeStamp;
 	}
 	
+	/**
+	 * 
+	 * @param date the date of when the objective needs to be completed by
+	 * @throws InvalidAttributeValueException
+	 */
 	public void setTimeToCompleteBy(String date) throws InvalidAttributeValueException{
 		//Convert the String to a YearMonth object
 		if(!date.equals("")){
@@ -209,6 +218,12 @@ public class Objective implements Serializable{
 		return temp.format(Constants.YEAR_MONTH_FORMAT);
 	}
 	
+	/**
+	 * 
+	 * @param listData the list of feedback that is going to be assigned to this objective
+	 * @throws InvalidClassException
+	 * @throws InvalidAttributeValueException
+	 */
 	public void setFeedback(List<Feedback> listData) throws InvalidClassException, InvalidAttributeValueException{
 		if(listData!=null){
 			//Create a counter that keeps count of the error produced
@@ -261,9 +276,16 @@ public class Objective implements Serializable{
 		return gsonData.toJson(this);
 	}
 	
+	/**
+	 * This method adds a feedback to this objective
+	 * 
+	 * @param obj feedback data
+	 * @return
+	 */
 	public boolean addFeedback(Feedback obj){
 		if(feedback==null)
 			feedback=new ArrayList<Feedback>();
+		//Validate the feedback
 		if(obj.isFeedbackValid())
 			return feedback.add(obj);
 		return false;

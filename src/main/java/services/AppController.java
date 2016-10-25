@@ -1,6 +1,5 @@
 package services;
 
-import org.mongodb.morphia.Datastore;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
+import dataStructure.Note;
 import dataStructure.Objective;
 import functionalities.EmployeeDAO;
 
@@ -32,10 +32,18 @@ public class AppController {
 		return ResponseEntity.ok("Welcome to the MyCareer Project");
 	}
 
+	/**
+	 * 
+	 * This method allows the front-end to retrieve the latest version for each objective related to a specific user
+	 * 
+	 * @param employeeID the employee ID (>0)
+	 * @return the list of objectives (only the latest version of them)
+	 */
 	@RequestMapping(value="/getObjectives/{employeeID}", method=RequestMethod.GET)
 	public ResponseEntity<?> getObjectives(@PathVariable int employeeID){
 		if(employeeID>0)
 			try {
+				//Retrieve and return the objectives from the system
 				return ResponseEntity.ok(EmployeeDAO.getObjectivesForUser(employeeID));
 			}
 		catch(MongoException me){
@@ -48,6 +56,13 @@ public class AppController {
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
 
+	/**
+	 * 
+	 * This method allows the front-end to retrieve the latest version of each feedback related to a specific user
+	 * 
+	 * @param employeeID the employee ID (>0)
+	 * @return list of feedback (only the latest version of them)
+	 */
 	@RequestMapping(value="/getFeedback/{employeeID}", method=RequestMethod.GET)
 	public ResponseEntity<?> getFeedback(@PathVariable int employeeID){
 		if(employeeID>0)
@@ -67,12 +82,18 @@ public class AppController {
 
 	/**
 	 * 
+	 * This method allows the front-end to add a new objective to a user
+	 * 
 	 * @param employeeID A value >0
 	 * @param title a string that doesn't exceed 150 characters
 	 * @param description a string that doesn't exceed 1000 characters
 	 * @param completedBy a valid month and year in the following format: yyyy-MM
-	 * @param progress a value between 0 and 2
-	 * @return
+	 * @param progress a value between -1 and 2
+	 * 	-1 => Not Relevant to my career anymore
+	 *  0 => Awaiting
+	 *  1 => In Flight
+	 *  2 => Done
+	 * @return a boolean value or an error
 	 */
 	@RequestMapping(value="/addObjective/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addObjectiveToAUser(
@@ -96,6 +117,22 @@ public class AppController {
 		}
 	}
 
+	/**
+	 * 
+	 * This method allows the front-end to edit a new version of an objective currently stored within the system
+	 * 
+	 * @param employeeID the employee ID 
+	 * @param objectiveID the ID of the objective (>0)
+	 * @param title the title of the objective (< 150)
+	 * @param description the description of the objective (< 3000)
+	 * @param completedBy (string with format: yyyy-MM)
+	 * @param progress a value between -1 and 2
+	 * 	-1 => Not Relevant to my career anymore
+	 *  0 => Awaiting
+	 *  1 => In Flight
+	 *  2 => Done
+	 * @return a boolean value or an error
+	 */
 	@RequestMapping(value="/editObjective/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNewVersionObjectiveToAUser(
 			@PathVariable("employeeID") int employeeID,
@@ -111,6 +148,68 @@ public class AppController {
 				return ResponseEntity.ok("Objective modified correctly!");
 			else
 				return ResponseEntity.badRequest().body("Error while editing the objective");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 
+	 * This method allows the front-end to add a new note to a specific user
+	 * 
+	 * @param employeeID the employee ID (>0)
+	 * @param from the author of the note (<150)
+	 * @param body the content of the note (<1000)
+	 * @return a message explaining if the note has been added or if there was an error while completing the task
+	 */
+	@RequestMapping(value="/addNote/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> addNoteToAUser(
+			@PathVariable("employeeID") int employeeID,
+			@RequestParam(value="from") String from,
+			@RequestParam(value="body") String body){
+		try{
+			Note obj=new Note(0,body,from);
+			boolean inserted=EmployeeDAO.insertNewNote(employeeID,obj);
+			if(inserted)
+				return ResponseEntity.ok("Note inserted correctly!");
+			else
+				return ResponseEntity.badRequest().body("Error while adding the Note");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 
+	 * This method allows the front-end to edit a new version of a note currently stored within the system
+	 * 
+	 * @param employeeID
+	 * @param noteID
+	 * @param from
+	 * @param body
+	 * @return
+	 */
+	@RequestMapping(value="/editNote/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> addNewVersionNoteToAUser(
+			@PathVariable("employeeID") int employeeID,
+			@RequestParam(value="noteID") int noteID,
+			@RequestParam(value="from") String from,
+			@RequestParam(value="body") String body){
+		try{
+			Note obj=new Note(noteID,body,from);
+			boolean inserted=EmployeeDAO.addNewVersionNote(employeeID, noteID, obj);
+			if(inserted)
+				return ResponseEntity.ok("Note modified correctly!");
+			else
+				return ResponseEntity.badRequest().body("Error while editing the Note");
 		}
 		catch(MongoException me){
 			return ResponseEntity.badRequest().body("DataBase Connection Error");
