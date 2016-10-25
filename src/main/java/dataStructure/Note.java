@@ -21,23 +21,31 @@ public class Note implements Serializable{
 	private static final long serialVersionUID = 3232489026577284657L;
 	//Global Variables
 	private int id;
-	private String body, timeStamp;
+	private String body, timeStamp, fromWho;
 	
 	//Empty Constructor
 	public Note(){
 		this.id=Constants.INVALID_INT;
 		this.body="";
 		this.timeStamp=null;
+		this.fromWho="";
 	}
 	
 	//Constructor with Parameters
-	public Note(int id, String body) throws InvalidAttributeValueException{
+	public Note(int id, String body, String from) throws InvalidAttributeValueException{
 		this.setID(id);
 		this.setBody(body);
 		this.timeStamp=null;
 		this.setTimeStamp();
+		this.setFromWho(from);
 	}
 	
+	/**
+	 * This method sets the ID of the note
+	 * 
+	 * @param id
+	 * @throws InvalidAttributeValueException
+	 */
 	public void setID(int id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.id=id;
@@ -70,6 +78,24 @@ public class Note implements Serializable{
 	
 	/**
 	 * 
+	 * @param from String containing the name of the author of the note
+	 * @throws InvalidAttributeValueException
+	 */
+	public void setFromWho(String from) throws InvalidAttributeValueException{
+		if(from!=null && from.length()>0 && from.length()<150)
+			this.fromWho=from;
+		else{
+			this.fromWho=Constants.INVALID_STRING;
+			throw new InvalidAttributeValueException("The name of the note writer is not valid in this context");
+		}
+	}
+	
+	public String getFromWho(){
+		return this.fromWho;
+	}
+	
+	/**
+	 * 
 	 * This method saves the current DateTime inside the timeStamp object only if the object does not
 	 * contain anything yet
 	 */
@@ -91,6 +117,7 @@ public class Note implements Serializable{
 		String s="";
 		s+="ID "+this.id+"\n"
 			+ "Body "+this.body+"\n"
+			+ "From "+this.fromWho+"\n"
 			+ "Time "+this.getTimeStamp();
 		return s;
 	}
@@ -100,8 +127,12 @@ public class Note implements Serializable{
 		return gsonData.toJson(this);
 	}
 	
+	/**
+	 * Method used to check if the Note object is valid
+	 * @return
+	 */
 	public boolean isNoteValid(){
-		return (this.getID()>0 && !this.getBody().equals(""));
+		return (this.getID()>0 && !this.getBody().contains("Invalid") && !this.getFromWho().contains("Invalid"));
 	}
 
 }

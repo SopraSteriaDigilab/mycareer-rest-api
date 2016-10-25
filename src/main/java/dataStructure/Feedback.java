@@ -126,7 +126,7 @@ public class Feedback implements Serializable{
 	 * @param description This string must be valid and with a length less than 1000 characters
 	 */
 	public void setDescription(String description) throws InvalidAttributeValueException{
-		if(description!=null && description.length()>0 && description.length()<1001)
+		if(description!=null && description.length()>0 && description.length()<3001)
 			this.description=description;
 		else{
 			this.description=Constants.INVALID_STRING;
@@ -209,7 +209,7 @@ public class Feedback implements Serializable{
 	}
 	
 	public boolean isFeedbackValid(){
-		return (this.getID()!=-1 && this.getTimeStamp()!=null);
+		return (this.getID()!=-1 && this.getTimeStamp()!=null && !this.getFromWho().contains("Invalid") && !this.getDescription().contains("Invalid") && !this.getType().contains("Invalid") && !this.getSource().contains("Invalid"));
 	}
 	
 	public boolean compare(Feedback obj){

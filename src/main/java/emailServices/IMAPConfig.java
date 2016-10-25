@@ -118,11 +118,11 @@ public final class IMAPConfig {
 				//Verify if the ID retrieved is valid or not
 				if(userID<1){
 					//Reply with an email saying the given employee email address is not in the system
-					//EmailMessage msg= new EmailMessage(emailService);
-					//msg.setSubject("Feedback Error"); 
-					//msg.setBody(MessageBody.getMessageBodyFromText("The employee email address "+toEmployee.toString()+" for your Feedback has not been found in the system"));
-					//msg.getToRecipients().add(fromField);
-					//msg.sendAndSaveCopy();
+					EmailMessage msg= new EmailMessage(emailService);
+					msg.setSubject("Feedback Error"); 
+					msg.setBody(MessageBody.getMessageBodyFromText("The employee email address "+toEmployee.toString()+" linked to your feedback has not been found in the system"));
+					msg.getToRecipients().add(fromField);
+					msg.sendAndSaveCopy();
 					//Set the message to unread
 					temp.setIsRead(false);
 					//Move this email to the Drafts Folder and go to the next item
@@ -135,8 +135,15 @@ public final class IMAPConfig {
 				Feedback feedObj=new Feedback(0,fromField.getAddress(),cleanEmailBody(emailBody.toString()),type, "Email");
 				//Attach the feedback to the User on the Database
 				try{
-					EmployeeDAO.insertNewGeneralFeedback(userID, feedObj);
-					System.out.println("\t"+LocalTime.now()+" - Feedback added correctly to user "+userID);
+					if(EmployeeDAO.insertNewGeneralFeedback(userID, feedObj)){
+						System.out.println("\t"+LocalTime.now()+" - Feedback added correctly to user "+userID);
+						//Reply with an email thanking the sender of the feedback
+						EmailMessage msg= new EmailMessage(emailService);
+						msg.setSubject("Thank you"); 
+						msg.setBody(MessageBody.getMessageBodyFromText("Thank you for your feedback!"));
+						msg.getToRecipients().add(fromField);
+						msg.sendAndSaveCopy();
+					}
 				}
 				catch(InvalidAttributeValueException inE){
 					//Move the message to the Draft folder, the admin of the system will deal with it
