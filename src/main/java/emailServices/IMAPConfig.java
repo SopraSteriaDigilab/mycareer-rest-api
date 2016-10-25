@@ -52,8 +52,14 @@ public final class IMAPConfig {
 
 	private IMAPConfig(){}
 
+	/**
+	 * 
+	 * This method initiate the email service and checks for new emails every minute
+	 * 
+	 * @throws URISyntaxException
+	 */
 	public static void initiateIMAPService() throws URISyntaxException{
-		//Schedule a task to run every 10 minutes
+		//Schedule a task to run every minute
 		timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
@@ -62,6 +68,7 @@ public final class IMAPConfig {
 					//Create a connection with the server;
 					initiateIMAPConnection();
 					System.out.println(LocalTime.now()+" - Checking for new Emails");
+					//Check for new emails and then close the connection with the email server
 					retrieveNewEmails();
 					closeIMAPConnection();
 					System.out.println("\t"+LocalTime.now()+" - Task Completed\n");
@@ -72,6 +79,14 @@ public final class IMAPConfig {
 		}, 0, Constants.MAIL_REFRESH_TIME);
 	}
 
+	/**
+	 * 
+	 * This method establishes a connection with the email server, get the unread emails, loop through them to extract the data
+	 * and move the emails into specific folders depending on if the result of the action
+	 * 
+	 * 
+	 * @throws Exception
+	 */
 	private static void retrieveNewEmails() throws Exception{
 		//Open the Inbox folder for the given mailbox
 		Folder inbox = Folder.bind(emailService, WellKnownFolderName.Inbox);
