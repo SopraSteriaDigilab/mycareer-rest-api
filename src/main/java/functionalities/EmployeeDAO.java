@@ -10,6 +10,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
 import dataStructure.Constants;
+import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
 import dataStructure.Feedback;
 import dataStructure.Note;
@@ -59,6 +60,16 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
 		return e.getLatestVersionNotes();
+	}
+	
+	public static List<DevelopmentNeed> getDevelopmentNeedsForUser(int employeeID) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such ID");
+		Employee e = query.get();
+		return e.getLatestVersionDevelopmentNeeds();
 
 	}
 
@@ -295,6 +306,87 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("The given EmployeeID or NoteID are invalid");
 		return false;
 	}
+	
+	public static boolean insertNewDevelopmentNeed(int employeeID, Object data) throws InvalidAttributeValueException, MongoException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		//Check the employeeID
+		if(employeeID>0){
+			if(data!=null && data instanceof DevelopmentNeed){
+				//Retrieve Employee with the given ID
+				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+				if(querySearch.get()!=null){
+					Employee e = querySearch.get();
+					//Extract its List of notes
+					List<List<DevelopmentNeed>> dataFromDB=e.getDevelopmentNeedsList();
+					//Add the new note to the list
+					if(e.addDevelopmentNeed((DevelopmentNeed)data)){
+						//Update the List<List<Note>> in the DB passing the new list
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds", dataFromDB);
+						//Commit the changes to the DB
+						dbConnection.update(querySearch, ops);
+						return true;
+					}
+					else
+						throw new InvalidAttributeValueException("The given object couldn't be added to the development need list");
+				}
+				else
+					throw new InvalidAttributeValueException("No employee found with the ID provided");
+			}
+			else
+				throw new InvalidAttributeValueException("The data provided is not valid");
+		}
+		else
+			throw new InvalidAttributeValueException("The ID provided is not valid");
+	}
+	
+	public static boolean addNewVersionDevelopmentNeed(int employeeID, int devNeedID, Object data) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		//Check EmployeeID and noteID
+		if(employeeID>0 && devNeedID>0){
+			if(data!=null && data instanceof DevelopmentNeed){
+				//Retrieve Employee with the given ID
+				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+				if(querySearch.get()!=null){
+					Employee e = querySearch.get();
+					//Extract its List of notes
+					List<List<DevelopmentNeed>> dataFromDB=e.getDevelopmentNeedsList();
+					//Search for the objective Id within the list of notes
+					int indexNoteList=-1;
+					for(int i=0; i<dataFromDB.size(); i++){
+						//Save the index of the list when the noteID is found
+						if(dataFromDB.get(i).get(0).getID()==devNeedID){
+							indexNoteList=i;
+							//Exit the for loop once the value has been found
+							break;
+						}
+					}
+					//verify that the index variable has changed its value
+					if(indexNoteList!=-1){ 
+						//Add the updated version of the note
+						if(e.editDevelopmentNeed((DevelopmentNeed)data)){
+							//Update the List<List<Note>> in the DB passing the new list
+							UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds", e.getDevelopmentNeedsList());
+							//Commit the changes to the DB
+							dbConnection.update(querySearch, ops);
+							return true;
+						}
+					}
+					//if the index hasn't changed its value it means that there is no note with such ID, therefore throw and exception
+					else
+						throw new InvalidAttributeValueException("The given ID associated with the development need is invalid");
+				}
+				else
+					throw new InvalidAttributeValueException("No employee found with the ID provided");
+			}
+			else
+				throw new InvalidAttributeValueException("The data provided is not valid");
+		}
+		else
+			throw new InvalidAttributeValueException("The given EmployeeID or DevelopmentNeedID are invalid");
+		return false;
+	}
 
 	/*
 	public static void insertTempData(){
@@ -338,8 +430,11 @@ public  class EmployeeDAO {
 				Employee e = querySearch.get();
 				//List<List<Note>> n=new ArrayList<List<Note>>();
 				//e.setNoteList(n);
-				Note note=new Note(7,"Blaaaaaaaaaaaaaaaaa", "Michael");
-				e.addNote(note);
+				//Note note=new Note(7,"Blaaaaaaaaaaaaaaaaa", "Michael");
+				DevelopmentNeed devNeed1=new DevelopmentNeed(8,"Title21", "Description 21", "2017-03");
+				DevelopmentNeed devNeed2=new DevelopmentNeed(10,"Title2", "Description2");
+				e.addDevelopmentNeed(devNeed1);
+				e.addDevelopmentNeed(devNeed2);
 				datastore.findAndDelete(querySearch);
 				//UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes", n);
 				//Commit the changes to the DB
