@@ -1,19 +1,14 @@
 package functionalities;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
-
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
-
 import dataStructure.Constants;
 import dataStructure.Employee;
 import dataStructure.Feedback;
