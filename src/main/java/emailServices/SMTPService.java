@@ -4,6 +4,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.management.InvalidAttributeValueException;
 
 import dataStructure.Constants;
@@ -13,6 +15,7 @@ import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion
 import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
+import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 
 /**
@@ -31,7 +34,6 @@ public final class SMTPService {
 	private static ExchangeService emailService;
 	private static ExchangeCredentials credentials;
 
-
 	static{
 		emailService=null;
 		credentials=null;
@@ -39,20 +41,39 @@ public final class SMTPService {
 
 	private SMTPService(){}
 
-	public static boolean createFeedbackRequest(String notes, String... mailTo){
+	public static boolean createFeedbackRequest(String sender, String notes, String... mailTo){
 		try{
 			//Open a connection with the Email Server
 			openIMAPConnection();
 			//Validate the email addresses
-			List<String> emailAddressesList=new ArrayList<String>();
+			List<String> validEmailAddressesList=new ArrayList<String>();
+			List<String> invalidEmailAddressesList=new ArrayList<String>();
 			for(String s: mailTo){
-				//Add the email address to the list of addresses only if there is an employeeID associated to it
-				if(findEmployeeOfTOField(s)!=-1)
-					emailAddressesList.add(s);
+				//Add the email address to the list of addresses only if the email is valid
+				if(isAddressValid(s))
+					validEmailAddressesList.add(s);
+				//Add the email address to a separate list
+				else
+					invalidEmailAddressesList.add(s);
 			}
 			//Send a feedback requests, now that the incorrect email addresses have been removed
-			for(String s: emailAddressesList){
-				
+			for(String s: validEmailAddressesList){
+				//Create RequestID
+				//Associate the Request to the valid receivers of this email
+				//Associate the sender to this RequestID
+				//Add any additional notes to the template of the email
+				//Send the email
+				//Send confirmation email to sender
+			}
+			//Send an email to the creator of this task containing the invalid email addresses
+			if(invalidEmailAddressesList.size()>0){
+				EmailMessage msg= new EmailMessage(emailService);
+				msg.setSubject("Incorrect Email");
+				//Fill the email with the error details
+				msg.setBody(MessageBody.getMessageBodyFromText("Some of the email addresses linked to the feedback request"
+						+ " are invalid:\n"+invalidEmailAddressesList.toString()));
+				msg.getToRecipients().add(sender);
+				msg.sendAndSaveCopy();
 			}
 			//Close the connection with the Email Server
 			closeIMAPConnection();
@@ -63,8 +84,18 @@ public final class SMTPService {
 		}
 		return false;
 	}
-	
-	private static boolean sendRequest(String emailAddress) throws Exception{
+
+	private static boolean isAddressValid(String email) {
+		try {
+			InternetAddress emailAddr = new InternetAddress(email);
+			emailAddr.validate();
+			return true;
+		} catch (AddressException ex) {
+			return false;
+		}
+	}
+
+	private static boolean sendRequest(String toField, String fromField, String body) throws Exception{
 		//Create a mail object
 		EmailMessage msg= new EmailMessage(emailService);
 		msg.setSubject("Feedback Request");
@@ -74,7 +105,7 @@ public final class SMTPService {
 		msg.sendAndSaveCopy();
 		return true;
 	}
-	
+
 	/**
 	 * 
 	 * This method looks up for an employee ID from a given email address

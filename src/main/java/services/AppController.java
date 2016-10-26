@@ -278,7 +278,7 @@ public class AppController {
 	@RequestMapping(value="/addDevelopmentNeed/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addDevelopmentNeedToAUser(
 			@PathVariable("employeeID") int employeeID,
-			@RequestParam(value="cateogry") int cat,
+			@RequestParam(value="category") int cat,
 			@RequestParam(value="title") String title,
 			@RequestParam(value="description") String description,
 			@RequestParam(value="timeToCompleteBy") String timeToCompleteBy){
@@ -317,7 +317,7 @@ public class AppController {
 	@RequestMapping(value="/editDevelopmentNeed/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
 			@PathVariable("employeeID") int employeeID,
-			@RequestParam(value="cateogry") int cat,
+			@RequestParam(value="category") int cat,
 			@RequestParam(value="devNeedID") int devNeedID,
 			@RequestParam(value="title") String title,
 			@RequestParam(value="description") String description,
