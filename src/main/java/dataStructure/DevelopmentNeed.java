@@ -22,12 +22,13 @@ public class DevelopmentNeed implements Serializable{
 
 	private static final long serialVersionUID = -5067508122602507151L;
 	//Global Variables
-	private int id;
+	private int id, category;
 	private String title, description, timeStamp, timeToCompleteBy;
 
 	//Empty Constructor
 	public DevelopmentNeed(){
 		this.id=Constants.INVALID_INT;
+		this.category=Constants.INVALID_INT;
 		this.title=Constants.INVALID_STRING;
 		this.description=Constants.INVALID_STRING;
 		this.timeStamp=null;
@@ -37,9 +38,11 @@ public class DevelopmentNeed implements Serializable{
 	//Constructor with parameters
 	public DevelopmentNeed(
 			int id,
+			int cat,
 			String title,
 			String description) throws InvalidAttributeValueException{
 		this.setID(id);
+		this.setCategory(cat);
 		this.setTitle(title);
 		this.setDescription(description);
 		this.timeStamp=null;
@@ -50,10 +53,12 @@ public class DevelopmentNeed implements Serializable{
 	//Constructor with parameters
 	public DevelopmentNeed(
 			int id,
+			int cat,
 			String title,
 			String description,
 			String completeBy) throws InvalidAttributeValueException{
 		this.setID(id);
+		this.setCategory(cat);
 		this.setTitle(title);
 		this.setDescription(description);
 		this.timeStamp=null;
@@ -74,6 +79,19 @@ public class DevelopmentNeed implements Serializable{
 
 	public int getID(){
 		return this.id;
+	}
+	
+	public void setCategory(int cat) throws InvalidAttributeValueException{
+		if(cat>=0 && cat<=2)
+			this.category=cat;
+		else{
+			this.category=Constants.INVALID_INT;
+			throw new InvalidAttributeValueException("The category with value  "+cat+" is not valid in this context");
+		}
+	}
+
+	public int getCategory(){
+		return this.category;
 	}
 
 	/**
@@ -165,6 +183,7 @@ public class DevelopmentNeed implements Serializable{
 	public String toString(){
 		String s="";
 		s+="ID "+this.id+"\n"
+				+ "Category "+this.category+"\n"
 				+ "Title "+this.title+"\n"
 				+ "Description "+this.description+"\n"
 				+ "TimeStamp "+this.getTimeStamp()+"\n"
@@ -178,7 +197,7 @@ public class DevelopmentNeed implements Serializable{
 	}
 	
 	public boolean isDevelopmentNeedValid(){
-		return (this.getID()>0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid"));
+		return (this.getID()>0 && this.getCategory()>=0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid"));
 	}
 
 }

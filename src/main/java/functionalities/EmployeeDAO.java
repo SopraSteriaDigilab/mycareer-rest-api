@@ -1,5 +1,6 @@
 package functionalities;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.Datastore;
@@ -76,7 +77,7 @@ public  class EmployeeDAO {
 	public static int getUserIDFromEmailAddress(String email) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
-		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("emaiAddress =", email);
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("emailAddress =", email);
 		if(query.get()==null)
 			throw new InvalidAttributeValueException("No user with such Email");
 		Employee e = query.get();
@@ -132,7 +133,7 @@ public  class EmployeeDAO {
 //		Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", 4323);
 //		if(querySearch.get()!=null){
 //			//Update the List<List<objective>> in the DB passing the new list
-//			UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("emaiAddress", email);
+//			UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("emailAddress", email);
 //			//Commit the changes to the DB
 //			dbConnection.update(querySearch, ops);
 //			return true;
@@ -422,19 +423,23 @@ public  class EmployeeDAO {
 	}
 	 */
 	
-	public static void changeEmployeeNotes(int id){
+	public static void changeEmployeeNotes(int id,String email){
 		try{
 			Datastore datastore=getMongoDBConnection();
 			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", id);
 			if(querySearch.get()!=null){
 				Employee e = querySearch.get();
+				//e.setForename(forename);
+				//e.setSurname(surname);
+				e.setEmailAddress(email);
 				//List<List<Note>> n=new ArrayList<List<Note>>();
 				//e.setNoteList(n);
 				//Note note=new Note(7,"Blaaaaaaaaaaaaaaaaa", "Michael");
-				DevelopmentNeed devNeed1=new DevelopmentNeed(8,"Title21", "Description 21", "2017-03");
-				DevelopmentNeed devNeed2=new DevelopmentNeed(10,"Title2", "Description2");
-				e.addDevelopmentNeed(devNeed1);
-				e.addDevelopmentNeed(devNeed2);
+				DevelopmentNeed devNeed1=new DevelopmentNeed(8,2,"Title21", "Description 21", "2017-03");
+				DevelopmentNeed devNeed2=new DevelopmentNeed(10,0,"Title2", "Description2");
+				e.setDevelopmentNeedsList(new ArrayList<List<DevelopmentNeed>>());
+				//e.addDevelopmentNeed(devNeed1);
+				//e.addDevelopmentNeed(devNeed2);
 				datastore.findAndDelete(querySearch);
 				//UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes", n);
 				//Commit the changes to the DB
