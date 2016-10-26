@@ -2,9 +2,7 @@ package dataStructure;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
 import javax.management.InvalidAttributeValueException;
-
 import org.mongodb.morphia.annotations.Embedded;
 import com.google.gson.Gson;
 
@@ -25,8 +23,9 @@ public class Feedback implements Serializable{
 	private int id, performance;
 	private String fromWho, description, type, source;
 	private String timeStamp;
+	private String requestID;
 	//private List<String> attachments;
-	
+
 	//Empty Constructor
 	public Feedback(){
 		this.id=Constants.INVALID_INT;
@@ -36,9 +35,10 @@ public class Feedback implements Serializable{
 		this.type="";
 		this.source="";
 		timeStamp=null;
+		requestID="";
 		//this.attachments=new ArrayList<String>;
 	}
-	
+
 	//Constructor with parameters
 	public Feedback(
 			int id, 
@@ -55,28 +55,30 @@ public class Feedback implements Serializable{
 		this.setSource(source);
 		this.timeStamp=null;
 		this.setTimeStamp();
+		requestID="";
 		//this.attachments=new ArrayList<String>;
 		//this.attachments=attac;
 	}
-	
+
 	//Constructor with parameters
-		public Feedback(
-				int perf, 
-				String from, 
-				String desc, 
-				String type, 
-				String source) throws InvalidAttributeValueException{
-			this.setPerformance(perf);
-			this.setFromWho(from);
-			this.setDescription(desc);
-			this.setType(type);
-			this.setSource(source);
-			this.timeStamp=null;
-			this.setTimeStamp();
-			//this.attachments=new ArrayList<String>;
-			//this.attachments=attac;
-		}
-	
+	public Feedback(
+			int perf, 
+			String from, 
+			String desc, 
+			String type, 
+			String source) throws InvalidAttributeValueException{
+		this.setPerformance(perf);
+		this.setFromWho(from);
+		this.setDescription(desc);
+		this.setType(type);
+		this.setSource(source);
+		this.timeStamp=null;
+		this.setTimeStamp();
+		requestID="";
+		//this.attachments=new ArrayList<String>;
+		//this.attachments=attac;
+	}
+
 	public void setID(int id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.id=id;
@@ -85,11 +87,11 @@ public class Feedback implements Serializable{
 			throw new InvalidAttributeValueException("The value "+id+" is not valid in this context");
 		}
 	}
-	
+
 	public int getID(){
 		return this.id;
 	}
-	
+
 	public void setPerformance(int performance) throws InvalidAttributeValueException{
 		if(performance>=0 && performance<=100)
 			this.performance=performance;
@@ -98,11 +100,24 @@ public class Feedback implements Serializable{
 			throw new InvalidAttributeValueException("The performance value is not valid in this context");
 		}
 	}
-	
+
 	public int getPerformance(){
 		return this.performance;
 	}
-	
+
+	public void setRequestID(String id) throws InvalidAttributeValueException{
+		if(id!=null && !id.equals(""))
+			this.requestID=id;
+		else{
+			this.requestID=Constants.INVALID_STRING;
+			throw new InvalidAttributeValueException("The requestID is not valid in this context");
+		}
+	}
+
+	public String getRequestID(){
+		return this.requestID;
+	}
+
 	/**
 	 * 
 	 * @param from this string contains the name of who left the feedback and it
@@ -116,11 +131,11 @@ public class Feedback implements Serializable{
 			throw new InvalidAttributeValueException("The given 'fromWho' value is not valid in this context");
 		}
 	}
-	
+
 	public String getFromWho(){
 		return this.fromWho;
 	}
-	
+
 	/**
 	 * 
 	 * @param description This string must be valid and with a length less than 1000 characters
@@ -133,11 +148,11 @@ public class Feedback implements Serializable{
 			throw new InvalidAttributeValueException("The given 'description' value is not valid in this context");
 		}
 	}
-	
+
 	public String getDescription(){
 		return this.description;
 	}
-	
+
 	/**
 	 * 
 	 * @param type This string must be valid and can only contain the value Internal or External
@@ -150,11 +165,11 @@ public class Feedback implements Serializable{
 			throw new InvalidAttributeValueException("The given 'type' value is not valid in this context");
 		}
 	}
-	
+
 	public String getType(){
 		return this.type;
 	}
-	
+
 	/**
 	 * 
 	 * @param source This string must be valid and its length must be contained within 30 characters
@@ -167,11 +182,11 @@ public class Feedback implements Serializable{
 			throw new InvalidAttributeValueException("The given 'source' value is not valid in this context");
 		}
 	}
-	
+
 	public String getSource(){
 		return this.source;
 	}
-	
+
 	/**
 	 * 
 	 * This method saves the current DateTime inside the timeStamp object only if the object does not
@@ -183,35 +198,36 @@ public class Feedback implements Serializable{
 			this.timeStamp=temp.toString();
 		}
 	}
-	
+
 	public String getTimeStamp(){
 		//return this.timeStamp.format(Constants.DATE_TIME_FORMAT);
 		//DateFormat dateFormat = new SimpleDateFormat(Constants.COMPLETE_DATE_TIME_FORMAT);
 		return this.timeStamp;
 	}
-	
+
 	@Override
 	public String toString(){
 		String s="";
 		s+="ID "+this.id+"\n"
-			+ "Performance "+this.performance+"\n"
-			+ "From "+this.fromWho+"\n"
-			+ "Description "+this.description+"\n"
-			+ "Type "+this.type+"\n"
-			+ "Source "+this.source+"\n"
-			+ "TimeStamp "+this.getTimeStamp();
+				+ "Performance "+this.performance+"\n"
+				+ "From "+this.fromWho+"\n"
+				+ "Description "+this.description+"\n"
+				+ "Type "+this.type+"\n"
+				+ "Source "+this.source+"\n"
+				+ "TimeStamp "+this.getTimeStamp()+"\n"
+				+ "RequestID "+this.requestID;
 		return s;
 	}
-	
+
 	public String toGson(){
 		Gson gsonData=new Gson();
 		return gsonData.toJson(this);
 	}
-	
+
 	public boolean isFeedbackValid(){
 		return (this.getID()!=-1 && this.getTimeStamp()!=null && !this.getFromWho().contains("Invalid") && !this.getDescription().contains("Invalid") && !this.getType().contains("Invalid") && !this.getSource().contains("Invalid"));
 	}
-	
+
 	public boolean compare(Feedback obj){
 		return ((this.description.contains(obj.getDescription())) && (this.fromWho.equals(obj.getFromWho())) && (this.source.equals(obj.getSource())));
 	}
