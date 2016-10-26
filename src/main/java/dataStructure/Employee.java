@@ -29,7 +29,7 @@ public class Employee implements Serializable{
 	@Id
 	private ObjectId id;
 	private int employeeID, level, LM_ID;
-	private String forename, surname, role, LM_Name, emaiAddress;
+	private String forename, surname, role, LM_Name, emailAddress;
 	private String dob, joinDate;
 	@Embedded
 	private List<Feedback> feedback;
@@ -47,7 +47,7 @@ public class Employee implements Serializable{
 		this.LM_ID=Constants.INVALID_INT;
 		this.forename=Constants.INVALID_STRING;
 		this.surname=Constants.INVALID_STRING;
-		this.emaiAddress=Constants.INVALID_STRING;
+		this.emailAddress=Constants.INVALID_STRING;
 		this.role=Constants.INVALID_STRING;
 		this.LM_Name=Constants.INVALID_STRING;
 		this.dob=null;
@@ -172,15 +172,15 @@ public class Employee implements Serializable{
 	 */
 	public void setEmailAddress(String email) throws InvalidAttributeValueException{
 		if(email!=null && email.length()>0 && email.contains("@"))
-			this.emaiAddress=email;
+			this.emailAddress=email;
 		else{
-			this.emaiAddress=Constants.INVALID_EMAIL;
+			this.emailAddress=Constants.INVALID_EMAIL;
 			throw new InvalidAttributeValueException("The given 'Email Address' is not valid in this context");
 		}
 	}
 
 	public String getEmailAddress(){
-		return this.emaiAddress;
+		return this.emailAddress;
 	}
 
 	/**
