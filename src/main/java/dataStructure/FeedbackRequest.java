@@ -1,32 +1,47 @@
 package dataStructure;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import javax.management.InvalidAttributeValueException;
+import com.google.gson.Gson;
 
-public class FeedbackRequest {
+public class FeedbackRequest implements Serializable {
 	
+	private static final long serialVersionUID = 47606158926933500L;
 	//Global Variables
-	private String Id, timeStamp;
-	private int employeeID;
+	private String feedbackID, timeStamp;
+	private List<String> recepientEmails, replierEmails;
+	private String status;
 	
-	public FeedbackRequest(int userLink) throws InvalidAttributeValueException{
-		this.setEmployeeID(userLink);
+	public FeedbackRequest(){
 		this.setTimeStamp();
 		this.createUniqueID();
+		recepientEmails=new ArrayList<String>();
+		replierEmails=new ArrayList<String>();
+		status=Constants.PENDING_FEEDBACK;
 	}
 	
-	public void setEmployeeID(int id) throws InvalidAttributeValueException{
-		if(id>0)
-			this.employeeID=id;
-		else{
-			this.employeeID=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("An ID with value "+id+" is not valid in this context");
-		}
+	private void createUniqueID(){
+		UUID idGen=UUID.randomUUID();
+		feedbackID=String.valueOf(idGen).replace("-", "");
 	}
 	
-	public int getEmployeeID(){
-		return this.employeeID;
+	public String getID(){
+		return this.feedbackID;
+	}
+	
+	public void updateStatus(){
+		if(this.status.equals(Constants.PENDING_FEEDBACK))
+			this.status=Constants.RECEIVED_FEEDBACK;
+		else
+			this.status=Constants.PENDING_FEEDBACK;
+	}
+	
+	public String getStatus(){
+		return this.status;
 	}
 	
 	/**
@@ -45,12 +60,74 @@ public class FeedbackRequest {
 		return this.timeStamp;
 	}
 	
-	public void createUniqueID(){
-		
+	public void setRecipients(List<String> data) throws InvalidAttributeValueException{
+		if(data!=null){
+			this.recepientEmails=data;
+			return;
+		}
+		throw new InvalidAttributeValueException("The given list of people is empty");
 	}
 	
-	public String getID(){
-		return this.Id;
+	public List<String> getRecipients(){
+		return this.recepientEmails;
+	}
+	
+	public void setRepliers(List<String> data) throws InvalidAttributeValueException{
+		if(data!=null){
+			this.replierEmails=data;
+			return;
+		}
+		throw new InvalidAttributeValueException("The given list of people is empty");
+	}
+	
+	public List<String> getRepliers(){
+		return this.replierEmails;
+	}
+	
+	public boolean addRecipient(String email){
+		if(recepientEmails==null)
+			recepientEmails=new ArrayList<String>();
+		//Validate the feedback
+		if(!email.equals(""))
+			return recepientEmails.add(email);
+		return false;
+	}
+	
+	public boolean addSender(String email){
+		if(replierEmails==null)
+			replierEmails=new ArrayList<String>();
+		//Validate the feedback
+		if(!email.equals(""))
+			return replierEmails.add(email);
+		return false;
+	}
+	
+	public String getRepliesOutOf(){
+		String reply="";
+		reply+="("+replierEmails.size()+"/"+recepientEmails.size()+")";
+		return reply;
+	}
+	
+	public String toGson(){
+		Gson gsonData=new Gson();
+		return gsonData.toJson(this);
+	}
+	
+	@Override
+	public String toString(){
+		String s="";
+		s+="ID "+this.feedbackID+"\n"
+			+ "TimeStamp "+this.timeStamp+"\n"
+			+ "Status "+this.status+"\n";
+		s+="Recipients:\n";
+		for(String temp: this.recepientEmails){
+			s+=temp;
+		}
+		s+="Repliers:\n";
+		for(String temp: this.replierEmails){
+			s+=temp;
+		}
+		return s;
 	}
 
 }

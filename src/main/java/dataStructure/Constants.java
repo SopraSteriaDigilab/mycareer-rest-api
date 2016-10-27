@@ -23,13 +23,15 @@ public final class Constants {
 	public static final String SIMPLE_DATE_FORMAT="yyyy-mm-dd";
 	public static final String COMPLETE_DATE_TIME_FORMAT="yyyy-mm-dd hh:mm:ss";
 	public static final String COMPLETE_DATE_NOT_SET="Ongoing";
+	public static final String PENDING_FEEDBACK="Pending";
+	public static final String RECEIVED_FEEDBACK="Received";
 	
 	//Constants for the Functionalities package
 	public static final String MONGODB_USERNAME="michael";
 	public static final String MONGODB_PASSWORD="leahcim";
 	public static final String MONGODB_HOST="127.0.0.1";
 	public static final int MONGODB_PORT=27017;
-	public static final String MONGODB_COLLECTION_NAME="Development";
+	public static final String MONGODB_DB_NAME="Development";
 	
 	//Constants for the emailServices package
 	//Common Constants

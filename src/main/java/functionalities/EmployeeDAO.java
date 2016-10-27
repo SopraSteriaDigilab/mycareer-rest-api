@@ -452,20 +452,20 @@ public  class EmployeeDAO {
 		}
 	}
 
-	public static Datastore getMongoDBConnection() throws MongoException{
+	private static Datastore getMongoDBConnection() throws MongoException{
 		if(dbConnection==null){
 			String mongoClientURI = "mongodb://"
 					+ "" + Constants.MONGODB_USERNAME + ":"
 					+ "" + Constants.MONGODB_PASSWORD + "@"
 					+ "" + Constants.MONGODB_HOST + ":"
 					+ "" + Constants.MONGODB_PORT + "/"
-					+ "" + Constants.MONGODB_COLLECTION_NAME;
+					+ "" + Constants.MONGODB_DB_NAME;
 			MongoClient client = new MongoClient(new MongoClientURI(mongoClientURI));
 			final Morphia morphia =new Morphia();
 			//client.getMongoOptions().setMaxWaitTime(10);
 			//Add packages
 			morphia.mapPackage("dataStructure.Employee");
-			dbConnection=morphia.createDatastore(client, Constants.MONGODB_COLLECTION_NAME);
+			dbConnection=morphia.createDatastore(client, Constants.MONGODB_DB_NAME);
 			dbConnection.ensureIndexes();
 		}
 		return dbConnection;
