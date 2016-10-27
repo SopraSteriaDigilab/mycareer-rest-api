@@ -8,7 +8,10 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.management.InvalidAttributeValueException;
 
+import org.eclipse.jetty.http.MetaData.Request;
+
 import dataStructure.Constants;
+import dataStructure.FeedbackRequest;
 import functionalities.EmployeeDAO;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
@@ -56,14 +59,30 @@ public final class SMTPService {
 				else
 					invalidEmailAddressesList.add(s);
 			}
-			//Send a feedback requests, now that the incorrect email addresses have been removed
-			for(String s: validEmailAddressesList){
-				//Create RequestID
-				//Associate the Request to the valid receivers of this email
-				//Associate the sender to this RequestID
-				//Add any additional notes to the template of the email
-				//Send the email
-				//Send confirmation email to sender
+			//Create a FeedbackRequest object with an unique ID to the employee
+			//Retrieve employeeID from the sender emailAddress
+			int tempEmployeeID=findEmployeeOfTOField(sender);
+			//No ID has a value less than 0 in the system
+			if(tempEmployeeID>0){
+				//Keep generating request IDs until a valid one is found, this eliminates duplicated values and issues that such matter can cause
+				FeedbackRequest request;
+				do{
+					request=new FeedbackRequest();
+				}
+				while(EmployeeDAO.validateFeedbackRequestID(tempEmployeeID, request.getID()));
+				//Add further information to the feedback request object
+				//Add list of recipients to the feedback request object
+				request.setRecipients(validEmailAddressesList);
+				//Send a feedback requests, now that the incorrect email addresses have been removed
+				for(String s: validEmailAddressesList){
+					//Create RequestID
+					//Associate the Request to the valid receivers of this email
+					
+					//Associate the sender to this RequestID
+					//Add any additional notes to the template of the email
+					//Send the email
+					//Send confirmation email to sender
+				}
 			}
 			//Send an email to the creator of this task containing the invalid email addresses
 			if(invalidEmailAddressesList.size()>0){

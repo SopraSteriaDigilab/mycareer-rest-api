@@ -917,5 +917,13 @@ public class Employee implements Serializable{
 		}
 		return false;
 	}
+	
+	public boolean isFeedbackRequestUniqueToEmployee(FeedbackRequest req){
+		for(FeedbackRequest t:feedbackRequests){
+			if(t.getID().equals(req.getID()))
+				return false;
+		}
+		return true;
+	}
 
 }
