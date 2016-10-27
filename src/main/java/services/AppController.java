@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mongodb.MongoException;
 
 import dataStructure.DevelopmentNeed;
+import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 import functionalities.EmployeeDAO;
@@ -334,6 +335,41 @@ public class AppController {
 				return ResponseEntity.ok("Development need modified correctly!");
 			else
 				return ResponseEntity.badRequest().body("Error while editing the Development need");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
+	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> createFeedbackRequest(
+			@PathVariable("employeeID") int employeeID,
+			@RequestParam(value="emailsTo") String toFields){
+		try{
+			FeedbackRequest t=new FeedbackRequest();
+			t.addRecipient(toFields);
+			boolean done= EmployeeDAO.insertNewFeedbackRequest(employeeID, t);
+			if(done)
+				return ResponseEntity.ok("Feedback request sent!");
+			else
+				return ResponseEntity.badRequest().body("Error while creating a feedback request!");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
+	@RequestMapping(value="/getFeedbackRequests/{employeeID}", method=RequestMethod.GET)
+	public ResponseEntity<?> getFeedbackRequests(
+			@PathVariable("employeeID") int employeeID){
+		try{
+			return ResponseEntity.ok(EmployeeDAO.getFeedbackRequestsForUser(employeeID));
 		}
 		catch(MongoException me){
 			return ResponseEntity.badRequest().body("DataBase Connection Error");
