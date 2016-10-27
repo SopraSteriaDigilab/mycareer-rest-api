@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mongodb.MongoException;
 
 import dataStructure.DevelopmentNeed;
+import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 import functionalities.EmployeeDAO;
@@ -312,7 +313,7 @@ public class AppController {
 	 * @param title title of the development need (<150>
 	 * @param description content of the development need (<1000)
 	 * @param timeToCompleteBy String containing a date with format yyyy-MM or empty ""
-	 * @return a message explaining if the development need has been added or if there was an error while completing the task
+	 * @return a message explaineing if the development need has been added or if there was an error while completing the task
 	 */
 	@RequestMapping(value="/editDevelopmentNeed/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
@@ -326,14 +327,49 @@ public class AppController {
 			DevelopmentNeed obj;
 			//Verify if a time to complete the task by is given
 			if(timeToCompleteBy.equals(""))
-				obj=new DevelopmentNeed(1,cat,title,description);
+				obj=new DevelopmentNeed(devNeedID,cat,title,description);
 			else
-				obj=new DevelopmentNeed(1,cat,title,description,timeToCompleteBy);
+				obj=new DevelopmentNeed(devNeedID,cat,title,description,timeToCompleteBy);
 			boolean inserted=EmployeeDAO.addNewVersionDevelopmentNeed(employeeID, devNeedID, obj);
 			if(inserted)
 				return ResponseEntity.ok("Development need modified correctly!");
 			else
 				return ResponseEntity.badRequest().body("Error while editing the Development need");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
+	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> createFeedbackRequest(
+			@PathVariable("employeeID") int employeeID,
+			@RequestParam(value="emailsTo") String toFields){
+		try{
+			FeedbackRequest t=new FeedbackRequest();
+			t.addRecipient(toFields);
+			boolean done= EmployeeDAO.insertNewFeedbackRequest(employeeID, t);
+			if(done)
+				return ResponseEntity.ok("Feedback request sent!");
+			else
+				return ResponseEntity.badRequest().body("Error while creating a feedback request!");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
+	@RequestMapping(value="/getFeedbackRequests/{employeeID}", method=RequestMethod.GET)
+	public ResponseEntity<?> getFeedbackRequests(
+			@PathVariable("employeeID") int employeeID){
+		try{
+			return ResponseEntity.ok(EmployeeDAO.getFeedbackRequestsForUser(employeeID));
 		}
 		catch(MongoException me){
 			return ResponseEntity.badRequest().body("DataBase Connection Error");

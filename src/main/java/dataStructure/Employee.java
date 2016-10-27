@@ -592,6 +592,13 @@ public class Employee implements Serializable{
 		return null;
 	}
 
+	/**
+	 * 
+	 * This method copies the data from an already exciting list to the one for the current user
+	 * 
+	 * @param data the list of feedback request object
+	 * @throws InvalidAttributeValueException
+	 */
 	public void setFeedbackRequestsList(List<FeedbackRequest> data) throws InvalidAttributeValueException{
 		if(data!=null){
 			//Counter that keeps tracks of the error while adding elements
@@ -615,10 +622,23 @@ public class Employee implements Serializable{
 		}
 	}
 
+	/**
+	 * 
+	 * This method returns the list of feedbackRequests
+	 * 
+	 * @return
+	 */
 	public List<FeedbackRequest> getFeedbackRequestsList(){
 		return this.feedbackRequests;
 	}
 
+	/**
+	 * 
+	 * This method retrieves a specific feedback request based 
+	 * 
+	 * @param id
+	 * @return
+	 */
 	public FeedbackRequest getSpecificFeedbackRequest(String id){
 		if(id!=null && !id.equals("")){
 			for(int i=0; i<feedbackRequests.size(); i++){
@@ -896,6 +916,13 @@ public class Employee implements Serializable{
 		return false;
 	}
 
+	/**
+	 * 
+	 * This method add a feedback request to a given user ID
+	 * 
+	 * @param obj the feedback request object to insert
+	 * @return true if it completes correctly, false otherwise
+	 */
 	public boolean addFeedbackRequest(FeedbackRequest obj){
 		if(feedbackRequests==null)
 			feedbackRequests=new ArrayList<FeedbackRequest>();
@@ -906,6 +933,13 @@ public class Employee implements Serializable{
 		return feedbackRequests.add(obj);
 	}
 
+	/**
+	 * 
+	 * This method updates the content of a feedback request
+	 * 
+	 * @param obj the new feedback request object containing the right ID
+	 * @return true if it completes correctly, false otherwise
+	 */
 	public boolean updateFeedbackRequest(FeedbackRequest obj){
 		if(obj!=null){
 			for(int i=0; i<feedbackRequests.size(); i++){
@@ -918,6 +952,13 @@ public class Employee implements Serializable{
 		return false;
 	}
 	
+	/**
+	 * 
+	 * This method verifies if the ID for the feedback request is unique to the user
+	 * 
+	 * @param req the feedback request object
+	 * @return true if it completes correctly, false otherwise
+	 */
 	public boolean isFeedbackRequestUniqueToEmployee(FeedbackRequest req){
 		for(FeedbackRequest t:feedbackRequests){
 			if(t.getID().equals(req.getID()))
