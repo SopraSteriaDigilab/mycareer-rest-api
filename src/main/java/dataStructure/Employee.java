@@ -39,6 +39,7 @@ public class Employee implements Serializable{
 	private List<List<Note>> notes;
 	private boolean isAManager;
 	private List<List<DevelopmentNeed>> developmentNeeds;
+	private List<FeedbackRequest> feedbackRequests;
 
 	//Empty Constructor
 	public Employee(){
@@ -57,6 +58,7 @@ public class Employee implements Serializable{
 		this.notes=new ArrayList<List<Note>>();
 		this.isAManager=false;
 		developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
+		feedbackRequests=new ArrayList<FeedbackRequest>();
 	}
 
 	//Constructor with parameters
@@ -75,7 +77,8 @@ public class Employee implements Serializable{
 			List<Feedback> feeds,
 			List<List<Objective>> objectives,
 			List<List<Note>> notes,
-			List<List<DevelopmentNeed>> needs) throws InvalidAttributeValueException, InvalidClassException{
+			List<List<DevelopmentNeed>> needs,
+			List<FeedbackRequest> requests) throws InvalidAttributeValueException, InvalidClassException{
 		this.setEmployeeID(id);
 		this.setLevel(level);
 		this.setForename(name);
@@ -91,6 +94,7 @@ public class Employee implements Serializable{
 		this.setObjectiveList(objectives);
 		this.setNoteList(notes);
 		this.setDevelopmentNeedsList(needs);
+		this.setFeedbackRequestsList(requests);
 	}
 
 	/**
@@ -588,6 +592,43 @@ public class Employee implements Serializable{
 		return null;
 	}
 
+	public void setFeedbackRequestsList(List<FeedbackRequest> data) throws InvalidAttributeValueException{
+		if(data!=null){
+			//Counter that keeps tracks of the error while adding elements
+			int errorCounter=0;
+			this.feedbackRequests=new ArrayList<FeedbackRequest>();
+			//Verify if each development need is valid
+			for(int i=0; i<data.size(); i++){
+				//Add a new List to the list of developmentNeeds
+				if(data.get(i)!=null){
+					if(!feedbackRequests.add(data.get(i)))
+						errorCounter++;
+				}
+			}
+			//Verify if there were errors during the import of development needs
+			if(errorCounter!=0)
+				throw new InvalidAttributeValueException("Not all feedback requests were valid");
+		}
+		else{
+			this.feedbackRequests=null;
+			//throw new InvalidAttributeValueException("The list of feedback given is null");
+		}
+	}
+
+	public List<FeedbackRequest> getFeedbackRequestsList(){
+		return this.feedbackRequests;
+	}
+
+	public FeedbackRequest getSpecificFeedbackRequest(String id){
+		if(id!=null && !id.equals("")){
+			for(int i=0; i<feedbackRequests.size(); i++){
+				if(feedbackRequests.get(i).getID().equals(id))
+					return feedbackRequests.get(i);
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public String toString(){
 		String s="";
@@ -620,6 +661,7 @@ public class Employee implements Serializable{
 		}
 		//Add the Notes
 		s+="Notes:\n";
+		counter=1;
 		for(List<Note> noteList: notes){
 			s+="Note "+counter++ +"\n";
 			int version=1;
@@ -629,12 +671,20 @@ public class Employee implements Serializable{
 		}
 		//Add the Development needs
 		s+="Development Needs:\n";
+		counter=1;
 		for(List<DevelopmentNeed> noteList: developmentNeeds){
 			s+="Development Need "+counter++ +"\n";
 			int version=1;
 			for(DevelopmentNeed obj: noteList){
 				s+="Version "+version++ +"\n"+obj.toString()+"\n";
 			}
+		}
+		//Add the Feedback requests
+		s+="Feedback Requests:\n";
+		counter=1;
+		for(FeedbackRequest t:feedbackRequests){
+			s+="Request "+counter++ +"\n";
+			s+=t.toString();
 		}
 		return s;
 	}
@@ -792,7 +842,7 @@ public class Employee implements Serializable{
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * This method inserts a development need inside the list of developmentneeds
@@ -846,11 +896,34 @@ public class Employee implements Serializable{
 		return false;
 	}
 
-	/*
-	 * This methods are not needed at the minute
-	public Feedback getSpecificFeedback(int id){
-
+	public boolean addFeedbackRequest(FeedbackRequest obj){
+		if(feedbackRequests==null)
+			feedbackRequests=new ArrayList<FeedbackRequest>();
+		//Verify that the object is not null
+		if(obj==null)
+			return false;
+		//The object has now been validated and can be added to the list for this user
+		return feedbackRequests.add(obj);
 	}
-	 */
+
+	public boolean updateFeedbackRequest(FeedbackRequest obj){
+		if(obj!=null){
+			for(int i=0; i<feedbackRequests.size(); i++){
+				if(feedbackRequests.get(i).getID().equals(obj.getID())){
+					//Remove the obsolete object and add the new one
+					return (feedbackRequests.remove(feedbackRequests.get(i))) && (feedbackRequests.add(obj));
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean isFeedbackRequestUniqueToEmployee(FeedbackRequest req){
+		for(FeedbackRequest t:feedbackRequests){
+			if(t.getID().equals(req.getID()))
+				return false;
+		}
+		return true;
+	}
 
 }

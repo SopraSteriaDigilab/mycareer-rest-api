@@ -14,6 +14,7 @@ import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
 import dataStructure.Feedback;
+import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 
@@ -451,21 +452,44 @@ public  class EmployeeDAO {
 			System.err.println(re);
 		}
 	}
+	
+	public static boolean validateFeedbackRequestID(int employeeID, String id) throws InvalidAttributeValueException{
+		if(employeeID>0 && !id.equals("")){
+			if(dbConnection==null)
+				dbConnection=getMongoDBConnection();
+			//Retrieve Employee with the given ID
+			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+			if(querySearch.get()!=null){
+				Employee e = querySearch.get();
+				//Extract its List of notes
+				List<FeedbackRequest> requests=e.getFeedbackRequestsList();
+				//Check if the feedbackID is already contained within the system
+				for(FeedbackRequest f: requests){
+					if(f.getID().equals(id))
+						return false;
+				}
+				return true;
+			}
+		}
+		else
+			throw new InvalidAttributeValueException("The given EmployeeID or FeedbackRequestID are invalid");
+		return false;
+	}
 
-	public static Datastore getMongoDBConnection() throws MongoException{
+	private static Datastore getMongoDBConnection() throws MongoException{
 		if(dbConnection==null){
 			String mongoClientURI = "mongodb://"
 					+ "" + Constants.MONGODB_USERNAME + ":"
 					+ "" + Constants.MONGODB_PASSWORD + "@"
 					+ "" + Constants.MONGODB_HOST + ":"
 					+ "" + Constants.MONGODB_PORT + "/"
-					+ "" + Constants.MONGODB_COLLECTION_NAME;
+					+ "" + Constants.MONGODB_DB_NAME;
 			MongoClient client = new MongoClient(new MongoClientURI(mongoClientURI));
 			final Morphia morphia =new Morphia();
 			//client.getMongoOptions().setMaxWaitTime(10);
 			//Add packages
 			morphia.mapPackage("dataStructure.Employee");
-			dbConnection=morphia.createDatastore(client, Constants.MONGODB_COLLECTION_NAME);
+			dbConnection=morphia.createDatastore(client, Constants.MONGODB_DB_NAME);
 			dbConnection.ensureIndexes();
 		}
 		return dbConnection;
