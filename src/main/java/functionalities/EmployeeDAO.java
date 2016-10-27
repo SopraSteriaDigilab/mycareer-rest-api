@@ -1,5 +1,6 @@
 package functionalities;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.Datastore;
@@ -10,8 +11,10 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
 import dataStructure.Constants;
+import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
 import dataStructure.Feedback;
+import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 
@@ -59,13 +62,23 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
 		return e.getLatestVersionNotes();
+	}
+	
+	public static List<DevelopmentNeed> getDevelopmentNeedsForUser(int employeeID) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such ID");
+		Employee e = query.get();
+		return e.getLatestVersionDevelopmentNeeds();
 
 	}
 
 	public static int getUserIDFromEmailAddress(String email) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
-		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("emaiAddress =", email);
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("emailAddress =", email);
 		if(query.get()==null)
 			throw new InvalidAttributeValueException("No user with such Email");
 		Employee e = query.get();
@@ -121,7 +134,7 @@ public  class EmployeeDAO {
 //		Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", 4323);
 //		if(querySearch.get()!=null){
 //			//Update the List<List<objective>> in the DB passing the new list
-//			UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("emaiAddress", email);
+//			UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("emailAddress", email);
 //			//Commit the changes to the DB
 //			dbConnection.update(querySearch, ops);
 //			return true;
@@ -295,6 +308,87 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("The given EmployeeID or NoteID are invalid");
 		return false;
 	}
+	
+	public static boolean insertNewDevelopmentNeed(int employeeID, Object data) throws InvalidAttributeValueException, MongoException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		//Check the employeeID
+		if(employeeID>0){
+			if(data!=null && data instanceof DevelopmentNeed){
+				//Retrieve Employee with the given ID
+				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+				if(querySearch.get()!=null){
+					Employee e = querySearch.get();
+					//Extract its List of notes
+					List<List<DevelopmentNeed>> dataFromDB=e.getDevelopmentNeedsList();
+					//Add the new note to the list
+					if(e.addDevelopmentNeed((DevelopmentNeed)data)){
+						//Update the List<List<Note>> in the DB passing the new list
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds", dataFromDB);
+						//Commit the changes to the DB
+						dbConnection.update(querySearch, ops);
+						return true;
+					}
+					else
+						throw new InvalidAttributeValueException("The given object couldn't be added to the development need list");
+				}
+				else
+					throw new InvalidAttributeValueException("No employee found with the ID provided");
+			}
+			else
+				throw new InvalidAttributeValueException("The data provided is not valid");
+		}
+		else
+			throw new InvalidAttributeValueException("The ID provided is not valid");
+	}
+	
+	public static boolean addNewVersionDevelopmentNeed(int employeeID, int devNeedID, Object data) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		//Check EmployeeID and noteID
+		if(employeeID>0 && devNeedID>0){
+			if(data!=null && data instanceof DevelopmentNeed){
+				//Retrieve Employee with the given ID
+				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+				if(querySearch.get()!=null){
+					Employee e = querySearch.get();
+					//Extract its List of notes
+					List<List<DevelopmentNeed>> dataFromDB=e.getDevelopmentNeedsList();
+					//Search for the objective Id within the list of notes
+					int indexNoteList=-1;
+					for(int i=0; i<dataFromDB.size(); i++){
+						//Save the index of the list when the noteID is found
+						if(dataFromDB.get(i).get(0).getID()==devNeedID){
+							indexNoteList=i;
+							//Exit the for loop once the value has been found
+							break;
+						}
+					}
+					//verify that the index variable has changed its value
+					if(indexNoteList!=-1){ 
+						//Add the updated version of the note
+						if(e.editDevelopmentNeed((DevelopmentNeed)data)){
+							//Update the List<List<Note>> in the DB passing the new list
+							UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds", e.getDevelopmentNeedsList());
+							//Commit the changes to the DB
+							dbConnection.update(querySearch, ops);
+							return true;
+						}
+					}
+					//if the index hasn't changed its value it means that there is no note with such ID, therefore throw and exception
+					else
+						throw new InvalidAttributeValueException("The given ID associated with the development need is invalid");
+				}
+				else
+					throw new InvalidAttributeValueException("No employee found with the ID provided");
+			}
+			else
+				throw new InvalidAttributeValueException("The data provided is not valid");
+		}
+		else
+			throw new InvalidAttributeValueException("The given EmployeeID or DevelopmentNeedID are invalid");
+		return false;
+	}
 
 	/*
 	public static void insertTempData(){
@@ -330,16 +424,23 @@ public  class EmployeeDAO {
 	}
 	 */
 	
-	public static void changeEmployeeNotes(int id){
+	public static void changeEmployeeNotes(int id,String email){
 		try{
 			Datastore datastore=getMongoDBConnection();
 			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", id);
 			if(querySearch.get()!=null){
 				Employee e = querySearch.get();
+				//e.setForename(forename);
+				//e.setSurname(surname);
+				e.setEmailAddress(email);
 				//List<List<Note>> n=new ArrayList<List<Note>>();
 				//e.setNoteList(n);
-				Note note=new Note(7,"Blaaaaaaaaaaaaaaaaa", "Michael");
-				e.addNote(note);
+				//Note note=new Note(7,"Blaaaaaaaaaaaaaaaaa", "Michael");
+				DevelopmentNeed devNeed1=new DevelopmentNeed(8,2,"Title21", "Description 21", "2017-03");
+				DevelopmentNeed devNeed2=new DevelopmentNeed(10,0,"Title2", "Description2");
+				e.setDevelopmentNeedsList(new ArrayList<List<DevelopmentNeed>>());
+				//e.addDevelopmentNeed(devNeed1);
+				//e.addDevelopmentNeed(devNeed2);
 				datastore.findAndDelete(querySearch);
 				//UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes", n);
 				//Commit the changes to the DB
@@ -351,21 +452,44 @@ public  class EmployeeDAO {
 			System.err.println(re);
 		}
 	}
+	
+	public static boolean validateFeedbackRequestID(int employeeID, String id) throws InvalidAttributeValueException{
+		if(employeeID>0 && !id.equals("")){
+			if(dbConnection==null)
+				dbConnection=getMongoDBConnection();
+			//Retrieve Employee with the given ID
+			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+			if(querySearch.get()!=null){
+				Employee e = querySearch.get();
+				//Extract its List of notes
+				List<FeedbackRequest> requests=e.getFeedbackRequestsList();
+				//Check if the feedbackID is already contained within the system
+				for(FeedbackRequest f: requests){
+					if(f.getID().equals(id))
+						return false;
+				}
+				return true;
+			}
+		}
+		else
+			throw new InvalidAttributeValueException("The given EmployeeID or FeedbackRequestID are invalid");
+		return false;
+	}
 
-	public static Datastore getMongoDBConnection() throws MongoException{
+	private static Datastore getMongoDBConnection() throws MongoException{
 		if(dbConnection==null){
 			String mongoClientURI = "mongodb://"
 					+ "" + Constants.MONGODB_USERNAME + ":"
 					+ "" + Constants.MONGODB_PASSWORD + "@"
 					+ "" + Constants.MONGODB_HOST + ":"
 					+ "" + Constants.MONGODB_PORT + "/"
-					+ "" + Constants.MONGODB_COLLECTION_NAME;
+					+ "" + Constants.MONGODB_DB_NAME;
 			MongoClient client = new MongoClient(new MongoClientURI(mongoClientURI));
 			final Morphia morphia =new Morphia();
 			//client.getMongoOptions().setMaxWaitTime(10);
 			//Add packages
 			morphia.mapPackage("dataStructure.Employee");
-			dbConnection=morphia.createDatastore(client, Constants.MONGODB_COLLECTION_NAME);
+			dbConnection=morphia.createDatastore(client, Constants.MONGODB_DB_NAME);
 			dbConnection.ensureIndexes();
 		}
 		return dbConnection;
