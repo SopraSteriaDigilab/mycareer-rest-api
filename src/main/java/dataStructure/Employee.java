@@ -592,6 +592,13 @@ public class Employee implements Serializable{
 		return null;
 	}
 
+	/**
+	 * 
+	 * This method copies the data from an already exciting list to the one for the current user
+	 * 
+	 * @param data the list of feedback request object
+	 * @throws InvalidAttributeValueException
+	 */
 	public void setFeedbackRequestsList(List<FeedbackRequest> data) throws InvalidAttributeValueException{
 		if(data!=null){
 			//Counter that keeps tracks of the error while adding elements
@@ -615,10 +622,23 @@ public class Employee implements Serializable{
 		}
 	}
 
+	/**
+	 * 
+	 * This method returns the list of feedbackRequests
+	 * 
+	 * @return
+	 */
 	public List<FeedbackRequest> getFeedbackRequestsList(){
 		return this.feedbackRequests;
 	}
 
+	/**
+	 * 
+	 * This method retrieves a specific feedback request based 
+	 * 
+	 * @param id
+	 * @return
+	 */
 	public FeedbackRequest getSpecificFeedbackRequest(String id){
 		if(id!=null && !id.equals("")){
 			for(int i=0; i<feedbackRequests.size(); i++){

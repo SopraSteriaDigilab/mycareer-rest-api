@@ -312,7 +312,7 @@ public class AppController {
 	 * @param title title of the development need (<150>
 	 * @param description content of the development need (<1000)
 	 * @param timeToCompleteBy String containing a date with format yyyy-MM or empty ""
-	 * @return a message explaining if the development need has been added or if there was an error while completing the task
+	 * @return a message explaineing if the development need has been added or if there was an error while completing the task
 	 */
 	@RequestMapping(value="/editDevelopmentNeed/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
@@ -326,9 +326,9 @@ public class AppController {
 			DevelopmentNeed obj;
 			//Verify if a time to complete the task by is given
 			if(timeToCompleteBy.equals(""))
-				obj=new DevelopmentNeed(1,cat,title,description);
+				obj=new DevelopmentNeed(devNeedID,cat,title,description);
 			else
-				obj=new DevelopmentNeed(1,cat,title,description,timeToCompleteBy);
+				obj=new DevelopmentNeed(devNeedID,cat,title,description,timeToCompleteBy);
 			boolean inserted=EmployeeDAO.addNewVersionDevelopmentNeed(employeeID, devNeedID, obj);
 			if(inserted)
 				return ResponseEntity.ok("Development need modified correctly!");
