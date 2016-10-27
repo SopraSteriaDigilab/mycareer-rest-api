@@ -73,6 +73,8 @@ public final class SMTPService {
 				//Add further information to the feedback request object
 				//Add list of recipients to the feedback request object
 				request.setRecipients(validEmailAddressesList);
+				//Add the feedback request to te user on the DB
+				//EmployeeDAO.add
 				//Send a feedback requests, now that the incorrect email addresses have been removed
 				for(String s: validEmailAddressesList){
 					//Create RequestID

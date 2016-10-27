@@ -72,7 +72,16 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
 		return e.getLatestVersionDevelopmentNeeds();
-
+	}
+	
+	public static List<FeedbackRequest> getFeedbackRequestsForUser(int employeeID) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such ID");
+		Employee e = query.get();
+		return e.getFeedbackRequestsList();
 	}
 
 	public static int getUserIDFromEmailAddress(String email) throws InvalidAttributeValueException{
@@ -109,7 +118,7 @@ public  class EmployeeDAO {
 					//Add the new objective to the list
 					if(e.addObjective((Objective)data)){
 						//Update the List<List<objective>> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives", dataFromDB);
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives", e.getObjectiveList());
 						//Commit the changes to the DB
 						dbConnection.update(querySearch, ops);
 						return true;
@@ -162,7 +171,7 @@ public  class EmployeeDAO {
 					//Add the new objective to the list
 					if(e.addGenericFeedback((Feedback)data)){
 						//Update the List<List<objective>> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback", dataFromDB);
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getFeedbackList());
 						//Commit the changes to the DB
 						dbConnection.update(querySearch, ops);
 						return true;
@@ -243,7 +252,7 @@ public  class EmployeeDAO {
 					//Add the new note to the list
 					if(e.addNote((Note)data)){
 						//Update the List<List<Note>> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes", dataFromDB);
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes", e.getNoteList());
 						//Commit the changes to the DB
 						dbConnection.update(querySearch, ops);
 						return true;
@@ -324,7 +333,7 @@ public  class EmployeeDAO {
 					//Add the new note to the list
 					if(e.addDevelopmentNeed((DevelopmentNeed)data)){
 						//Update the List<List<Note>> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds", dataFromDB);
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds", e.getDevelopmentNeedsList());
 						//Commit the changes to the DB
 						dbConnection.update(querySearch, ops);
 						return true;
@@ -354,28 +363,28 @@ public  class EmployeeDAO {
 					Employee e = querySearch.get();
 					//Extract its List of notes
 					List<List<DevelopmentNeed>> dataFromDB=e.getDevelopmentNeedsList();
-					//Search for the objective Id within the list of notes
-					int indexNoteList=-1;
+					//Search for the objective Id within the list of development needs
+					int indexDevNeedList=-1;
 					for(int i=0; i<dataFromDB.size(); i++){
-						//Save the index of the list when the noteID is found
+						//Save the index of the list when the devNeedID is found
 						if(dataFromDB.get(i).get(0).getID()==devNeedID){
-							indexNoteList=i;
+							indexDevNeedList=i;
 							//Exit the for loop once the value has been found
 							break;
 						}
 					}
 					//verify that the index variable has changed its value
-					if(indexNoteList!=-1){ 
-						//Add the updated version of the note
+					if(indexDevNeedList!=-1){ 
+						//Add the updated version of the DevelopmentNeed
 						if(e.editDevelopmentNeed((DevelopmentNeed)data)){
-							//Update the List<List<Note>> in the DB passing the new list
+							//Update the List<List<DevelopmentNeed>> in the DB passing the new list
 							UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds", e.getDevelopmentNeedsList());
 							//Commit the changes to the DB
 							dbConnection.update(querySearch, ops);
 							return true;
 						}
 					}
-					//if the index hasn't changed its value it means that there is no note with such ID, therefore throw and exception
+					//if the index hasn't changed its value it means that there is no development need with such ID, therefore throw and exception
 					else
 						throw new InvalidAttributeValueException("The given ID associated with the development need is invalid");
 				}
@@ -387,6 +396,87 @@ public  class EmployeeDAO {
 		}
 		else
 			throw new InvalidAttributeValueException("The given EmployeeID or DevelopmentNeedID are invalid");
+		return false;
+	}
+	
+	public static boolean insertNewFeedbackRequest(int employeeID, Object data) throws InvalidAttributeValueException, MongoException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		//Check the employeeID
+		if(employeeID>0){
+			if(data!=null && data instanceof FeedbackRequest){
+				//Retrieve Employee with the given ID
+				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+				if(querySearch.get()!=null){
+					Employee e = querySearch.get();
+					//Extract its List of feedback Requests
+					List<FeedbackRequest> requestsList=e.getFeedbackRequestsList();
+					//Add the new FeedbackRequest to the list
+					if(e.addFeedbackRequest((FeedbackRequest)data)){
+						//Update the List<FeedbackRequest> in the DB passing the new list
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", e.getFeedbackRequestsList());
+						//Commit the changes to the DB
+						dbConnection.update(querySearch, ops);
+						return true;
+					}
+					else
+						throw new InvalidAttributeValueException("The given object couldn't be added to the feeback requests list");
+				}
+				else
+					throw new InvalidAttributeValueException("No employee found with the ID provided");
+			}
+			else
+				throw new InvalidAttributeValueException("The data provided is not valid");
+		}
+		else
+			throw new InvalidAttributeValueException("The ID provided is not valid");
+	}
+	
+	public static boolean updateFeedbackRequest(int employeeID, int feedbackReqID, Object data) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		//Check EmployeeID and feedbackReqID
+		if(employeeID>0 && feedbackReqID>0){
+			if(data!=null && data instanceof FeedbackRequest){
+				//Retrieve Employee with the given ID
+				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+				if(querySearch.get()!=null){
+					Employee e = querySearch.get();
+					//Extract its List of feedback Requests
+					List<FeedbackRequest> requestsList=e.getFeedbackRequestsList();
+					//Search for the objective Id within the list of notes
+					int indexFeedReqList=-1;
+					for(int i=0; i<requestsList.size(); i++){
+						//Save the index of the list when the noteID is found
+						if(requestsList.get(i).getID().equals(feedbackReqID)){
+							indexFeedReqList=i;
+							//Exit the for loop once the value has been found
+							break;
+						}
+					}
+					//verify that the index variable has changed its value
+					if(indexFeedReqList!=-1){ 
+						//Add the updated version of the note
+						if(e.updateFeedbackRequest((FeedbackRequest)data)){
+							//Update the List<List<Note>> in the DB passing the new list
+							UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", e.getFeedbackRequestsList());
+							//Commit the changes to the DB
+							dbConnection.update(querySearch, ops);
+							return true;
+						}
+					}
+					//if the index hasn't changed its value it means that there is no feedback request with such ID, therefore throw and exception
+					else
+						throw new InvalidAttributeValueException("The given ID associated with the feedback request is invalid");
+				}
+				else
+					throw new InvalidAttributeValueException("No employee found with the ID provided");
+			}
+			else
+				throw new InvalidAttributeValueException("The data provided is not valid");
+		}
+		else
+			throw new InvalidAttributeValueException("The given EmployeeID or feedbackReqID are invalid");
 		return false;
 	}
 
@@ -424,34 +514,34 @@ public  class EmployeeDAO {
 	}
 	 */
 	
-	public static void changeEmployeeNotes(int id,String email){
-		try{
-			Datastore datastore=getMongoDBConnection();
-			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", id);
-			if(querySearch.get()!=null){
-				Employee e = querySearch.get();
-				//e.setForename(forename);
-				//e.setSurname(surname);
-				e.setEmailAddress(email);
-				//List<List<Note>> n=new ArrayList<List<Note>>();
-				//e.setNoteList(n);
-				//Note note=new Note(7,"Blaaaaaaaaaaaaaaaaa", "Michael");
-				DevelopmentNeed devNeed1=new DevelopmentNeed(8,2,"Title21", "Description 21", "2017-03");
-				DevelopmentNeed devNeed2=new DevelopmentNeed(10,0,"Title2", "Description2");
-				e.setDevelopmentNeedsList(new ArrayList<List<DevelopmentNeed>>());
-				//e.addDevelopmentNeed(devNeed1);
-				//e.addDevelopmentNeed(devNeed2);
-				datastore.findAndDelete(querySearch);
-				//UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes", n);
-				//Commit the changes to the DB
-				//dbConnection.update(querySearch, ops);
-				datastore.save(e);
-			}
-		}
-		catch(Exception re){
-			System.err.println(re);
-		}
-	}
+//	public static void changeEmployeeNotes(int id,String email){
+//		try{
+//			Datastore datastore=getMongoDBConnection();
+//			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", id);
+//			if(querySearch.get()!=null){
+//				Employee e = querySearch.get();
+//				//e.setForename(forename);
+//				//e.setSurname(surname);
+//				e.setEmailAddress(email);
+//				//List<List<Note>> n=new ArrayList<List<Note>>();
+//				//e.setNoteList(n);
+//				//Note note=new Note(7,"Blaaaaaaaaaaaaaaaaa", "Michael");
+//				DevelopmentNeed devNeed1=new DevelopmentNeed(8,2,"Title21", "Description 21", "2017-03");
+//				DevelopmentNeed devNeed2=new DevelopmentNeed(10,0,"Title2", "Description2");
+//				e.setDevelopmentNeedsList(new ArrayList<List<DevelopmentNeed>>());
+//				//e.addDevelopmentNeed(devNeed1);
+//				//e.addDevelopmentNeed(devNeed2);
+//				datastore.findAndDelete(querySearch);
+//				//UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes", n);
+//				//Commit the changes to the DB
+//				//dbConnection.update(querySearch, ops);
+//				datastore.save(e);
+//			}
+//		}
+//		catch(Exception re){
+//			System.err.println(re);
+//		}
+//	}
 	
 	public static boolean validateFeedbackRequestID(int employeeID, String id) throws InvalidAttributeValueException{
 		if(employeeID>0 && !id.equals("")){
