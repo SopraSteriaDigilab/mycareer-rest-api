@@ -103,9 +103,7 @@ public class FeedbackRequest implements Serializable {
 	}
 	
 	public String getRepliesOutOf(){
-		String reply="";
-		reply+="("+replierEmails.size()+"/"+recepientEmails.size()+")";
-		return reply;
+		return "("+replierEmails.size()+"/"+recepientEmails.size()+")";
 	}
 	
 	public String toGson(){
