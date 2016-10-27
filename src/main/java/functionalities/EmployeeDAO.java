@@ -1,6 +1,5 @@
 package functionalities;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.Datastore;
@@ -113,8 +112,6 @@ public  class EmployeeDAO {
 				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 				if(querySearch.get()!=null){
 					Employee e = querySearch.get();
-					//Extract its List of Objectives
-					List<List<Objective>> dataFromDB=e.getObjectiveList();
 					//Add the new objective to the list
 					if(e.addObjective((Objective)data)){
 						//Update the List<List<objective>> in the DB passing the new list
@@ -247,8 +244,6 @@ public  class EmployeeDAO {
 				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 				if(querySearch.get()!=null){
 					Employee e = querySearch.get();
-					//Extract its List of notes
-					List<List<Note>> dataFromDB=e.getNoteList();
 					//Add the new note to the list
 					if(e.addNote((Note)data)){
 						//Update the List<List<Note>> in the DB passing the new list
@@ -328,11 +323,9 @@ public  class EmployeeDAO {
 				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 				if(querySearch.get()!=null){
 					Employee e = querySearch.get();
-					//Extract its List of notes
-					List<List<DevelopmentNeed>> dataFromDB=e.getDevelopmentNeedsList();
-					//Add the new note to the list
+					//Add the new development need to the list
 					if(e.addDevelopmentNeed((DevelopmentNeed)data)){
-						//Update the List<List<Note>> in the DB passing the new list
+						//Update the List<List<developmentNeed>> in the DB passing the new list
 						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds", e.getDevelopmentNeedsList());
 						//Commit the changes to the DB
 						dbConnection.update(querySearch, ops);
@@ -409,8 +402,6 @@ public  class EmployeeDAO {
 				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 				if(querySearch.get()!=null){
 					Employee e = querySearch.get();
-					//Extract its List of feedback Requests
-					List<FeedbackRequest> requestsList=e.getFeedbackRequestsList();
 					//Add the new FeedbackRequest to the list
 					if(e.addFeedbackRequest((FeedbackRequest)data)){
 						//Update the List<FeedbackRequest> in the DB passing the new list
