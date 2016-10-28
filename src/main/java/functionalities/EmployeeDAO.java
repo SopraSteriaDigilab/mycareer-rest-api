@@ -93,6 +93,17 @@ public  class EmployeeDAO {
 		return e.getEmployeeID();
 
 	}
+	
+	public static String getUserEmailAddressFromID(int employeeID) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such ID");
+		Employee e = query.get();
+		return e.getEmailAddress();
+
+	}
 
 
 	/**
@@ -392,7 +403,7 @@ public  class EmployeeDAO {
 		return false;
 	}
 	
-	public static boolean insertNewFeedbackRequest(int employeeID, Object data) throws InvalidAttributeValueException, MongoException{
+	/*public static boolean insertNewFeedbackRequest(int employeeID, Object data) throws InvalidAttributeValueException, MongoException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
 		//Check the employeeID
@@ -421,7 +432,7 @@ public  class EmployeeDAO {
 		}
 		else
 			throw new InvalidAttributeValueException("The ID provided is not valid");
-	}
+	}*/
 	
 	public static boolean updateFeedbackRequest(int employeeID, int feedbackReqID, Object data) throws InvalidAttributeValueException{
 		if(dbConnection==null)
@@ -519,14 +530,14 @@ public  class EmployeeDAO {
 //				//Note note=new Note(7,"Blaaaaaaaaaaaaaaaaa", "Michael");
 //				DevelopmentNeed devNeed1=new DevelopmentNeed(8,2,"Title21", "Description 21", "2017-03");
 //				DevelopmentNeed devNeed2=new DevelopmentNeed(10,0,"Title2", "Description2");
-//				e.setDevelopmentNeedsList(new ArrayList<List<DevelopmentNeed>>());
+//				//e.setDevelopmentNeedsList(new ArrayList<List<DevelopmentNeed>>());
 //				//e.addDevelopmentNeed(devNeed1);
 //				//e.addDevelopmentNeed(devNeed2);
-//				datastore.findAndDelete(querySearch);
-//				//UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes", n);
+//				//datastore.findAndDelete(querySearch);
+//				UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("emailAddress", email);
 //				//Commit the changes to the DB
-//				//dbConnection.update(querySearch, ops);
-//				datastore.save(e);
+//				dbConnection.update(querySearch, ops);
+//				//datastore.save(e);
 //			}
 //		}
 //		catch(Exception re){
@@ -551,10 +562,12 @@ public  class EmployeeDAO {
 				}
 				return true;
 			}
+			else{
+				throw new InvalidAttributeValueException("The given Employee ID is invalid");
+			}
 		}
 		else
 			throw new InvalidAttributeValueException("The given EmployeeID or FeedbackRequestID are invalid");
-		return false;
 	}
 
 	private static Datastore getMongoDBConnection() throws MongoException{

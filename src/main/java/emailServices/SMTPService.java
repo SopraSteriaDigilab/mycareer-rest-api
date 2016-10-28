@@ -1,24 +1,21 @@
 package emailServices;
 
 import java.net.URI;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.management.InvalidAttributeValueException;
-
-import org.eclipse.jetty.http.MetaData.Request;
-
 import dataStructure.Constants;
 import dataStructure.FeedbackRequest;
 import functionalities.EmployeeDAO;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
+import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceRequestException;
 import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
-import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 
 /**
@@ -44,66 +41,76 @@ public final class SMTPService {
 
 	private SMTPService(){}
 
-	public static boolean createFeedbackRequest(String sender, String notes, String... mailTo){
+	public static synchronized boolean createFeedbackRequest(int employeeID, String notes, String... mailTo) throws InvalidAttributeValueException{
+		if(notes.length()>1000)
+			throw new InvalidAttributeValueException("The notes cannot exceed the 1000 characters");
 		try{
 			//Open a connection with the Email Server
+			System.out.println("\t"+LocalTime.now()+" - Establishing a connection with the Mail Server");
 			openIMAPConnection();
 			//Validate the email addresses
 			List<String> validEmailAddressesList=new ArrayList<String>();
 			List<String> invalidEmailAddressesList=new ArrayList<String>();
 			for(String s: mailTo){
-				//Add the email address to the list of addresses only if the email is valid
-				if(isAddressValid(s))
+				//Add the email address to the list of addresses only if the email is valid and not a duplicate
+				if(isAddressValid(s) && !validEmailAddressesList.contains(s))
 					validEmailAddressesList.add(s);
 				//Add the email address to a separate list
 				else
 					invalidEmailAddressesList.add(s);
 			}
+
+			//Get email address of the user requesting feedback which also validates the emaployeeID
+			String emailAddresEmployeeRequester=EmployeeDAO.getUserEmailAddressFromID(employeeID);
 			//Create a FeedbackRequest object with an unique ID to the employee
-			//Retrieve employeeID from the sender emailAddress
-			int tempEmployeeID=findEmployeeOfTOField(sender);
-			//No ID has a value less than 0 in the system
-			if(tempEmployeeID>0){
-				//Keep generating request IDs until a valid one is found, this eliminates duplicated values and issues that such matter can cause
-				FeedbackRequest request;
-				do{
-					request=new FeedbackRequest();
-				}
-				while(EmployeeDAO.validateFeedbackRequestID(tempEmployeeID, request.getID()));
-				//Add further information to the feedback request object
-				//Add list of recipients to the feedback request object
-				request.setRecipients(validEmailAddressesList);
-				//Add the feedback request to te user on the DB
-				//EmployeeDAO.add
-				//Send a feedback requests, now that the incorrect email addresses have been removed
-				for(String s: validEmailAddressesList){
-					//Create RequestID
-					//Associate the Request to the valid receivers of this email
-					
-					//Associate the sender to this RequestID
-					//Add any additional notes to the template of the email
-					//Send the email
-					//Send confirmation email to sender
-				}
+			//Keep generating request IDs until a valid one is found, this eliminates duplicated values and issues that such matter can cause
+			FeedbackRequest request;
+			System.out.println("\t"+LocalTime.now()+" - Creating a Feedback Request");
+			do{
+				request=new FeedbackRequest();
 			}
-			//Send an email to the creator of this task containing the invalid email addresses
-			if(invalidEmailAddressesList.size()>0){
+			while(!EmployeeDAO.validateFeedbackRequestID(employeeID, request.getID()));
+			//Add list of recipients to the feedback request object
+			request.setRecipients(validEmailAddressesList);
+
+			//Generate a Template email, add the Request ID an any further information
+			String templateBody="GET TEMPLATE + ADD NOTES + EMPLOYEE REQUESTING FEEDBACK";
+			System.out.println("\t"+LocalTime.now()+" - Sending the Request/s");
+			//Send a feedback requests, now that the incorrect email addresses have been removed
+			for(String s: validEmailAddressesList){
 				EmailMessage msg= new EmailMessage(emailService);
-				msg.setSubject("Incorrect Email");
-				//Fill the email with the error details
-				msg.setBody(MessageBody.getMessageBodyFromText("Some of the email addresses linked to the feedback request"
-						+ " are invalid:\n"+invalidEmailAddressesList.toString()));
-				msg.getToRecipients().add(sender);
+				msg.setSubject("Feedback Request");
+				//Fill the email with the template
+				msg.setBody(new MessageBody(templateBody));
+				msg.getToRecipients().add(s);
+				msg.getCcRecipients().add(Constants.MAILBOX_ADDRESS);
+				//msg.setFrom(new EmailAddress(emailAddresEmployeeRequester));
 				msg.sendAndSaveCopy();
 			}
-			//Close the connection with the Email Server
-			closeIMAPConnection();
+			System.out.println("\t"+LocalTime.now()+" - Sending a confirmation email");
+			//Send confirmation email to feedback requester
+			EmailMessage msg= new EmailMessage(emailService);
+			msg.setSubject("Feedback Request Sent");
+			//Fill the email with the error details
+			String bodyMsg="A feedback request has been successfully sent to the following addresses:\n"
+					+ getStringFromListEmails(validEmailAddressesList)+"\n";
+			if(invalidEmailAddressesList.size()>0){
+				bodyMsg+="\nHowever, some of the given email addresses are invalid:\n"+getStringFromListEmails(invalidEmailAddressesList);
+			}
+			bodyMsg+="\n\nRegards,\nMyCareer Team\n\n";
+			msg.setBody(MessageBody.getMessageBodyFromText(bodyMsg));
+			msg.getToRecipients().add(emailAddresEmployeeRequester);
+			msg.sendAndSaveCopy();
+			System.out.println("\t"+LocalTime.now()+" - Task completed");
 			return true;
 		}
-		catch(Exception e){
-
+		catch(ServiceRequestException se){
+			//closeIMAPConnection();
+			throw new InvalidAttributeValueException(se.getMessage());
 		}
-		return false;
+		catch(Exception e){
+			throw new InvalidAttributeValueException(e.getMessage());
+		}
 	}
 
 	private static boolean isAddressValid(String email) {
@@ -116,31 +123,13 @@ public final class SMTPService {
 		}
 	}
 
-	private static boolean sendRequest(String toField, String fromField, String body) throws Exception{
-		//Create a mail object
-		EmailMessage msg= new EmailMessage(emailService);
-		msg.setSubject("Feedback Request");
-		//Fill the template with data
-		//msg.setBody(MessageBody.getMessageBodyFromText("The employee email address "+toEmployee.toString()+" linked to your feedback has not been found in the system"));
-		//msg.getToRecipients().add(fromField);
-		msg.sendAndSaveCopy();
-		return true;
-	}
-
-	/**
-	 * 
-	 * This method looks up for an employee ID from a given email address
-	 * 
-	 * @param emailAddress email address of the employee
-	 * @return the ID which identifies a Sopra Steria employee
-	 */
-	private static int findEmployeeOfTOField(String emailAddress){
-		try {
-			//Call to the EmployeeDAO to retrieve the employee ID
-			return EmployeeDAO.getUserIDFromEmailAddress(emailAddress);
-		} catch (InvalidAttributeValueException e) {
-			return -1;
+	private static String getStringFromListEmails(List<String> data){
+		String result="";
+		int counter=1;
+		for(String s:data){
+			result+="\t"+counter++ +") " +s+"\n";
 		}
+		return result;
 	}
 
 	/**
@@ -158,16 +147,6 @@ public final class SMTPService {
 			emailService.setCredentials(credentials);
 			emailService.setUrl(new URI(Constants.MAIL_EXCHANGE_URI));
 		}
-	}
-
-	/**
-	 * 
-	 * This method closes the communication with the email server 
-	 * 
-	 */
-	private static void closeIMAPConnection(){
-		if(emailService!=null)
-			emailService.close();
 	}
 
 }
