@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfigurat
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 
 import dataStructure.FeedbackRequest;
+import emailServices.SMTPService;
+import functionalities.EmployeeDAO;
 
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 public class Application {
@@ -18,10 +20,15 @@ public class Application {
 			SpringApplication.run(Application.class, args);
 			//Start the EmailService that checks for new emails and add the feedback to a user
 			//IMAPConfig.initiateIMAPService();
-			//EmployeeDAO.changeEmployeeNotes(4323,"Piccoli","michael.piccoli.mp@gmail.com");
+			//EmployeeDAO.changeEmployeeNotes(4323,"michael.piccoli@soprasteria.com");
 			//EmployeeDAO.changeEmployeeNotes(2312,"ridhwan.nacef@soprasteria.com");
 			//EmployeeDAO.changeEmployeeNotes(3422,"William","Kenny","william.kenny@soprasteria.com");
 			//EmployeeDAO.changeEmployeeNotes(2312);
+			//String[] array=new String[3];
+			//array[0]="michael.piccoli@soprasteria.com";
+			//array[1]="michael.piccoli@soprasteria.com";
+			//array[2]="michael.piccoli@soprasteria.com";
+			//SMTPService.createFeedbackRequest(4323, "Notesssss", array);
 		} catch (Exception e) {
 			//e.printStackTrace();
 			System.err.println("Application Error: "+e.getMessage());

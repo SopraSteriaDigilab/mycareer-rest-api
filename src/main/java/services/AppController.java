@@ -7,13 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.mongodb.MongoException;
-
 import dataStructure.DevelopmentNeed;
-import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
+import emailServices.SMTPService;
 import functionalities.EmployeeDAO;
 
 /**
@@ -347,18 +345,19 @@ public class AppController {
 	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> createFeedbackRequest(
 			@PathVariable("employeeID") int employeeID,
-			@RequestParam(value="emailsTo") String toFields){
+			@RequestParam(value="emailsTo") String toFields,
+			@RequestParam(value="notes") String notes){
 		try{
-			FeedbackRequest t=new FeedbackRequest();
-			t.addRecipient(toFields);
-			boolean done= EmployeeDAO.insertNewFeedbackRequest(employeeID, t);
+			//Split the email addresses from the toField into single elements
+			String[] emailAddressesToField=toFields.split(",");
+			for(int i=0; i<emailAddressesToField.length; i++){
+				emailAddressesToField[i]=emailAddressesToField[i].trim();
+			}
+			boolean done=SMTPService.createFeedbackRequest(employeeID, notes, emailAddressesToField);
 			if(done)
 				return ResponseEntity.ok("Feedback request sent!");
 			else
 				return ResponseEntity.badRequest().body("Error while creating a feedback request!");
-		}
-		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
 			return ResponseEntity.badRequest().body(e.getMessage());
