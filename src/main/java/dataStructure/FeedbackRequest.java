@@ -34,8 +34,8 @@ public class FeedbackRequest implements Serializable {
 	}
 	
 	public void updateStatus(){
-		if(this.status.equals(Constants.PENDING_FEEDBACK))
-			this.status=Constants.RECEIVED_FEEDBACK;
+		if(replierEmails.size()>=recepientEmails.size())
+			this.status=Constants.RECEIVED_ALL_FEEDBACK;
 		else
 			this.status=Constants.PENDING_FEEDBACK;
 	}
