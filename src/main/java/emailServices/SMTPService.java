@@ -53,8 +53,11 @@ public final class SMTPService {
 			List<String> invalidEmailAddressesList=new ArrayList<String>();
 			for(String s: mailTo){
 				//Add the email address to the list of addresses only if the email is valid and not a duplicate
-				if(isAddressValid(s) && !validEmailAddressesList.contains(s))
-					validEmailAddressesList.add(s);
+				if(isAddressValid(s) && !validEmailAddressesList.contains(s)){
+					if(validEmailAddressesList.size()<21){
+						validEmailAddressesList.add(s);
+					}
+				}
 				//Add the email address to a separate list
 				else
 					invalidEmailAddressesList.add(s);
