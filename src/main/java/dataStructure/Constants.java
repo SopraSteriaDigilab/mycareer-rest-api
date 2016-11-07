@@ -38,7 +38,7 @@ public final class Constants {
 	//Common Constants
 	public static final String MAILBOX_ADDRESS="mycareer.feedback@soprasteria.com";
 	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
-	public static final String MAIL_PASSWORD="MikeSopra16$";
+	public static final String MAIL_PASSWORD="";
 	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
 	public static final long MAIL_REFRESH_TIME=(1*60*1000); //1 minute
@@ -51,7 +51,7 @@ public final class Constants {
 	//public static final String IMAP_HOST_PORT="993";
 
 	//Arrays Containing all Competences including both Names and Descriptions
-	public static final String [] competencyName  = new String[]
+	public static final String [] COMPETENCY_NAMES  = new String[]
 			{
 					"Accountability", 
 					"Business Awareness",
@@ -62,7 +62,7 @@ public final class Constants {
 					"Service Excellence", 
 					"Team Work" 
 			};
-	public static final String [] competencyDescription = new String[] 
+	public static final String [] COMPETENCY_DESCRIPTIONS = new String[] 
 			{
 					"Shows drive and commitment to achieve objectives. Is willing to act decisively and strives to find ways of overcoming obstacles. Takes ownership of issues and empowers team members by giving them an appropriate level of responsibility and autonomy. Does not give up and can be counted on to deliver. Is action oriented.",
 					"Is able to recognise opportunities to leverage Sopra Steria’s capabilities to provide practical and profitable solutions to clients’ needs. Understands the key commercial issues that affect profitability and growth. Builds relationships with clients and seeks to understand their needs and priorities. Uses this knowledge to provide flexible and reliable solutions to meet and exceed clients’ expectations and deliver value to Sopra Steria. Acts as a company Ambassador.",
@@ -73,8 +73,26 @@ public final class Constants {
 					"Builds Sopra Steria’s reputation in the market by setting high standards of service and delivery. Knows what to measure and how to measure it and looks for opportunities for synergies. Is committed to Service Excellence.",
 					"Works cooperatively with colleagues and considers their needs and the impact of decisions on them. Seeks to build relationships across the organisation and to work for the overall good of the business. Able to find common ground and gain trust. Encourages collaboration."
 			};
+	
+	public static int getCompetencyIDGivenTitle(String title){
+		for(int i=0; i<COMPETENCY_NAMES.length; i++){
+			if(COMPETENCY_NAMES[i].equals(title))
+				return i;
+		}
+		return -1;
+	}
+	
+	public static String getCompetencyNameGivenID(int id){
+		if(id>-1 && id<COMPETENCY_NAMES.length)
+			return COMPETENCY_NAMES[id];
+		return null;
+	}
 
-
+	public static String getCompetencyDescriptionGivenID(int id){
+		if(id>-1 && id<COMPETENCY_DESCRIPTIONS.length)
+			return COMPETENCY_DESCRIPTIONS[id];
+		return null;
+	}
 
 
 

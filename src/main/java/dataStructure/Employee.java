@@ -40,6 +40,8 @@ public class Employee implements Serializable{
 	private boolean isAManager;
 	private List<List<DevelopmentNeed>> developmentNeeds;
 	private List<FeedbackRequest> feedbackRequests;
+	@Embedded
+	private List<List<Competency>> competencies;
 
 	//Empty Constructor
 	public Employee(){
@@ -57,8 +59,9 @@ public class Employee implements Serializable{
 		this.objectives=new ArrayList<List<Objective>>();
 		this.notes=new ArrayList<List<Note>>();
 		this.isAManager=false;
-		developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
-		feedbackRequests=new ArrayList<FeedbackRequest>();
+		this.developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
+		this.feedbackRequests=new ArrayList<FeedbackRequest>();
+		this.competencies=new ArrayList<List<Competency>>();
 	}
 
 	//Constructor with parameters
@@ -78,7 +81,8 @@ public class Employee implements Serializable{
 			List<List<Objective>> objectives,
 			List<List<Note>> notes,
 			List<List<DevelopmentNeed>> needs,
-			List<FeedbackRequest> requests) throws InvalidAttributeValueException, InvalidClassException{
+			List<FeedbackRequest> requests,
+			List<List<Competency>> competencies) throws InvalidAttributeValueException, InvalidClassException{
 		this.setEmployeeID(id);
 		this.setLevel(level);
 		this.setForename(name);
@@ -95,6 +99,7 @@ public class Employee implements Serializable{
 		this.setNoteList(notes);
 		this.setDevelopmentNeedsList(needs);
 		this.setFeedbackRequestsList(requests);
+		this.setCompetenciesList(competencies);
 	}
 
 	/**
@@ -649,6 +654,100 @@ public class Employee implements Serializable{
 		return null;
 	}
 
+	/**
+	 * 
+	 * This method inserts all the competencies from another list, validating each element before inserting
+	 * 
+	 * @param developments the List<List<Competencies> to copy the data from
+	 * @throws InvalidAttributeValueException
+	 */
+	public void setCompetenciesList(List<List<Competency>> comps) throws InvalidAttributeValueException{
+		if(comps!=null){
+			//Counter that keeps tracks of the error while adding elements
+			int errorCounter=0;
+			this.competencies=new ArrayList<List<Competency>>();
+			//Verify if each development need is valid
+			for(int i=0; i<comps.size(); i++){
+				//Add a new List to the list of competencies
+				this.competencies.add(new ArrayList<Competency>());
+				if(comps.get(i)!=null){
+					for(int j=0; j<comps.get(i).size(); j++){	
+						if(!this.competencies.get(this.competencies.size()-1).add(comps.get(i).get(j)))
+							errorCounter++;
+					}//for
+				}//if
+				else
+					throw new InvalidAttributeValueException("The list of development needs given is null");
+			}//for
+			//Verify if there have been any error during the insertion of competencies
+			if(errorCounter>0)
+				throw new InvalidAttributeValueException("There have been "+errorCounter+" errors during the insertion of competencies");
+		}//if
+	}//setCompetenciesList
+
+	/**
+	 * 
+	 * This method returns a list of competencies 
+	 * 
+	 * @return List<List<competencies>
+	 */
+	public List<List<Competency>> getCompetenciesList(){
+		return this.competencies;
+	}//getCompetenciesList
+
+	/**
+	 * 
+	 * This method returns the latest version saved in the system of the list of competencies
+	 * 
+	 * @return List<Competencies>
+	 */
+	public List<Competency> getLatestVersionCompetencies(){
+		List<Competency> organisedList=new ArrayList<Competency>();
+		if(competencies==null)
+			return null;
+		//If the list if not empty, retrieve all the elements and add them to the list
+		//that is going to be returned
+		int index=0;
+		for(List<Competency> subList:competencies){
+			//The last element contains the latest version of the development need
+			Competency temp=subList.get(subList.size()-1);
+			//Add a title and a description to the competency
+			temp.setTitle(index);
+			temp.setDescription(index);
+			organisedList.add(temp);
+			index++;
+		}//for
+		//Once the list if full, return it to the user
+		return organisedList;
+	}//getLatestVersionCompetencies
+
+	/**
+	 * 
+	 * This method returns the latest version of a specific Competency, given its ID
+	 * 
+	 * @param id Competency need ID
+	 * @return the Competency data object
+	 */
+	public Competency getLatestVersionOfSpecificCompetency(int id){
+		//Verify if the id is valid
+		if(id<0)
+			return null;
+		int index=0;
+		//Search for the Competency with the given ID
+		for(List<Competency> subList:competencies){
+			if((subList.get(0)).getID()==id){
+				//Now that the competency has been found, return the latest version of it
+				//which is stored at the end of the List
+				Competency temp=subList.get(subList.size()-1);
+				temp.setTitle(index);
+				temp.setDescription(index);
+				return (temp);
+			}//if
+			index++;
+		}//for
+		return null;
+	}//getLatestVersionOfSpecificCompetency
+
 	@Override
 	public String toString(){
 		String s="";
@@ -951,7 +1050,7 @@ public class Employee implements Serializable{
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * This method verifies if the ID for the feedback request is unique to the user
@@ -966,5 +1065,63 @@ public class Employee implements Serializable{
 		}
 		return true;
 	}
+
+	/**
+	 * 
+	 * This method inserts a competency inside the list of competencies
+	 * 
+	 * @param obj The competencies object data
+	 * @return a boolean value that indicates whether the task has been successfully or not
+	 * @throws InvalidAttributeValueException
+	 */
+	public boolean addCompetency(Competency obj, String title) throws InvalidAttributeValueException{
+		if(competencies==null)
+			competencies=new ArrayList<List<Competency>>();
+		//Find the ID for the given title
+		int competencyID=Constants.getCompetencyIDGivenTitle(title);
+		if(competencyID<0)
+			throw new InvalidAttributeValueException("The given title does not match any valid competency");
+		//Verify that the Competencies is not null
+		if(obj==null)
+			throw new InvalidAttributeValueException("The given Competency object is empty");
+		//Verify if Competency is selected
+		if(obj.isValid()){
+			while(competencies.size()<competencyID){
+				competencies.add(new ArrayList<Competency>());
+			}
+			List<Competency> tempList=new ArrayList<Competency>();
+			//add the first version of this note
+			boolean res1=tempList.add(obj);
+			boolean res2=competencies.add(tempList);
+			//Action completed, verify the results
+			return (res1 && res2);
+		}//if
+		return false;
+	}//addCompetencies
+
+	/**
+	 * 
+	 * This method adds a new version to an already existing Competency
+	 * 
+	 * @param obj the updated version of the development need
+	 * @return a boolean value that indicates whether the task has been successfully or not
+	 * @throws InvalidAttributeValueException 
+	 */
+	public boolean editCompetency(Competency obj, String title) throws InvalidAttributeValueException{
+		//Verify that the object is not null
+		if(obj==null)
+			throw new InvalidAttributeValueException("The given Competency object is empty");
+		//Find the ID for the given title
+		int competencyID=Constants.getCompetencyIDGivenTitle(title);
+		if(competencyID<0)
+			throw new InvalidAttributeValueException("The given title does not match any valid competency");
+		//Step 1: Verify that the object contains valid data 
+		if(obj.isValid()){
+			//Step 2: Verify that the ID contained within the competency object is in the system
+			competencies.get(competencyID).add(obj);
+			return true;
+		}//if
+		return false;
+	}//editCompetencies
 
 }
