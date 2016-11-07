@@ -197,7 +197,7 @@ public class DevelopmentNeed implements Serializable{
 	}
 	
 	public boolean isDevelopmentNeedValid(){
-		return (this.getID()>0 && this.getCategory()>=0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid"));
+		return (this.getID()>0 && this.getCategory()>=0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.timeToCompleteBy!=null);
 	}
 
 }

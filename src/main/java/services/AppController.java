@@ -282,12 +282,7 @@ public class AppController {
 			@RequestParam(value="description") String description,
 			@RequestParam(value="timeToCompleteBy") String timeToCompleteBy){
 		try{
-			DevelopmentNeed obj;
-			//Verify if a time to complete the task by is given
-			if(timeToCompleteBy.equals(""))
-				obj=new DevelopmentNeed(1,cat,title,description);
-			else
-				obj=new DevelopmentNeed(1,cat,title,description,timeToCompleteBy);
+			DevelopmentNeed obj=new DevelopmentNeed(1,cat,title,description,timeToCompleteBy);
 			boolean inserted=EmployeeDAO.insertNewDevelopmentNeed(employeeID,obj);
 			if(inserted)
 				return ResponseEntity.ok("Development need inserted correctly!");
@@ -322,12 +317,7 @@ public class AppController {
 			@RequestParam(value="description") String description,
 			@RequestParam(value="timeToCompleteBy") String timeToCompleteBy){
 		try{
-			DevelopmentNeed obj;
-			//Verify if a time to complete the task by is given
-			if(timeToCompleteBy.equals(""))
-				obj=new DevelopmentNeed(devNeedID,cat,title,description);
-			else
-				obj=new DevelopmentNeed(devNeedID,cat,title,description,timeToCompleteBy);
+			DevelopmentNeed obj=new DevelopmentNeed(devNeedID,cat,title,description,timeToCompleteBy);
 			boolean inserted=EmployeeDAO.addNewVersionDevelopmentNeed(employeeID, devNeedID, obj);
 			if(inserted)
 				return ResponseEntity.ok("Development need modified correctly!");
