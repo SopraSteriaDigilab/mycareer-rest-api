@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * 
  * @author Michael Piccoli
+ * @author Christopher Kai
  * @version 1.0
  * @since 10th October 2016
  * 
@@ -60,12 +61,12 @@ public final class Constants {
 					"Innovation and Change", 
 					"Leadership", 
 					"Service Excellence", 
-					"Team Work" 
+					"Team Work"
 			};
 	public static final String [] COMPETENCY_DESCRIPTIONS = new String[] 
 			{
 					"Shows drive and commitment to achieve objectives. Is willing to act decisively and strives to find ways of overcoming obstacles. Takes ownership of issues and empowers team members by giving them an appropriate level of responsibility and autonomy. Does not give up and can be counted on to deliver. Is action oriented.",
-					"Is able to recognise opportunities to leverage Sopra Steria’s capabilities to provide practical and profitable solutions to clients’ needs. Understands the key commercial issues that affect profitability and growth. Builds relationships with clients and seeks to understand their needs and priorities. Uses this knowledge to provide flexible and reliable solutions to meet and exceed clients’ expectations and deliver value to Sopra Steria. Acts as a company Ambassador.",
+					"Is able to recognise opportunities to leverage Sopra Sterias capabilities to provide practical and profitable solutions to clients needs. Understands the key commercial issues that affect profitability and growth. Builds relationships with clients and seeks to understand their needs and priorities. Uses this knowledge to provide flexible and reliable solutions to meet and exceed clients’ expectations and deliver value to Sopra Steria. Acts as a company Ambassador.",
 					"Expresses ideas clearly, persuasively and with impact. Listens to others and convinces them to accept their ideas. Is open and honest with colleagues and clients. Able to write or present clearly and succinctly in a variety of communication settings and audiences. Gets messages across that have the desired effect. Is timely with provision of information.",
 					"Takes account of a wide range of long-term changes and trends in technology, the market-place and in the business and plans ahead accordingly. Has a clear view of where they want to get to in the medium and longer term. Understands competition. Anticipates consequences and trends.",
 					"Shows flexibility and the desire to acquire new knowledge and ideas. Accepts and supports the need for change and looks for new ways of solving problems. Demonstrates the ability to lead and foster change within the organisation. Can act differently depending upon the situation and can handle uncertainty. Is committed to continuous improvement. Comes up with practical steps to implement own or others ideas.",

@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 /**
  * 
  * @author Michael Piccoli
+ * @author Christopher Kai
  * @version 1.0
  * @since 10th October 2016
  * 
@@ -349,7 +350,7 @@ public class Employee implements Serializable{
 
 	/**
 	 * 
-	 * @param objectives the list fo objectives to assign to an employee
+	 * @param objectives the list of objectives to assign to an employee
 	 * @throws InvalidAttributeValueException
 	 */
 	public void setObjectiveList(List<List<Objective>> objectives) throws InvalidAttributeValueException{
@@ -707,16 +708,18 @@ public class Employee implements Serializable{
 			return null;
 		//If the list if not empty, retrieve all the elements and add them to the list
 		//that is going to be returned
-		int index=0;
-		for(List<Competency> subList:competencies){
-			//The last element contains the latest version of the development need
-			Competency temp=subList.get(subList.size()-1);
-			//Add a title and a description to the competency
-			temp.setTitle(index);
-			temp.setDescription(index);
-			organisedList.add(temp);
-			index++;
-		}//for
+		for(int i=0; i<Constants.COMPETENCY_NAMES.length; i++){
+			try{
+				List<Competency> subList=competencies.get(i);
+				//The last element contains the latest version of the development need
+				Competency temp=subList.get(subList.size()-1);
+				//Add a title and a description to the competency
+				temp.setTitle(i);
+				temp.setDescription(i);
+				organisedList.add(temp);
+			}
+			catch(Exception e){}
+		}
 		//Once the list if full, return it to the user
 		return organisedList;
 	}//getLatestVersionCompetencies
@@ -804,6 +807,18 @@ public class Employee implements Serializable{
 		for(FeedbackRequest t:feedbackRequests){
 			s+="Request "+counter++ +"\n";
 			s+=t.toString();
+		}
+		//Add the Competencies
+		s+="Competencies";
+		//Retrieve all the sublists
+		int indexSubList=0;
+		for(List<Competency> subList: this.competencies){
+			//For each fublist, retrieve each element and add them to the s string including the title and description
+			int compCounter=0;
+			for(Competency comp:subList){
+				s+="Competency: "+compCounter++ +"\n";
+				s+=comp.toString(indexSubList++);
+			}
 		}
 		return s;
 	}
@@ -1068,46 +1083,19 @@ public class Employee implements Serializable{
 
 	/**
 	 * 
-	 * This method inserts a competency inside the list of competencies
-	 * 
-	 * @param obj The competencies object data
-	 * @return a boolean value that indicates whether the task has been successfully or not
-	 * @throws InvalidAttributeValueException
-	 */
-	public boolean addCompetency(Competency obj, String title) throws InvalidAttributeValueException{
-		if(competencies==null)
-			competencies=new ArrayList<List<Competency>>();
-		//Find the ID for the given title
-		int competencyID=Constants.getCompetencyIDGivenTitle(title);
-		if(competencyID<0)
-			throw new InvalidAttributeValueException("The given title does not match any valid competency");
-		//Verify that the Competencies is not null
-		if(obj==null)
-			throw new InvalidAttributeValueException("The given Competency object is empty");
-		//Verify if Competency is selected
-		if(obj.isValid()){
-			while(competencies.size()<competencyID){
-				competencies.add(new ArrayList<Competency>());
-			}
-			List<Competency> tempList=new ArrayList<Competency>();
-			//add the first version of this note
-			boolean res1=tempList.add(obj);
-			boolean res2=competencies.add(tempList);
-			//Action completed, verify the results
-			return (res1 && res2);
-		}//if
-		return false;
-	}//addCompetencies
-
-	/**
-	 * 
 	 * This method adds a new version to an already existing Competency
 	 * 
 	 * @param obj the updated version of the development need
 	 * @return a boolean value that indicates whether the task has been successfully or not
 	 * @throws InvalidAttributeValueException 
 	 */
-	public boolean editCompetency(Competency obj, String title) throws InvalidAttributeValueException{
+	public boolean updateCompetency(Competency obj, String title) throws InvalidAttributeValueException{
+		//Check if the number of competencies has changed
+		while(competencies.size()<Constants.COMPETENCY_NAMES.length){
+			List<Competency> tempList=new ArrayList<Competency>();
+			tempList.add(new Competency(1,false));
+			competencies.add(tempList);
+		}
 		//Verify that the object is not null
 		if(obj==null)
 			throw new InvalidAttributeValueException("The given Competency object is empty");
@@ -1118,10 +1106,11 @@ public class Employee implements Serializable{
 		//Step 1: Verify that the object contains valid data 
 		if(obj.isValid()){
 			//Step 2: Verify that the ID contained within the competency object is in the system
+			obj.setID(competencies.get(competencyID).size()+1);
 			competencies.get(competencyID).add(obj);
 			return true;
-		}//if
+		}
 		return false;
-	}//editCompetencies
+	}
 
 }

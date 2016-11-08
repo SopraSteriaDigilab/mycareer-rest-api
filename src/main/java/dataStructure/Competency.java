@@ -2,9 +2,6 @@ package dataStructure;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
-import javax.management.InvalidAttributeValueException;
-
 import org.mongodb.morphia.annotations.Embedded;
 import com.google.gson.Gson;
 
@@ -18,8 +15,9 @@ import com.google.gson.Gson;
  *
  */
 @Embedded
-public class Competency {
+public class Competency implements Serializable {
 
+	private static final long serialVersionUID = -1186038518710616207L;
 	private int id;
 	private boolean isSelected;
 	private String title;
@@ -35,7 +33,7 @@ public class Competency {
 		this.timeStamp = null; 
 	}//Competencies Constructor
 
-	public Competency(int id, boolean status) throws InvalidAttributeValueException {
+	public Competency(int id, boolean status){
 		this.id = id;
 		this.isSelected=status;
 		this.title="";
@@ -45,7 +43,7 @@ public class Competency {
 	}//Competencies Constructor with Parameters
 
 	public void setID(int id){
-		if(id<0)
+		if(id>0)
 			this.id=id;
 		else
 			this.id=Constants.INVALID_INT;
@@ -114,7 +112,22 @@ public class Competency {
 	}//getCompetencyName	
 
 	public boolean isValid(){
-		return this.getTimeStamp()!=null;
+		return this.getTimeStamp()!=null && this.getID()>0;
+	}
+	
+	public String toGson(){
+		Gson gsonData=new Gson();
+		return gsonData.toJson(this);
+	}
+	
+	public String toString(int index){
+		String s="";
+		s+="ID: "+id+"\n";
+		s+="Is Selected: "+isSelected+"\n";
+		s+="Title: "+Constants.COMPETENCY_NAMES[index]+"\n";
+		s+="Description: "+Constants.COMPETENCY_DESCRIPTIONS[index]+"\n";
+		s+="Time Stamp: "+timeStamp+"\n";
+		return s;
 	}
 	
 

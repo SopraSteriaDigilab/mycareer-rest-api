@@ -19,6 +19,7 @@ import functionalities.EmployeeDAO;
 /**
  * 
  * @author Michael Piccoli
+ * @author Christopher Kai
  * @version 1.0
  * @since 10th October 2016
  * 
@@ -125,6 +126,20 @@ public class AppController {
 			}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
+	}
+
+	@RequestMapping(value="/getCompetencies/{employeeID}", method=RequestMethod.GET)
+	public ResponseEntity<?> getCompetencies(
+			@PathVariable("employeeID") int employeeID){
+		try{
+			return ResponseEntity.ok(EmployeeDAO.getCompetenciesForUser(employeeID));
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 
 	/**
@@ -376,11 +391,9 @@ public class AppController {
 	 * 
 	 * @param employeeID the employee ID (>0)
 	 * @param title title of the development need (<150)
-	 * @param description content of the development need (<1000)
-	 * @param timeToCompleteBy String containing a date with format yyyy-MM or empty ""
-	 * @return a message explaining if the development need has been added or if there was an error while completing the task
+	 * @return a message explaining if the competency has been updated or if there was an error while completing the task
 	 */
-	@RequestMapping(value="/addCompetency/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/updateCompetency/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addCompetenciesToAUser(
 			@PathVariable("employeeID") int employeeID,
 			@RequestParam(value="title") String title,
@@ -388,7 +401,7 @@ public class AppController {
 		try{
 			Competency obj;
 				obj=new Competency(1,status);
-			boolean inserted=EmployeeDAO.insertNewCompetency(employeeID,obj,title);
+			boolean inserted=EmployeeDAO.addNewVersionCompetency(employeeID,obj,title);
 			if(inserted)
 				return ResponseEntity.ok("Competency inserted correctly!");
 			else
@@ -400,5 +413,6 @@ public class AppController {
 		catch(Exception e){
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
-	}//Addcompetencies
+	}
+	
 }

@@ -22,6 +22,7 @@ import dataStructure.Objective;
 /**
  * 
  * @author Michael Piccoli
+ * @author Christopher Kai
  * @version 1.0
  * @since 10th October 2016
  * 
@@ -93,7 +94,6 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("No user with such Email");
 		Employee e = query.get();
 		return e.getEmployeeID();
-
 	}
 
 	public static String getUserEmailAddressFromID(int employeeID) throws InvalidAttributeValueException{
@@ -104,7 +104,16 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
 		return e.getEmailAddress();
+	}
 
+	public static List<Competency> getCompetenciesForUser(int employeeID) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such ID");
+		Employee e = query.get();
+		return e.getLatestVersionCompetencies();
 	}
 
 
@@ -572,28 +581,24 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("The given EmployeeID or FeedbackRequestID are invalid");
 	}
 
-	public static boolean insertNewCompetency(int employeeID, Object data, String title) throws InvalidAttributeValueException, MongoException{
+	public static boolean addNewVersionCompetency(int employeeID, Object data, String title) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
-		//Check the employeeID
-		if(employeeID>0){
+		//Check EmployeeID and noteID
+		if(employeeID>0 && title!=null && title.length()>0){
 			if(data!=null && data instanceof Competency && title!=null && title.length()>0){
 				//Retrieve Employee with the given ID
 				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 				if(querySearch.get()!=null){
 					Employee e = querySearch.get();
-					//Extract its List of Competencies
-					List<List<Competency>> dataFromDB=e.getCompetenciesList();
-					//Add the new competency to the list
-					if(e.addCompetency((Competency)data,title)){
+					//Add the updated version of the note
+					if(e.updateCompetency((Competency)data,title)){
 						//Update the List<List<Note>> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("competencies", dataFromDB);
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("competencies", e.getCompetenciesList());
 						//Commit the changes to the DB
 						dbConnection.update(querySearch, ops);
 						return true;
 					}
-					else
-						throw new InvalidAttributeValueException("The given object couldn't be added to the competencies list");
 				}
 				else
 					throw new InvalidAttributeValueException("No employee found with the ID provided");
@@ -602,44 +607,7 @@ public  class EmployeeDAO {
 				throw new InvalidAttributeValueException("The data provided is not valid");
 		}
 		else
-			throw new InvalidAttributeValueException("The ID provided is not valid");
-	}
-
-	public static boolean addNewVersionCompetencies(int employeeID, int compID, Object data, String title) throws InvalidAttributeValueException{
-		if(dbConnection==null)
-			dbConnection=getMongoDBConnection();
-		//Check EmployeeID and noteID
-		if(employeeID>0 && compID>0){
-			if(data!=null && data instanceof Competency && title!=null && title.length()>0){
-				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-				if(querySearch.get()!=null){
-					Employee e = querySearch.get();
-					//Extract its List of competencies
-					List<List<Competency>> dataFromDB=e.getCompetenciesList();
-					//verify that the index variable has changed its value
-					if(compID>-1){ 
-						//Add the updated version of the note
-						if(e.editCompetency((Competency)data,title)){
-							//Update the List<List<Note>> in the DB passing the new list
-							UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("competencies", e.getCompetenciesList());
-							//Commit the changes to the DB
-							dbConnection.update(querySearch, ops);
-							return true;
-						}
-					}
-					//if the index hasn't changed its value it means that there is no note with such ID, therefore throw and exception
-					else
-						throw new InvalidAttributeValueException("The given ID associated with the competency is invalid");
-				}
-				else
-					throw new InvalidAttributeValueException("No employee found with the ID provided");
-			}
-			else
-				throw new InvalidAttributeValueException("The data provided is not valid");
-		}
-		else
-			throw new InvalidAttributeValueException("The given EmployeeID or competencyID are invalid");
+			throw new InvalidAttributeValueException("The given EmployeeID or competency title are invalid");
 		return false;
 	}
 
