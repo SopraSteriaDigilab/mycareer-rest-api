@@ -112,7 +112,7 @@ public class Competency implements Serializable {
 	}//getCompetencyName	
 
 	public boolean isValid(){
-		return this.getTimeStamp()!=null && this.getID()>0;
+		return this.getTimeStamp()!=null && this.getID()>=0;
 	}
 	
 	public String toGson(){
