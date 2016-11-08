@@ -4,6 +4,8 @@ import java.io.InvalidClassException;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.annotations.Embedded;
@@ -712,8 +714,8 @@ public class Employee implements Serializable{
 	 */
 	public List<Competency> getLatestVersionCompetencies(){
 		List<Competency> organisedList=new ArrayList<Competency>();
-//		if(competencies==null)
-//			return null;
+		//		if(competencies==null)
+		//			return null;
 		if(this.competencies.size()==0){
 			int index=0;
 			while(competencies.size()<Constants.COMPETENCY_NAMES.length){
@@ -736,6 +738,23 @@ public class Employee implements Serializable{
 			}
 			catch(Exception e){}
 		}
+		//Now that all the elements are retrieved, let's sort them 
+		List<Competency> selected=new ArrayList<>();
+		List<Competency> notSelected=new ArrayList<>();
+		//Split the elements between selected and not selected
+		for(Competency c:organisedList){
+			if(c.getIsSelected())
+				selected.add(c);
+			else
+				notSelected.add(c);
+		}
+		//Once this is done, let's sort them alphabetically (I USED LAMBDA FOR A MORE EFFICIENT CODE :) )
+		selected.sort((Competency c1, Competency c2) -> c1.getID()-c2.getID());
+		notSelected.sort((Competency c1, Competency c2) -> c1.getID()-c2.getID());
+		//Add these 2 lists to the list to return to the user
+		organisedList.clear();
+		organisedList.addAll(selected);
+		organisedList.addAll(notSelected);
 		//Once the list if full, return it to the user
 		return organisedList;
 	}//getLatestVersionCompetencies
@@ -1117,9 +1136,9 @@ public class Employee implements Serializable{
 		if(obj==null)
 			throw new InvalidAttributeValueException("The given Competency object is empty");
 		//Find the ID for the given title
-//		int competencyID=Constants.getCompetencyIDGivenTitle(title);
-//		if(competencyID<0)
-//			throw new InvalidAttributeValueException("The given title does not match any valid competency");
+		//		int competencyID=Constants.getCompetencyIDGivenTitle(title);
+		//		if(competencyID<0)
+		//			throw new InvalidAttributeValueException("The given title does not match any valid competency");
 		//Step 1: Verify that the object contains valid data 
 		if(obj.isValid()){
 			//Step 2: Verify that the ID contained within the competency object is in the system
