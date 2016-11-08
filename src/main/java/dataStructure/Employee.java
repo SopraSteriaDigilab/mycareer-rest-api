@@ -712,8 +712,6 @@ public class Employee implements Serializable{
 	 */
 	public List<Competency> getLatestVersionCompetencies(){
 		List<Competency> organisedList=new ArrayList<Competency>();
-		//		if(competencies==null)
-		//			return null;
 		if(this.competencies.size()==0){
 			int index=0;
 			while(competencies.size()<Constants.COMPETENCY_NAMES.length){
@@ -961,6 +959,8 @@ public class Employee implements Serializable{
 
 	/**
 	 * 
+	 * This method adds a new note to a specific user
+	 * 
 	 * @param obj note object
 	 * @return
 	 * @throws InvalidAttributeValueException
@@ -1133,14 +1133,9 @@ public class Employee implements Serializable{
 		//Verify that the object is not null
 		if(obj==null)
 			throw new InvalidAttributeValueException("The given Competency object is empty");
-		//Find the ID for the given title
-		//		int competencyID=Constants.getCompetencyIDGivenTitle(title);
-		//		if(competencyID<0)
-		//			throw new InvalidAttributeValueException("The given title does not match any valid competency");
 		//Step 1: Verify that the object contains valid data 
 		if(obj.isValid()){
 			//Step 2: Verify that the ID contained within the competency object is in the system
-			//obj.setID(competencies.get(competencyID).size()+1);
 			competencies.get(obj.getID()).add(obj);
 			return true;
 		}
