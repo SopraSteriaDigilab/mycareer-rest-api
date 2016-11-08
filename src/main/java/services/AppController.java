@@ -128,6 +128,13 @@ public class AppController {
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
 
+	/**
+	 * 
+	 * This method allows the front-end to retrieve all the competencies associated with a user
+	 * 
+	 * @param employeeID the ID of an employee
+	 * @return list of competencies (only latest version for each one of them)
+	 */
 	@RequestMapping(value="/getCompetencies/{employeeID}", method=RequestMethod.GET)
 	public ResponseEntity<?> getCompetencies(
 			@PathVariable("employeeID") int employeeID){
@@ -349,6 +356,13 @@ public class AppController {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param employeeID the employee ID (>0)
+	 * @param toFields an array containing the email addresses, separated by commas (max 20 elements)
+	 * @param notes a string of max 1000 characters containing any additional notes to add to the feedback request email
+	 * @return a message explaining whether the feedback request has been sent or if there was an error while completing the task
+	 */
 	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> createFeedbackRequest(
 			@PathVariable("employeeID") int employeeID,
@@ -371,6 +385,11 @@ public class AppController {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param employeeID the employee ID
+	 * @return all the feedback requests created by the given user
+	 */
 	@RequestMapping(value="/getFeedbackRequests/{employeeID}", method=RequestMethod.GET)
 	public ResponseEntity<?> getFeedbackRequests(
 			@PathVariable("employeeID") int employeeID){
@@ -407,9 +426,9 @@ public class AppController {
 			Competency obj=new Competency(index,status);
 			boolean inserted=EmployeeDAO.addNewVersionCompetency(employeeID,obj,title);
 			if(inserted)
-				return ResponseEntity.ok("Competency inserted correctly!");
+				return ResponseEntity.ok("Competency updated correctly!");
 			else
-				return ResponseEntity.badRequest().body("Error while adding the Competency");
+				return ResponseEntity.badRequest().body("Error while updating the Competency");
 		}
 		catch(MongoException me){
 			return ResponseEntity.badRequest().body("DataBase Connection Error");
