@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.mongodb.MongoException;
+import dataStructure.Competency;
+import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
@@ -17,6 +19,7 @@ import functionalities.EmployeeDAO;
 /**
  * 
  * @author Michael Piccoli
+ * @author Christopher Kai
  * @version 1.0
  * @since 10th October 2016
  * 
@@ -123,6 +126,20 @@ public class AppController {
 			}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
+	}
+
+	@RequestMapping(value="/getCompetencies/{employeeID}", method=RequestMethod.GET)
+	public ResponseEntity<?> getCompetencies(
+			@PathVariable("employeeID") int employeeID){
+		try{
+			return ResponseEntity.ok(EmployeeDAO.getCompetenciesForUser(employeeID));
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 
 	/**
@@ -306,7 +323,7 @@ public class AppController {
 	 * @param title title of the development need (<150>
 	 * @param description content of the development need (<1000)
 	 * @param timeToCompleteBy String containing a date with format yyyy-MM or empty ""
-	 * @return a message explaineing if the development need has been added or if there was an error while completing the task
+	 * @return a message explaining if the development need has been added or if there was an error while completing the task
 	 */
 	@RequestMapping(value="/editDevelopmentNeed/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
@@ -367,4 +384,39 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
+	
+	/**
+	 * 
+	 * This method allows the front-end to insert new competencies in the system
+	 * 
+	 * @param employeeID the employee ID (>0)
+	 * @param title title of the competency (<200)
+	 * @return a message explaining if the competency has been updated or if there was an error while completing the task
+	 */
+	@RequestMapping(value="/updateCompetency/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> addCompetenciesToAUser(
+			@PathVariable("employeeID") int employeeID,
+			@RequestParam(value="title") String title,
+			@RequestParam(value="status") boolean status){
+		try{
+			if(title==null || title.length()<1 || title.length()>200)
+				return ResponseEntity.badRequest().body("The given title is invalid");
+			int index=Constants.getCompetencyIDGivenTitle(title);
+			if(index<0)
+				return ResponseEntity.badRequest().body("The given title does not match any valid competency");
+			Competency obj=new Competency(index,status);
+			boolean inserted=EmployeeDAO.addNewVersionCompetency(employeeID,obj,title);
+			if(inserted)
+				return ResponseEntity.ok("Competency inserted correctly!");
+			else
+				return ResponseEntity.badRequest().body("Error while adding the Competency");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
 }
