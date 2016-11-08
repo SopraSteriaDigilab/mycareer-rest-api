@@ -82,7 +82,7 @@ public class DevelopmentNeed implements Serializable{
 	}
 	
 	public void setCategory(int cat) throws InvalidAttributeValueException{
-		if(cat>=0 && cat<=2)
+		if(cat>=0 && cat<=5)
 			this.category=cat;
 		else{
 			this.category=Constants.INVALID_INT;
