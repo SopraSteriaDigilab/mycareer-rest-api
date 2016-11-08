@@ -44,6 +44,8 @@ public final class SMTPService {
 	public static synchronized boolean createFeedbackRequest(int employeeID, String notes, String... mailTo) throws InvalidAttributeValueException{
 		if(notes.length()>1000)
 			throw new InvalidAttributeValueException("The notes cannot exceed the 1000 characters");
+		if(mailTo.length>20)
+			throw new InvalidAttributeValueException("Too many email addresses, The maximum number allowed is 20");
 		try{
 			//Open a connection with the Email Server
 			System.out.println("\t"+LocalTime.now()+" - Establishing a connection with the Mail Server");

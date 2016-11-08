@@ -61,7 +61,7 @@ public final class Constants {
 					"Innovation and Change", 
 					"Leadership", 
 					"Service Excellence", 
-					"Team Work"
+					"Teamwork"
 			};
 	public static final String [] COMPETENCY_DESCRIPTIONS = new String[] 
 			{
@@ -77,7 +77,7 @@ public final class Constants {
 	
 	public static int getCompetencyIDGivenTitle(String title){
 		for(int i=0; i<COMPETENCY_NAMES.length; i++){
-			if(COMPETENCY_NAMES[i].equals(title))
+			if(COMPETENCY_NAMES[i].equalsIgnoreCase(title))
 				return i;
 		}
 		return -1;

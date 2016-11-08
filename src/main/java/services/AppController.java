@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.mongodb.MongoException;
-
 import dataStructure.Competency;
+import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
@@ -323,7 +323,7 @@ public class AppController {
 	 * @param title title of the development need (<150>
 	 * @param description content of the development need (<1000)
 	 * @param timeToCompleteBy String containing a date with format yyyy-MM or empty ""
-	 * @return a message explaineing if the development need has been added or if there was an error while completing the task
+	 * @return a message explaining if the development need has been added or if there was an error while completing the task
 	 */
 	@RequestMapping(value="/editDevelopmentNeed/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
@@ -390,7 +390,7 @@ public class AppController {
 	 * This method allows the front-end to insert new competencies in the system
 	 * 
 	 * @param employeeID the employee ID (>0)
-	 * @param title title of the development need (<150)
+	 * @param title title of the competency (<200)
 	 * @return a message explaining if the competency has been updated or if there was an error while completing the task
 	 */
 	@RequestMapping(value="/updateCompetency/{employeeID}", method=RequestMethod.POST)
@@ -399,8 +399,12 @@ public class AppController {
 			@RequestParam(value="title") String title,
 			@RequestParam(value="status") boolean status){
 		try{
-			Competency obj;
-				obj=new Competency(1,status);
+			if(title==null || title.length()<1 || title.length()>200)
+				return ResponseEntity.badRequest().body("The given title is invalid");
+			int index=Constants.getCompetencyIDGivenTitle(title);
+			if(index<0)
+				return ResponseEntity.badRequest().body("The given title does not match any valid competency");
+			Competency obj=new Competency(index,status);
 			boolean inserted=EmployeeDAO.addNewVersionCompetency(employeeID,obj,title);
 			if(inserted)
 				return ResponseEntity.ok("Competency inserted correctly!");

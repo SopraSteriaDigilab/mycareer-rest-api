@@ -693,6 +693,14 @@ public class Employee implements Serializable{
 	 * @return List<List<competencies>
 	 */
 	public List<List<Competency>> getCompetenciesList(){
+		if(this.competencies.size()==0){
+			int index=0;
+			while(competencies.size()<Constants.COMPETENCY_NAMES.length){
+				List<Competency> tempList=new ArrayList<Competency>();
+				tempList.add(new Competency(index++,false));
+				competencies.add(tempList);
+			}
+		}
 		return this.competencies;
 	}//getCompetenciesList
 
@@ -704,8 +712,16 @@ public class Employee implements Serializable{
 	 */
 	public List<Competency> getLatestVersionCompetencies(){
 		List<Competency> organisedList=new ArrayList<Competency>();
-		if(competencies==null)
-			return null;
+//		if(competencies==null)
+//			return null;
+		if(this.competencies.size()==0){
+			int index=0;
+			while(competencies.size()<Constants.COMPETENCY_NAMES.length){
+				List<Competency> tempList=new ArrayList<Competency>();
+				tempList.add(new Competency(index++,false));
+				competencies.add(tempList);
+			}
+		}
 		//If the list if not empty, retrieve all the elements and add them to the list
 		//that is going to be returned
 		for(int i=0; i<Constants.COMPETENCY_NAMES.length; i++){
@@ -1091,23 +1107,24 @@ public class Employee implements Serializable{
 	 */
 	public boolean updateCompetency(Competency obj, String title) throws InvalidAttributeValueException{
 		//Check if the number of competencies has changed
+		int index=0;
 		while(competencies.size()<Constants.COMPETENCY_NAMES.length){
 			List<Competency> tempList=new ArrayList<Competency>();
-			tempList.add(new Competency(1,false));
+			tempList.add(new Competency(index++,false));
 			competencies.add(tempList);
 		}
 		//Verify that the object is not null
 		if(obj==null)
 			throw new InvalidAttributeValueException("The given Competency object is empty");
 		//Find the ID for the given title
-		int competencyID=Constants.getCompetencyIDGivenTitle(title);
-		if(competencyID<0)
-			throw new InvalidAttributeValueException("The given title does not match any valid competency");
+//		int competencyID=Constants.getCompetencyIDGivenTitle(title);
+//		if(competencyID<0)
+//			throw new InvalidAttributeValueException("The given title does not match any valid competency");
 		//Step 1: Verify that the object contains valid data 
 		if(obj.isValid()){
 			//Step 2: Verify that the ID contained within the competency object is in the system
-			obj.setID(competencies.get(competencyID).size()+1);
-			competencies.get(competencyID).add(obj);
+			//obj.setID(competencies.get(competencyID).size()+1);
+			competencies.get(obj.getID()).add(obj);
 			return true;
 		}
 		return false;
