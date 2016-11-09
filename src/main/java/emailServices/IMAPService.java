@@ -82,7 +82,7 @@ public final class IMAPService {
 	/**
 	 * 
 	 * This method establishes a connection with the email server, gets the unread emails, loop through them to extract the data
-	 * and moves the emails into specific folders depending on if the result of the action taken
+	 * and moves the emails into specific folders depending on the result of the action taken
 	 * 
 	 * 
 	 * @throws Exception

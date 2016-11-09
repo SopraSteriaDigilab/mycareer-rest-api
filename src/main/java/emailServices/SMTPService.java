@@ -4,9 +4,10 @@ import java.net.URI;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.management.InvalidAttributeValueException;
+import javax.validation.Validation;
+
 import dataStructure.Constants;
 import dataStructure.FeedbackRequest;
 import functionalities.EmployeeDAO;
@@ -64,7 +65,6 @@ public final class SMTPService {
 				else
 					invalidEmailAddressesList.add(s);
 			}
-
 			//Get email address of the user requesting feedback which also validates the emaployeeID
 			String emailAddresEmployeeRequester=EmployeeDAO.getUserEmailAddressFromID(employeeID);
 			//Create a FeedbackRequest object with an unique ID to the employee
@@ -82,15 +82,32 @@ public final class SMTPService {
 			String templateBody="GET TEMPLATE + ADD NOTES + EMPLOYEE REQUESTING FEEDBACK";
 			System.out.println("\t"+LocalTime.now()+" - Sending the Request/s");
 			//Send a feedback requests, now that the incorrect email addresses have been removed
-			for(String s: validEmailAddressesList){
-				EmailMessage msg= new EmailMessage(emailService);
-				msg.setSubject("Feedback Request");
-				//Fill the email with the template
-				msg.setBody(new MessageBody(templateBody));
-				msg.getToRecipients().add(s);
-				msg.getCcRecipients().add(Constants.MAILBOX_ADDRESS);
-				//msg.setFrom(new EmailAddress(emailAddresEmployeeRequester));
-				msg.sendAndSaveCopy();
+			List<String> tempEmailAddressSendingList=new ArrayList<>();
+			String tempEmailAddressSending="";
+			try{
+				for(String s: validEmailAddressesList){
+					tempEmailAddressSending=s;
+					EmailMessage msg= new EmailMessage(emailService);
+					msg.setSubject("Feedback Request");
+					//Fill the email with the template
+					msg.setBody(new MessageBody(templateBody));
+					msg.getToRecipients().add(s);
+					msg.getCcRecipients().add(Constants.MAILBOX_ADDRESS);
+					//msg.setFrom(new EmailAddress(emailAddresEmployeeRequester));
+					msg.sendAndSaveCopy();
+				}
+			}
+			catch(Exception e){
+				//If an exception happens, the email address is incorrect, move it to the invalid list
+				tempEmailAddressSendingList.add(tempEmailAddressSending);
+				System.out.println("\t"+LocalTime.now()+" - Error: "+e.getMessage());
+			}
+			//Update the valid and invalid lists before sending a confirmation to the user requesting feedback
+			for(String s:tempEmailAddressSendingList){
+				//Add the invalid element to the invalid list
+				invalidEmailAddressesList.add(s);
+				//Remove this same element from the valid list
+				validEmailAddressesList.remove(s);
 			}
 			System.out.println("\t"+LocalTime.now()+" - Sending a confirmation email");
 			//Send confirmation email to feedback requester
@@ -119,14 +136,20 @@ public final class SMTPService {
 	}
 
 	private static boolean isAddressValid(String email) {
-		try {
-			InternetAddress emailAddr = new InternetAddress(email);
-			emailAddr.validate();
-			return true;
-		} catch (AddressException ex) {
-			return false;
-		}
+        String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
+        java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
+        java.util.regex.Matcher m = p.matcher(email);
+        return m.matches();
 	}
+//	private static boolean isAddressValid(String email) {
+//		try {
+//			InternetAddress emailAddr = new InternetAddress(email);
+//			emailAddr.validate();
+//			return true;
+//		} catch (Exception ex) {
+//			return false;
+//		}
+//	}
 
 	private static String getStringFromListEmails(List<String> data){
 		String result="";
