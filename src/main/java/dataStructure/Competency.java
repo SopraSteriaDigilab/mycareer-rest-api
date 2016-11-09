@@ -24,15 +24,16 @@ public class Competency implements Serializable {
 	private String description;
 	private String timeStamp;
 
-
+	//Empty constructor
 	public Competency() {
 		this.id = Constants.INVALID_INT;
 		this.isSelected = false;
 		this.title=Constants.INVALID_STRING;
 		this.description=Constants.INVALID_STRING;
 		this.timeStamp = null; 
-	}//Competencies Constructor
+	}
 
+	//Constructor with Parameters
 	public Competency(int id, boolean status){
 		this.id = id;
 		this.isSelected=status;
@@ -40,20 +41,24 @@ public class Competency implements Serializable {
 		this.description="";
 		this.timeStamp = null;
 		this.setTimeStamp();
-	}//Competencies Constructor with Parameters
+	}
 
+	//Method to set ID
 	public void setID(int id){
 		if(id>0)
 			this.id=id;
 		else
 			this.id=Constants.INVALID_INT;
 	}
-	public boolean getIsSelected() {
-		return isSelected;
-	}//isSelected
 
+	//Method returning ID
 	public int getID(){
 		return this.id;
+	}
+	
+	//Method returning selected Competency based on true or false
+	public boolean getIsSelected() {
+		return isSelected;
 	}
 
 	/**
@@ -106,20 +111,23 @@ public class Competency implements Serializable {
 		}//else
 	}//setCompetencyName
 
-	//Method to return Competency Name
+	//Method to return Competency Description
 	public String getCompentencyDescription(){
 		return description;
 	}//getCompetencyName	
 
+	//returns boolean result determining if TimeStamp is valid
 	public boolean isValid(){
 		return this.getTimeStamp()!=null && this.getID()>=0;
 	}
 	
+	//Converts data type from Gson to Json
 	public String toGson(){
 		Gson gsonData=new Gson();
 		return gsonData.toJson(this);
 	}
 	
+	//toString method returning objects details
 	public String toString(int index){
 		String s="";
 		s+="ID: "+id+"\n";
@@ -129,6 +137,5 @@ public class Competency implements Serializable {
 		s+="Time Stamp: "+timeStamp+"\n";
 		return s;
 	}
-	
 
 }//Competencies

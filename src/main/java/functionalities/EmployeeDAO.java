@@ -106,6 +106,7 @@ public  class EmployeeDAO {
 		return e.getEmailAddress();
 	}
 
+	//Returns list of Competencies for a user
 	public static List<Competency> getCompetenciesForUser(int employeeID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
@@ -581,6 +582,15 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("The given EmployeeID or FeedbackRequestID are invalid");
 	}
 
+	/**
+	 * 
+	 * @param employeeID the employee ID
+	 * @param data the Competency to update
+	 * @param title the title of the competency (max 200 characters)
+	 * @return true or false to establish whether the task has been completed successfully or not
+	 * This method inserts a new version of competencies list 
+	 * @throws InvalidAttributeValueException 
+	 */
 	public static boolean addNewVersionCompetency(int employeeID, Object data, String title) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
