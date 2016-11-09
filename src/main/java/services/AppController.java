@@ -374,6 +374,8 @@ public class AppController {
 			for(int i=0; i<emailAddressesToField.length; i++){
 				emailAddressesToField[i]=emailAddressesToField[i].trim();
 			}
+			if(emailAddressesToField[0].length()<1)
+				return ResponseEntity.badRequest().body("No recipients inserted!");
 			boolean done=SMTPService.createFeedbackRequest(employeeID, notes, emailAddressesToField);
 			if(done)
 				return ResponseEntity.ok("Feedback request sent!");
