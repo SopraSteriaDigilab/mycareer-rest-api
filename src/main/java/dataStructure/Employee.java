@@ -844,12 +844,14 @@ public class Employee implements Serializable{
 		//Retrieve all the sublists
 		int indexSubList=0;
 		for(List<Competency> subList: this.competencies){
-			//For each fublist, retrieve each element and add them to the s string including the title and description
+			//For each sublist, retrieve each element and add them to the s string including the title and description
 			int compCounter=0;
-			for(Competency comp:subList){
-				s+="Competency: "+compCounter++ +"\n";
-				s+=comp.toString(indexSubList++);
-			}
+			try{
+				for(Competency comp:subList){
+					s+="Competency: "+compCounter++ +"\n";
+					s+=comp.toString(indexSubList++);
+				}
+			}catch(Exception r){}
 		}
 		return s;
 	}

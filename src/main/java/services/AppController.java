@@ -32,7 +32,7 @@ public class AppController {
 
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public ResponseEntity<?> welcomePage(){
-		return ResponseEntity.ok("Welcome to the MyCareer Project");
+		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
 	}
 
 	/**
@@ -49,12 +49,12 @@ public class AppController {
 				//Retrieve and return the objectives from the system
 				return ResponseEntity.ok(EmployeeDAO.getObjectivesForUser(employeeID));
 			}
-		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
-		}
-		catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
+			catch(MongoException me){
+				return ResponseEntity.badRequest().body("DataBase Connection Error");
+			}
+			catch (Exception e) {
+				return ResponseEntity.badRequest().body(e.getMessage());
+			}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
@@ -72,16 +72,16 @@ public class AppController {
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getFeedbackForUser(employeeID));
 			}
-		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
-		}
-		catch(Exception e){
+			catch(MongoException me){
+				return ResponseEntity.badRequest().body("DataBase Connection Error");
+			}
+			catch(Exception e){
 				return ResponseEntity.badRequest().body(e.getMessage());
 			}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
-	
+
 	/**
 	 * 
 	 * This method allows the front-end to retrieve all the notes associated to a specific user
@@ -95,16 +95,16 @@ public class AppController {
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getNotesForUser(employeeID));
 			}
-		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
-		}
-		catch(Exception e){
+			catch(MongoException me){
+				return ResponseEntity.badRequest().body("DataBase Connection Error");
+			}
+			catch(Exception e){
 				return ResponseEntity.badRequest().body(e.getMessage());
 			}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
-	
+
 	/**
 	 * 
 	 * This method allows the front-end to retrieve all the development needs associated to a user
@@ -118,10 +118,10 @@ public class AppController {
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getDevelopmentNeedsForUser(employeeID));
 			}
-		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
-		}
-		catch(Exception e){
+			catch(MongoException me){
+				return ResponseEntity.badRequest().body("DataBase Connection Error");
+			}
+			catch(Exception e){
 				return ResponseEntity.badRequest().body(e.getMessage());
 			}
 		else
@@ -149,6 +149,22 @@ public class AppController {
 		}
 	}
 
+	@RequestMapping(value="/management/retrieveAllUser_Data/employee/{employeeID}", method=RequestMethod.GET)
+	public ResponseEntity<?> getAllUserData(@PathVariable int employeeID){
+		if(employeeID>0)
+			try{
+				return ResponseEntity.ok(EmployeeDAO.getAllUserDataFromID(employeeID));
+			}
+			catch(MongoException me){
+				return ResponseEntity.badRequest().body("DataBase Connection Error");
+			}
+			catch(Exception e){
+				return ResponseEntity.badRequest().body(e.getMessage());
+			}
+		else
+			return ResponseEntity.badRequest().body("The given ID is invalid");
+	}
+
 	/**
 	 * 
 	 * This method allows the front-end to add a new objective to a user
@@ -162,7 +178,7 @@ public class AppController {
 	 *  0 => Awaiting
 	 *  1 => In Flight
 	 *  2 => Done
-	 * @return a boolean value or an error
+	 * @return a message explaining if the objective has been inserted or if there was an error while completing the task
 	 */
 	@RequestMapping(value="/addObjective/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addObjectiveToAUser(
@@ -196,11 +212,11 @@ public class AppController {
 	 * @param description the description of the objective (< 3000)
 	 * @param completedBy (string with format: yyyy-MM)
 	 * @param progress a value between -1 and 2
-	 * 	-1 => Not Relevant to my career anymore
+	 * 	-1 => Deleted
 	 *  0 => Awaiting
 	 *  1 => In Flight
 	 *  2 => Done
-	 * @return a boolean value or an error
+	 * @return a message explaining if the objective has been updated or if there was an error while completing the task
 	 */
 	@RequestMapping(value="/editObjective/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNewVersionObjectiveToAUser(
@@ -225,7 +241,46 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
+	/**
+	 * 
+	 * This method allows the front-end to update the status of a objective. This corresponds to archiving or unarchiving an objective
+	 * 
+	 * @param employeeID The user ID
+	 * @param objectiveID The objective ID to update
+	 * @param isArchived boolean value (true=archive, false=unarchive)
+	 * @return a message explaining if the objective has been updated or if there was an error while completing the task
+	 */
+	@RequestMapping(value="/changeStatusObjective/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> updateStatusUserObjective(
+			@PathVariable("employeeID") int employeeID,
+			@RequestParam(value="objectiveID") int objectiveID,
+			@RequestParam(value="isArchived") boolean isArchived){
+		try{
+			//Retrieve the object with the given ID from the DB data
+			Objective obj=EmployeeDAO.getSpecificObjectiveForUser(employeeID, objectiveID);
+			if(obj.getIsArchived()==isArchived)
+				return ResponseEntity.ok("The status of the objective has not changed!");
+			obj.setIsArchived(isArchived); 
+			//Store the new version to the system
+			boolean inserted=EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj);
+			if(inserted){
+				if(isArchived)
+					return ResponseEntity.ok("The objective has been archived!");
+				else
+					return ResponseEntity.ok("The objective has been unarchived!");
+			}
+			else
+				return ResponseEntity.badRequest().body("Error while editing the objective");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+
 	/**
 	 * 
 	 * This method allows the front-end to add a new note to a specific user
@@ -255,7 +310,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * 
 	 * This method allows the front-end to edit a new version of a note currently stored within the system
@@ -287,7 +342,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * 
 	 * This method allows the front-end to insert a new development need in the system
@@ -320,7 +375,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * 
 	 * This method allows the front-end to edit a development need previously inserted in the system
@@ -355,7 +410,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param employeeID the employee ID (>0)
@@ -386,7 +441,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param employeeID the employee ID
@@ -405,7 +460,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * 
 	 * This method allows the front-end to insert new competencies in the system
@@ -439,5 +494,5 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
 }
