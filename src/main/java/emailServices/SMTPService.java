@@ -6,13 +6,7 @@ import java.net.URI;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.activity.InvalidActivityException;
-import javax.mail.internet.InternetAddress;
 import javax.management.InvalidAttributeValueException;
-import javax.naming.directory.InvalidAttributesException;
-import javax.validation.Validation;
-
 import dataStructure.Constants;
 import dataStructure.FeedbackRequest;
 import functionalities.EmployeeDAO;
@@ -180,12 +174,15 @@ public final class SMTPService {
 			EmailMessage msg= new EmailMessage(emailService);
 			msg.setSubject("Feedback Request Sent");
 			//Fill the email with the error details
-			String bodyMsg="A feedback request has been successfully sent to the following addresses:\n"
-					+ getStringFromListEmails(validEmailAddressesList)+"\n";
-			if(invalidEmailAddressesList.size()>0){
-				bodyMsg+="\nHowever, some of the given email addresses are invalid:\n"+getStringFromListEmails(invalidEmailAddressesList);
+			String bodyMsg="Hi, "+fullNameEmployeeRequester+"\n\nThank you for using MyCareer to request feedback!\n\n";
+			if(validEmailAddressesList.size()>0){
+				bodyMsg+="A feedback request has been successfully sent to the following addresses:\n";
+				bodyMsg+=getStringFromListEmails(validEmailAddressesList)+"\n";
 			}
-			bodyMsg+="\n\nRegards,\nMyCareer Team\n\n";
+			if(invalidEmailAddressesList.size()>0){
+				bodyMsg+="The following email addresses are invalid, therefore no feedback request has been sent to:\n"+getStringFromListEmails(invalidEmailAddressesList);
+			}
+			bodyMsg+="\nKind Regards,\nMyCareer Team\n\n";
 			MessageBody mexB=new MessageBody();
 			mexB.setText(bodyMsg);
 			mexB.setBodyType(BodyType.Text);
@@ -230,6 +227,7 @@ public final class SMTPService {
 		String body="";
 		//Read in the content from the template file stored in the externalData package
 		try{
+			@SuppressWarnings("resource")
 			BufferedReader inputFile=new BufferedReader(new FileReader("src/main/java/emailServices/FeedbackRequestBody_Template.txt"));
 			String line="";
 			while((line=inputFile.readLine())!=null){
@@ -237,7 +235,13 @@ public final class SMTPService {
 					line=line.replace("[FeedbackRequester_name]", requester);
 				}
 				if(line.contains("[FeedbackRequest_Comments]")){
-					line=line.replace("[FeedbackRequest_Comments]", notes);
+					if(!notes.trim().equals(""))
+						line=line.replace("[FeedbackRequest_Comments]", notes);
+					else
+						line="No Comment Added";
+				}
+				if(line.contains("(External link required)")){
+					line=line.replace("(External link required)", "\nhttp://portal.corp.sopra/hr/HR_UK_SG/mycareerpath/Performancemanagement/Pages/default.aspx");
 				}
 				body+=line+"\n";
 			}
