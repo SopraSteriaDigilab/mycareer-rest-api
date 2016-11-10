@@ -63,7 +63,21 @@ public class Objective implements Serializable{
 		this.timeStamp=null;
 		this.setTimeStamp();
 		this.setTimeToCompleteBy(dateToCompleteBy);
-		feedback=new ArrayList<Feedback>();	
+		this.feedback=new ArrayList<Feedback>();	
+	}
+	
+	//Constructor with Parameters
+	public Objective(Objective o) throws InvalidAttributeValueException{
+		this.setID(o.getID());
+		this.setProgress(o.getProgress());
+		this.setPerformance(o.getPerformance());
+		this.isArchived=false;
+		this.setTitle(o.getTitle());
+		this.setDescription(o.getDescription());
+		this.timeStamp=null;
+		this.setTimeStamp();
+		this.setTimeToCompleteBy(o.getTimeToCompleteBy());
+		this.feedback=o.getFeedback();	
 	}
 
 	//Constructor with Parameters

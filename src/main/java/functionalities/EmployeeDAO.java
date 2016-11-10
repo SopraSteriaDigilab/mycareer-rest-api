@@ -45,7 +45,7 @@ public  class EmployeeDAO {
 		return e.getLatestVersionObjectives();
 
 	}
-	
+
 	public static Objective getSpecificObjectiveForUser(int employeeID, int objectiveID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
@@ -54,10 +54,15 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
 		List<Objective> latestVersion=e.getLatestVersionObjectives();
-		Objective temp= latestVersion.stream().filter(t-> t.getID()==objectiveID).findFirst().get();
-		if(temp==null)
+		try{
+			Objective temp= latestVersion.stream().filter(t-> t.getID()==objectiveID).findFirst().get();
+			if(temp==null)
+				throw new InvalidAttributeValueException("No Objective with such ID");
+			return temp;
+		}
+		catch(Exception err){
 			throw new InvalidAttributeValueException("No Objective with such ID");
-		return temp;
+		}
 	}
 
 	public static List<Feedback> getFeedbackForUser(int employeeID) throws InvalidAttributeValueException{
@@ -119,7 +124,7 @@ public  class EmployeeDAO {
 		Employee e = query.get();
 		return e.getEmailAddress();
 	}
-	
+
 	public static String getAllUserDataFromID(int employeeID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();

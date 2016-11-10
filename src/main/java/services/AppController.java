@@ -261,9 +261,11 @@ public class AppController {
 			Objective obj=EmployeeDAO.getSpecificObjectiveForUser(employeeID, objectiveID);
 			if(obj.getIsArchived()==isArchived)
 				return ResponseEntity.ok("The status of the objective has not changed!");
-			obj.setIsArchived(isArchived); 
+			//Create a new object which stores the data from the retrieved element but sets a new timestamp to it
+			Objective newObjUpdated=new Objective(obj);			
+			newObjUpdated.setIsArchived(isArchived); 
 			//Store the new version to the system
-			boolean inserted=EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj);
+			boolean inserted=EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, newObjUpdated);
 			if(inserted){
 				if(isArchived)
 					return ResponseEntity.ok("The objective has been archived!");
