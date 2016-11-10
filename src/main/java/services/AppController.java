@@ -49,12 +49,12 @@ public class AppController {
 				//Retrieve and return the objectives from the system
 				return ResponseEntity.ok(EmployeeDAO.getObjectivesForUser(employeeID));
 			}
-			catch(MongoException me){
-				return ResponseEntity.badRequest().body("DataBase Connection Error");
-			}
-			catch (Exception e) {
-				return ResponseEntity.badRequest().body(e.getMessage());
-			}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
@@ -72,12 +72,12 @@ public class AppController {
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getFeedbackForUser(employeeID));
 			}
-			catch(MongoException me){
-				return ResponseEntity.badRequest().body("DataBase Connection Error");
-			}
-			catch(Exception e){
-				return ResponseEntity.badRequest().body(e.getMessage());
-			}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
@@ -95,12 +95,12 @@ public class AppController {
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getNotesForUser(employeeID));
 			}
-			catch(MongoException me){
-				return ResponseEntity.badRequest().body("DataBase Connection Error");
-			}
-			catch(Exception e){
-				return ResponseEntity.badRequest().body(e.getMessage());
-			}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
@@ -118,12 +118,12 @@ public class AppController {
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getDevelopmentNeedsForUser(employeeID));
 			}
-			catch(MongoException me){
-				return ResponseEntity.badRequest().body("DataBase Connection Error");
-			}
-			catch(Exception e){
-				return ResponseEntity.badRequest().body(e.getMessage());
-			}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
@@ -155,12 +155,12 @@ public class AppController {
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getAllUserDataFromID(employeeID));
 			}
-			catch(MongoException me){
-				return ResponseEntity.badRequest().body("DataBase Connection Error");
-			}
-			catch(Exception e){
-				return ResponseEntity.badRequest().body(e.getMessage());
-			}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
@@ -435,7 +435,7 @@ public class AppController {
 				return ResponseEntity.badRequest().body("No recipients inserted!");
 			boolean done=SMTPService.createFeedbackRequest(employeeID, notes, emailAddressesToField);
 			if(done)
-				return ResponseEntity.ok("Feedback request sent!");
+				return ResponseEntity.ok("Feedback request sent! A Confirmation Email is on its way");
 			else
 				return ResponseEntity.badRequest().body("Error while creating a feedback request!");
 		}

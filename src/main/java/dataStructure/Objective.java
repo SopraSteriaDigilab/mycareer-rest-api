@@ -77,7 +77,7 @@ public class Objective implements Serializable{
 		this.timeStamp=null;
 		this.setTimeStamp();
 		this.setTimeToCompleteBy(o.getTimeToCompleteBy());
-		this.feedback=o.getFeedback();	
+		this.feedback=o.getFeedback();
 	}
 
 	//Constructor with Parameters
