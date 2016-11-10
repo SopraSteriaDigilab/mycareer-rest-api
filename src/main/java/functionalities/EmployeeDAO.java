@@ -104,6 +104,17 @@ public  class EmployeeDAO {
 		Employee e = query.get();
 		return e.getFeedbackRequestsList();
 	}
+	
+	public static String getUserFullNmeFromUserID(int id) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", id);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such ID");
+		Employee e = query.get();
+		String fullName=e.getForname()+" "+e.getSurname();
+		return fullName;
+	}
 
 	public static int getUserIDFromEmailAddress(String email) throws InvalidAttributeValueException{
 		if(dbConnection==null)
@@ -444,7 +455,7 @@ public  class EmployeeDAO {
 		return false;
 	}
 
-	/*public static boolean insertNewFeedbackRequest(int employeeID, Object data) throws InvalidAttributeValueException, MongoException{
+	public static boolean insertNewFeedbackRequest(int employeeID, Object data) throws InvalidAttributeValueException, MongoException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
 		//Check the employeeID
@@ -463,7 +474,7 @@ public  class EmployeeDAO {
 						return true;
 					}
 					else
-						throw new InvalidAttributeValueException("The given object couldn't be added to the feeback requests list");
+						throw new InvalidAttributeValueException("The given object couldn't be added to the feeback request list");
 				}
 				else
 					throw new InvalidAttributeValueException("No employee found with the ID provided");
@@ -473,7 +484,7 @@ public  class EmployeeDAO {
 		}
 		else
 			throw new InvalidAttributeValueException("The ID provided is not valid");
-	}*/
+	}
 
 	public static boolean updateFeedbackRequest(int employeeID, int feedbackReqID, Object data) throws InvalidAttributeValueException{
 		if(dbConnection==null)
