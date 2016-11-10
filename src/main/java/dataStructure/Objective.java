@@ -24,26 +24,28 @@ import com.google.gson.Gson;
  */
 @Embedded
 public class Objective implements Serializable{
-	
+
 	private static final long serialVersionUID = -274154678364673992L;
 	//Global Variables
 	private int id, progress, performance;
+	private boolean isArchived;
 	private String title, description, timeStamp, timeToCompleteBy;
 	@Embedded
 	private List<Feedback> feedback;
-	
+
 	//Empty Constructor
 	public Objective(){
 		this.id=Constants.INVALID_INT;
 		this.progress=Constants.INVALID_INT;
 		this.performance=Constants.INVALID_INT;
+		this.isArchived=false;
 		this.title=Constants.INVALID_STRING;
 		this.description=Constants.INVALID_STRING;
 		this.timeStamp=null;
 		this.timeToCompleteBy=null;
 		feedback=new ArrayList<Feedback>();
 	}
-	
+
 	//Constructor with Parameters
 	public Objective(
 			int id, 
@@ -55,6 +57,7 @@ public class Objective implements Serializable{
 		this.setID(id);
 		this.setProgress(prog);
 		this.setPerformance(perf);
+		this.isArchived=false;
 		this.setTitle(title);
 		this.setDescription(descr);
 		this.timeStamp=null;
@@ -62,24 +65,24 @@ public class Objective implements Serializable{
 		this.setTimeToCompleteBy(dateToCompleteBy);
 		feedback=new ArrayList<Feedback>();	
 	}
-	
+
 	//Constructor with Parameters
-		public Objective( 
-				int prog, 
-				int perf, 
-				String title, 
-				String descr, 
-				String dateToCompleteBy) throws InvalidAttributeValueException{
-			this.setProgress(prog);
-			this.setPerformance(perf);
-			this.setTitle(title);
-			this.setDescription(descr);
-			this.timeStamp=null;
-			this.setTimeStamp();
-			this.setTimeToCompleteBy(dateToCompleteBy);
-			feedback=new ArrayList<Feedback>();	
-		}
-	
+	public Objective( 
+			int prog, 
+			int perf, 
+			String title, 
+			String descr, 
+			String dateToCompleteBy) throws InvalidAttributeValueException{
+		this.setProgress(prog);
+		this.setPerformance(perf);
+		this.setTitle(title);
+		this.setDescription(descr);
+		this.timeStamp=null;
+		this.setTimeStamp();
+		this.setTimeToCompleteBy(dateToCompleteBy);
+		feedback=new ArrayList<Feedback>();	
+	}
+
 	public void setID(int id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.id=id;
@@ -88,15 +91,15 @@ public class Objective implements Serializable{
 			throw new InvalidAttributeValueException("The ID with value "+id+" is not valid in this context");
 		}
 	}
-	
+
 	public int getID(){
 		return this.id;
 	}
-	
+
 	/**
 	 * 
 	 * @param progress This variable can assume only 4 values:
-	 * -1 => Not Relevant to my career anymore
+	 * -1 => Deleted
 	 *  0 => Awaiting
 	 *  1 => In Flight
 	 *  2 => Done
@@ -109,11 +112,11 @@ public class Objective implements Serializable{
 			throw new InvalidAttributeValueException("The given 'progress' value is not valid in this context");
 		}
 	}
-	
+
 	public int getProgress(){
 		return this.progress;
 	}
-	
+
 	/**
 	 * 
 	 * @param performance This variable can assume only 3 values:
@@ -129,11 +132,19 @@ public class Objective implements Serializable{
 			throw new InvalidAttributeValueException("The given 'performance' value is not valid in this context");
 		}
 	}
-	
+
 	public int getPerformance(){
 		return this.performance;
 	}
 	
+	public void setIsArchived(boolean val){
+		this.isArchived=val;
+	}
+	
+	public boolean getIsArchived(){
+		return isArchived;
+	}
+
 	/**
 	 * 
 	 * @param title The title of the object cannot exceed the 150 characters
@@ -146,11 +157,11 @@ public class Objective implements Serializable{
 			throw new InvalidAttributeValueException("The given 'title' is not valid in this context");
 		}
 	}
-	
+
 	public String getTitle(){
 		return this.title;
 	}
-	
+
 	/**
 	 * 
 	 * @param description The description of the objective cannot exceed the 1000 characters
@@ -163,11 +174,11 @@ public class Objective implements Serializable{
 			throw new InvalidAttributeValueException("The given 'description' is not valid in this context");
 		}
 	}
-	
+
 	public String getDescription(){
 		return this.description;
 	}
-	
+
 	/**
 	 * This method creates a timestamp when the object is created
 	 */
@@ -178,13 +189,13 @@ public class Objective implements Serializable{
 			this.timeStamp=temp.toString();
 		}
 	}
-	
+
 	public String getTimeStamp(){
 		//return this.timeStamp.format(Constants.DATE_TIME_FORMAT);
 		///DateFormat dateFormat = new SimpleDateFormat(Constants.COMPLETE_DATE_TIME_FORMAT);
 		return this.timeStamp;
 	}
-	
+
 	/**
 	 * 
 	 * @param date the date of when the objective needs to be completed by
@@ -210,12 +221,12 @@ public class Objective implements Serializable{
 			throw new InvalidAttributeValueException("The format for the given 'date' is not valid");
 		}
 	}
-	
+
 	public String getTimeToCompleteBy(){
 		YearMonth temp=YearMonth.parse(this.timeToCompleteBy,Constants.YEAR_MONTH_FORMAT);
 		return temp.format(Constants.YEAR_MONTH_FORMAT);
 	}
-	
+
 	/**
 	 * 
 	 * @param listData the list of feedback that is going to be assigned to this objective
@@ -244,7 +255,7 @@ public class Objective implements Serializable{
 			throw new InvalidAttributeValueException("The list of feedback given is null");
 		}
 	}
-	
+
 	public List<Feedback> getFeedback(){
 		List<Feedback> data=new ArrayList<Feedback>();
 		for(Feedback temp: this.feedback){
@@ -252,28 +263,29 @@ public class Objective implements Serializable{
 		}
 		return data;
 	}
-	
+
 	@Override
 	public String toString(){
 		String s="";
 		s+="ID "+this.id+"\n"
-			+ "Progress "+this.progress+"\n"
-			+ "Performance "+this.performance+"\n"
-			+ "Title "+this.title+"\n"
-			+ "Description "+this.description+"\n"
-			+ "TimeStamp "+this.getTimeStamp()+"\n"
-			+ "TimeToCompleteBy "+this.getTimeToCompleteBy()+"\n";
+				+ "Progress "+this.progress+"\n"
+				+ "Performance "+this.performance+"\n"
+				+ "Is Archived  "+this.isArchived+"\n"
+				+ "Title "+this.title+"\n"
+				+ "Description "+this.description+"\n"
+				+ "TimeStamp "+this.getTimeStamp()+"\n"
+				+ "TimeToCompleteBy "+this.getTimeToCompleteBy()+"\n";
 		for(Feedback temp: this.feedback){
 			s+=temp.toString();
 		}
 		return s;
 	}
-	
+
 	public String toGson(){
 		Gson gsonData=new Gson();
 		return gsonData.toJson(this);
 	}
-	
+
 	/**
 	 * This method adds a feedback to this objective
 	 * 
@@ -288,11 +300,11 @@ public class Objective implements Serializable{
 			return feedback.add(obj);
 		return false;
 	}
-	
+
 	public boolean isObjectiveValid(){
-		 return (this.getID()>0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.getTimeStamp()!=null && this.getTimeToCompleteBy()!=null);
+		return (this.getID()>0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.getTimeStamp()!=null && this.getTimeToCompleteBy()!=null);
 	}
 	public boolean isObjectiveValidWithoutID(){
-		 return (this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.getTimeStamp()!=null && this.getTimeToCompleteBy()!=null);
+		return (this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.getTimeStamp()!=null && this.getTimeToCompleteBy()!=null);
 	}
 }
