@@ -51,8 +51,7 @@ dependencies {
     
     //JavaMail library for the communication with the SMTP Email Server
     compile ("javax.mail:mail:1.5.0-b01")
-    //compile ("jaf:activation:1.0.2")
-    
+    //compile ("jaf:activation:1.0.2") 
     
     //Library for the Exchange Server
     compile group: 'com.microsoft.ews-java-api', name: 'ews-java-api', version: '2.0'
