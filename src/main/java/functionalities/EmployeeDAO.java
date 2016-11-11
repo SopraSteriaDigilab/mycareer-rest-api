@@ -43,7 +43,6 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
 		return e.getLatestVersionObjectives();
-
 	}
 
 	public static Objective getSpecificObjectiveForUser(int employeeID, int objectiveID) throws InvalidAttributeValueException{
