@@ -22,55 +22,44 @@ import com.google.gson.Gson;
  *
  */
 @Entity("employeeDataDev")
-public class Employee implements Serializable{
+public class Employee extends ADProfile_Advanced implements Serializable{
 
 	private static final long serialVersionUID = 6218992334392107696L;
 	//Global Variables
 	@Id
 	private ObjectId id;
-	private long employeeID;
-	private String forename, surname, emailAddress, username, GUID, company, team;
 	@Embedded
 	private List<Feedback> feedback;
 	@Embedded
 	private List<List<Objective>> objectives;
 	@Embedded
 	private List<List<Note>> notes;
-	private boolean isAManager;
+	@Embedded
 	private List<List<DevelopmentNeed>> developmentNeeds;
+	@Embedded
 	private List<FeedbackRequest> feedbackRequests;
 	@Embedded
 	private List<List<Competency>> competencies;
-	private List<String> reporteeGUIDS;
 
 	//Empty Constructor
 	public Employee(){
-		this.employeeID=Constants.INVALID_INT;
-		this.forename=Constants.INVALID_STRING;
-		this.surname=Constants.INVALID_STRING;
-		this.emailAddress=Constants.INVALID_STRING;
-		this.username=Constants.INVALID_STRING;
-		this.GUID=Constants.INVALID_STRING;
-		this.company=Constants.INVALID_STRING;
-		this.team=Constants.INVALID_STRING;
+		super();
 		this.feedback=new ArrayList<Feedback>();
 		this.objectives=new ArrayList<List<Objective>>();
 		this.notes=new ArrayList<List<Note>>();
-		this.isAManager=false;
 		this.developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
 		this.feedbackRequests=new ArrayList<FeedbackRequest>();
 		this.competencies=new ArrayList<List<Competency>>();
-		this.reporteeGUIDS=new ArrayList<String>();
 	}
 
 	//Constructor with parameters
 	public Employee(
-			int id,
+			long employeeID,
+			String guid,
 			String name, 
 			String surname, 
 			String email,
 			String username,
-			String guid,
 			String company,
 			String team,
 			boolean isManager,
@@ -81,22 +70,13 @@ public class Employee implements Serializable{
 			List<FeedbackRequest> requests,
 			List<List<Competency>> competencies,
 			List<String> reportees) throws InvalidAttributeValueException, InvalidClassException{
-		this.setEmployeeID(id);
-		this.setForename(name);
-		this.setSurname(surname);
-		this.setEmailAddress(email);
-		this.setUsername(username);
-		this.setGUID(guid);
-		this.setCompany(company);
-		this.setTeam(team);
-		this.setIsAManager(isManager);
+		super(employeeID, guid, name, surname,email,username,company,team,isManager);
 		this.setFeedbackList(feeds);
 		this.setObjectiveList(objectives);
 		this.setNoteList(notes);
 		this.setDevelopmentNeedsList(needs);
 		this.setFeedbackRequestsList(requests);
 		this.setCompetenciesList(competencies);
-		this.setReporteeGUIDs(reportees);
 	}
 
 	/**
@@ -105,180 +85,6 @@ public class Employee implements Serializable{
 	 */
 	public ObjectId getId() {
 		return id;
-	}
-
-	public void setEmployeeID(long id) throws InvalidAttributeValueException{
-		if(id>0)
-			this.employeeID=id;
-		else{
-			this.employeeID=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The value "+id+" is not valid in this context");
-		}
-	}
-
-	public long getEmployeeID(){
-		return this.employeeID;
-	}
-
-	/**
-	 * 
-	 * @param name The name must not exceed 200 characters
-	 */
-	public void setForename(String name) throws InvalidAttributeValueException{
-		if(name!=null && name.length()>0 && name.length()<201)
-			this.forename=name;
-		else{
-			this.forename=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'forename' is not valid in this context");
-		}
-	}
-
-	public String getForname(){
-		return this.forename;
-	}
-
-	/**
-	 * 
-	 * @param surname The surname cannot exceed the 200 characters
-	 */
-	public void setSurname(String surname) throws InvalidAttributeValueException{
-		if(surname!=null && surname.length()>0 && surname.length()<201)
-			this.surname=surname;
-		else{
-			this.surname=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'surname' is not valid in this context");
-		}
-	}
-
-	public String getSurname(){
-		return this.surname;
-	}
-	
-	/**
-	 * 
-	 * This method sets the user name of the employee which length must be less than 50 characters
-	 * 
-	 * @param user
-	 * @throws InvalidAttributeValueException
-	 */
-	public void setUsername(String user) throws InvalidAttributeValueException{
-		if(user!=null && user.length()>0 && user.length()<50){
-			this.username=user;
-		}
-		else{
-			this.username=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'username' is not valid in this context");
-		}
-	}
-	
-	public String getUsername(){
-		return this.username;
-	}
-
-	/**
-	 * 
-	 * @param email The user email address
-	 * @throws InvalidAttributeValueException
-	 */
-	public void setEmailAddress(String email) throws InvalidAttributeValueException{
-		if(email!=null && email.length()>0 && email.contains("@"))
-			this.emailAddress=email;
-		else{
-			this.emailAddress=Constants.INVALID_EMAIL;
-			throw new InvalidAttributeValueException("The given 'Email Address' is not valid in this context");
-		}
-	}
-
-	public String getEmailAddress(){
-		return this.emailAddress;
-	}
-	
-	/**
-	 * 
-	 * @param guid this is a unique value created for each employee of the company 
-	 * @throws InvalidAttributeValueException
-	 */
-	public void setGUID(String guid) throws InvalidAttributeValueException{
-		if(guid!=null && guid.length()>0){
-			this.GUID=guid;
-		}
-		else{
-			this.GUID=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'GUID' is not valid in this context");
-		}
-	}
-	
-	public String getGUID(){
-		return this.GUID;
-	}
-	
-	/**
-	 * 
-	 * @param com the company name which length must be less than 150 characters
-	 * @throws InvalidAttributeValueException
-	 */
-	public void setCompany(String com) throws InvalidAttributeValueException{
-		if(com!=null && com.length()>0 && com.length()<150){
-			this.company=com;
-		}
-		else{
-			this.company=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'company' is not valid in this context");
-		}
-	}
-	
-	public String getCompany(){
-		return this.company;
-	}
-	
-	/**
-	 * 
-	 * @param team the team name which length must be less than 150 characters
-	 * @throws InvalidAttributeValueException
-	 */
-	public void setTeam(String team) throws InvalidAttributeValueException{
-		if(team!=null && team.length()>0 && team.length()<150){
-			this.team=team;
-		}
-		else{
-			this.team=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'team' is not valid in this context");
-		}
-	}
-	
-	public String getTeam(){
-		return this.team;
-	}
-
-	/**
-	 * 
-	 * @param value boolean value that says whether a user is a manager or not
-	 */
-	public void setIsAManager(boolean value){
-		this.isAManager=value;
-	}
-
-	public boolean getIsAManager(){
-		return this.isAManager;
-	}
-	
-	/**
-	 * This method assigns reportees to a manager
-	 * 
-	 * @param repostees
-	 */
-	public void setReporteeGUIDs(List<String> reportees){
-		//Instantiate the list if it hasn't been already done so
-		if(this.reporteeGUIDS==null)
-			this.reporteeGUIDS=new ArrayList<String>();
-		//Add each elements inside the list
-		for(String temp:reportees){
-			reporteeGUIDS.add(temp);
-		}
-	}
-	
-	public List<String> getReposteeGUIDs(){
-		return this.reporteeGUIDS;
 	}
 
 	/**
@@ -753,10 +559,9 @@ public class Employee implements Serializable{
 		String s="";
 		//Add the generic information
 		s+="ID "+this.getEmployeeID()+"\n"
-				+ "Forename "+this.getForname()+"\n"
-				+ "Surname "+this.getSurname()+"\n"
+				+ "FullName "+getFullName()+"\n"
 				+ "EmailAddress "+this.getEmailAddress()+"\n"
-				+ "IsAManager "+this.getIsAManager()+"\n";
+				+ "IsAManager "+this.getIsManager()+"\n";
 		//Add the feedback
 		s+="Feedback:\n";
 		for(Feedback temp:this.feedback){
@@ -819,14 +624,6 @@ public class Employee implements Serializable{
 	public String toGson(){
 		Gson gsonData=new Gson();
 		return gsonData.toJson(this);
-	}
-	
-	public boolean addReportee(String id){
-		if(this.reporteeGUIDS==null)
-			this.reporteeGUIDS=new ArrayList<>();
-		if(id!=null && id.length()>1)
-			return reporteeGUIDS.add(id);
-		return false;
 	}
 
 	/**

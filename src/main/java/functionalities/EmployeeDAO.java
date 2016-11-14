@@ -111,8 +111,7 @@ public  class EmployeeDAO {
 		if(query.get()==null)
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
-		String fullName=e.getForname()+" "+e.getSurname();
-		return fullName;
+		return e.getFullName();
 	}
 
 	public static long getUserIDFromEmailAddress(String email) throws InvalidAttributeValueException{
