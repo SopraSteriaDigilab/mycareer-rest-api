@@ -1,5 +1,8 @@
 package services;
 
+import javax.management.InvalidAttributeValueException;
+import javax.naming.NamingException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +17,7 @@ import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
 import emailServices.SMTPService;
+import functionalities.ADProfileDAO;
 import functionalities.EmployeeDAO;
 
 /**
@@ -496,5 +500,31 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
+	
+	@RequestMapping(value="/authenticateUserProfile/{userName}", method=RequestMethod.GET)
+	public ResponseEntity<?> authenticateUserProfile(@PathVariable String userName){
+		
+		try {
+			if(userName != null || !userName.equals("") || userName.length()<300 ){
+				return ResponseEntity.ok(ADProfileDAO.authenticateUserProfile(userName));
+			}else{
+				return ResponseEntity.badRequest().body("The username given is invalid");
+			}
+		} catch (InvalidAttributeValueException e) {
+			// TODO Auto-generated catch block
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			return ResponseEntity.badRequest().body("AD Connection Error");
+		}
 
+	
+		
+		
+	}
+
+	
+	
+	
+	
 }
