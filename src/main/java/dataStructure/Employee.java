@@ -2,7 +2,6 @@ package dataStructure;
 
 import java.io.InvalidClassException;
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
@@ -29,9 +28,8 @@ public class Employee implements Serializable{
 	//Global Variables
 	@Id
 	private ObjectId id;
-	private int employeeID, level, LM_ID;
-	private String forename, surname, role, LM_Name, emailAddress;
-	private String dob, joinDate;
+	private long employeeID;
+	private String forename, surname, emailAddress, username, GUID, company, team;
 	@Embedded
 	private List<Feedback> feedback;
 	@Embedded
@@ -43,19 +41,18 @@ public class Employee implements Serializable{
 	private List<FeedbackRequest> feedbackRequests;
 	@Embedded
 	private List<List<Competency>> competencies;
+	private List<String> reporteeGUIDS;
 
 	//Empty Constructor
 	public Employee(){
 		this.employeeID=Constants.INVALID_INT;
-		this.level=Constants.INVALID_INT;
-		this.LM_ID=Constants.INVALID_INT;
 		this.forename=Constants.INVALID_STRING;
 		this.surname=Constants.INVALID_STRING;
 		this.emailAddress=Constants.INVALID_STRING;
-		this.role=Constants.INVALID_STRING;
-		this.LM_Name=Constants.INVALID_STRING;
-		this.dob=null;
-		this.joinDate=null;
+		this.username=Constants.INVALID_STRING;
+		this.GUID=Constants.INVALID_STRING;
+		this.company=Constants.INVALID_STRING;
+		this.team=Constants.INVALID_STRING;
 		this.feedback=new ArrayList<Feedback>();
 		this.objectives=new ArrayList<List<Objective>>();
 		this.notes=new ArrayList<List<Note>>();
@@ -63,44 +60,43 @@ public class Employee implements Serializable{
 		this.developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
 		this.feedbackRequests=new ArrayList<FeedbackRequest>();
 		this.competencies=new ArrayList<List<Competency>>();
+		this.reporteeGUIDS=new ArrayList<String>();
 	}
 
 	//Constructor with parameters
 	public Employee(
 			int id,
-			int level, 
 			String name, 
 			String surname, 
 			String email,
-			String role, 
+			String username,
+			String guid,
+			String company,
+			String team,
 			boolean isManager,
-			String LMName,
-			int LMID,
-			String dob, 
-			String joinDate,
 			List<Feedback> feeds,
 			List<List<Objective>> objectives,
 			List<List<Note>> notes,
 			List<List<DevelopmentNeed>> needs,
 			List<FeedbackRequest> requests,
-			List<List<Competency>> competencies) throws InvalidAttributeValueException, InvalidClassException{
+			List<List<Competency>> competencies,
+			List<String> reportees) throws InvalidAttributeValueException, InvalidClassException{
 		this.setEmployeeID(id);
-		this.setLevel(level);
 		this.setForename(name);
 		this.setSurname(surname);
 		this.setEmailAddress(email);
-		this.setRole(role);
+		this.setUsername(username);
+		this.setGUID(guid);
+		this.setCompany(company);
+		this.setTeam(team);
 		this.setIsAManager(isManager);
-		this.setLineManagerName(LMName);
-		this.setLineManagerID(LMID);
-		this.setDateOFBirth(dob);
-		this.setJoinDate(joinDate);
 		this.setFeedbackList(feeds);
 		this.setObjectiveList(objectives);
 		this.setNoteList(notes);
 		this.setDevelopmentNeedsList(needs);
 		this.setFeedbackRequestsList(requests);
 		this.setCompetenciesList(competencies);
+		this.setReporteeGUIDs(reportees);
 	}
 
 	/**
@@ -111,7 +107,7 @@ public class Employee implements Serializable{
 		return id;
 	}
 
-	public void setEmployeeID(int id) throws InvalidAttributeValueException{
+	public void setEmployeeID(long id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.employeeID=id;
 		else{
@@ -120,25 +116,8 @@ public class Employee implements Serializable{
 		}
 	}
 
-	public int getEmployeeID(){
+	public long getEmployeeID(){
 		return this.employeeID;
-	}
-
-	/**
-	 * 
-	 * @param level This is a value between 1 and 15
-	 */
-	public void setLevel(int level) throws InvalidAttributeValueException{
-		if(level>0 && level<16)
-			this.level=level;
-		else{
-			this.level=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The given 'level' is not valid in this context");
-		}
-	}
-
-	public int getLevel(){
-		return this.level;
 	}
 
 	/**
@@ -174,6 +153,27 @@ public class Employee implements Serializable{
 	public String getSurname(){
 		return this.surname;
 	}
+	
+	/**
+	 * 
+	 * This method sets the user name of the employee which length must be less than 50 characters
+	 * 
+	 * @param user
+	 * @throws InvalidAttributeValueException
+	 */
+	public void setUsername(String user) throws InvalidAttributeValueException{
+		if(user!=null && user.length()>0 && user.length()<50){
+			this.username=user;
+		}
+		else{
+			this.username=Constants.INVALID_STRING;
+			throw new InvalidAttributeValueException("The given 'username' is not valid in this context");
+		}
+	}
+	
+	public String getUsername(){
+		return this.username;
+	}
 
 	/**
 	 * 
@@ -192,22 +192,62 @@ public class Employee implements Serializable{
 	public String getEmailAddress(){
 		return this.emailAddress;
 	}
-
+	
 	/**
 	 * 
-	 * @param role the role value does not exceed the 250 characters
+	 * @param guid this is a unique value created for each employee of the company 
+	 * @throws InvalidAttributeValueException
 	 */
-	public void setRole(String role) throws InvalidAttributeValueException{
-		if(role!=null && role.length()>0 && role.length()<251)
-			this.role=role;
+	public void setGUID(String guid) throws InvalidAttributeValueException{
+		if(guid!=null && guid.length()>0){
+			this.GUID=guid;
+		}
 		else{
-			this.role=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'role' is not valid in this context");
+			this.GUID=Constants.INVALID_STRING;
+			throw new InvalidAttributeValueException("The given 'GUID' is not valid in this context");
 		}
 	}
-
-	public String getRole(){
-		return this.role;
+	
+	public String getGUID(){
+		return this.GUID;
+	}
+	
+	/**
+	 * 
+	 * @param com the company name which length must be less than 150 characters
+	 * @throws InvalidAttributeValueException
+	 */
+	public void setCompany(String com) throws InvalidAttributeValueException{
+		if(com!=null && com.length()>0 && com.length()<150){
+			this.company=com;
+		}
+		else{
+			this.company=Constants.INVALID_STRING;
+			throw new InvalidAttributeValueException("The given 'company' is not valid in this context");
+		}
+	}
+	
+	public String getCompany(){
+		return this.company;
+	}
+	
+	/**
+	 * 
+	 * @param team the team name which length must be less than 150 characters
+	 * @throws InvalidAttributeValueException
+	 */
+	public void setTeam(String team) throws InvalidAttributeValueException{
+		if(team!=null && team.length()>0 && team.length()<150){
+			this.team=team;
+		}
+		else{
+			this.team=Constants.INVALID_STRING;
+			throw new InvalidAttributeValueException("The given 'team' is not valid in this context");
+		}
+	}
+	
+	public String getTeam(){
+		return this.team;
 	}
 
 	/**
@@ -221,98 +261,24 @@ public class Employee implements Serializable{
 	public boolean getIsAManager(){
 		return this.isAManager;
 	}
-
+	
 	/**
+	 * This method assigns reportees to a manager
 	 * 
-	 * @param name The name of the line manager does not exceed the 250 characters
+	 * @param repostees
 	 */
-	public void setLineManagerName(String name) throws InvalidAttributeValueException{
-		if(name!=null && name.length()>0 && name.length()<251)
-			this.LM_Name=name;
-		else{
-			this.LM_Name=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'line Manager Name' is not valid in this context");
+	public void setReporteeGUIDs(List<String> reportees){
+		//Instantiate the list if it hasn't been already done so
+		if(this.reporteeGUIDS==null)
+			this.reporteeGUIDS=new ArrayList<String>();
+		//Add each elements inside the list
+		for(String temp:reportees){
+			reporteeGUIDS.add(temp);
 		}
 	}
-
-	public String getLineManagerName(){
-		return this.LM_Name;
-	}
-
-	/**
-	 * 
-	 * @param id The line manager ID
-	 * @throws InvalidAttributeValueException
-	 */
-	public void setLineManagerID(int id) throws InvalidAttributeValueException{
-		if(id>0)
-			this.LM_ID=id;
-		else{
-			this.LM_ID=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The value "+id+" is not valid in this context");
-		}
-	}
-
-	public int getLineManagerID(){
-		return this.LM_ID;
-	}
-
-	/**
-	 * 
-	 * @param date The date of birth of the employee
-	 * @throws InvalidAttributeValueException
-	 */
-	public void setDateOFBirth(String date) throws InvalidAttributeValueException{
-		if(date!=null){
-			try{
-				LocalDate tempD=LocalDate.parse(date,Constants.DATE_FORMAT);
-				//Verify if the date given is valid
-				if(tempD.isBefore(LocalDate.now()))
-					this.dob=tempD.toString();
-				else
-					throw new InvalidAttributeValueException("The 'date of birth' cannot be greater than today");
-			}
-			catch(Exception e){
-				throw new InvalidAttributeValueException("The given 'date of birth' is not valid in this context");
-			}
-		}
-		else{
-			this.dob=null;
-			throw new InvalidAttributeValueException("The given 'date of birth' is null");
-		}
-	}
-
-	public String getDateOfBirth(){
-		return this.dob;
-	}
-
-	/**
-	 * 
-	 * @param date the date when the employee joined the company
-	 * @throws InvalidAttributeValueException
-	 */
-	public void setJoinDate(String date) throws InvalidAttributeValueException{
-		if(date!=null){
-			try{
-				LocalDate tempD=LocalDate.parse(date,Constants.DATE_FORMAT);
-				//Verify if the given data is before the current date
-				if(tempD.isBefore(LocalDate.now()))
-					this.joinDate=tempD.toString();
-				else
-					throw new InvalidAttributeValueException("The 'join date' cannot be greater than today");
-			}
-			catch(Exception e){
-				throw new InvalidAttributeValueException("The given 'join date' is not valid in this context");
-			}
-		}
-		else{
-			this.joinDate=null;
-			throw new InvalidAttributeValueException("The given 'join date' is null");
-		}
-	}
-
-	public String getJoinDate(){
-		return this.joinDate;
+	
+	public List<String> getReposteeGUIDs(){
+		return this.reporteeGUIDS;
 	}
 
 	/**
@@ -789,14 +755,8 @@ public class Employee implements Serializable{
 		s+="ID "+this.getEmployeeID()+"\n"
 				+ "Forename "+this.getForname()+"\n"
 				+ "Surname "+this.getSurname()+"\n"
-				+ "DOB "+this.getDateOfBirth()+"\n"
 				+ "EmailAddress "+this.getEmailAddress()+"\n"
-				+ "Level "+this.getLevel()+"\n"
-				+ "Role "+this.getRole()+"\n"
-				+ "IsAManager "+this.getIsAManager()+"\n"
-				+ "JoinDate "+this.getJoinDate()+"\n"
-				+ "LineManagerID "+this.getLineManagerID()+"\n"
-				+ "LineManagerName "+this.getLineManagerName()+"\n";
+				+ "IsAManager "+this.getIsAManager()+"\n";
 		//Add the feedback
 		s+="Feedback:\n";
 		for(Feedback temp:this.feedback){
@@ -859,6 +819,14 @@ public class Employee implements Serializable{
 	public String toGson(){
 		Gson gsonData=new Gson();
 		return gsonData.toJson(this);
+	}
+	
+	public boolean addReportee(String id){
+		if(this.reporteeGUIDS==null)
+			this.reporteeGUIDS=new ArrayList<>();
+		if(id!=null && id.length()>1)
+			return reporteeGUIDS.add(id);
+		return false;
 	}
 
 	/**
