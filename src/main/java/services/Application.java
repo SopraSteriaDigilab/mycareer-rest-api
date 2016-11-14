@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 
-import dataStructure.ADProfile;
+import dataStructure.ADProfile_Basic;
 import dataStructure.FeedbackRequest;
 import emailServices.SMTPService;
 import functionalities.ADProfileDAO;

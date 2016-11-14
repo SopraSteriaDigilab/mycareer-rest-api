@@ -84,7 +84,7 @@ public class Competency implements Serializable {
 	 * for IsSelected method
 	 */
 	public void setTitle(int compId) {
-		if(compId == 0 | compId < Constants.NO_OF_COMPS) {
+		if(compId == 0 | compId < Constants.COMPETENCY_NAMES.length) {
 			this.title = Constants.COMPETENCY_NAMES[compId];
 		}//if
 		else{
@@ -103,7 +103,7 @@ public class Competency implements Serializable {
 	 * for IsSelected method
 	 */
 	public void setDescription(int compId) {
-		if(compId == 0 | compId < Constants.NO_OF_COMPS) {
+		if(compId == 0 | compId < Constants.COMPETENCY_NAMES.length) {
 			this.description = Constants.COMPETENCY_DESCRIPTIONS[compId];
 		}//if
 		else{

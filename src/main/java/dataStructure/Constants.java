@@ -26,30 +26,32 @@ public final class Constants {
 	public static final String COMPLETE_DATE_NOT_SET="Ongoing";
 	public static final String PENDING_FEEDBACK="Pending";
 	public static final String RECEIVED_ALL_FEEDBACK="Received";
-	public static final int NO_OF_COMPS = 9;
 
 	//Constants for the Functionalities package
+	//MongoDB Details
 	public static final String MONGODB_USERNAME="michael";
 	public static final String MONGODB_PASSWORD="leahcim";
 	public static final String MONGODB_HOST="127.0.0.1";
 	public static final int MONGODB_PORT=27017;
 	public static final String MONGODB_DB_NAME="Development";
+	//AD Details
+	public static final String AD_HOST="ldap://one.steria.dom";
+	public static final int AD_PORT=389;
+	public static final String AD_AUTHENTICATION="simple";
+	public static final String AD_USERNAME="PICCOLI Michael - 675599";
+	public static final String AD_SERVERS="OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom";
+	public static final String AD_PASSWORD="MikeSopra16$";
+	//public static final String[] AD_ATTRIBUTES={"displayName","company", "sAMAccountName", "employeeID"};
+	public static final String[] AD_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "employeeID", "objectGUID", "mail", "directReports"};
+	
 
 	//Constants for the emailServices package
-	//Common Constants
 	public static final String MAILBOX_ADDRESS="mycareer.feedback@soprasteria.com";
 	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
 	public static final String MAIL_PASSWORD="";
 	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
 	public static final long MAIL_REFRESH_TIME=(1*60*1000); //1 minute
-	//SMTP Constants
-	//public static final String SMTP_HOST="smtp.office365.com";
-	//public static final String SMTP_HOST_PORT="587";
-	//SSL Port: 465 TSL:587 Plain:25
-	//IMAP Constants
-	//public static final String IMAP_HOST="outlook.office365.com";
-	//public static final String IMAP_HOST_PORT="993";
 
 	//Arrays Containing all Competences including both Names and Descriptions
 	public static final String [] COMPETENCY_NAMES  = new String[]
