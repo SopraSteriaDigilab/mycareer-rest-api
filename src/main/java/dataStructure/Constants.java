@@ -40,7 +40,7 @@ public final class Constants {
 	public static final String AD_AUTHENTICATION="simple";
 	public static final String AD_USERNAME="PICCOLI Michael - 675599";
 	public static final String AD_SERVERS="OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom";
-	public static final String AD_PASSWORD="MikeSopra16$";
+	public static final String AD_PASSWORD="";
 	//public static final String[] AD_ATTRIBUTES={"displayName","company", "sAMAccountName", "employeeID"};
 	public static final String[] AD_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "employeeID", "objectGUID", "mail", "directReports"};
 	
