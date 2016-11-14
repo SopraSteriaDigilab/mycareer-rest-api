@@ -129,7 +129,7 @@ public final class IMAPService {
 				//Retrieve the employee whose feedback is going to be added to
 				EmailAddress toEmployee=toElements.get(0);
 				//Validate the ToEmployee with the data in the database to find the user to attach the feedback to
-				int userID=findEmployeeOfTOField(toEmployee.getAddress());
+				long userID=findEmployeeOfTOField(toEmployee.getAddress());
 				//Verify if the ID retrieved is valid or not
 				if(userID<1){
 					//Reply with an email saying the given employee email address is not in the system
@@ -206,7 +206,7 @@ public final class IMAPService {
 	 * @param emailAddress email address of the employee
 	 * @return the ID which identifies a Sopra Steria employee
 	 */
-	private static int findEmployeeOfTOField(String emailAddress){
+	private static long findEmployeeOfTOField(String emailAddress){
 		try {
 			//Call to the EmployeeDAO to retrieve the employee ID
 			return EmployeeDAO.getUserIDFromEmailAddress(emailAddress);

@@ -76,7 +76,7 @@ public class ADProfileDAO {
 	      ldapEnv.put(Context.PROVIDER_URL,  "ldap://one.steria.dom:389");
 	      ldapEnv.put(Context.SECURITY_AUTHENTICATION, "simple");
 	      ldapEnv.put(Context.SECURITY_PRINCIPAL, "cn=NACEF Ridhwan - 675590,OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom");
-	      ldapEnv.put(Context.SECURITY_CREDENTIALS, "A138TeFnC1");
+	      ldapEnv.put(Context.SECURITY_CREDENTIALS, "");
 
 	      return new InitialDirContext(ldapEnv);
 		  

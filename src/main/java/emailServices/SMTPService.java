@@ -42,7 +42,7 @@ public final class SMTPService {
 
 	private SMTPService(){}
 
-	public static synchronized boolean createFeedbackRequest(int employeeID, String notes, String... mailTo) throws InvalidAttributeValueException{
+	public static synchronized boolean createFeedbackRequest(long employeeID, String notes, String... mailTo) throws InvalidAttributeValueException{
 		if(notes.length()>1000)
 			throw new InvalidAttributeValueException("The notes cannot exceed the 1000 characters");
 		if(mailTo.length>20)

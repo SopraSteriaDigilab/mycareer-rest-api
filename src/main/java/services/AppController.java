@@ -47,7 +47,7 @@ public class AppController {
 	 * @return the list of objectives (only the latest version of them)
 	 */
 	@RequestMapping(value="/getObjectives/{employeeID}", method=RequestMethod.GET)
-	public ResponseEntity<?> getObjectives(@PathVariable int employeeID){
+	public ResponseEntity<?> getObjectives(@PathVariable long employeeID){
 		if(employeeID>0)
 			try {
 				//Retrieve and return the objectives from the system
@@ -71,7 +71,7 @@ public class AppController {
 	 * @return list of feedback (only the latest version of them)
 	 */
 	@RequestMapping(value="/getFeedback/{employeeID}", method=RequestMethod.GET)
-	public ResponseEntity<?> getFeedback(@PathVariable int employeeID){
+	public ResponseEntity<?> getFeedback(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getFeedbackForUser(employeeID));
@@ -94,7 +94,7 @@ public class AppController {
 	 * @return list of notes (only the latest version for each of them)
 	 */
 	@RequestMapping(value="/getNotes/{employeeID}", method=RequestMethod.GET)
-	public ResponseEntity<?> getNotes(@PathVariable int employeeID){
+	public ResponseEntity<?> getNotes(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getNotesForUser(employeeID));
@@ -117,7 +117,7 @@ public class AppController {
 	 * @return list of development needs (only latest version for each one of them)
 	 */
 	@RequestMapping(value="/getDevelopmentNeeds/{employeeID}", method=RequestMethod.GET)
-	public ResponseEntity<?> getDevelomentNeeds(@PathVariable int employeeID){
+	public ResponseEntity<?> getDevelomentNeeds(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getDevelopmentNeedsForUser(employeeID));
@@ -141,7 +141,7 @@ public class AppController {
 	 */
 	@RequestMapping(value="/getCompetencies/{employeeID}", method=RequestMethod.GET)
 	public ResponseEntity<?> getCompetencies(
-			@PathVariable("employeeID") int employeeID){
+			@PathVariable("employeeID") long employeeID){
 		try{
 			return ResponseEntity.ok(EmployeeDAO.getCompetenciesForUser(employeeID));
 		}
@@ -154,7 +154,7 @@ public class AppController {
 	}
 
 	@RequestMapping(value="/management/retrieveAllUser_Data/employee/{employeeID}", method=RequestMethod.GET)
-	public ResponseEntity<?> getAllUserData(@PathVariable int employeeID){
+	public ResponseEntity<?> getAllUserData(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getAllUserDataFromID(employeeID));
@@ -186,7 +186,7 @@ public class AppController {
 	 */
 	@RequestMapping(value="/addObjective/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addObjectiveToAUser(
-			@PathVariable("employeeID") int employeeID,
+			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="title") String title,
 			@RequestParam(value="description") String description,
 			@RequestParam(value="completedBy") String completedBy){
@@ -224,7 +224,7 @@ public class AppController {
 	 */
 	@RequestMapping(value="/editObjective/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNewVersionObjectiveToAUser(
-			@PathVariable("employeeID") int employeeID,
+			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="objectiveID") int objectiveID,
 			@RequestParam(value="title") String title,
 			@RequestParam(value="description") String description,
@@ -257,7 +257,7 @@ public class AppController {
 	 */
 	@RequestMapping(value="/changeStatusObjective/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> updateStatusUserObjective(
-			@PathVariable("employeeID") int employeeID,
+			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="objectiveID") int objectiveID,
 			@RequestParam(value="isArchived") boolean isArchived){
 		try{
@@ -298,7 +298,7 @@ public class AppController {
 	 */
 	@RequestMapping(value="/addNote/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNoteToAUser(
-			@PathVariable("employeeID") int employeeID,
+			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="from") String from,
 			@RequestParam(value="body") String body){
 		try{
@@ -329,7 +329,7 @@ public class AppController {
 	 */
 	@RequestMapping(value="/editNote/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNewVersionNoteToAUser(
-			@PathVariable("employeeID") int employeeID,
+			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="noteID") int noteID,
 			@RequestParam(value="from") String from,
 			@RequestParam(value="body") String body){
@@ -361,7 +361,7 @@ public class AppController {
 	 */
 	@RequestMapping(value="/addDevelopmentNeed/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addDevelopmentNeedToAUser(
-			@PathVariable("employeeID") int employeeID,
+			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="category") int cat,
 			@RequestParam(value="title") String title,
 			@RequestParam(value="description") String description,
@@ -395,7 +395,7 @@ public class AppController {
 	 */
 	@RequestMapping(value="/editDevelopmentNeed/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
-			@PathVariable("employeeID") int employeeID,
+			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="category") int cat,
 			@RequestParam(value="devNeedID") int devNeedID,
 			@RequestParam(value="title") String title,
@@ -426,7 +426,7 @@ public class AppController {
 	 */
 	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> createFeedbackRequest(
-			@PathVariable("employeeID") int employeeID,
+			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="emailsTo") String toFields,
 			@RequestParam(value="notes") String notes){
 		try{
@@ -455,7 +455,7 @@ public class AppController {
 	 */
 	@RequestMapping(value="/getFeedbackRequests/{employeeID}", method=RequestMethod.GET)
 	public ResponseEntity<?> getFeedbackRequests(
-			@PathVariable("employeeID") int employeeID){
+			@PathVariable("employeeID") long employeeID){
 		try{
 			return ResponseEntity.ok(EmployeeDAO.getFeedbackRequestsForUser(employeeID));
 		}
@@ -477,7 +477,7 @@ public class AppController {
 	 */
 	@RequestMapping(value="/updateCompetency/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addCompetenciesToAUser(
-			@PathVariable("employeeID") int employeeID,
+			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="title") String title,
 			@RequestParam(value="status") boolean status){
 		try{
