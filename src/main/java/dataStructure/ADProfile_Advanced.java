@@ -11,22 +11,20 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	//Global Constant
 	private static final long serialVersionUID = -5982675570485578676L;
 	//Global Variables
-	private long employeeID;
 	private String GUID, emailAddress, username, company, team ; 
-	private List<String> reporteeGUIDs;
-	
+	private List<String> reporteeCNs;
+
 	//Empty Constructor
 	public ADProfile_Advanced(){
 		super();
 		this.company=Constants.INVALID_STRING;
 		this.team=Constants.INVALID_STRING;
-		this.employeeID=Constants.INVALID_INT;
 		this.emailAddress=Constants.INVALID_STRING;
 		this.username=Constants.INVALID_STRING;
 		this.GUID=Constants.INVALID_STRING;
-		this.reporteeGUIDs=new ArrayList<String>();
+		this.reporteeCNs=new ArrayList<String>();
 	}
-	
+
 	//Constructor with parameters
 	public ADProfile_Advanced(
 			long employeeID,
@@ -38,29 +36,15 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 			String company,
 			String team,
 			boolean isManager) throws InvalidAttributeValueException{
-		super(surname, name, isManager);
-		this.setEmployeeID(employeeID);
+		super(employeeID, surname, name, isManager);
 		this.setGUID(guid);
 		this.setEmailAddress(email);
 		this.setUsername(username);
 		this.setCompany(company);
 		this.setTeam(team);
-		this.reporteeGUIDs=new ArrayList<String>();
-	}
-	
-	public void setEmployeeID(long id) throws InvalidAttributeValueException{
-		if(id>0)
-			this.employeeID=id;
-		else{
-			this.employeeID=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The value "+id+" is not valid in this context");
-		}
+		this.reporteeCNs=new ArrayList<String>();
 	}
 
-	public long getEmployeeID(){
-		return this.employeeID;
-	}
-	
 	/**
 	 * 
 	 * This method sets the user name of the employee which length must be less than 50 characters
@@ -77,7 +61,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 			throw new InvalidAttributeValueException("The given 'username' is not valid in this context");
 		}
 	}
-	
+
 	public String getUsername(){
 		return this.username;
 	}
@@ -99,7 +83,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	public String getEmailAddress(){
 		return this.emailAddress;
 	}
-	
+
 	/**
 	 * 
 	 * @param guid this is a unique value created for each employee of the company 
@@ -114,11 +98,11 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 			throw new InvalidAttributeValueException("The given 'GUID' is not valid in this context");
 		}
 	}
-	
+
 	public String getGUID(){
 		return this.GUID;
 	}
-	
+
 	/**
 	 * 
 	 * @param com the company name which length must be less than 150 characters
@@ -133,11 +117,11 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 			throw new InvalidAttributeValueException("The given 'company' is not valid in this context");
 		}
 	}
-	
+
 	public String getCompany(){
 		return this.company;
 	}
-	
+
 	/**
 	 * 
 	 * @param team the team name which length must be less than 150 characters
@@ -152,47 +136,60 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 			throw new InvalidAttributeValueException("The given 'team' is not valid in this context");
 		}
 	}
-	
+
 	public String getTeam(){
 		return this.team;
 	}
-	
+
 	/**
 	 * This method assigns reportees to a manager
 	 * 
 	 * @param repostees
 	 */
-	public void setreporteeGUIDs(List<String> reportees){
+	public void setReporteeCNs(List<String> reportees){
 		//Instantiate the list if it hasn't been already done so
-		if(this.reporteeGUIDs==null)
-			this.reporteeGUIDs=new ArrayList<String>();
+		if(this.reporteeCNs==null)
+			this.reporteeCNs=new ArrayList<String>();
 		//Add each elements inside the list
 		for(String temp:reportees){
-			reporteeGUIDs.add(temp);
+			reporteeCNs.add(temp);
 		}
 	}
-	
-	public List<String> getReposteeGUIDs(){
-		return this.reporteeGUIDs;
+
+	public List<String> getReporteeCNs(){
+		return this.reporteeCNs;
 	}
-	
-	public boolean addReportee(String id){
-		if(this.reporteeGUIDs==null)
-			this.reporteeGUIDs=new ArrayList<>();
-		if(id!=null && id.length()>1)
-			return reporteeGUIDs.add(id);
+
+	/**
+	 * This method adds a reportee's CN to the list of reportees
+	 * 
+	 * @param cn
+	 * @return true of false indicating whether the operation was successful or not
+	 */
+	public boolean addReportee(String cn){
+		if(this.reporteeCNs==null)
+			this.reporteeCNs=new ArrayList<>();
+		if(cn!=null && cn.length()>1)
+			return reporteeCNs.add(cn);
 		return false;
 	}
-	
-	@Override
+
 	public String toString(){
 		String s="";
 		s+=super.toString();
+		//Add the generic information
 		s+="EmployeeID: "+this.getEmployeeID()+"\n";
+		s+="GUID: "+this.getGUID()+"\n";
+		s+="EmailAddress "+this.getEmailAddress()+"\n";
 		s+="Company: "+this.getCompany()+"\n";
 		s+="Username: "+this.getUsername()+"\n";
 		s+="Team: "+this.getTeam()+"\n";
+		if(getIsManager()){
+			s+="List of Reportees: \n";
+			s+=this.getReporteeCNs().toString();
+		}
+		s+="\n";
 		return s;
 	}
-	
+
 }

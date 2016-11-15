@@ -503,18 +503,15 @@ public class AppController {
 	
 	@RequestMapping(value="/authenticateUserProfile/{userName}", method=RequestMethod.GET)
 	public ResponseEntity<?> authenticateUserProfile(@PathVariable String userName){
-		
 		try {
-			if(userName != null || !userName.equals("") || userName.length()<300 ){
+			if(userName!=null && !userName.equals("") && userName.length()<300 ){
 				return ResponseEntity.ok(ADProfileDAO.authenticateUserProfile(userName));
 			}else{
 				return ResponseEntity.badRequest().body("The username given is invalid");
 			}
 		} catch (InvalidAttributeValueException e) {
-			// TODO Auto-generated catch block
 			return ResponseEntity.badRequest().body(e.getMessage());
 		} catch (NamingException e) {
-			// TODO Auto-generated catch block
 			return ResponseEntity.badRequest().body("AD Connection Error");
 		}
 
