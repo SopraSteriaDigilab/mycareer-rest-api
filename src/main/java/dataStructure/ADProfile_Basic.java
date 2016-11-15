@@ -13,7 +13,7 @@ public class ADProfile_Basic implements Serializable{
 	
 	//Global Variables
 	private long employeeID;
-	private String surname, forename;
+	private String surname, forename, username;
 	private boolean isManager;
 	
 	//Empty Constructor
@@ -21,14 +21,16 @@ public class ADProfile_Basic implements Serializable{
 		this.surname=Constants.INVALID_STRING;
 		this.forename=Constants.INVALID_STRING;
 		this.employeeID=Constants.INVALID_INT;
+		this.username=Constants.INVALID_STRING;
 		this.isManager=false;
 	}
 	
 	//Constructor with parameters
-	public ADProfile_Basic(long employeeID, String surname, String forename, boolean manager) throws InvalidAttributeValueException{
+	public ADProfile_Basic(long employeeID, String surname, String forename, boolean manager, String username) throws InvalidAttributeValueException{
 		this.setSurname(surname);
 		this.setForename(forename);
 		this.setEmployeeID(employeeID);
+		this.setUsername(username);
 		this.isManager=manager;
 	}
 	
@@ -43,6 +45,27 @@ public class ADProfile_Basic implements Serializable{
 
 	public long getEmployeeID(){
 		return this.employeeID;
+	}
+	
+	/**
+	 * 
+	 * This method sets the user name of the employee which length must be less than 50 characters
+	 * 
+	 * @param user
+	 * @throws InvalidAttributeValueException
+	 */
+	public void setUsername(String user) throws InvalidAttributeValueException{
+		if(user!=null && user.length()>0 && user.length()<50){
+			this.username=user;
+		}
+		else{
+			this.username=Constants.INVALID_STRING;
+			throw new InvalidAttributeValueException("The given 'username' is not valid in this context");
+		}
+	}
+
+	public String getUsername(){
+		return this.username;
 	}
 
 	public void setSurname(String name) throws InvalidAttributeValueException{
@@ -90,6 +113,9 @@ public class ADProfile_Basic implements Serializable{
 	public String toString(){
 		String s="";
 		s+="FullName: "+this.getFullName()+"\n";
+		s+="EmployeeID: "+this.getEmployeeID()+"\n";
+		s+="IsManager: "+this.getIsManager()+"\n";
+		s+="Username: "+this.getUsername()+"\n";
 		s+="IsManager: "+this.getIsManager()+"\n";
 		return s;
 	}

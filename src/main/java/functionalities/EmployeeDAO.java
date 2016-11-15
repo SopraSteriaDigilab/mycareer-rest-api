@@ -691,7 +691,7 @@ public  class EmployeeDAO {
 					dbConnection.save(employeeNewData);
 				}
 				//Return a smaller version of the current object to the user
-				return new ADProfile_Basic(userData.getEmployeeID(),userData.getSurname(), userData.getForename(), userData.getIsManager());
+				return new ADProfile_Basic(userData.getEmployeeID(),userData.getSurname(), userData.getForename(), userData.getIsManager(), userData.getUsername());
 			}
 			else
 				throw new InvalidAttributeValueException("The user GUID is undefined");
