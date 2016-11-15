@@ -78,6 +78,24 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		this.setFeedbackRequestsList(requests);
 		this.setCompetenciesList(competencies);
 	}
+	
+	public Employee(ADProfile_Advanced userData) throws InvalidAttributeValueException{
+		super(userData.getEmployeeID(),
+				userData.getGUID(),
+				userData.getForename(), 
+				userData.getSurname(),
+				userData.getEmailAddress(),
+				userData.getUsername(), 
+				userData.getCompany(),
+				userData.getTeam(), 
+				userData.getIsManager());
+		this.feedback=new ArrayList<Feedback>();
+		this.objectives=new ArrayList<List<Objective>>();
+		this.notes=new ArrayList<List<Note>>();
+		this.developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
+		this.feedbackRequests=new ArrayList<FeedbackRequest>();
+		this.competencies=new ArrayList<List<Competency>>();
+	}
 
 	/**
 	 * 
@@ -554,14 +572,9 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		return null;
 	}//getLatestVersionOfSpecificCompetency
 
-	@Override
 	public String toString(){
 		String s="";
-		//Add the generic information
-		s+="ID "+this.getEmployeeID()+"\n"
-				+ "FullName "+getFullName()+"\n"
-				+ "EmailAddress "+this.getEmailAddress()+"\n"
-				+ "IsAManager "+this.getIsManager()+"\n";
+		s+=super.toString();
 		//Add the feedback
 		s+="Feedback:\n";
 		for(Feedback temp:this.feedback){
@@ -605,7 +618,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			s+=t.toString();
 		}
 		//Add the Competencies
-		s+="Competencies";
+		s+="Competencies: ";
 		//Retrieve all the sublists
 		int indexSubList=0;
 		for(List<Competency> subList: this.competencies){
@@ -906,6 +919,77 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			competencies.get(obj.getID()).add(obj);
 			return true;
 		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * This method checks and update the user data with the new given information 
+	 * The only field that never changes and therefore it won't be checked is the GUID.
+	 * The GUID is the AD value unique not only inside the enterprise, but in the entire globe
+	 * 
+	 * @param data The user data to compare with the corrent information
+	 * @return True if the data had to be updated, false if the data didn't need changing
+	 * @throws InvalidAttributeValueException 
+	 */
+	public boolean verifyDataIsUpToDate(ADProfile_Advanced data) throws InvalidAttributeValueException{
+		int itemsUpdated=0;
+		
+		//Start checking the fields
+		
+		//Check the employeeID
+		if(this.getEmployeeID()!=data.getEmployeeID()){
+			//Update the counter and the user data
+			itemsUpdated++;
+			this.setEmployeeID(data.getEmployeeID());
+		}
+		
+		//Check the Email address
+		if(!this.getEmailAddress().equals(data.getEmailAddress())){
+			//Update the counter and the user data
+			itemsUpdated++;
+			this.setEmailAddress(data.getEmailAddress());
+		}
+		
+		//Check the username
+		if(!this.getUsername().equals(data.getUsername())){
+			//Update the counter and the user data
+			itemsUpdated++;
+			this.setUsername(data.getUsername());
+		}
+		
+		//Check the company
+		if(!this.getCompany().equals(data.getCompany())){
+			//Update the counter and the user data
+			itemsUpdated++;
+			this.setCompany(data.getCompany());
+		}
+		
+		//Check the team
+		if(!this.getTeam().equals(data.getTeam())){
+			//Update the counter and the user data
+			itemsUpdated++;
+			this.setTeam(data.getTeam());
+		}
+		
+		//Check the list of reportees
+		int subCounter=0;
+		List<String> repOldSubList=this.getReporteeCNs();
+		List<String> repNewSubList=data.getReporteeCNs();
+		for(int i=0; i<repNewSubList.size(); i++){
+			if(!repOldSubList.contains(repNewSubList.get(i))){
+				subCounter++;
+			}
+		}
+		if(subCounter>0){
+			//Update the counter and the user data
+			itemsUpdated++;
+			this.setReporteeCNs(repNewSubList);
+		}
+		
+		//Return a value
+		if(itemsUpdated>0)
+			return true;
 		return false;
 	}
 

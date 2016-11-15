@@ -12,6 +12,7 @@ public class ADProfile_Basic implements Serializable{
 	private static final long serialVersionUID = 6335090383770271897L;
 	
 	//Global Variables
+	private long employeeID;
 	private String surname, forename;
 	private boolean isManager;
 	
@@ -19,22 +20,41 @@ public class ADProfile_Basic implements Serializable{
 	public ADProfile_Basic(){
 		this.surname=Constants.INVALID_STRING;
 		this.forename=Constants.INVALID_STRING;
+		this.employeeID=Constants.INVALID_INT;
 		this.isManager=false;
 	}
 	
 	//Constructor with parameters
-	public ADProfile_Basic(String surname, String forename, boolean manager) throws InvalidAttributeValueException{
+	public ADProfile_Basic(long employeeID, String surname, String forename, boolean manager) throws InvalidAttributeValueException{
 		this.setSurname(surname);
 		this.setForename(forename);
+		this.setEmployeeID(employeeID);
 		this.isManager=manager;
+	}
+	
+	public void setEmployeeID(long id) throws InvalidAttributeValueException{
+		if(id>0)
+			this.employeeID=id;
+		else{
+			this.employeeID=Constants.INVALID_INT;
+			throw new InvalidAttributeValueException("The value "+id+" is not valid in this context");
+		}
+	}
+
+	public long getEmployeeID(){
+		return this.employeeID;
 	}
 
 	public void setSurname(String name) throws InvalidAttributeValueException{
 		if(name!=null && !name.equals("") && name.length()<300){
-			this.surname=name;
+			this.surname=name.substring(0,1).toUpperCase()+name.substring(1).toLowerCase();
 		}
 		else
 			throw new InvalidAttributeValueException("The surname provided is not valid in this context");
+	}
+	
+	public String getSurname(){
+		return this.surname;
 	}
 	
 	public void setForename(String name) throws InvalidAttributeValueException{
@@ -43,6 +63,10 @@ public class ADProfile_Basic implements Serializable{
 		}
 		else
 			throw new InvalidAttributeValueException("The forename provided is not valid in this context");
+	}
+	
+	public String getForename(){
+		return this.forename;
 	}
 	
 	public String getFullName(){
@@ -66,7 +90,7 @@ public class ADProfile_Basic implements Serializable{
 	public String toString(){
 		String s="";
 		s+="FullName: "+this.getFullName()+"\n";
-		s+="IsManager: "+this.getIsManager();
+		s+="IsManager: "+this.getIsManager()+"\n";
 		return s;
 	}
 

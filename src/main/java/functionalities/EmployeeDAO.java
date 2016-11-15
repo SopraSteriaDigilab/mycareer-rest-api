@@ -10,6 +10,8 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
 
+import dataStructure.ADProfile_Advanced;
+import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
@@ -103,7 +105,7 @@ public  class EmployeeDAO {
 		Employee e = query.get();
 		return e.getFeedbackRequestsList();
 	}
-	
+
 	public static String getUserFullNmeFromUserID(long employeeID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
@@ -154,7 +156,6 @@ public  class EmployeeDAO {
 		Employee e = query.get();
 		return e.getLatestVersionCompetencies();
 	}
-
 
 	/**
 	 * 
@@ -657,6 +658,45 @@ public  class EmployeeDAO {
 		else
 			throw new InvalidAttributeValueException("The given EmployeeID or competency title are invalid");
 		return false;
+	}
+
+	public static ADProfile_Basic matchADWithMongoData(ADProfile_Advanced userData) throws InvalidAttributeValueException{
+		if(userData!=null){
+			//Establish a connection with the DB
+			if(dbConnection==null)
+				dbConnection=getMongoDBConnection();
+			//Search for a user GUID
+			//Retrieve Employee with the given GUID
+			if(!userData.getGUID().equals("")){
+				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("GUID =", userData.getGUID());
+
+				//If a user exists in our system, verify that his/hers data is up-to-date
+				if(querySearch.get()!=null){
+					Employee e = querySearch.get();
+					boolean resUpdate=e.verifyDataIsUpToDate(userData);
+					//If the method returns true, the data has been updated
+					if(resUpdate){
+						//Reflect the changes to our system, updating the user data in the MongoDB
+						//Remove incorrect document
+						dbConnection.findAndDelete(querySearch);
+						//Commit the changes to the DB
+						dbConnection.save(e);
+					}
+				}
+				//Else, Create the user in our system with the given data
+				else{
+					//Create the Employee Object
+					Employee employeeNewData=new Employee(userData);
+					//Save the new user to the DB
+					dbConnection.save(employeeNewData);
+				}
+				//Return a smaller version of the current object to the user
+				return new ADProfile_Basic(userData.getEmployeeID(),userData.getSurname(), userData.getForename(), userData.getIsManager());
+			}
+			else
+				throw new InvalidAttributeValueException("The user GUID is undefined");
+		}else
+			throw new InvalidAttributeValueException("The data provided is not valid");
 	}
 
 	private static Datastore getMongoDBConnection() throws MongoException{
