@@ -37,6 +37,15 @@ import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import microsoft.exchange.webservices.data.search.filter.SearchFilter;
 
+/**
+ * 
+ * @author Michael Piccoli
+ * @version 1.0
+ * @since 21st October 2016
+ * 
+ * This class contains the definition of the IMAPService
+ *
+ */
 public final class IMAPService {
 
 	//Global Variables
@@ -101,17 +110,23 @@ public final class IMAPService {
 			//Loop through the items and add the data to the database (if any are found)
 			for(Item tempMail:findResults){
 				// As a best practice, limit the properties returned to only those that are required.
-				ItemId itemId = tempMail.getId();
 				PropertySet psPropset = new PropertySet();
 				//Limit the number of fields the server needs to return
 				psPropset.setBasePropertySet(BasePropertySet.FirstClassProperties);
-				//This defines that the body of the email will be returned as TEXT and not XML/HTML
+				//This defines that the body of the email will be returned as TEXT and not as XML/HTML
 				psPropset.setRequestedBodyType(BodyType.Text);
 				//Retrieve only the properties previously set for the message with the given ID
-				EmailMessage temp = EmailMessage.bind(emailService, itemId,psPropset);
+				EmailMessage temp = EmailMessage.bind(emailService, tempMail.getId(),psPropset);
 				//Load the message
 				temp.load();
+				
+				
 				//Verify the email
+				
+				//Check for a RequestID inside the body of the email
+				String reqIDSet=retrieveRequestID(temp.getBody());
+				
+				/*
 				//Get the Sender of the email
 				EmailAddress fromField=temp.getFrom();
 				//The email is internal the company if the email address contains @soprasteria.com
@@ -173,7 +188,9 @@ public final class IMAPService {
 				}
 				temp.setIsRead(true);
 				temp.update(ConflictResolutionMode.AutoResolve);
+				*/
 			}
+			
 		}
 		else{
 			System.out.println("\t"+LocalTime.now()+" - No new Emails Found");
@@ -213,6 +230,19 @@ public final class IMAPService {
 		} catch (InvalidAttributeValueException e) {
 			return -1;
 		}
+	}
+	
+	/**
+	 * 
+	 * This method opens the body of the email and searches for a RequestID
+	 * 
+	 * @param body The body of the email 
+	 * @return A String containing the Request ID
+	 */
+	private static String retrieveRequestID(MessageBody body){
+		String s="";
+		System.out.println(body.toString());
+		return s;
 	}
 
 	/**

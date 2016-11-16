@@ -114,9 +114,9 @@ public class Objective implements Serializable{
 	 * 
 	 * @param progress This variable can assume only 4 values:
 	 * -1 => Deleted
-	 *  0 => Awaiting
-	 *  1 => In Flight
-	 *  2 => Done
+	 *  0 => Proposed
+	 *  1 => Started
+	 *  2 => Completed
 	 */
 	public void setProgress(int progress) throws InvalidAttributeValueException{
 		if(progress>=-1 && progress<=2)
