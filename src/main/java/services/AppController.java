@@ -501,8 +501,8 @@ public class AppController {
 		}
 	}
 	
-	@RequestMapping(value="/authenticateUserProfile/{userName}", method=RequestMethod.GET)
-	public ResponseEntity<?> authenticateUserProfile(@PathVariable String userName){
+	@RequestMapping(value="/authenticateUserProfile", method=RequestMethod.GET)
+	public ResponseEntity<?> authenticateUserProfile(@RequestParam(value="userName_Email") String userName){
 		try {
 			if(userName!=null && !userName.equals("") && userName.length()<300 ){
 				return ResponseEntity.ok(ADProfileDAO.authenticateUserProfile(userName));

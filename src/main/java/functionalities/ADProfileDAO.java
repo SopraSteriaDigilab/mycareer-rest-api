@@ -1,7 +1,6 @@
 package functionalities;
 
 import java.util.Hashtable;
-
 import javax.management.InvalidAttributeValueException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -16,15 +15,25 @@ import dataStructure.ADProfile_Basic;
 import dataStructure.Constants;
 import java.util.UUID;
 
+/**
+ * 
+ * @author Michael Piccoli
+ * @author Ridhwan Nacef
+ * @version 1.0
+ * @since 14th November 2016
+ * 
+ * This class contains the definition of the ADProfileDAO 
+ *
+ */
 public class ADProfileDAO {
 
-	public static DirContext ldapContext;
+	private static DirContext ldapContext;
 
 	@SuppressWarnings("unchecked")
-	public static ADProfile_Basic authenticateUserProfile(String username) throws NamingException, InvalidAttributeValueException {
-
+	public static ADProfile_Basic authenticateUserProfile(String usernameEmail) throws NamingException, InvalidAttributeValueException {
+		System.out.println(usernameEmail);
 		//Verify the given string
-		if(username==null || username.equals("") || username.length()<1)
+		if(usernameEmail==null || usernameEmail.equals("") || usernameEmail.length()<1)
 			throw new InvalidAttributeValueException("The given username is invalid");
 		//Instantiate the connection
 		if(ldapContext==null)
@@ -37,7 +46,11 @@ public class ADProfileDAO {
 		//Specify the search scope
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
-		String searchFilter = "(sAMAccountName=" + username + ")";
+		String searchFilter="";
+		if(usernameEmail.contains("@"))
+			searchFilter = "(mail=" + usernameEmail + ")";
+		else
+			searchFilter = "(sAMAccountName=" + usernameEmail + ")";
 		// Search for objects using the filter
 		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_SERVERS, searchFilter, searchCtls);
 
@@ -46,7 +59,7 @@ public class ADProfileDAO {
 			SearchResult sr = (SearchResult)answer.next();
 			Attributes attrs = sr.getAttributes();
 			ADProfile_Advanced adObj=new ADProfile_Advanced();
-			
+			//Extract the information from the AD and add it to our object
 			adObj.setEmployeeID(Long.parseLong((String)attrs.get("employeeID").get()));
 			//Extract the GUID which is a hexadecimal number and must be converted before using it
 			UUID uid=UUID.nameUUIDFromBytes((byte[])attrs.get("objectGUID").get());
@@ -74,19 +87,16 @@ public class ADProfileDAO {
 				//If if goes here, it means the user is not a manager
 				adObj.setIsManager(false);
 			}
-			//System.out.println(adObj.toString());
 			//Close the connection with the AD
 			ldapContext.close();
 			ldapContext=null;
-			//return new ADProfile_Basic(employeeID, displayName, company, sAMAccountName, team);
-			//return null;
 			return EmployeeDAO.matchADWithMongoData(adObj);
 		//There is no a matching user in the Active Directory
 		}else{
 			//Close the connection with the AD
 			ldapContext.close();
 			ldapContext=null;
-			throw new InvalidAttributeValueException("No match in the AD for user "+username);
+			throw new InvalidAttributeValueException("No match in the AD for user "+usernameEmail);
 		}
 	}
 

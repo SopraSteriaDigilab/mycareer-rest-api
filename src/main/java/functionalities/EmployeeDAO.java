@@ -28,7 +28,7 @@ import dataStructure.Objective;
  * @version 1.0
  * @since 10th October 2016
  * 
- * This class contains the definition of the Note object
+ * This class contains the definition of the EmployeeDAO object
  *
  */
 public  class EmployeeDAO {

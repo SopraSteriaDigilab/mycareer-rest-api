@@ -6,6 +6,15 @@ import java.util.List;
 
 import javax.management.InvalidAttributeValueException;
 
+/**
+ * 
+ * @author Michael Piccoli
+ * @version 1.0
+ * @since 14th November 2016
+ * 
+ * This class contains the definition of the ADProfile_Advanced object
+ *
+ */
 public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 
 	//Global Constant

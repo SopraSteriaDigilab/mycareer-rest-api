@@ -6,6 +6,15 @@ import javax.management.InvalidAttributeValueException;
 
 import com.google.gson.Gson;
 
+/**
+ * 
+ * @author Michael Piccoli
+ * @version 1.0
+ * @since 14th November 2016
+ * 
+ * This class contains the definition of the ADProfile_Basic object
+ *
+ */
 public class ADProfile_Basic implements Serializable{
 	
 	//Global Constants
