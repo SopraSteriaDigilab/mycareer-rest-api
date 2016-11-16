@@ -31,7 +31,6 @@ public class ADProfileDAO {
 
 	@SuppressWarnings("unchecked")
 	public static ADProfile_Basic authenticateUserProfile(String usernameEmail) throws NamingException, InvalidAttributeValueException {
-		System.out.println(usernameEmail);
 		//Verify the given string
 		if(usernameEmail==null || usernameEmail.equals("") || usernameEmail.length()<1)
 			throw new InvalidAttributeValueException("The given username is invalid");

@@ -119,13 +119,50 @@ public final class IMAPService {
 				EmailMessage temp = EmailMessage.bind(emailService, tempMail.getId(),psPropset);
 				//Load the message
 				temp.load();
-				
-				
+
 				//Verify the email
-				
+
 				//Check for a RequestID inside the body of the email
-				String reqIDSet=retrieveRequestID(temp.getBody());
-				
+				String reqIDSet=retrieveRequestID(temp);
+				//If such ID exists it's a reply from a feedback request
+				if(!reqIDSet.equals("")){
+					//Retrieve the TO and FROM fields
+					//Get the CC field
+					List<EmailAddress> ccElements=temp.getCcRecipients().getItems();
+					if(ccElements.size()<1)
+						return;
+					EmailAddress ccEmployee=ccElements.get(0);
+			
+					//The email is internal the company if the email address contains @soprasteria.com
+					EmailAddress fromField=temp.getFrom();
+					String type="";
+					if(fromField.toString().contains("@soprasteria.com"))
+						type="Internal";
+					else
+						type="External";
+					//Get the body of the email extracting only the necessary parts
+					String body=extractReplyToFeedbackRequest(temp);
+					//Create an Feedback Object					
+					Feedback feedbackObj=new Feedback(1,fromField.getAddress(),body,type,"Email");
+					//Add the request id to the feedback object
+					feedbackObj.setRequestID(reqIDSet);
+					
+					//Now that we have all the details, pass this data to the EmployeeDAO which will try to link the feedback to the user
+					boolean res=EmployeeDAO.linkFeedbackReqReplyToUser(ccEmployee.getAddress(), feedbackObj);
+					//If the task has been completed succesfully, set the email as read and move it to the Draft Folder
+					if(res){
+						temp.setIsRead(true);
+						temp.move(WellKnownFolderName.Drafts);
+					}
+					else{
+						///DECIDE WHAT TO DO IN THIS BLOCK
+					}
+					
+				}
+				//If it doesn't exist, it's a unrequested feedback
+				else{
+					
+				}
 				/*
 				//Get the Sender of the email
 				EmailAddress fromField=temp.getFrom();
@@ -188,9 +225,9 @@ public final class IMAPService {
 				}
 				temp.setIsRead(true);
 				temp.update(ConflictResolutionMode.AutoResolve);
-				*/
+				 */
 			}
-			
+
 		}
 		else{
 			System.out.println("\t"+LocalTime.now()+" - No new Emails Found");
@@ -231,7 +268,7 @@ public final class IMAPService {
 			return -1;
 		}
 	}
-	
+
 	/**
 	 * 
 	 * This method opens the body of the email and searches for a RequestID
@@ -239,10 +276,36 @@ public final class IMAPService {
 	 * @param body The body of the email 
 	 * @return A String containing the Request ID
 	 */
-	private static String retrieveRequestID(MessageBody body){
-		String s="";
-		System.out.println(body.toString());
-		return s;
+	private static String retrieveRequestID(EmailMessage mail){
+		try{
+			//Search for ID in the Subject
+			String idInSubject=mail.getSubject();
+			int locationIndex=idInSubject.indexOf("-");
+			//Retrieve ID
+			if(locationIndex>0){
+				//System.out.println(idInSubject.substring(locationIndex+1));
+				return idInSubject.substring(locationIndex+1);
+			}
+			//System.out.println(idInSubject);
+			return "";
+		}catch(Exception e){
+			return "";
+		}
+	}
+	
+	private static String extractReplyToFeedbackRequest(EmailMessage mail){
+		try{
+			MessageBody bodyMessage=mail.getBody();
+			String body=bodyMessage.toString();
+			//Find where the previous email starts at
+			int index=body.indexOf("-----Original Message-----");
+			if(index>1)
+				//Remove the request text and keep only the reply
+				body=body.substring(0, index).trim();
+			return body;
+		}catch(Exception e){
+			return "";
+		}
 	}
 
 	/**

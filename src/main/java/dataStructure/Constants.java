@@ -40,7 +40,7 @@ public final class Constants {
 	public static final String AD_AUTHENTICATION="simple";
 	public static final String AD_USERNAME="PICCOLI Michael - 675599";
 	public static final String AD_SERVERS="OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom";
-	public static final String AD_PASSWORD="MikeSopra16$";
+	public static final String AD_PASSWORD="";
 	//public static final String[] AD_ATTRIBUTES={"displayName","company", "sAMAccountName", "employeeID"};
 	public static final String[] AD_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "employeeID", "objectGUID", "mail", "directReports"};
 	
@@ -48,7 +48,7 @@ public final class Constants {
 	//Constants for the emailServices package
 	public static final String MAILBOX_ADDRESS="mycareer.feedback@soprasteria.com";
 	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
-	public static final String MAIL_PASSWORD="MikeSopra16$";
+	public static final String MAIL_PASSWORD="";
 	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
 	public static final long MAIL_REFRESH_TIME=(1*60*1000); //1 minute
