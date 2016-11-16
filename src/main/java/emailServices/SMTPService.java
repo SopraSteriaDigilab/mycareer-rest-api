@@ -17,6 +17,7 @@ import microsoft.exchange.webservices.data.core.exception.service.remote.Service
 import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
+import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 
 /**
@@ -28,6 +29,9 @@ import microsoft.exchange.webservices.data.property.complex.MessageBody;
  * Source: http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/mail/javamail/JavaMailSenderImpl.html
  * Source: https://javamail.java.net/nonav/docs/api/com/sun/mail/smtp/package-summary.html
  * Source: http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/mail/javamail/MimeMessageHelper.html
+ * 
+ * This class contains the SMTP service
+ * 
  */
 
 public final class SMTPService {
@@ -117,7 +121,7 @@ public final class SMTPService {
 					msg.setBody(fillTemplate(fullNameEmployeeRequester, request.getID(), notes));
 					msg.getToRecipients().add(s);
 					msg.getCcRecipients().add(Constants.MAILBOX_ADDRESS);
-					//msg.setFrom(new EmailAddress(emailAddresEmployeeRequester));
+					//msg.setFrom(new EmailAddress(Constants.MAILBOX_ADDRESS));
 					msg.sendAndSaveCopy();
 				}
 			}
@@ -186,6 +190,7 @@ public final class SMTPService {
 			bodyMsg+="\nKind Regards,\nMyCareer Team\n\n";
 			MessageBody mexB=new MessageBody();
 			mexB.setText(bodyMsg);
+			//msg.setFrom(new EmailAddress(Constants.MAILBOX_ADDRESS));
 			mexB.setBodyType(BodyType.Text);
 			msg.setBody(mexB);
 			msg.getToRecipients().add(emailAddresEmployeeRequester);

@@ -78,7 +78,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		this.setFeedbackRequestsList(requests);
 		this.setCompetenciesList(competencies);
 	}
-	
+
 	public Employee(ADProfile_Advanced userData) throws InvalidAttributeValueException{
 		super(userData.getEmployeeID(),
 				userData.getGUID(),
@@ -437,6 +437,9 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 */
 	public FeedbackRequest getSpecificFeedbackRequest(String id){
 		if(id!=null && !id.equals("")){
+			//			return feedbackRequests.stream()
+			//			.filter(t -> t.getID().equals(id))
+			//			.findFirst().get();
 			for(int i=0; i<feedbackRequests.size(); i++){
 				if(feedbackRequests.get(i).getID().equals(id))
 					return feedbackRequests.get(i);
@@ -921,7 +924,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * This method checks and update the user data with the new given information 
@@ -934,44 +937,44 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 */
 	public boolean verifyDataIsUpToDate(ADProfile_Advanced data) throws InvalidAttributeValueException{
 		int itemsUpdated=0;
-		
+
 		//Start checking the fields
-		
+
 		//Check the employeeID
 		if(this.getEmployeeID()!=data.getEmployeeID()){
 			//Update the counter and the user data
 			itemsUpdated++;
 			this.setEmployeeID(data.getEmployeeID());
 		}
-		
+
 		//Check the Email address
 		if(!this.getEmailAddress().equals(data.getEmailAddress())){
 			//Update the counter and the user data
 			itemsUpdated++;
 			this.setEmailAddress(data.getEmailAddress());
 		}
-		
+
 		//Check the username
 		if(!this.getUsername().equals(data.getUsername())){
 			//Update the counter and the user data
 			itemsUpdated++;
 			this.setUsername(data.getUsername());
 		}
-		
+
 		//Check the company
 		if(!this.getCompany().equals(data.getCompany())){
 			//Update the counter and the user data
 			itemsUpdated++;
 			this.setCompany(data.getCompany());
 		}
-		
+
 		//Check the team
 		if(!this.getTeam().equals(data.getTeam())){
 			//Update the counter and the user data
 			itemsUpdated++;
 			this.setTeam(data.getTeam());
 		}
-		
+
 		//Check the list of reportees
 		int subCounter=0;
 		List<String> repOldSubList=this.getReporteeCNs();
@@ -986,7 +989,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			itemsUpdated++;
 			this.setReporteeCNs(repNewSubList);
 		}
-		
+
 		//Return a value
 		if(itemsUpdated>0)
 			return true;

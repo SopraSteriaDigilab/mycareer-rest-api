@@ -35,7 +35,7 @@ public class Feedback implements Serializable{
 		this.type="";
 		this.source="";
 		timeStamp=null;
-		requestID="";
+		this.requestID="";
 		//this.attachments=new ArrayList<String>;
 	}
 
@@ -55,7 +55,7 @@ public class Feedback implements Serializable{
 		this.setSource(source);
 		this.timeStamp=null;
 		this.setTimeStamp();
-		requestID="";
+		this.requestID="";
 		//this.attachments=new ArrayList<String>;
 		//this.attachments=attac;
 	}
