@@ -22,7 +22,8 @@ import microsoft.exchange.webservices.data.property.complex.MessageBody;
 /**
  * 
  * @author Michael Piccoli
- *
+ * @version 1.0
+ * @since 21st October 2016
  *
  * Source: http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/mail/javamail/JavaMailSenderImpl.html
  * Source: https://javamail.java.net/nonav/docs/api/com/sun/mail/smtp/package-summary.html
@@ -110,7 +111,7 @@ public final class SMTPService {
 				for(String s: validEmailAddressesList){
 					tempEmailAddressSending=s;
 					EmailMessage msg= new EmailMessage(emailService);
-					msg.setSubject("Feedback Request");
+					msg.setSubject("Feedback Request - "+request.getID());
 					//Fill the email with the template
 					//Generate a Template email, add the Request ID an any further information
 					msg.setBody(fillTemplate(fullNameEmployeeRequester, request.getID(), notes));
