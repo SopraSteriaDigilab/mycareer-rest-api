@@ -17,7 +17,6 @@ import microsoft.exchange.webservices.data.core.exception.service.remote.Service
 import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
-import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 
 /**
@@ -99,10 +98,10 @@ public final class SMTPService {
 			FeedbackRequest request;
 			System.out.println("\t"+LocalTime.now()+" - Creating a Feedback Request");
 			do{
-				request=new FeedbackRequest();
+				request=new FeedbackRequest(employeeID);
 			}
 			while(!EmployeeDAO.validateFeedbackRequestID(employeeID, request.getID()));
-
+			System.out.println(request.getID());
 
 			//PART 5
 
@@ -120,7 +119,7 @@ public final class SMTPService {
 					//Generate a Template email, add the Request ID an any further information
 					msg.setBody(fillTemplate(fullNameEmployeeRequester, request.getID(), notes));
 					msg.getToRecipients().add(s);
-					msg.getCcRecipients().add(Constants.MAILBOX_ADDRESS);
+					//msg.getCcRecipients().add(Constants.MAILBOX_ADDRESS);
 					//msg.setFrom(new EmailAddress(Constants.MAILBOX_ADDRESS));
 					msg.sendAndSaveCopy();
 				}

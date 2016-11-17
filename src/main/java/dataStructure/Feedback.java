@@ -141,7 +141,7 @@ public class Feedback implements Serializable{
 	 * @param description This string must be valid and with a length less than 1000 characters
 	 */
 	public void setDescription(String description) throws InvalidAttributeValueException{
-		if(description!=null && description.length()>0 && description.length()<3001)
+		if(description!=null && description.length()>0 && description.length()<5001)
 			this.description=description;
 		else{
 			this.description=Constants.INVALID_STRING;

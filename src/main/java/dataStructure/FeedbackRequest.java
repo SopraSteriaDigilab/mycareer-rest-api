@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import javax.management.InvalidAttributeValueException;
 import com.google.gson.Gson;
 
@@ -22,20 +21,30 @@ public class FeedbackRequest implements Serializable {
 	private static final long serialVersionUID = 47606158926933500L;
 	//Global Variables
 	private String feedbackID, timeStamp;
-	private List<String> recepientEmails, replierEmails;
+	private List<String> recipientEmails, replierEmails;
 	private String status;
-
+	
 	public FeedbackRequest(){
-		this.setTimeStamp();
-		this.createUniqueID();
-		recepientEmails=new ArrayList<String>();
+		this.feedbackID="";
+		this.timeStamp=null;
+		recipientEmails=new ArrayList<String>();
 		replierEmails=new ArrayList<String>();
 		status=Constants.PENDING_FEEDBACK;
 	}
 
-	private void createUniqueID(){
-		UUID idGen=UUID.randomUUID();
-		feedbackID=String.valueOf(idGen).replace("-", "");
+	public FeedbackRequest(long id){
+		this.setTimeStamp();
+		this.createUniqueID(id);
+		recipientEmails=new ArrayList<String>();
+		replierEmails=new ArrayList<String>();
+		status=Constants.PENDING_FEEDBACK;
+	}
+
+	private void createUniqueID(long id){
+		LocalDateTime date=LocalDateTime.now();
+		//Remove all the symbols that we don't need
+		String dateS=date.toString().replace("-", "").replace("T", "").replace(":", "").replace(".", "");
+		this.feedbackID=id+"_"+dateS;
 	}
 
 	public String getID(){
@@ -43,7 +52,7 @@ public class FeedbackRequest implements Serializable {
 	}
 
 	private void updateStatus(){
-		if(replierEmails.size()>=recepientEmails.size())
+		if(replierEmails.size()>=recipientEmails.size())
 			this.status=Constants.RECEIVED_ALL_FEEDBACK;
 		else
 			this.status=Constants.PENDING_FEEDBACK;
@@ -71,14 +80,24 @@ public class FeedbackRequest implements Serializable {
 
 	public void setRecipients(List<String> data) throws InvalidAttributeValueException{
 		if(data!=null){
-			this.recepientEmails=data;
+			this.recipientEmails=data;
 			return;
 		}
 		throw new InvalidAttributeValueException("The given list of people is empty");
 	}
+	
+	public boolean removeRecipient(String user) throws InvalidAttributeValueException{
+		if(user!=null && user.length()>0){
+			if(recipientEmails.contains(user))
+				return recipientEmails.remove(user);
+			return false;
+		}
+		else
+			throw new InvalidAttributeValueException("Invalid Recipient");
+	}
 
 	public List<String> getRecipients(){
-		return this.recepientEmails;
+		return this.recipientEmails;
 	}
 
 	public void setRepliers(List<String> data) throws InvalidAttributeValueException{
@@ -94,12 +113,12 @@ public class FeedbackRequest implements Serializable {
 	}
 
 	public boolean addRecipient(String email){
-		if(recepientEmails==null)
-			recepientEmails=new ArrayList<String>();
+		if(recipientEmails==null)
+			recipientEmails=new ArrayList<String>();
 		//Validate the feedback
 		if(!email.equals("")){
-			if(!recepientEmails.contains(email)){
-				if(recepientEmails.add(email)){
+			if(!recipientEmails.contains(email)){
+				if(recipientEmails.add(email)){
 					updateStatus();
 					return true;
 				}
@@ -124,7 +143,7 @@ public class FeedbackRequest implements Serializable {
 	}
 
 	public String getRepliesOutOf(){
-		return "("+replierEmails.size()+"/"+recepientEmails.size()+")";
+		return "("+replierEmails.size()+"/"+recipientEmails.size()+")";
 	}
 
 	public String toGson(){
@@ -139,7 +158,7 @@ public class FeedbackRequest implements Serializable {
 				+ "TimeStamp "+this.timeStamp+"\n"
 				+ "Status "+this.status+"\n";
 		s+="Recipients:\n";
-		for(String temp: this.recepientEmails){
+		for(String temp: this.recipientEmails){
 			s+=temp;
 		}
 		s+="Repliers:\n";
