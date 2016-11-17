@@ -714,14 +714,20 @@ public  class EmployeeDAO {
 			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", basicProfile.getEmployeeID());
 			if(querySearch.get()!=null){
 				Employee e = querySearch.get();
-				//Add the feedback to the user
-				e.addGenericFeedback(data);
 				//Update the feedbackRequest element
 				FeedbackRequest feedbackReqUpdated=e.getSpecificFeedbackRequest(data.getRequestID().trim());
-				
-				//IS THIS FIELD CORRECT?!?!?!?!?!?!!?!?
-				feedbackReqUpdated.addSender(data.getFromWho());
-				e.updateFeedbackRequest(feedbackReqUpdated);
+				if(feedbackReqUpdated!=null){
+					feedbackReqUpdated.addSender(data.getFromWho());
+					boolean res1=e.updateFeedbackRequest(feedbackReqUpdated);
+					//If the feedback request couldn't be found within the user data, add it
+					if(res1==false)
+						e.addFeedbackRequest(feedbackReqUpdated);
+				}
+				else{
+					data.setRequestID("Not_Requested");
+				}
+				//Add the feedback to the user
+				e.addGenericFeedback(data);
 				
 				//Update the data in the DB
 				UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", e.getFeedbackRequestsList());
@@ -741,6 +747,26 @@ public  class EmployeeDAO {
 		return false;
 	}
 	
+	public static boolean removeEmailAddressFromFeedbackReq(String email, String reqID, String addressToRemove) throws InvalidAttributeValueException{
+		if(email.length()<0 || reqID.length()<0)
+			throw new InvalidAttributeValueException("The email adress provided or the request ID are invalid");
+		//Establish a connection with the DB
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		//Get the user from the DB
+		Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("emailAddress =", email);
+		if(querySearch.get()!=null){
+			Employee e = querySearch.get();
+			FeedbackRequest requestObj=e.getSpecificFeedbackRequest(reqID);
+			if(requestObj!=null){
+				return requestObj.removeRecipient(addressToRemove);
+			}
+			throw new InvalidAttributeValueException("No feedback request matched the given ID");
+		}
+		else{
+			throw new InvalidAttributeValueException("No user with such email address has been found in the DB");
+		}
+	}
 
 	private static Datastore getMongoDBConnection() throws MongoException{
 		if(dbConnection==null){
