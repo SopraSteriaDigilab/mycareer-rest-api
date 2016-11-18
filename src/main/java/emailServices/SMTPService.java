@@ -95,13 +95,11 @@ public final class SMTPService {
 
 			//Create a FeedbackRequest object with an unique ID to the employee
 			//Keep generating request IDs until a valid one is found, this eliminates duplicated values and issues that such matter can cause
-			FeedbackRequest request;
+			
 			System.out.println("\t"+LocalTime.now()+" - Creating a Feedback Request");
-			do{
-				request=new FeedbackRequest(employeeID);
-			}
-			while(!EmployeeDAO.validateFeedbackRequestID(employeeID, request.getID()));
-			System.out.println(request.getID());
+			FeedbackRequest request=new FeedbackRequest(employeeID);
+			//while(!EmployeeDAO.validateFeedbackRequestID(employeeID, request.getID()));
+			//System.out.println(request.getID());
 
 			//PART 5
 
@@ -110,18 +108,26 @@ public final class SMTPService {
 			//Send a feedback requests, now that the incorrect email addresses have been removed
 			List<String> tempEmailAddressSendingList=new ArrayList<>();
 			String tempEmailAddressSending="";
+			List<FeedbackRequest> requestList=new ArrayList<>();
 			try{
 				for(String s: validEmailAddressesList){
 					tempEmailAddressSending=s;
 					EmailMessage msg= new EmailMessage(emailService);
-					msg.setSubject("Feedback Request - "+request.getID());
+					//Make a copy of the request object containing the group ID
+					FeedbackRequest tempFeedbackReq=new FeedbackRequest(request);
+					tempFeedbackReq.createUniqueID(employeeID);
+					tempFeedbackReq.setRecipients(new ArrayList<String>());
+					msg.setSubject("Feedback Request - "+tempFeedbackReq.getID());
 					//Fill the email with the template
 					//Generate a Template email, add the Request ID an any further information
-					msg.setBody(fillTemplate(fullNameEmployeeRequester, request.getID(), notes));
+					msg.setBody(fillTemplate(fullNameEmployeeRequester, tempFeedbackReq.getID(), notes));
 					msg.getToRecipients().add(s);
 					//msg.getCcRecipients().add(Constants.MAILBOX_ADDRESS);
 					//msg.setFrom(new EmailAddress(Constants.MAILBOX_ADDRESS));
 					msg.sendAndSaveCopy();
+					//Add the request to the list of requests
+					tempFeedbackReq.addRecipient(s);
+					requestList.add(tempFeedbackReq);
 				}
 			}
 			catch (InvalidAttributeValueException invalidE){
@@ -164,10 +170,15 @@ public final class SMTPService {
 
 
 			//Add list of recipients to the feedback request object
-			request.setRecipients(validEmailAddressesList);
+			//request.setRecipients(validEmailAddressesList);
 			//Link the feedback request to the requester
-			if(!EmployeeDAO.insertNewFeedbackRequest(employeeID, request))
-				throw new InvalidAttributeValueException("A Feedback request has been sent, however it could not be saved on the peramanent storage!");
+			for(FeedbackRequest reqObj:requestList){
+				if(!EmployeeDAO.insertNewFeedbackRequest(employeeID, reqObj))
+					//throw new InvalidAttributeValueException("A Feedback request has been sent, however it could not be saved on the permanent storage!");
+					System.out.println("\t"+LocalTime.now()+" - A Feedback request has been sent, however it could not be saved on the permanent storage!"+reqObj.toString());
+			}
+//			if(!EmployeeDAO.insertNewFeedbackRequest(employeeID, request))
+//				throw new InvalidAttributeValueException("A Feedback request has been sent, however it could not be saved on the permanent storage!");
 
 
 			//PART 8

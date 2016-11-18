@@ -20,11 +20,12 @@ public class FeedbackRequest implements Serializable {
 
 	private static final long serialVersionUID = 47606158926933500L;
 	//Global Variables
-	private String feedbackID, timeStamp;
+	private String groupFeedbackID, feedbackID, timeStamp;
 	private List<String> recipientEmails, replierEmails;
 	private String status;
 	
 	public FeedbackRequest(){
+		this.groupFeedbackID="";
 		this.feedbackID="";
 		this.timeStamp=null;
 		recipientEmails=new ArrayList<String>();
@@ -34,13 +35,30 @@ public class FeedbackRequest implements Serializable {
 
 	public FeedbackRequest(long id){
 		this.setTimeStamp();
-		this.createUniqueID(id);
+		this.createGroupID(id);
+		//this.createUniqueID(id);
 		recipientEmails=new ArrayList<String>();
 		replierEmails=new ArrayList<String>();
 		status=Constants.PENDING_FEEDBACK;
 	}
+	
+	public FeedbackRequest(FeedbackRequest req){
+		this.groupFeedbackID=req.getGroupID();
+		this.feedbackID=req.getID();
+		this.timeStamp=req.getTimeStamp();
+		this.recipientEmails=req.getRecipients();
+		this.replierEmails=req.getRepliers();
+		this.status=req.status;
+	}
+	
+	private void createGroupID(long id){
+		LocalDateTime date=LocalDateTime.now();
+		//Remove all the symbols that we don't need
+		String dateS=date.toString().replace("-", "").replace("T", "").replace(":", "").replace(".", "");
+		this.groupFeedbackID=id+"_"+dateS;
+	}
 
-	private void createUniqueID(long id){
+	public void createUniqueID(long id){
 		LocalDateTime date=LocalDateTime.now();
 		//Remove all the symbols that we don't need
 		String dateS=date.toString().replace("-", "").replace("T", "").replace(":", "").replace(".", "");
@@ -49,6 +67,10 @@ public class FeedbackRequest implements Serializable {
 
 	public String getID(){
 		return this.feedbackID;
+	}
+	
+	public String getGroupID(){
+		return this.groupFeedbackID;
 	}
 
 	private void updateStatus(){
@@ -155,6 +177,7 @@ public class FeedbackRequest implements Serializable {
 	public String toString(){
 		String s="";
 		s+="ID "+this.feedbackID+"\n"
+				+ "Group ID: "+this.getGroupID()+"\n"
 				+ "TimeStamp "+this.timeStamp+"\n"
 				+ "Status "+this.status+"\n";
 		s+="Recipients:\n";

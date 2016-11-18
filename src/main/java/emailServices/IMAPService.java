@@ -118,7 +118,9 @@ public final class IMAPService {
 				//Load the message
 				openNotReadEmail.load();
 
-				//Verify the email
+				
+				//STEP 1 CHECK FOR UNDELIVERED EMAILS
+				
 				
 				//Check if the subject contains the word "undelivered" which means that an address was invalid,
 				//therefore it must be removed from the feedback request object of the user]
@@ -142,6 +144,10 @@ public final class IMAPService {
 					//Interrupt the flow and skip to the next email
 					continue;
 				}
+				
+				
+				//STEP 2 CHECK FOR A REQUEST ID INSIDE THE SUBJECT
+				
 				//Check for a RequestID inside the body of the email
 				String requestIDSetInSubject=retrieveRequestID(openNotReadEmail);
 				//If such ID exists it's a reply from a feedback request
@@ -181,6 +187,15 @@ public final class IMAPService {
 						//Interrupt the flow for this email and move on to the next one
 						continue;
 					}
+					//Verify if the fromField is the same as the user found in the system
+//					if(fromFieldEmail.getAddress().equalsIgnoreCase(emailEmployee)){
+//						System.out.println("\t"+LocalTime.now()+" - Invalid Employee, Users are not allowed to send a feedback to themselves");
+//						//Move the current email to a folder the system admin will deal with it
+//						openNotReadEmail.setIsRead(true);
+//						openNotReadEmail.move(WellKnownFolderName.Drafts);
+//						//Interrupt the flow and skip to the next email
+//						continue;
+//					}
 					//Now that we have all the details, pass this data to the EmployeeDAO which will try to link the feedback to the user
 					boolean res=EmployeeDAO.linkFeedbackReqReplyToUser(emailEmployee, feedbackObj);
 					//If the task has been completed successfully, set the email as read and move it to the Journal Folder
@@ -207,11 +222,16 @@ public final class IMAPService {
 					}
 
 				}
+				
+				
+				//STEP 3 WHEN REQUEST ID NOT FOUND, TRY TO RETRIEVE A UNREQUESTED FEEDBACK
+				
+				
 				//If it doesn't exist, it's a unrequested feedback
 				else{
 					//Check if the subject contains the word "General feedback" or variants of this string
-					String subjectEmail=openNotReadEmail.getSubject();
-					if(subjectEmail.contains("General Feedback") || subjectEmail.contains("general Feedback") || subjectEmail.contains("General feedback") || subjectEmail.contains("general feedback")){
+					String subjectEmail=openNotReadEmail.getSubject().toLowerCase();
+					if(subjectEmail.contains("general feedback")){
 						System.out.println("\t"+LocalTime.now()+" - General Feedback found...");
 						//If the email enters this portion of code, this is a unrequested feedback
 						//Get the Sender of the email
@@ -225,9 +245,14 @@ public final class IMAPService {
 						//Get the To field && remove the mycarer.feedback email address if it's there by mistake
 						List<EmailAddress> ccElements=openNotReadEmail.getCcRecipients().getItems();
 						for(EmailAddress ccElem:ccElements){
+							//Remove the mycareer.feedback address if added in the cc field
 							if(ccElem.getAddress().equalsIgnoreCase(Constants.MAILBOX_ADDRESS)){
 								ccElements.remove(ccElem);
 							}
+//							//Remove the user email address if found
+//							if(ccElem.getAddress().equalsIgnoreCase(fromFieldEmail.getAddress())){
+//								ccElements.remove(ccElem);
+//							}
 						}
 
 						//Search for employee/s to link this feedback to
