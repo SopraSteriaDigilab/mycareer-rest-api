@@ -29,7 +29,7 @@ public class Objective implements Serializable{
 	//Global Variables
 	private int id, progress, performance;
 	private boolean isArchived;
-	private String title, description, timeStamp, timeToCompleteBy;
+	private String title, description, timeStamp, timeToCompleteBy, proposedBy;
 	@Embedded
 	private List<Feedback> feedback;
 
@@ -41,6 +41,7 @@ public class Objective implements Serializable{
 		this.isArchived=false;
 		this.title=Constants.INVALID_STRING;
 		this.description=Constants.INVALID_STRING;
+		this.proposedBy="";
 		this.timeStamp=null;
 		this.timeToCompleteBy=null;
 		feedback=new ArrayList<Feedback>();
@@ -63,7 +64,8 @@ public class Objective implements Serializable{
 		this.timeStamp=null;
 		this.setTimeStamp();
 		this.setTimeToCompleteBy(dateToCompleteBy);
-		this.feedback=new ArrayList<Feedback>();	
+		this.feedback=new ArrayList<Feedback>();
+		this.proposedBy="";
 	}
 	
 	//Constructor with Parameters
@@ -78,6 +80,7 @@ public class Objective implements Serializable{
 		this.setTimeStamp();
 		this.setTimeToCompleteBy(o.getTimeToCompleteBy());
 		this.feedback=o.getFeedback();
+		this.proposedBy=o.getProposedBy();
 	}
 
 	//Constructor with Parameters
@@ -94,7 +97,8 @@ public class Objective implements Serializable{
 		this.timeStamp=null;
 		this.setTimeStamp();
 		this.setTimeToCompleteBy(dateToCompleteBy);
-		feedback=new ArrayList<Feedback>();	
+		feedback=new ArrayList<Feedback>();
+		this.proposedBy="";
 	}
 
 	public void setID(int id) throws InvalidAttributeValueException{
@@ -129,6 +133,16 @@ public class Objective implements Serializable{
 
 	public int getProgress(){
 		return this.progress;
+	}
+	
+	public void setProposedBy(String name){
+		if(name!=null){
+			this.proposedBy=name;
+		}
+	}
+	
+	public String getProposedBy(){
+		return this.proposedBy;
 	}
 
 	/**
@@ -288,7 +302,8 @@ public class Objective implements Serializable{
 				+ "Title "+this.title+"\n"
 				+ "Description "+this.description+"\n"
 				+ "TimeStamp "+this.getTimeStamp()+"\n"
-				+ "TimeToCompleteBy "+this.getTimeToCompleteBy()+"\n";
+				+ "TimeToCompleteBy "+this.getTimeToCompleteBy()+"\n"
+				+ "ProposedBy "+this.getProposedBy()+"\n";
 		for(Feedback temp: this.feedback){
 			s+=temp.toString();
 		}
