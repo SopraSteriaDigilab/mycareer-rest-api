@@ -21,10 +21,7 @@ public class Feedback implements Serializable{
 	private static final long serialVersionUID = -3137541299399492965L;
 	//Global Variables
 	private int id, performance;
-	private String fromWho, description, type, source;
-	private String timeStamp;
-	private String requestID;
-	//private List<String> attachments;
+	private String fromWho, description, type, source, emailBody, timeStamp, requestID;
 
 	//Empty Constructor
 	public Feedback(){
@@ -36,7 +33,7 @@ public class Feedback implements Serializable{
 		this.source="";
 		timeStamp=null;
 		this.requestID="";
-		//this.attachments=new ArrayList<String>;
+		this.emailBody="";
 	}
 
 	//Constructor with parameters
@@ -56,8 +53,7 @@ public class Feedback implements Serializable{
 		this.timeStamp=null;
 		this.setTimeStamp();
 		this.requestID="";
-		//this.attachments=new ArrayList<String>;
-		//this.attachments=attac;
+		this.emailBody="";
 	}
 
 	//Constructor with parameters
@@ -75,8 +71,7 @@ public class Feedback implements Serializable{
 		this.timeStamp=null;
 		this.setTimeStamp();
 		requestID="";
-		//this.attachments=new ArrayList<String>;
-		//this.attachments=attac;
+		this.emailBody="";
 	}
 
 	public void setID(int id) throws InvalidAttributeValueException{
@@ -106,7 +101,7 @@ public class Feedback implements Serializable{
 	}
 
 	public void setRequestID(String id) throws InvalidAttributeValueException{
-		if(id!=null && !id.equals(""))
+		if(id!=null)
 			this.requestID=id;
 		else{
 			this.requestID=Constants.INVALID_STRING;
@@ -151,6 +146,16 @@ public class Feedback implements Serializable{
 
 	public String getDescription(){
 		return this.description;
+	}
+	
+	public void setEmailBody(String body){
+		if(body!=null){
+			this.emailBody=body;
+		}
+	}
+	
+	public String getEmailBody(){
+		return this.emailBody;
 	}
 
 	/**
@@ -215,7 +220,8 @@ public class Feedback implements Serializable{
 				+ "Type "+this.type+"\n"
 				+ "Source "+this.source+"\n"
 				+ "TimeStamp "+this.getTimeStamp()+"\n"
-				+ "RequestID "+this.requestID;
+				+ "RequestID "+this.requestID+"\n"
+				+ "Full Email Body: "+this.getEmailBody();
 		return s;
 	}
 

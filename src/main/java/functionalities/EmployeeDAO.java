@@ -2,13 +2,8 @@ package functionalities;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
-
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
@@ -16,7 +11,6 @@ import org.mongodb.morphia.query.UpdateOperations;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
-
 import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
@@ -749,7 +743,7 @@ public  class EmployeeDAO {
 						e.addFeedbackRequest(feedbackReqUpdated);
 				}
 				else{
-					data.setRequestID("Not_Requested");
+					data.setRequestID("");
 				}
 				//Add the feedback to the user
 				e.addGenericFeedback(data);
