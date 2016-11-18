@@ -124,7 +124,7 @@ public class ADProfileDAO {
 			SearchResult sr = (SearchResult)answer.next();
 			Attributes attrs = sr.getAttributes();
 			//Extract the username from the AD
-			String userName=attrs.get("aAMAccountName").getID();
+			String userName=(String) attrs.get("sAMAccountName").get();
 			if(!userName.equals(""))
 				return ADProfileDAO.authenticateUserProfile(userName);
 		}

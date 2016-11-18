@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import emailServices.IMAPService;
+import functionalities.EmployeeDAO;
 
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 public class Application {
@@ -16,7 +17,7 @@ public class Application {
 			//Start the Restful WebService
 			SpringApplication.run(Application.class, args);
 			//Start the EmailService that checks for new emails and add the feedback to a user
-			IMAPService.initiateIMAPService();
+//			IMAPService.initiateIMAPService();
 			//EmployeeDAO.changeEmployeeNotes(4323,"michael.piccoli@soprasteria.com");
 			//EmployeeDAO.changeEmployeeNotes(2312,"ridhwan.nacef@soprasteria.com");
 			//EmployeeDAO.changeEmployeeNotes(3422,"William","Kenny","william.kenny@soprasteria.com");
