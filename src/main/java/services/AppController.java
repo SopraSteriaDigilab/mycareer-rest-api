@@ -152,6 +152,26 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
+	
+	/**
+	 * 
+	 * This method allows the front-end to retrieve all the reportees associated with a user
+	 * 
+	 * @param employeeID the ID of an employee
+	 * @return list of ADProfileBasics
+	 */
+	@RequestMapping(value="/getReportees/{employeeID}", method=RequestMethod.GET)
+	public ResponseEntity<?> getReportees(@PathVariable long employeeID){
+		try{
+			return ResponseEntity.ok(EmployeeDAO.getReporteesForUser(employeeID));
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
 	@RequestMapping(value="/management/retrieveAllUser_Data/employee/{employeeID}", method=RequestMethod.GET)
 	public ResponseEntity<?> getAllUserData(@PathVariable long employeeID){
