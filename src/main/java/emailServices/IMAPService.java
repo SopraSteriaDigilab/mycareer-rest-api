@@ -80,7 +80,7 @@ public final class IMAPService {
 					closeIMAPConnection();
 					System.out.println("\t"+LocalTime.now()+" - Task Completed\n");
 				} catch (Exception e) {
-					System.out.println("\t"+LocalTime.now()+" - Email Service Error: "+e.getStackTrace());
+					System.out.println("\t"+LocalTime.now()+" - Email Service Error: "+e.toString());
 				}
 			}
 		}, 0, Constants.MAIL_REFRESH_TIME);
@@ -118,7 +118,9 @@ public final class IMAPService {
 				//Load the message
 				openNotReadEmail.load();
 
-				//Verify the email
+				
+				//STEP 1 CHECK FOR UNDELIVERED EMAILS
+				
 				
 				//Check if the subject contains the word "undelivered" which means that an address was invalid,
 				//therefore it must be removed from the feedback request object of the user]
@@ -142,6 +144,10 @@ public final class IMAPService {
 					//Interrupt the flow and skip to the next email
 					continue;
 				}
+				
+				
+				//STEP 2 CHECK FOR A REQUEST ID INSIDE THE SUBJECT
+				
 				//Check for a RequestID inside the body of the email
 				String requestIDSetInSubject=retrieveRequestID(openNotReadEmail);
 				//If such ID exists it's a reply from a feedback request
@@ -162,6 +168,8 @@ public final class IMAPService {
 					Feedback feedbackObj=new Feedback(1,fromFieldEmail.getAddress(),bodyEmail,type,"Email");
 					//Add the request id to the feedback object
 					feedbackObj.setRequestID(requestIDSetInSubject);
+					//Add the whole email body to the feedback
+					feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
 
 					//Find email address of employee to link feedback to
 					String emailEmployee=findEmployeeEmailFromSubject(openNotReadEmail);
@@ -181,6 +189,15 @@ public final class IMAPService {
 						//Interrupt the flow for this email and move on to the next one
 						continue;
 					}
+					//Verify if the fromField is the same as the user found in the system
+//					if(fromFieldEmail.getAddress().equalsIgnoreCase(emailEmployee)){
+//						System.out.println("\t"+LocalTime.now()+" - Invalid Employee, Users are not allowed to send a feedback to themselves");
+//						//Move the current email to a folder the system admin will deal with it
+//						openNotReadEmail.setIsRead(true);
+//						openNotReadEmail.move(WellKnownFolderName.Drafts);
+//						//Interrupt the flow and skip to the next email
+//						continue;
+//					}
 					//Now that we have all the details, pass this data to the EmployeeDAO which will try to link the feedback to the user
 					boolean res=EmployeeDAO.linkFeedbackReqReplyToUser(emailEmployee, feedbackObj);
 					//If the task has been completed successfully, set the email as read and move it to the Journal Folder
@@ -207,11 +224,16 @@ public final class IMAPService {
 					}
 
 				}
+				
+				
+				//STEP 3 WHEN REQUEST ID NOT FOUND, TRY TO RETRIEVE A UNREQUESTED FEEDBACK
+				
+				
 				//If it doesn't exist, it's a unrequested feedback
 				else{
 					//Check if the subject contains the word "General feedback" or variants of this string
-					String subjectEmail=openNotReadEmail.getSubject();
-					if(subjectEmail.contains("General Feedback") || subjectEmail.contains("general Feedback") || subjectEmail.contains("General feedback") || subjectEmail.contains("general feedback")){
+					String subjectEmail=openNotReadEmail.getSubject().toLowerCase();
+					if(subjectEmail.contains("general feedback")){
 						System.out.println("\t"+LocalTime.now()+" - General Feedback found...");
 						//If the email enters this portion of code, this is a unrequested feedback
 						//Get the Sender of the email
@@ -222,16 +244,21 @@ public final class IMAPService {
 							type="Internal";
 						else
 							type="External";
-						//Get the To field && remove the mycarer.feedback email address if it's there by mistake
-						List<EmailAddress> ccElements=openNotReadEmail.getCcRecipients().getItems();
-						for(EmailAddress ccElem:ccElements){
-							if(ccElem.getAddress().equalsIgnoreCase(Constants.MAILBOX_ADDRESS)){
-								ccElements.remove(ccElem);
+						//Get the TO field && remove the mycarer.feedback email address if it's there by mistake
+						List<EmailAddress> toElements=openNotReadEmail.getToRecipients().getItems();
+						for(EmailAddress toElem:toElements){
+							//Remove the mycareer.feedback address if added in the TO field
+							if(toElem.getAddress().equalsIgnoreCase(Constants.MAILBOX_ADDRESS)){
+								toElements.remove(toElem);
 							}
+//							//Remove the user email address if found
+//							if(ccElem.getAddress().equalsIgnoreCase(fromFieldEmail.getAddress())){
+//								ccElements.remove(ccElem);
+//							}
 						}
 
 						//Search for employee/s to link this feedback to
-						if(ccElements.size()<0){
+						if(toElements.size()<0){
 							//No user in the CC field, impossible to find employee/s
 							System.out.println("\t"+LocalTime.now()+" - No user can be linked to this feedback");
 							
@@ -244,38 +271,40 @@ public final class IMAPService {
 							//Interrupt the flow and move to to the next email
 							continue;
 						}
-						//For each employee found in the CC field,
+						//For each employee found in the TO field,
 						//Create the feedback object and add it to the user data
 						List<String> successfullyAdded=new ArrayList<>();
 						List<String> unsuccessfullyAdded=new ArrayList<>();
-						for(EmailAddress ccElem: ccElements){
+						for(EmailAddress toElem: toElements){
 							try{
-								ADProfile_Basic userFound=ADProfileDAO.authenticateUserProfile(ccElem.getAddress());
+								ADProfile_Basic userFound=ADProfileDAO.authenticateUserProfile(toElem.getAddress());
 								//Remove unnecessary part of the email body
 								String cleanBodyEmail=cleanEmailBody(openNotReadEmail.getBody().toString());
 								Feedback feedbackObj=new Feedback(0,fromFieldEmail.getAddress(),cleanBodyEmail,type,"Email");
+								//Add the full email body
+								feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
 								//Attach the feedback to the User on the Database
 								if(EmployeeDAO.insertNewGeneralFeedback(userFound.getEmployeeID(), feedbackObj)){
 									System.out.println("\t"+LocalTime.now()+" - General Feedback added correctly to user "+userFound.getEmployeeID());
-									successfullyAdded.add(ccElem.getAddress());
+									successfullyAdded.add(toElem.getAddress());
 									
 									//Notice employee/s regarding the new feedback received
 									{
 										String bodyEmailMsg="Hi,\nGood news for you!\nThe user "+fromFieldEmail.toString()+" has given you a new feedback!\n"
 												+ "Login into MyCareer website to find out how you did!\n\nRegards,\nTeam MyCareer";
-										contactUserViaEmail(ccElem.toString(), "New Feedback Received", bodyEmailMsg);
+										contactUserViaEmail(toElem.getAddress(), "New Feedback Received", bodyEmailMsg);
 									}
 								}
 								else{
 									System.out.println("\t"+LocalTime.now()+" - The General Feedback couldn't be added to user "+userFound.getEmployeeID());
-									unsuccessfullyAdded.add(ccElem.getAddress());
+									unsuccessfullyAdded.add(toElem.getAddress());
 								}
 							}
 							catch(InvalidAttributeValueException e){
 								System.out.println("\t"+LocalTime.now()+" - "+e.getMessage());
 								//User not found in the AD, add it to the list of invalid addresses
 								if (e.getMessage().contains("No match in the AD for user"))
-									unsuccessfullyAdded.add(ccElem.getAddress());
+									unsuccessfullyAdded.add(toElem.getAddress());
 								else{
 									openNotReadEmail.setIsRead(false);
 									openNotReadEmail.move(WellKnownFolderName.Drafts);
@@ -298,7 +327,6 @@ public final class IMAPService {
 					}
 				}
 			}
-
 		}
 		else{
 			System.out.println("\t"+LocalTime.now()+" - No new Emails Found");

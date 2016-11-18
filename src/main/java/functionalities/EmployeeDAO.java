@@ -1,9 +1,9 @@
 package functionalities;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
-
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
@@ -11,7 +11,6 @@ import org.mongodb.morphia.query.UpdateOperations;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
-
 import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
@@ -157,6 +156,26 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
 		return e.getLatestVersionCompetencies();
+	}
+	
+	//Returns list of reportees for a user
+	public static List<ADProfile_Basic> getReporteesForUser(long employeeID) throws InvalidAttributeValueException, NamingException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such ID");
+		Employee e = query.get();
+		
+		List<ADProfile_Basic> reporteeList = new ArrayList<>();
+		
+		for(String str : e.getReporteeCNs()){
+			long temp =  Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
+			reporteeList.add(ADProfileDAO.verifyIfUserExists(temp));
+		}
+		
+		return reporteeList;
+
 	}
 
 	/**
@@ -724,7 +743,7 @@ public  class EmployeeDAO {
 						e.addFeedbackRequest(feedbackReqUpdated);
 				}
 				else{
-					data.setRequestID("Not_Requested");
+					data.setRequestID("");
 				}
 				//Add the feedback to the user
 				e.addGenericFeedback(data);
