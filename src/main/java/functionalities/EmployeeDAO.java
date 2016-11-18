@@ -2,6 +2,8 @@ package functionalities;
 
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
+import javax.naming.NamingException;
+
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
@@ -642,7 +644,7 @@ public  class EmployeeDAO {
 					Employee e = querySearch.get();
 					//Add the updated version of the note
 					if(e.updateCompetency((Competency)data,title)){
-						//Update the List<List<Note>> in the DB passing the new list
+						//Update the List<List<Competencies>> in the DB passing the new list
 						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("competencies", e.getCompetenciesList());
 						//Commit the changes to the DB
 						dbConnection.update(querySearch, ops);
@@ -697,6 +699,73 @@ public  class EmployeeDAO {
 				throw new InvalidAttributeValueException("The user GUID is undefined");
 		}else
 			throw new InvalidAttributeValueException("The data provided is not valid");
+	}
+	
+	public static boolean linkFeedbackReqReplyToUser(String requester, Feedback data) throws InvalidAttributeValueException, NamingException{
+		if(data!=null && data.isFeedbackValid()){
+			//Establish a connection with the DB
+			if(dbConnection==null)
+				dbConnection=getMongoDBConnection();
+			
+			//Get the userData from the DB/AD as well as updating the user profile if needed
+			ADProfile_Basic basicProfile=ADProfileDAO.authenticateUserProfile(requester);
+			//Search for the feedbackReqID inside the user data (using the employeeID inside the basicProfile
+			//Get the user from the DB
+			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", basicProfile.getEmployeeID());
+			if(querySearch.get()!=null){
+				Employee e = querySearch.get();
+				//Update the feedbackRequest element
+				FeedbackRequest feedbackReqUpdated=e.getSpecificFeedbackRequest(data.getRequestID().trim());
+				if(feedbackReqUpdated!=null){
+					feedbackReqUpdated.addSender(data.getFromWho());
+					boolean res1=e.updateFeedbackRequest(feedbackReqUpdated);
+					//If the feedback request couldn't be found within the user data, add it
+					if(res1==false)
+						e.addFeedbackRequest(feedbackReqUpdated);
+				}
+				else{
+					data.setRequestID("Not_Requested");
+				}
+				//Add the feedback to the user
+				e.addGenericFeedback(data);
+				
+				//Update the data in the DB
+				UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", e.getFeedbackRequestsList());
+				UpdateOperations<Employee> ops2 = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getFeedbackList());
+				//Commit the changes to the DB
+				dbConnection.update(querySearch, ops1);
+				dbConnection.update(querySearch, ops2);
+				
+				return true;
+			}
+			//Since we use the authenticateUSerProfile method, the system will never go in the else statement
+			//else{}
+		}
+		else{
+			throw new InvalidAttributeValueException("Invalid Feedback information");
+		}
+		return false;
+	}
+	
+	public static boolean removeEmailAddressFromFeedbackReq(String email, String reqID, String addressToRemove) throws InvalidAttributeValueException{
+		if(email.length()<0 || reqID.length()<0)
+			throw new InvalidAttributeValueException("The email adress provided or the request ID are invalid");
+		//Establish a connection with the DB
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		//Get the user from the DB
+		Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("emailAddress =", email);
+		if(querySearch.get()!=null){
+			Employee e = querySearch.get();
+			FeedbackRequest requestObj=e.getSpecificFeedbackRequest(reqID);
+			if(requestObj!=null){
+				return requestObj.removeRecipient(addressToRemove);
+			}
+			throw new InvalidAttributeValueException("No feedback request matched the given ID");
+		}
+		else{
+			throw new InvalidAttributeValueException("No user with such email address has been found in the DB");
+		}
 	}
 
 	private static Datastore getMongoDBConnection() throws MongoException{

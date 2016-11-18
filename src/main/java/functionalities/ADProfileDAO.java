@@ -31,7 +31,6 @@ public class ADProfileDAO {
 
 	@SuppressWarnings("unchecked")
 	public static ADProfile_Basic authenticateUserProfile(String usernameEmail) throws NamingException, InvalidAttributeValueException {
-		System.out.println(usernameEmail);
 		//Verify the given string
 		if(usernameEmail==null || usernameEmail.equals("") || usernameEmail.length()<1)
 			throw new InvalidAttributeValueException("The given username is invalid");
@@ -70,7 +69,7 @@ public class ADProfileDAO {
 			adObj.setUsername((String)attrs.get("sAMAccountName").get());
 			adObj.setCompany((String) attrs.get("company").get());
 			adObj.setTeam("603 GOVERNMENT UK");
-			
+
 			//Try to extract the reportees of a user
 			try{
 				NamingEnumeration<String> isUserAManager=(NamingEnumeration<String>) attrs.get("directReports").getAll();
@@ -91,13 +90,45 @@ public class ADProfileDAO {
 			ldapContext.close();
 			ldapContext=null;
 			return EmployeeDAO.matchADWithMongoData(adObj);
-		//There is no a matching user in the Active Directory
+			//There is no a matching user in the Active Directory
 		}else{
 			//Close the connection with the AD
 			ldapContext.close();
 			ldapContext=null;
 			throw new InvalidAttributeValueException("No match in the AD for user "+usernameEmail);
 		}
+	}
+
+	public static ADProfile_Basic verifyIfUserExists(long employeeID) throws NamingException, InvalidAttributeValueException{
+		//Verify the long
+		if(employeeID<1)
+			throw new InvalidAttributeValueException("No valid employeeID");
+		//Instantiate the connection
+		if(ldapContext==null)
+			ldapContext = getADConnection();
+
+		//Check the employeeID in the AD
+		// Create the search controls         
+		SearchControls searchCtls = new SearchControls();
+		//Specify the attributes to return
+		searchCtls.setReturningAttributes(Constants.AD_ATTRIBUTES);
+		//Specify the search scope
+		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		//specify the LDAP search filter
+		String searchFilter="(employeeNumber=" + employeeID + ")";
+		// Search for objects using the filter
+		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_SERVERS, searchFilter, searchCtls);
+
+		//Check the results retrieved
+		if(answer.hasMoreElements()){
+			SearchResult sr = (SearchResult)answer.next();
+			Attributes attrs = sr.getAttributes();
+			//Extract the username from the AD
+			String userName=attrs.get("aAMAccountName").getID();
+			if(!userName.equals(""))
+				return ADProfileDAO.authenticateUserProfile(userName);
+		}
+		throw new InvalidAttributeValueException("No username has been found for employee ID: "+employeeID);
 	}
 
 	private static DirContext getADConnection() throws NamingException{

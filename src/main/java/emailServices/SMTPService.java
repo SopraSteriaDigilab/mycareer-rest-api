@@ -28,6 +28,9 @@ import microsoft.exchange.webservices.data.property.complex.MessageBody;
  * Source: http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/mail/javamail/JavaMailSenderImpl.html
  * Source: https://javamail.java.net/nonav/docs/api/com/sun/mail/smtp/package-summary.html
  * Source: http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/mail/javamail/MimeMessageHelper.html
+ * 
+ * This class contains the SMTP service
+ * 
  */
 
 public final class SMTPService {
@@ -95,10 +98,10 @@ public final class SMTPService {
 			FeedbackRequest request;
 			System.out.println("\t"+LocalTime.now()+" - Creating a Feedback Request");
 			do{
-				request=new FeedbackRequest();
+				request=new FeedbackRequest(employeeID);
 			}
 			while(!EmployeeDAO.validateFeedbackRequestID(employeeID, request.getID()));
-
+			System.out.println(request.getID());
 
 			//PART 5
 
@@ -116,8 +119,8 @@ public final class SMTPService {
 					//Generate a Template email, add the Request ID an any further information
 					msg.setBody(fillTemplate(fullNameEmployeeRequester, request.getID(), notes));
 					msg.getToRecipients().add(s);
-					msg.getCcRecipients().add(Constants.MAILBOX_ADDRESS);
-					//msg.setFrom(new EmailAddress(emailAddresEmployeeRequester));
+					//msg.getCcRecipients().add(Constants.MAILBOX_ADDRESS);
+					//msg.setFrom(new EmailAddress(Constants.MAILBOX_ADDRESS));
 					msg.sendAndSaveCopy();
 				}
 			}
@@ -186,6 +189,7 @@ public final class SMTPService {
 			bodyMsg+="\nKind Regards,\nMyCareer Team\n\n";
 			MessageBody mexB=new MessageBody();
 			mexB.setText(bodyMsg);
+			//msg.setFrom(new EmailAddress(Constants.MAILBOX_ADDRESS));
 			mexB.setBodyType(BodyType.Text);
 			msg.setBody(mexB);
 			msg.getToRecipients().add(emailAddresEmployeeRequester);

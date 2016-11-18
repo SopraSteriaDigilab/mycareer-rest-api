@@ -35,7 +35,7 @@ public class Feedback implements Serializable{
 		this.type="";
 		this.source="";
 		timeStamp=null;
-		requestID="";
+		this.requestID="";
 		//this.attachments=new ArrayList<String>;
 	}
 
@@ -55,7 +55,7 @@ public class Feedback implements Serializable{
 		this.setSource(source);
 		this.timeStamp=null;
 		this.setTimeStamp();
-		requestID="";
+		this.requestID="";
 		//this.attachments=new ArrayList<String>;
 		//this.attachments=attac;
 	}
@@ -141,7 +141,7 @@ public class Feedback implements Serializable{
 	 * @param description This string must be valid and with a length less than 1000 characters
 	 */
 	public void setDescription(String description) throws InvalidAttributeValueException{
-		if(description!=null && description.length()>0 && description.length()<3001)
+		if(description!=null && description.length()>0 && description.length()<5001)
 			this.description=description;
 		else{
 			this.description=Constants.INVALID_STRING;
