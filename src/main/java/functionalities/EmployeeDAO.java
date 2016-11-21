@@ -37,6 +37,15 @@ public  class EmployeeDAO {
 	//There is only 1 instance of the Datastore in the whole system
 	private static Datastore dbConnection=null;
 
+	public static String getFullNameUser(long employeeID) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such ID");
+		Employee e = query.get();
+		return e.getFullName();
+	}
 
 	public static List<Objective> getObjectivesForUser(long employeeID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
@@ -157,7 +166,7 @@ public  class EmployeeDAO {
 		Employee e = query.get();
 		return e.getLatestVersionCompetencies();
 	}
-	
+
 	//Returns list of reportees for a user
 	public static List<ADProfile_Basic> getReporteesForUser(long employeeID) throws InvalidAttributeValueException, NamingException{
 		if(dbConnection==null)
@@ -166,14 +175,14 @@ public  class EmployeeDAO {
 		if(query.get()==null)
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
-		
+
 		List<ADProfile_Basic> reporteeList = new ArrayList<>();
-		
+
 		for(String str : e.getReporteeCNs()){
 			long temp =  Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
 			reporteeList.add(ADProfileDAO.verifyIfUserExists(temp));
 		}
-		
+
 		return reporteeList;
 
 	}
@@ -719,13 +728,13 @@ public  class EmployeeDAO {
 		}else
 			throw new InvalidAttributeValueException("The data provided is not valid");
 	}
-	
+
 	public static boolean linkFeedbackReqReplyToUser(String requester, Feedback data) throws InvalidAttributeValueException, NamingException{
 		if(data!=null && data.isFeedbackValid()){
 			//Establish a connection with the DB
 			if(dbConnection==null)
 				dbConnection=getMongoDBConnection();
-			
+
 			//Get the userData from the DB/AD as well as updating the user profile if needed
 			ADProfile_Basic basicProfile=ADProfileDAO.authenticateUserProfile(requester);
 			//Search for the feedbackReqID inside the user data (using the employeeID inside the basicProfile
@@ -747,14 +756,14 @@ public  class EmployeeDAO {
 				}
 				//Add the feedback to the user
 				e.addGenericFeedback(data);
-				
+
 				//Update the data in the DB
 				UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", e.getFeedbackRequestsList());
 				UpdateOperations<Employee> ops2 = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getFeedbackList());
 				//Commit the changes to the DB
 				dbConnection.update(querySearch, ops1);
 				dbConnection.update(querySearch, ops2);
-				
+
 				return true;
 			}
 			//Since we use the authenticateUSerProfile method, the system will never go in the else statement
@@ -765,7 +774,7 @@ public  class EmployeeDAO {
 		}
 		return false;
 	}
-	
+
 	public static boolean removeEmailAddressFromFeedbackReq(String email, String reqID, String addressToRemove) throws InvalidAttributeValueException{
 		if(email.length()<0 || reqID.length()<0)
 			throw new InvalidAttributeValueException("The email adress provided or the request ID are invalid");
@@ -786,6 +795,41 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("No user with such email address has been found in the DB");
 		}
 	}
+
+//	public static Employee checkUserEmailProposedObjective (String email) throws InvalidAttributeValueException, NamingException {
+//
+//		//Create ADProfile_Basic Object to enable authentication of User Email
+//		ADProfile_Basic user = new ADProfile_Basic();
+//
+//		//Try catch Statement to verify if the user exists in ADOne - if they exist, the catch statement will be skipped
+//
+//		try {
+//			user = ADProfileDAO.authenticateUserProfile(email);
+//
+//		} catch (InvalidAttributeValueException e) {
+//
+//			ADProfile_Advanced user2 = (ADProfile_Advanced) user;
+//
+//			EmployeeDAO.matchADWithMongoData(user2);
+//
+//			Employee finalUser = new Employee();
+//
+//			return finalUser;
+//
+//		}//catch
+//
+//		ADProfile_Advanced user2 = (ADProfile_Advanced) user;
+//
+//		EmployeeDAO.matchADWithMongoData(user2);
+//
+//		Employee finalUser = new Employee();
+//
+//		finalUser = (Employee) user2;
+//
+//		return (Employee) user2;
+//
+//
+//	}//checkUserEmailProposedObjective
 
 	private static Datastore getMongoDBConnection() throws MongoException{
 		if(dbConnection==null){
