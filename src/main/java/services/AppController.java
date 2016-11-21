@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.mongodb.MongoException;
+
+import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
+import dataStructure.Employee;
 import dataStructure.Note;
 import dataStructure.Objective;
 import emailServices.SMTPService;
@@ -533,15 +536,83 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		} catch (NamingException e) {
 			return ResponseEntity.badRequest().body("AD Connection Error");
-		}
-
-	
-		
-		
+		}	
 	}
-
 	
-	
-	
-	
+	/**
+	 * 
+	 * This method allows the front-end to add a new objective to a user
+	 * 
+	 * @param employeeID A value >0
+	 * @param title a string that doesn't exceed 150 characters
+	 * @param description a string that doesn't exceed 1000 characters
+	 * @param completedBy a valid month and year in the following format: yyyy-MM
+	 * @param progress a value between -1 and 2
+	 * 	-1 => Not Relevant to my career anymore
+	 *  0 => Awaiting
+	 *  1 => In Flight
+	 *  2 => Done
+	 * @return a message explaining if the objective has been inserted or if there was an error while completing the task
+	 */
+	@RequestMapping(value="/addProposedObjective/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> addProposedObjectiveToAUser(
+			@PathVariable("employeeID") long employeeID,
+			@RequestParam(value="title") String title,
+			@RequestParam(value="description") String description,
+			@RequestParam(value="completedBy") String completedBy,
+			@RequestParam(value="emails") String emails){
+		String failed="";
+		String done="";
+		String invalidEmails="";
+		String fullNameProposer="";
+		//Method to get the FullName of the objective proposer
+		try{
+			//Find employee full name
+			fullNameProposer=EmployeeDAO.getFullNameUser(employeeID);
+			if(fullNameProposer==null && fullNameProposer.length()<1)
+				return ResponseEntity.badRequest().body("Invalid Employee ID");
+			String[] emailAddresses=emails.split(",");
+			for(int i=0; i<emailAddresses.length; i++){
+				emailAddresses[i]=emailAddresses[i].trim();
+			}
+			if(emailAddresses[0].length()<1)
+				return ResponseEntity.badRequest().body("No recipients inserted!");
+			//For each email address, check if it exists within the application
+			for(String tempEmail:emailAddresses){
+				try{
+					ADProfile_Basic userInQuestion = ADProfileDAO.authenticateUserProfile(tempEmail);
+					if(userInQuestion!=null){
+						Objective obj=new Objective(0,0,title,description,completedBy);
+						obj.setProposedBy(fullNameProposer);
+						//Link the objective to the user ID just found
+						boolean inserted=EmployeeDAO.insertNewObjective(userInQuestion.getEmployeeID(),obj);
+						if(inserted){
+							done+=tempEmail+" - ";
+						}
+						else{
+							failed+=tempEmail+" - ";
+						}
+					}
+				}
+				catch(InvalidAttributeValueException er){
+					invalidEmails+=tempEmail+" - ";
+				}
+			}
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+		//Verify if the task was successfull
+		String result="";
+		if(done.length()>0)
+			result+="Completed for: "+done+"\n";
+		if(failed.length()>0)
+			result+="Failed for: "+failed+"\n";
+		if(invalidEmails.length()>0)
+			result+="Invalid Employees: "+invalidEmails;
+		return ResponseEntity.ok(result);
+	}
 }
