@@ -38,7 +38,7 @@ public final class Constants {
 	public static final String AD_HOST="ldap://one.steria.dom";
 	public static final int AD_PORT=389;
 	public static final String AD_AUTHENTICATION="simple";
-	public static final String AD_USERNAME="PICCOLI Michael - 675599";
+	public static final String AD_USERNAME="NACEF Ridhwan - 675590";
 	public static final String AD_SERVERS="OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom";
 	public static final String AD_PASSWORD="";
 	//public static final String[] AD_ATTRIBUTES={"displayName","company", "sAMAccountName", "employeeID"};
