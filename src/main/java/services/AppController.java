@@ -254,9 +254,11 @@ public class AppController {
 			@RequestParam(value="title") String title,
 			@RequestParam(value="description") String description,
 			@RequestParam(value="completedBy") String completedBy,
-			@RequestParam(value="progress") int progress){
+			@RequestParam(value="progress") int progress,
+			@RequestParam String proposedBy){
 		try{
 			Objective obj=new Objective(objectiveID,progress,0,title,description,completedBy);
+			obj.setProposedBy(proposedBy);
 			boolean inserted=EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj);
 			if(inserted)
 				return ResponseEntity.ok("Objective modified correctly!");
