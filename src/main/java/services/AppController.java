@@ -392,10 +392,9 @@ public class AppController {
 			@RequestParam(value="category") int cat,
 			@RequestParam(value="title") String title,
 			@RequestParam(value="description") String description,
-			@RequestParam(value="timeToCompleteBy") String timeToCompleteBy,
-			@RequestParam int progress){
+			@RequestParam(value="timeToCompleteBy") String timeToCompleteBy){
 		try{
-			DevelopmentNeed obj=new DevelopmentNeed(1,progress,cat,title,description,timeToCompleteBy);
+			DevelopmentNeed obj=new DevelopmentNeed(1,0,cat,title,description,timeToCompleteBy);
 			boolean inserted=EmployeeDAO.insertNewDevelopmentNeed(employeeID,obj);
 			if(inserted)
 				return ResponseEntity.ok("Development need inserted correctly!");
