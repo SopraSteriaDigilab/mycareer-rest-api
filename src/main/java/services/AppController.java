@@ -212,9 +212,11 @@ public class AppController {
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="title") String title,
 			@RequestParam(value="description") String description,
-			@RequestParam(value="completedBy") String completedBy){
+			@RequestParam(value="completedBy") String completedBy,
+			@RequestParam String proposedBy){
 		try{
 			Objective obj=new Objective(0,0,title,description,completedBy);
+			obj.setProposedBy(proposedBy);
 			boolean inserted=EmployeeDAO.insertNewObjective(employeeID,obj);
 			if(inserted)
 				return ResponseEntity.ok("Objective inserted correctly!");
