@@ -2,7 +2,10 @@ package dataStructure;
 
 import java.io.InvalidClassException;
 import java.io.Serializable;
+import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.annotations.Embedded;
@@ -192,6 +195,10 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				//The last element contains the latest version for the objective
 				organisedList.add(subList.get(subList.size()-1));
 			}
+			
+			//Sort list by timeToCompelte
+			sortByTimeToComplete(organisedList);
+			
 			//Once the list if full, return it to the user
 			return organisedList;
 		}
@@ -923,6 +930,31 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * 
+	 * This method takes in a List of Objectives or Development Needs an sorts them based on the Due Date
+	 * Sorted by earliest date to latest date
+	 * @param o (An Objective or Development Need)
+	 * @return List (or Objectives or Development Needs)
+	 */
+	private static void sortByTimeToComplete(List<Objective> objectivesList){
+		Collections.sort(objectivesList, new Comparator<Objective>(){
+			@Override
+			public int compare(Objective o1, Objective o2) {
+				YearMonth ym1 = o1.getTimeToCompletByYearMonth();
+				YearMonth ym2 = o2.getTimeToCompletByYearMonth();
+				
+				if(ym1.equals(ym2)){
+					return 0;
+				}
+				return ym1.isBefore(ym2) ? -1 : 1;
+			}
+
+		});
+		
+		
 	}
 
 	/**

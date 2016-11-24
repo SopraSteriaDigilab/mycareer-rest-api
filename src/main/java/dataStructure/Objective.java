@@ -254,6 +254,10 @@ public class Objective implements Serializable{
 		YearMonth temp=YearMonth.parse(this.timeToCompleteBy,Constants.YEAR_MONTH_FORMAT);
 		return temp.format(Constants.YEAR_MONTH_FORMAT);
 	}
+	
+	public YearMonth getTimeToCompletByYearMonth(){
+		return YearMonth.parse(this.timeToCompleteBy,Constants.YEAR_MONTH_FORMAT);
+	}
 
 	/**
 	 * 
