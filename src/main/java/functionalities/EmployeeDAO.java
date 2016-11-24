@@ -1,6 +1,7 @@
 package functionalities;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
@@ -36,6 +37,14 @@ public  class EmployeeDAO {
 
 	//There is only 1 instance of the Datastore in the whole system
 	private static Datastore dbConnection=null;
+	
+//	public static boolean insertFeedback() throws InvalidAttributeValueException, MongoException {
+//		if(dbConnection==null)
+//			dbConnection=getMongoDBConnection();
+//		Feedback f1 = new Feedback(0, "Ben Cassidy", "Creating this to test the filter date.", "internal", "E-mail");
+//		return insertNewGeneralFeedback(675590, f1);
+//		
+//	}
 
 	public static String getFullNameUser(long employeeID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
@@ -83,7 +92,9 @@ public  class EmployeeDAO {
 		if(query.get()==null)
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
-		return e.getFeedbackList();
+		List<Feedback> feedbackList = e.getFeedbackList();
+		Collections.reverse(feedbackList);
+		return feedbackList;
 	}
 
 	public static List<Note> getNotesForUser(long employeeID) throws InvalidAttributeValueException{
@@ -564,7 +575,7 @@ public  class EmployeeDAO {
 	}
 
 	/*
-	public static void insertTempData(){
+//	public static void insertTempData(){
 		try{
 			Datastore datastore=getMongoDBConnection();
 			Employee e1=new Employee(3422,8,"Bill","Bill","bill.bill@soprasteria.com","Junior Software Engineer"
