@@ -1,6 +1,9 @@
 package services;
 
 import java.time.YearMonth;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
@@ -637,30 +640,35 @@ public class AppController {
 		String errorResult = "Error: ";
 		boolean errorInserting = false;
 		boolean insertAccepted = false;
+		Set<String> emailSet = new HashSet<>();
 		try {
 
-			
+			//Check that input variables are not empty
 			areInputValuesEmpty(title, description, completedBy);
 			
+			//Get email adressess and check they are not empty and limit to 20
 			String[] emailAddresses=emails.split(",");
 			if(emailAddresses.length >19){
 				throw new InvalidAttributeValueException("There is a maximum of 20 allowed emails in one request.");
 			}
-			for(int i=0; i<emailAddresses.length; i++){
-				emailAddresses[i]=emailAddresses[i].trim();
-				if(emailAddresses[i].length() < 1){
+			for(String email : emailAddresses){
+				if(email.length() < 1){
 					throw new InvalidAttributeValueException("One or more of the emails are invalid");
 				}
+				emailSet.add(email.trim());
 			}
 			
+			//check date is not in the past
 			YearMonth temp=YearMonth.parse(completedBy,Constants.YEAR_MONTH_FORMAT);
 			if(temp.isBefore(YearMonth.now())){
 				throw new InvalidAttributeValueException("Date can not be in the past");
 			}
 			
 
+
+			//get user and loop through emails and add objective
 			String proposedBy=EmployeeDAO.getFullNameUser(employeeID);
-			for(String email : emailAddresses){
+			for(String email : emailSet){
 				try{
 					ADProfile_Basic userInQuestion = ADProfileDAO.authenticateUserProfile(email);
 					Objective obj=new Objective(0,0,title,description,completedBy);
@@ -679,6 +687,7 @@ public class AppController {
 				}
 			}
 			
+			//If any error pop up, add to result
 			if(errorInserting){
 				if(!insertAccepted){ result = ""; }
 				result += errorResult;
