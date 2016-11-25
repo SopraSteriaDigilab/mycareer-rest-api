@@ -1,8 +1,12 @@
 package services;
 
+import java.time.YearMonth;
+
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
+import javax.naming.directory.InvalidAttributesException;
 
+import org.springframework.aop.ThrowsAdvice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -621,83 +625,160 @@ public class AppController {
 //		return ResponseEntity.ok(result);
 //	}
 	
+	
 	@RequestMapping(value="/addProposedObjective/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addProposedObjectiveToAUser(
-			@PathVariable("employeeID") long employeeID,
+			@PathVariable(value="employeeID") long employeeID,
 			@RequestParam(value="title") String title,
 			@RequestParam(value="description") String description,
 			@RequestParam(value="completedBy") String completedBy,
 			@RequestParam(value="emails") String emails){
-		String failed="";
-		String done="";
-		String invalidEmails="";
-		String invalidTitle = title;
-		String invalidDescription = description;
-		String invalidCompletedBy = completedBy;
-		String fullNameProposer="";
-		//Method to get the FullName of the objective proposer
-		try{
-			//Find employee full name
-			fullNameProposer=EmployeeDAO.getFullNameUser(employeeID);
-			if(fullNameProposer==null && fullNameProposer.length()<1)
-				return ResponseEntity.badRequest().body("Invalid Employee ID");
+		String result = "Objective Proposed for: ";
+		String errorResult = "Error: ";
+		boolean errorInserting = false;
+		try {
+
+			
+			areInputValuesEmpty(title, description, completedBy);
+			
 			String[] emailAddresses=emails.split(",");
 			for(int i=0; i<emailAddresses.length; i++){
 				emailAddresses[i]=emailAddresses[i].trim();
+				if(emailAddresses[i].length() < 1){
+					throw new InvalidAttributeValueException("One or more of the emails are invalid");
+				}
 			}
 			
-			if(emailAddresses[0].length()<1)
-				return ResponseEntity.badRequest().body("No recipients inserted!");
-			//For each email address, check if it exists within the application
-			for(String tempEmail:emailAddresses){
+			YearMonth temp=YearMonth.parse(completedBy,Constants.YEAR_MONTH_FORMAT);
+			if(temp.isBefore(YearMonth.now())){
+				throw new InvalidAttributeValueException("Date can not be in the past");
+			}
+			
+
+			String proposedBy=EmployeeDAO.getFullNameUser(employeeID);
+			for(String email : emailAddresses){
 				try{
-					ADProfile_Basic userInQuestion = ADProfileDAO.authenticateUserProfile(tempEmail);
-					if(userInQuestion!=null){
-						Objective obj=new Objective(0,0,title,description,completedBy);
-						obj.setProposedBy(fullNameProposer);
-						//Link the objective to the user ID just found
-						boolean inserted=EmployeeDAO.insertNewObjective(userInQuestion.getEmployeeID(),obj);
-						if(inserted){
-							done+=userInQuestion.getFullName();
-						}
-						else{
-							failed+=tempEmail+" - ";
-						}
+					ADProfile_Basic userInQuestion = ADProfileDAO.authenticateUserProfile(email);
+					Objective obj=new Objective(0,0,title,description,completedBy);
+					obj.setProposedBy(proposedBy);
+					boolean inserted=EmployeeDAO.insertNewObjective(userInQuestion.getEmployeeID(), obj);
+					if(inserted){
+						result+=  userInQuestion.getFullName() +", ";
+					} else{
+						errorInserting = true;
+						errorResult+= "Could not send to " + userInQuestion.getEmployeeID() +", ";
 					}
-				}
-				catch(InvalidAttributeValueException er){
-					invalidEmails+=tempEmail+" - ";
+				}catch(InvalidAttributeValueException er){
+					errorInserting = true;
+					errorResult += er.getMessage();
 				}
 			}
-		}
-		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
-		}
-		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-		//Verify if the task was successful
-		String result="";
-		if (done.length()>0) {
-			result+="Completed for: "+done+"\n";
-			//return a positive response that the task was successful
-		return ResponseEntity.ok(result);
-		//If we reach this point, something went wrong, and we need to return a negative response
-		} else {
-		//Reaching this decision means the user did not exist in ADOne	
-		if(failed.length()>0) {
-			result+="Failed for: "+failed+"\n";}
-		//Check if any of the variable fields are missing, the decision construct ensures none of the
-		//parameters are missing before even considering a valid or invalid email
-		if(invalidEmails.length()>0 & !(invalidTitle.length()<=0 | invalidDescription.length()<=0
-				| invalidCompletedBy.length()<=0))
-			result+="Invalid Employee email: "+invalidEmails;}
-		if(invalidTitle.length()<=0) 
-			result+= "Invalid title provided - ";
-		if(invalidDescription.length() <=0 )
-			result+= "Invalid description provided - ";
-		if(invalidCompletedBy.length() <=0)
-			result+= "Invalid date provided - ";
-		return ResponseEntity.badRequest().body(result);
+			
+			if(errorInserting){
+				result += errorResult;
+			}
+
+			return ResponseEntity.ok(result);
+			
+		} catch (InvalidAttributeValueException e) {
+			return ResponseEntity.badRequest().body(result + e.getMessage()  +", ");
+		} catch (NamingException e) {
+			return ResponseEntity.badRequest().body(result + e.getMessage()  +", ");
+		} 
+		
+		
+		
+
 	}
+	
+	
+	private void areInputValuesEmpty(String... args) throws InvalidAttributeValueException{
+		for(String str : args){
+			if(str.length() < 1 || str.isEmpty()){
+				throw new InvalidAttributeValueException("One or more of the values are empty.");
+			}
+		}
+	}
+	
+//	@RequestMapping(value="/addProposedObjective/{employeeID}", method=RequestMethod.POST)
+//	public ResponseEntity<?> addProposedObjectiveToAUser(
+//			@PathVariable(value="employeeID") long employeeID,
+//			@RequestParam(value="title") String title,
+//			@RequestParam(value="description") String description,
+//			@RequestParam(value="completedBy") String completedBy,
+//			@RequestParam(value="emails") String emails){
+//		String failed="";
+//		String done="";
+//		String invalidEmails="";
+//		String invalidTitle = title;
+//		String invalidDescription = description;
+//		String invalidCompletedBy = completedBy;
+//		String fullNameProposer="";
+//		
+//		
+//		//Method to get the FullName of the objective proposer
+//		try{
+//			//Find employee full name
+//			fullNameProposer=EmployeeDAO.getFullNameUser(employeeID);
+//			if(fullNameProposer==null && fullNameProposer.length()<1)
+//				return ResponseEntity.badRequest().body("Invalid Employee ID");
+//			String[] emailAddresses=emails.split(",");
+//			for(int i=0; i<emailAddresses.length; i++){
+//				emailAddresses[i]=emailAddresses[i].trim();
+//			}
+//			
+//			if(emailAddresses[0].length()<1)
+//				return ResponseEntity.badRequest().body("No recipients inserted!");
+//			//For each email address, check if it exists within the application
+//			for(String tempEmail:emailAddresses){
+//				try{
+//					ADProfile_Basic userInQuestion = ADProfileDAO.authenticateUserProfile(tempEmail);
+//					if(userInQuestion!=null){
+//						Objective obj=new Objective(0,0,title,description,completedBy);
+//						obj.setProposedBy(fullNameProposer);
+//						//Link the objective to the user ID just found
+//						boolean inserted=EmployeeDAO.insertNewObjective(userInQuestion.getEmployeeID(),obj);
+//						if(inserted){
+//							done+=userInQuestion.getFullName();
+//						}
+//						else{
+//							failed+=tempEmail+" - ";
+//						}
+//					}
+//				}
+//				catch(InvalidAttributeValueException er){
+//					invalidEmails+=tempEmail+" - ";
+//				}
+//			}
+//		}
+//		catch(MongoException me){
+//			return ResponseEntity.badRequest().body("DataBase Connection Error");
+//		}
+//		catch(Exception e){
+//			return ResponseEntity.badRequest().body(e.getMessage());
+//		}
+//		//Verify if the task was successful
+//		String result="";
+//		if (done.length()>0) {
+//			result+="Completed for: "+done+"\n";
+//			//return a positive response that the task was successful
+//		return ResponseEntity.ok(result);
+//		//If we reach this point, something went wrong, and we need to return a negative response
+//		} else {
+//		//Reaching this decision means the user did not exist in ADOne	
+//		if(failed.length()>0) {
+//			result+="Failed for: "+failed+"\n";}
+//		//Check if any of the variable fields are missing, the decision construct ensures none of the
+//		//parameters are missing before even considering a valid or invalid email
+//		if(invalidEmails.length()>0 & !(invalidTitle.length()<=0 | invalidDescription.length()<=0
+//				| invalidCompletedBy.length()<=0))
+//			result+="Invalid Employee email: "+invalidEmails;}
+//		if(invalidTitle.length()<=0) 
+//			result+= "Invalid title provided - ";
+//		if(invalidDescription.length() <=0 )
+//			result+= "Invalid description provided - ";
+//		if(invalidCompletedBy.length() <=0)
+//			result+= "Invalid date provided - ";
+//		return ResponseEntity.badRequest().body(result);
+//	}
 }
