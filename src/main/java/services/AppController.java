@@ -636,12 +636,16 @@ public class AppController {
 		String result = "Objective Proposed for: ";
 		String errorResult = "Error: ";
 		boolean errorInserting = false;
+		boolean insertAccepted = false;
 		try {
 
 			
 			areInputValuesEmpty(title, description, completedBy);
 			
 			String[] emailAddresses=emails.split(",");
+			if(emailAddresses.length >19){
+				throw new InvalidAttributeValueException("There is a maximum of 20 allowed emails in one request.");
+			}
 			for(int i=0; i<emailAddresses.length; i++){
 				emailAddresses[i]=emailAddresses[i].trim();
 				if(emailAddresses[i].length() < 1){
@@ -663,6 +667,7 @@ public class AppController {
 					obj.setProposedBy(proposedBy);
 					boolean inserted=EmployeeDAO.insertNewObjective(userInQuestion.getEmployeeID(), obj);
 					if(inserted){
+						insertAccepted = true;
 						result+=  userInQuestion.getFullName() +", ";
 					} else{
 						errorInserting = true;
@@ -675,14 +680,17 @@ public class AppController {
 			}
 			
 			if(errorInserting){
+				if(!insertAccepted){ result = ""; }
 				result += errorResult;
 			}
 
 			return ResponseEntity.ok(result);
 			
 		} catch (InvalidAttributeValueException e) {
+			if(!insertAccepted){ result = ""; }
 			return ResponseEntity.badRequest().body(result + e.getMessage()  +", ");
 		} catch (NamingException e) {
+			if(!insertAccepted){ result = ""; }
 			return ResponseEntity.badRequest().body(result + e.getMessage()  +", ");
 		} 
 		
