@@ -18,7 +18,7 @@ public class Application {
 //			EmployeeDAO.insertFeedback();
 			SpringApplication.run(Application.class, args);
 			//Start the EmailService that checks for new emails and add the feedback to a user
-			//IMAPService.initiateIMAPService();
+			IMAPService.initiateIMAPService();
 		} catch (Exception e) {
 			System.err.println("Application Error: "+e.getMessage());
 		}
