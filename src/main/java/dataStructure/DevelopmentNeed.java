@@ -22,12 +22,13 @@ public class DevelopmentNeed implements Serializable{
 
 	private static final long serialVersionUID = -5067508122602507151L;
 	//Global Variables
-	private int id, category;
+	private int id, progress, category;
 	private String title, description, timeStamp, timeToCompleteBy;
 
 	//Empty Constructor
 	public DevelopmentNeed(){
 		this.id=Constants.INVALID_INT;
+		this.progress=Constants.INVALID_INT;
 		this.category=Constants.INVALID_INT;
 		this.title=Constants.INVALID_STRING;
 		this.description=Constants.INVALID_STRING;
@@ -38,10 +39,12 @@ public class DevelopmentNeed implements Serializable{
 	//Constructor with parameters
 	public DevelopmentNeed(
 			int id,
+			int progress,
 			int cat,
 			String title,
 			String description) throws InvalidAttributeValueException{
 		this.setID(id);
+		this.setProgress(progress);
 		this.setCategory(cat);
 		this.setTitle(title);
 		this.setDescription(description);
@@ -53,11 +56,13 @@ public class DevelopmentNeed implements Serializable{
 	//Constructor with parameters
 	public DevelopmentNeed(
 			int id,
+			int progress,
 			int cat,
 			String title,
 			String description,
 			String completeBy) throws InvalidAttributeValueException{
 		this.setID(id);
+		this.setProgress(progress);
 		this.setCategory(cat);
 		this.setTitle(title);
 		this.setDescription(description);
@@ -79,6 +84,27 @@ public class DevelopmentNeed implements Serializable{
 
 	public int getID(){
 		return this.id;
+	}
+	
+	/**
+	 * 
+	 * @param progress This variable can assume only 4 values:
+	 * -1 => Deleted
+	 *  0 => Proposed
+	 *  1 => Started
+	 *  2 => Completed
+	 */
+	public void setProgress(int progress) throws InvalidAttributeValueException{
+		if(progress>=-0 && progress<=2)
+			this.progress=progress;
+		else{
+			this.progress=Constants.INVALID_INT;
+			throw new InvalidAttributeValueException("The given 'progress' value is not valid in this context");
+		}
+	}
+
+	public int getProgress(){
+		return this.progress;
 	}
 	
 	public void setCategory(int cat) throws InvalidAttributeValueException{
