@@ -51,9 +51,11 @@ public final class Constants {
 	public static final String MAILBOX_ADDRESS="Feedback.UK@soprasteria.com";
 	public static final String MAIL_USERNAME="Feedback.UK@soprasteria.com";
 	public static final String MAIL_PASSWORD="Auto_Map_$459$";
-//	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra:444/owa/";
 	
-	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
+	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
+	
+	//public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/Services.wsdl";
+	//public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
 	public static final long MAIL_REFRESH_TIME=(1*60*1000); //1 minute
 

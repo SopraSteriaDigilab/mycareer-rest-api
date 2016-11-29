@@ -132,15 +132,28 @@ public class ADProfileDAO {
 	}
 
 	private static DirContext getADConnection() throws NamingException{
+		
+		Hashtable<String, String> env = new Hashtable<String, String>();
+		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+		env.put(Context.PROVIDER_URL, "ldap://one.steria.dom:389");
+		//env.put(Context.PROVIDER_URL, "ldap://emea.msad.steria.dom:389");
+		 
+		// The value of Context.SECURITY_PRINCIPAL must be the logon username with the domain name
+		env.put(Context.SECURITY_PRINCIPAL, "svc_mycareer");
+		//env.put(Context.SECURITY_PRINCIPAL, "EMEAAD\\svc_mycareer"+","+Constants.AD_SERVERS);
+		 
+		// The value of the Context.SECURITY_CREDENTIALS should be the user's password
+		env.put(Context.SECURITY_CREDENTIALS, "N9T$SiPSZ");
 
-		Hashtable<String, String> ldapEnv = new Hashtable<String, String>();
-		ldapEnv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		ldapEnv.put(Context.PROVIDER_URL,  Constants.AD_HOST+":"+Constants.AD_PORT);
-		ldapEnv.put(Context.SECURITY_AUTHENTICATION, Constants.AD_AUTHENTICATION);
-		//This is essential in order to retrieve the GUID later on in the process
-		ldapEnv.put("java.naming.ldap.attributes.binary", "objectGUID"); 
-		ldapEnv.put(Context.SECURITY_PRINCIPAL, "cn="+Constants.AD_USERNAME+","+Constants.AD_SERVERS);
-		ldapEnv.put(Context.SECURITY_CREDENTIALS, Constants.AD_PASSWORD);
-		return new InitialDirContext(ldapEnv);
+//		Hashtable<String, String> ldapEnv = new Hashtable<String, String>();
+//		ldapEnv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+//		ldapEnv.put(Context.PROVIDER_URL,  Constants.AD_HOST+":"+Constants.AD_PORT);
+//		ldapEnv.put(Context.SECURITY_AUTHENTICATION, Constants.AD_AUTHENTICATION);
+//		//This is essential in order to retrieve the GUID later on in the process
+//		ldapEnv.put("java.naming.ldap.attributes.binary", "objectGUID"); 
+//		ldapEnv.put(Context.SECURITY_PRINCIPAL, "cn="+Constants.AD_USERNAME+","+Constants.AD_SERVERS);
+//		ldapEnv.put(Context.SECURITY_CREDENTIALS, Constants.AD_PASSWORD);
+		return new InitialDirContext(env);
 	}
 }

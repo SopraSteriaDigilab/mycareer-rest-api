@@ -20,45 +20,31 @@ public class FeedbackRequest implements Serializable {
 
 	private static final long serialVersionUID = 47606158926933500L;
 	//Global Variables
-	private String groupFeedbackID, feedbackID, timeStamp;
-	private List<String> recipientEmails, replierEmails;
-	private String status;
-	
+	private String feedbackID, timeStamp, recipient;
+	private List<Feedback> replies;
+
 	public FeedbackRequest(){
-		this.groupFeedbackID="";
 		this.feedbackID="";
 		this.timeStamp=null;
-		recipientEmails=new ArrayList<String>();
-		replierEmails=new ArrayList<String>();
-		status=Constants.PENDING_FEEDBACK;
+		this.recipient="";
+		replies=new ArrayList<Feedback>();
 	}
 
 	public FeedbackRequest(long id){
 		this.setTimeStamp();
-		this.createGroupID(id);
-		//this.createUniqueID(id);
-		recipientEmails=new ArrayList<String>();
-		replierEmails=new ArrayList<String>();
-		status=Constants.PENDING_FEEDBACK;
-	}
-	
-	public FeedbackRequest(FeedbackRequest req){
-		this.groupFeedbackID=req.getGroupID();
-		this.feedbackID=req.getID();
-		this.timeStamp=req.getTimeStamp();
-		this.recipientEmails=req.getRecipients();
-		this.replierEmails=req.getRepliers();
-		this.status=req.status;
-	}
-	
-	private void createGroupID(long id){
-		LocalDateTime date=LocalDateTime.now();
-		//Remove all the symbols that we don't need
-		String dateS=date.toString().replace("-", "").replace("T", "").replace(":", "").replace(".", "");
-		this.groupFeedbackID=id+"_"+dateS;
+		this.generateID(id);
+		this.recipient="";
+		replies=new ArrayList<Feedback>();
 	}
 
-	public void createUniqueID(long id){
+	public FeedbackRequest(FeedbackRequest req){
+		this.feedbackID=req.getID();
+		this.timeStamp=req.getTimeStamp();
+		this.recipient=req.getRecipient();
+		this.replies=req.getReplies();
+	}
+
+	private void generateID(long id){
 		LocalDateTime date=LocalDateTime.now();
 		//Remove all the symbols that we don't need
 		String dateS=date.toString().replace("-", "").replace("T", "").replace(":", "").replace(".", "");
@@ -68,21 +54,10 @@ public class FeedbackRequest implements Serializable {
 	public String getID(){
 		return this.feedbackID;
 	}
-	
-	public String getGroupID(){
-		return this.groupFeedbackID;
-	}
 
-	private void updateStatus(){
-		if(replierEmails.size()>=recipientEmails.size())
-			this.status=Constants.RECEIVED_ALL_FEEDBACK;
-		else
-			this.status=Constants.PENDING_FEEDBACK;
-	}
-
-	public String getStatus(){
-		return this.status;
-	}
+	//	public String getGroupID(){
+	//		return this.groupFeedbackID;
+	//	}
 
 	/**
 	 * 
@@ -100,72 +75,59 @@ public class FeedbackRequest implements Serializable {
 		return this.timeStamp;
 	}
 
-	public void setRecipients(List<String> data) throws InvalidAttributeValueException{
-		if(data!=null){
-			this.recipientEmails=data;
+	public void setRecipient(String toField) throws InvalidAttributeValueException{
+		if(toField!=null && !toField.equals("")){
+			this.recipient=toField;
 			return;
 		}
-		throw new InvalidAttributeValueException("The given list of people is empty");
+		throw new InvalidAttributeValueException("The given TO Field is Invalid");
 	}
-	
-	public boolean removeRecipient(String user) throws InvalidAttributeValueException{
-		if(user!=null && user.length()>0){
-			if(recipientEmails.contains(user))
-				return recipientEmails.remove(user);
+
+	public String getRecipient(){
+		return this.recipient;
+	}
+
+	public void setReplies(List<Feedback> data) throws InvalidAttributeValueException{
+		if(data!=null){
+			this.replies=data;
+			return;
+		}
+		throw new InvalidAttributeValueException("The given list of Replies is empty");
+	}
+
+	public List<Feedback> getReplies(){
+		return this.replies;
+	}
+
+	public boolean addReply(Feedback reply) throws InvalidAttributeValueException{
+		if(this.replies==null)
+			this.replies=new ArrayList<Feedback>();
+		//Validate the feedback
+		if(reply!=null && reply.isFeedbackValid()){
+			//Check if the element already exists within the user data 
+			if(replies.contains(reply))
+				return false;
+			//If it doesn't exists, add it after updating the feedback ID
+			reply.setID(""+replies.size()+1);
+			return replies.add(reply);
+		}
+		return false;
+	}
+
+	public boolean removeReply(Feedback reply) throws InvalidAttributeValueException{
+		if(reply!=null && reply.isFeedbackValid() && this.replies!=null){
+			for(Feedback t: replies){
+				if(t.getID().equals(reply.getID()))
+					return replies.remove(t);
+			}
 			return false;
 		}
 		else
-			throw new InvalidAttributeValueException("Invalid Recipient");
+			throw new InvalidAttributeValueException("Invalid Reply");
 	}
-
-	public List<String> getRecipients(){
-		return this.recipientEmails;
-	}
-
-	public void setRepliers(List<String> data) throws InvalidAttributeValueException{
-		if(data!=null){
-			this.replierEmails=data;
-			return;
-		}
-		throw new InvalidAttributeValueException("The given list of people is empty");
-	}
-
-	public List<String> getRepliers(){
-		return this.replierEmails;
-	}
-
-	public boolean addRecipient(String email){
-		if(recipientEmails==null)
-			recipientEmails=new ArrayList<String>();
-		//Validate the feedback
-		if(!email.equals("")){
-			if(!recipientEmails.contains(email)){
-				if(recipientEmails.add(email)){
-					updateStatus();
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public boolean addSender(String email){
-		if(replierEmails==null)
-			replierEmails=new ArrayList<String>();
-		//Validate the feedback
-		if(!email.equals("")){
-			if(!replierEmails.contains(email)){
-				if(replierEmails.add(email)){
-					updateStatus();
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public String getRepliesOutOf(){
-		return "("+replierEmails.size()+"/"+recipientEmails.size()+")";
+	
+	public boolean isValid(){
+		return this.feedbackID!=null && !this.feedbackID.equals("") && this.recipient!=null && !this.recipient.equals("");
 	}
 
 	public String toGson(){
@@ -177,16 +139,11 @@ public class FeedbackRequest implements Serializable {
 	public String toString(){
 		String s="";
 		s+="ID "+this.feedbackID+"\n"
-				+ "Group ID: "+this.getGroupID()+"\n"
 				+ "TimeStamp "+this.timeStamp+"\n"
-				+ "Status "+this.status+"\n";
-		s+="Recipients:\n";
-		for(String temp: this.recipientEmails){
-			s+=temp;
-		}
-		s+="Repliers:\n";
-		for(String temp: this.replierEmails){
-			s+=temp;
+				+ "Recipient:"+this.getRecipient()+"\n";
+		s+="Replies:\n";
+		for(Feedback temp: this.replies){
+			s+=temp.toString();
 		}
 		return s;
 	}
