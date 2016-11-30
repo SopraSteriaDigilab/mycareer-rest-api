@@ -481,11 +481,11 @@ public class AppController {
 	 * @param employeeID the employee ID
 	 * @return all the feedback requests created by the given user
 	 */
-	@RequestMapping(value="/getFeedbackRequests/{employeeID}", method=RequestMethod.GET)
-	public ResponseEntity<?> getFeedbackRequests(
+	@RequestMapping(value="/getRequestedFeedback/{employeeID}", method=RequestMethod.GET)
+	public ResponseEntity<?> getGroupFeedbackRequests(
 			@PathVariable("employeeID") long employeeID){
 		try{
-			return ResponseEntity.ok(EmployeeDAO.getFeedbackRequestsForUser(employeeID));
+			return ResponseEntity.ok(EmployeeDAO.getGroupFeedbackRequestsForUser(employeeID));
 		}
 		catch(MongoException me){
 			return ResponseEntity.badRequest().body("DataBase Connection Error");
@@ -539,8 +539,9 @@ public class AppController {
 			}
 		} catch (InvalidAttributeValueException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
-		} catch (NamingException e) {
-			return ResponseEntity.badRequest().body("AD Connection Error");
+		} catch (NamingException e){
+//			return ResponseEntity.badRequest().body("AD Connection Error");
+			return ResponseEntity.badRequest().body(e.toString());
 		}	
 	}
 	

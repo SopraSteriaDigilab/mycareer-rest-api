@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import javax.activity.InvalidActivityException;
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
@@ -40,7 +42,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	@Embedded
 	private List<List<DevelopmentNeed>> developmentNeeds;
 	@Embedded
-	private List<FeedbackRequest> feedbackRequests;
+	private List<GroupFeedbackRequest> groupFeedbackRequests;
 	@Embedded
 	private List<List<Competency>> competencies;
 
@@ -51,7 +53,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		this.objectives=new ArrayList<List<Objective>>();
 		this.notes=new ArrayList<List<Note>>();
 		this.developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
-		this.feedbackRequests=new ArrayList<FeedbackRequest>();
+		this.groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
 		this.competencies=new ArrayList<List<Competency>>();
 	}
 
@@ -70,7 +72,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			List<List<Objective>> objectives,
 			List<List<Note>> notes,
 			List<List<DevelopmentNeed>> needs,
-			List<FeedbackRequest> requests,
+			List<GroupFeedbackRequest> requests,
 			List<List<Competency>> competencies,
 			List<String> reportees) throws InvalidAttributeValueException, InvalidClassException{
 		super(employeeID, guid, name, surname,email,username,company,team,isManager);
@@ -78,7 +80,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		this.setObjectiveList(objectives);
 		this.setNoteList(notes);
 		this.setDevelopmentNeedsList(needs);
-		this.setFeedbackRequestsList(requests);
+		this.setGroupFeedbackRequestsList(requests);
 		this.setCompetenciesList(competencies);
 	}
 
@@ -96,7 +98,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		this.objectives=new ArrayList<List<Objective>>();
 		this.notes=new ArrayList<List<Note>>();
 		this.developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
-		this.feedbackRequests=new ArrayList<FeedbackRequest>();
+		this.groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
 		this.competencies=new ArrayList<List<Competency>>();
 	}
 
@@ -402,16 +404,16 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * @param data the list of feedback request object
 	 * @throws InvalidAttributeValueException
 	 */
-	public void setFeedbackRequestsList(List<FeedbackRequest> data) throws InvalidAttributeValueException{
+	public void setGroupFeedbackRequestsList(List<GroupFeedbackRequest> data) throws InvalidAttributeValueException{
 		if(data!=null){
 			//Counter that keeps tracks of the error while adding elements
 			int errorCounter=0;
-			this.feedbackRequests=new ArrayList<FeedbackRequest>();
+			this.groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
 			//Verify if each development need is valid
 			for(int i=0; i<data.size(); i++){
 				//Add a new List to the list of developmentNeeds
 				if(data.get(i)!=null){
-					if(!feedbackRequests.add(data.get(i)))
+					if(!groupFeedbackRequests.add(data.get(i)))
 						errorCounter++;
 				}
 			}
@@ -420,7 +422,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				throw new InvalidAttributeValueException("Not all feedback requests were valid");
 		}
 		else{
-			this.feedbackRequests=null;
+			this.groupFeedbackRequests=null;
 			//throw new InvalidAttributeValueException("The list of feedback given is null");
 		}
 	}
@@ -431,8 +433,8 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @return
 	 */
-	public List<FeedbackRequest> getFeedbackRequestsList(){
-		return this.feedbackRequests;
+	public List<GroupFeedbackRequest> getGroupFeedbackRequestsList(){
+		return this.groupFeedbackRequests;
 	}
 
 	/**
@@ -441,15 +443,26 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @param id
 	 * @return
+	 * @throws InvalidActivityException 
 	 */
-	public FeedbackRequest getSpecificFeedbackRequest(String id){
+	public FeedbackRequest getSpecificFeedbackRequestFromGroupFBRequests(String id) throws InvalidActivityException{
 		if(id!=null && !id.equals("")){
 			//			return feedbackRequests.stream()
 			//			.filter(t -> t.getID().equals(id))
 			//			.findFirst().get();
-			for(int i=0; i<feedbackRequests.size(); i++){
-				if(feedbackRequests.get(i).getID().equals(id))
-					return feedbackRequests.get(i);
+			for(int i=0; i<groupFeedbackRequests.size(); i++){
+				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(id) != null)
+					return groupFeedbackRequests.get(i).searchFeedbackRequestID(id);
+			}
+		}
+		return null;
+	}
+	
+	public GroupFeedbackRequest getSpecificGroupFeedbackRequest(String id) throws InvalidActivityException{
+		if(id!=null && !id.equals("")){
+			for(int i=0; i<groupFeedbackRequests.size(); i++){
+				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(id) != null)
+					return groupFeedbackRequests.get(i);
 			}
 		}
 		return null;
@@ -621,9 +634,9 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}
 		}
 		//Add the Feedback requests
-		s+="Feedback Requests:\n";
+		s+="Group Feedback Requests:\n";
 		counter=1;
-		for(FeedbackRequest t:feedbackRequests){
+		for(GroupFeedbackRequest t:groupFeedbackRequests){
 			s+="Request "+counter++ +"\n";
 			s+=t.toString();
 		}
@@ -662,7 +675,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		if(obj==null)
 			return false;
 		//At this point the Feedback hasn't got an ID, let's create it
-		obj.setID(feedback.size()+1);
+		obj.setID(""+(feedback.size()+1));
 		if(obj.isFeedbackValid())
 			return feedback.add(obj);
 		return false;
@@ -685,7 +698,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			//If the appropriate objective is found, add the feedback to its list
 			if(this.objectives.get(i).get(0).getID()==objectiveID){
 				//Now that the related objective is found, create an ID for this feedback
-				obj.setID(this.objectives.get(i).size()+1);
+				obj.setID(""+this.objectives.get(i).size()+1);
 				//Validate the data
 				if(obj.isFeedbackValid())
 					//Try to add the new feedback
@@ -860,14 +873,14 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * @param obj the feedback request object to insert
 	 * @return true if it completes correctly, false otherwise
 	 */
-	public boolean addFeedbackRequest(FeedbackRequest obj){
-		if(feedbackRequests==null)
-			feedbackRequests=new ArrayList<FeedbackRequest>();
+	public boolean addGroupFeedbackRequest(GroupFeedbackRequest obj){
+		if(groupFeedbackRequests==null)
+			groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
 		//Verify that the object is not null
 		if(obj==null)
 			return false;
 		//The object has now been validated and can be added to the list for this user
-		return feedbackRequests.add(obj);
+		return groupFeedbackRequests.add(obj);
 	}
 
 	/**
@@ -877,12 +890,12 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * @param obj the new feedback request object containing the right ID
 	 * @return true if it completes correctly, false otherwise
 	 */
-	public boolean updateFeedbackRequest(FeedbackRequest obj){
+	public boolean updateGroupFeedbackRequest(GroupFeedbackRequest obj){
 		if(obj!=null){
-			for(int i=0; i<feedbackRequests.size(); i++){
-				if(feedbackRequests.get(i).getID().equals(obj.getID())){
+			for(int i=0; i<groupFeedbackRequests.size(); i++){
+				if(groupFeedbackRequests.get(i).getID().equals(obj.getID())){
 					//Remove the obsolete object and add the new one
-					return (feedbackRequests.remove(feedbackRequests.get(i))) && (feedbackRequests.add(obj));
+					return (groupFeedbackRequests.remove(groupFeedbackRequests.get(i))) && (groupFeedbackRequests.add(obj));
 				}
 			}
 		}
@@ -896,8 +909,8 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * @param req the feedback request object
 	 * @return true if it completes correctly, false otherwise
 	 */
-	public boolean isFeedbackRequestUniqueToEmployee(FeedbackRequest req){
-		for(FeedbackRequest t:feedbackRequests){
+	public boolean isGroupFeedbackRequestUniqueToEmployee(GroupFeedbackRequest req){
+		for(GroupFeedbackRequest t:groupFeedbackRequests){
 			if(t.getID().equals(req.getID()))
 				return false;
 		}
@@ -952,9 +965,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				return ym1.isBefore(ym2) ? -1 : 1;
 			}
 
-		});
-		
-		
+		});	
 	}
 
 	/**
