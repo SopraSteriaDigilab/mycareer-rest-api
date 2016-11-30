@@ -3,6 +3,8 @@ package functionalities;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.activity.InvalidActivityException;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import org.mongodb.morphia.Datastore;
@@ -20,6 +22,7 @@ import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
+import dataStructure.GroupFeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 
@@ -37,14 +40,6 @@ public  class EmployeeDAO {
 
 	//There is only 1 instance of the Datastore in the whole system
 	private static Datastore dbConnection=null;
-	
-//	public static boolean insertFeedback() throws InvalidAttributeValueException, MongoException {
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
-//		Feedback f1 = new Feedback(0, "Ben Cassidy", "Creating this to test the filter date.", "internal", "E-mail");
-//		return insertNewGeneralFeedback(675590, f1);
-//		
-//	}
 
 	public static String getFullNameUser(long employeeID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
@@ -117,14 +112,14 @@ public  class EmployeeDAO {
 		return e.getLatestVersionDevelopmentNeeds();
 	}
 
-	public static List<FeedbackRequest> getFeedbackRequestsForUser(long employeeID) throws InvalidAttributeValueException{
+	public static List<GroupFeedbackRequest> getGroupFeedbackRequestsForUser(long employeeID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
 		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 		if(query.get()==null)
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
-		return e.getFeedbackRequestsList();
+		return e.getGroupFeedbackRequestsList();
 	}
 
 	public static String getUserFullNmeFromUserID(long employeeID) throws InvalidAttributeValueException{
@@ -495,26 +490,57 @@ public  class EmployeeDAO {
 		return false;
 	}
 
-	public static boolean insertNewFeedbackRequest(long employeeID, Object data) throws InvalidAttributeValueException, MongoException{
+	//	public static boolean insertNewFeedbackRequest(long employeeID, Object data) throws InvalidAttributeValueException, MongoException{
+	//		if(dbConnection==null)
+	//			dbConnection=getMongoDBConnection();
+	//		//Check the employeeID
+	//		if(employeeID>0){
+	//			if(data!=null && data instanceof FeedbackRequest){
+	//				//Retrieve Employee with the given ID
+	//				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+	//				if(querySearch.get()!=null){
+	//					Employee e = querySearch.get();
+	//					//Add the new FeedbackRequest to the list
+	//					if(e.addFeedbackRequest((FeedbackRequest)data)){
+	//						//Update the List<FeedbackRequest> in the DB passing the new list
+	//						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", e.getFeedbackRequestsList());
+	//						//Commit the changes to the DB
+	//						dbConnection.update(querySearch, ops);
+	//						return true;
+	//					}
+	//					else
+	//						throw new InvalidAttributeValueException("The given object couldn't be added to the feeback request list");
+	//				}
+	//				else
+	//					throw new InvalidAttributeValueException("No employee found with the ID provided");
+	//			}
+	//			else
+	//				throw new InvalidAttributeValueException("The data provided is not valid");
+	//		}
+	//		else
+	//			throw new InvalidAttributeValueException("The ID provided is not valid");
+	//	}
+
+	public static boolean insertNewGroupFeedbackRequest(long employeeID, Object data) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
 		//Check the employeeID
 		if(employeeID>0){
-			if(data!=null && data instanceof FeedbackRequest){
+			if(data!=null && data instanceof GroupFeedbackRequest){
 				//Retrieve Employee with the given ID
 				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 				if(querySearch.get()!=null){
 					Employee e = querySearch.get();
 					//Add the new FeedbackRequest to the list
-					if(e.addFeedbackRequest((FeedbackRequest)data)){
+					if(e.addGroupFeedbackRequest((GroupFeedbackRequest)data)){
 						//Update the List<FeedbackRequest> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", e.getFeedbackRequestsList());
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", e.getGroupFeedbackRequestsList());
 						//Commit the changes to the DB
 						dbConnection.update(querySearch, ops);
 						return true;
 					}
 					else
-						throw new InvalidAttributeValueException("The given object couldn't be added to the feeback request list");
+						throw new InvalidAttributeValueException("The given object couldn't be added to the group feeback request list");
 				}
 				else
 					throw new InvalidAttributeValueException("No employee found with the ID provided");
@@ -526,53 +552,53 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("The ID provided is not valid");
 	}
 
-	public static boolean updateFeedbackRequest(long employeeID, int feedbackReqID, Object data) throws InvalidAttributeValueException{
-		if(dbConnection==null)
-			dbConnection=getMongoDBConnection();
-		//Check EmployeeID and feedbackReqID
-		if(employeeID>0 && feedbackReqID>0){
-			if(data!=null && data instanceof FeedbackRequest){
-				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-				if(querySearch.get()!=null){
-					Employee e = querySearch.get();
-					//Extract its List of feedback Requests
-					List<FeedbackRequest> requestsList=e.getFeedbackRequestsList();
-					//Search for the objective Id within the list of notes
-					int indexFeedReqList=-1;
-					for(int i=0; i<requestsList.size(); i++){
-						//Save the index of the list when the noteID is found
-						if(requestsList.get(i).getID().equals(feedbackReqID)){
-							indexFeedReqList=i;
-							//Exit the for loop once the value has been found
-							break;
-						}
-					}
-					//verify that the index variable has changed its value
-					if(indexFeedReqList!=-1){ 
-						//Add the updated version of the note
-						if(e.updateFeedbackRequest((FeedbackRequest)data)){
-							//Update the List<List<Note>> in the DB passing the new list
-							UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", e.getFeedbackRequestsList());
-							//Commit the changes to the DB
-							dbConnection.update(querySearch, ops);
-							return true;
-						}
-					}
-					//if the index hasn't changed its value it means that there is no feedback request with such ID, therefore throw and exception
-					else
-						throw new InvalidAttributeValueException("The given ID associated with the feedback request is invalid");
-				}
-				else
-					throw new InvalidAttributeValueException("No employee found with the ID provided");
-			}
-			else
-				throw new InvalidAttributeValueException("The data provided is not valid");
-		}
-		else
-			throw new InvalidAttributeValueException("The given EmployeeID or feedbackReqID are invalid");
-		return false;
-	}
+	//	public static boolean updateFeedbackRequest(long employeeID, int feedbackReqID, Object data) throws InvalidAttributeValueException{
+	//		if(dbConnection==null)
+	//			dbConnection=getMongoDBConnection();
+	//		//Check EmployeeID and feedbackReqID
+	//		if(employeeID>0 && feedbackReqID>0){
+	//			if(data!=null && data instanceof FeedbackRequest){
+	//				//Retrieve Employee with the given ID
+	//				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+	//				if(querySearch.get()!=null){
+	//					Employee e = querySearch.get();
+	//					//Extract its List of feedback Requests
+	//					List<FeedbackRequest> requestsList=e.getFeedbackRequestsList();
+	//					//Search for the objective Id within the list of notes
+	//					int indexFeedReqList=-1;
+	//					for(int i=0; i<requestsList.size(); i++){
+	//						//Save the index of the list when the noteID is found
+	//						if(requestsList.get(i).getID().equals(feedbackReqID)){
+	//							indexFeedReqList=i;
+	//							//Exit the for loop once the value has been found
+	//							break;
+	//						}
+	//					}
+	//					//verify that the index variable has changed its value
+	//					if(indexFeedReqList!=-1){ 
+	//						//Add the updated version of the note
+	//						if(e.updateFeedbackRequest((FeedbackRequest)data)){
+	//							//Update the List<List<Note>> in the DB passing the new list
+	//							UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", e.getFeedbackRequestsList());
+	//							//Commit the changes to the DB
+	//							dbConnection.update(querySearch, ops);
+	//							return true;
+	//						}
+	//					}
+	//					//if the index hasn't changed its value it means that there is no feedback request with such ID, therefore throw and exception
+	//					else
+	//						throw new InvalidAttributeValueException("The given ID associated with the feedback request is invalid");
+	//				}
+	//				else
+	//					throw new InvalidAttributeValueException("No employee found with the ID provided");
+	//			}
+	//			else
+	//				throw new InvalidAttributeValueException("The data provided is not valid");
+	//		}
+	//		else
+	//			throw new InvalidAttributeValueException("The given EmployeeID or feedbackReqID are invalid");
+	//		return false;
+	//	}
 
 	/*
 //	public static void insertTempData(){
@@ -637,7 +663,7 @@ public  class EmployeeDAO {
 	//		}
 	//	}
 
-	public static boolean validateFeedbackRequestID(long employeeID, String id) throws InvalidAttributeValueException{
+	public static boolean validateGroupFeedbackRequestID(long employeeID, String id) throws InvalidAttributeValueException{
 		if(employeeID>0 && !id.equals("")){
 			if(dbConnection==null)
 				dbConnection=getMongoDBConnection();
@@ -646,9 +672,9 @@ public  class EmployeeDAO {
 			if(querySearch.get()!=null){
 				Employee e = querySearch.get();
 				//Extract its List of notes
-				List<FeedbackRequest> requests=e.getFeedbackRequestsList();
+				List<GroupFeedbackRequest> requests=e.getGroupFeedbackRequestsList();
 				//Check if the feedbackID is already contained within the system
-				for(FeedbackRequest f: requests){
+				for(GroupFeedbackRequest f: requests){
 					if(f.getID().equals(id))
 						return false;
 				}
@@ -740,7 +766,7 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("The data provided is not valid");
 	}
 
-	public static boolean linkFeedbackReqReplyToUser(String requester, Feedback data) throws InvalidAttributeValueException, NamingException{
+	public static boolean linkFeedbackReqReplyToUserGroupFBReq(String requester, String fbReqID, Feedback data) throws InvalidAttributeValueException, NamingException, InvalidActivityException{
 		if(data!=null && data.isFeedbackValid()){
 			//Establish a connection with the DB
 			if(dbConnection==null)
@@ -753,28 +779,39 @@ public  class EmployeeDAO {
 			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", basicProfile.getEmployeeID());
 			if(querySearch.get()!=null){
 				Employee e = querySearch.get();
-				//Update the feedbackRequest element
-				FeedbackRequest feedbackReqUpdated=e.getSpecificFeedbackRequest(data.getRequestID().trim());
-				if(feedbackReqUpdated!=null){
-					feedbackReqUpdated.addSender(data.getFromWho());
-					boolean res1=e.updateFeedbackRequest(feedbackReqUpdated);
-					//If the feedback request couldn't be found within the user data, add it
-					if(res1==false)
-						e.addFeedbackRequest(feedbackReqUpdated);
+				//Retrieve specific GRoupFeedbackRequest object from user data
+				GroupFeedbackRequest groupFBReq=e.getSpecificGroupFeedbackRequest(fbReqID.trim());
+				//Verify that something has been returned, if so, we have the feedback request object, let's add the feedback to it
+				boolean flag=false;
+				if(groupFBReq!=null){
+					flag=true;
+					FeedbackRequest feedbackReqUpdated=e.getSpecificFeedbackRequestFromGroupFBRequests(fbReqID.trim());
+					//Add the feedback to the current feedback request object 
+					boolean res1=feedbackReqUpdated.addReply(data);
+					//Update the feedback request object inside the group feedback request object
+					boolean res2=groupFBReq.updateFeedbackRequest(feedbackReqUpdated);
+					boolean res3=e.updateGroupFeedbackRequest(groupFBReq);
+					//Verify if the operations have been completed successfully
+					if(!res1 || !res2 || !res3)
+						//Set the flag to false, since there has been a problem trying to link the feedback to a feedback request.
+						//This will allow the system to save the feedback as a general feedback instead
+						flag=false;
+					else{
+						//Update the data in the DB
+						UpdateOperations<Employee> ops2 = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", e.getGroupFeedbackRequestsList());
+						//Commit the changes to the DB
+						dbConnection.update(querySearch, ops2);
+					}
 				}
-				else{
-					data.setRequestID("");
+
+				if(!flag){
+					//Add the general feedback to the user
+					e.addGenericFeedback(data);
+
+					//Update the user data in the DB
+					UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getFeedbackList());
+					dbConnection.update(querySearch, ops1);
 				}
-				//Add the feedback to the user
-				e.addGenericFeedback(data);
-
-				//Update the data in the DB
-				UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", e.getFeedbackRequestsList());
-				UpdateOperations<Employee> ops2 = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getFeedbackList());
-				//Commit the changes to the DB
-				dbConnection.update(querySearch, ops1);
-				dbConnection.update(querySearch, ops2);
-
 				return true;
 			}
 			//Since we use the authenticateUSerProfile method, the system will never go in the else statement
@@ -786,61 +823,26 @@ public  class EmployeeDAO {
 		return false;
 	}
 
-	public static boolean removeEmailAddressFromFeedbackReq(String email, String reqID, String addressToRemove) throws InvalidAttributeValueException{
-		if(email.length()<0 || reqID.length()<0)
-			throw new InvalidAttributeValueException("The email adress provided or the request ID are invalid");
-		//Establish a connection with the DB
-		if(dbConnection==null)
-			dbConnection=getMongoDBConnection();
-		//Get the user from the DB
-		Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("emailAddress =", email);
-		if(querySearch.get()!=null){
-			Employee e = querySearch.get();
-			FeedbackRequest requestObj=e.getSpecificFeedbackRequest(reqID);
-			if(requestObj!=null){
-				return requestObj.removeRecipient(addressToRemove);
-			}
-			throw new InvalidAttributeValueException("No feedback request matched the given ID");
-		}
-		else{
-			throw new InvalidAttributeValueException("No user with such email address has been found in the DB");
-		}
-	}
-
-//	public static Employee checkUserEmailProposedObjective (String email) throws InvalidAttributeValueException, NamingException {
-//
-//		//Create ADProfile_Basic Object to enable authentication of User Email
-//		ADProfile_Basic user = new ADProfile_Basic();
-//
-//		//Try catch Statement to verify if the user exists in ADOne - if they exist, the catch statement will be skipped
-//
-//		try {
-//			user = ADProfileDAO.authenticateUserProfile(email);
-//
-//		} catch (InvalidAttributeValueException e) {
-//
-//			ADProfile_Advanced user2 = (ADProfile_Advanced) user;
-//
-//			EmployeeDAO.matchADWithMongoData(user2);
-//
-//			Employee finalUser = new Employee();
-//
-//			return finalUser;
-//
-//		}//catch
-//
-//		ADProfile_Advanced user2 = (ADProfile_Advanced) user;
-//
-//		EmployeeDAO.matchADWithMongoData(user2);
-//
-//		Employee finalUser = new Employee();
-//
-//		finalUser = (Employee) user2;
-//
-//		return (Employee) user2;
-//
-//
-//	}//checkUserEmailProposedObjective
+//	public static boolean removeEmailAddressFromFeedbackReq(String email, String reqID, String addressToRemove) throws InvalidAttributeValueException{
+//		if(email.length()<0 || reqID.length()<0)
+//			throw new InvalidAttributeValueException("The email address provided or the request ID are invalid");
+//		//Establish a connection with the DB
+//		if(dbConnection==null)
+//			dbConnection=getMongoDBConnection();
+//		//Get the user from the DB
+//		Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("emailAddress =", email);
+//		if(querySearch.get()!=null){
+//			Employee e = querySearch.get();
+//			FeedbackRequest requestObj=e.getSpecificGroupFeedbackRequest(reqID);
+//			if(requestObj!=null){
+//				return requestObj.removeRecipient(addressToRemove);
+//			}
+//			throw new InvalidAttributeValueException("No feedback request matched the given ID");
+//		}
+//		else{
+//			throw new InvalidAttributeValueException("No user with such email address has been found in the DB");
+//		}
+//	}
 
 	private static Datastore getMongoDBConnection() throws MongoException{
 		if(dbConnection==null){

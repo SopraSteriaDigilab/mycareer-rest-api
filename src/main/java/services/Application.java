@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import emailServices.IMAPService;
-import functionalities.EmployeeDAO;
 
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 public class Application {
@@ -15,7 +14,6 @@ public class Application {
     	System.out.println("MyCareer is booting... It won't take a while!");
 		try {
 			//Start the Restful WebService
-//			EmployeeDAO.insertFeedback();
 			SpringApplication.run(Application.class, args);
 			//Start the EmailService that checks for new emails and add the feedback to a user
 			//IMAPService.initiateIMAPService();

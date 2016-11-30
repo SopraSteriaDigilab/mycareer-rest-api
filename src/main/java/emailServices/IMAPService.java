@@ -125,6 +125,17 @@ public final class IMAPService {
 				//Check if the subject contains the word "undelivered" which means that an address was invalid,
 				//therefore it must be removed from the feedback request object of the user]
 				String subjectEmailCheck=openNotReadEmail.getSubject();
+				
+				
+				//Email with empty subject
+				
+				if(subjectEmailCheck==null){
+					System.out.println("\t"+LocalTime.now()+" - Irrelevant Email found, No Subject,  Moved to DRAFTS");
+					openNotReadEmail.move(WellKnownFolderName.Drafts);
+					continue;
+				}
+				
+				
 				if(subjectEmailCheck.toLowerCase().contains("undeliverable") || subjectEmailCheck.toLowerCase().contains("undelivered")){
 					//Remove email address from senders inside feedback request obj
 					String requestIDSetInSubject1=retrieveRequestID(openNotReadEmail);
@@ -162,12 +173,16 @@ public final class IMAPService {
 					else
 						type="External";
 					//Get the body of the email extracting only the necessary parts
-					String bodyEmail=extractReplyToFeedbackRequest(openNotReadEmail);
+					String bodyEmail=extractReplyToFeedbackRequest(openNotReadEmail).trim();
 					bodyEmail=cleanEmailBody(bodyEmail).trim();
+					if(bodyEmail.length()<3){
+						System.out.println("\t"+LocalTime.now()+" - Irrelevant Email found, empty body,  Moved to DRAFTS");
+						openNotReadEmail.move(WellKnownFolderName.Drafts);
+						continue;
+					}
+					
 					//Create an Feedback Object					
-					Feedback feedbackObj=new Feedback(1,fromFieldEmail.getAddress(),bodyEmail,type,"Email");
-					//Add the request id to the feedback object
-					feedbackObj.setRequestID(requestIDSetInSubject);
+					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),bodyEmail,type,"Email");
 					//Add the whole email body to the feedback
 					feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
 
@@ -189,17 +204,9 @@ public final class IMAPService {
 						//Interrupt the flow for this email and move on to the next one
 						continue;
 					}
-					//Verify if the fromField is the same as the user found in the system
-//					if(fromFieldEmail.getAddress().equalsIgnoreCase(emailEmployee)){
-//						System.out.println("\t"+LocalTime.now()+" - Invalid Employee, Users are not allowed to send a feedback to themselves");
-//						//Move the current email to a folder the system admin will deal with it
-//						openNotReadEmail.setIsRead(true);
-//						openNotReadEmail.move(WellKnownFolderName.Drafts);
-//						//Interrupt the flow and skip to the next email
-//						continue;
-//					}
+
 					//Now that we have all the details, pass this data to the EmployeeDAO which will try to link the feedback to the user
-					boolean res=EmployeeDAO.linkFeedbackReqReplyToUser(emailEmployee, feedbackObj);
+					boolean res=EmployeeDAO.linkFeedbackReqReplyToUserGroupFBReq(emailEmployee, requestIDSetInSubject, feedbackObj);
 					//If the task has been completed successfully, set the email as read and move it to the Journal Folder
 					if(res){
 						openNotReadEmail.setIsRead(true);
@@ -222,7 +229,6 @@ public final class IMAPService {
 						openNotReadEmail.move(WellKnownFolderName.Drafts);
 						contactUserViaEmail(Constants.MAILBOX_ADDRESS,"Adding feedback error", "Error while linking the feedback request response: \n\n"+feedbackObj.toString());
 					}
-
 				}
 				
 				
@@ -231,46 +237,60 @@ public final class IMAPService {
 				
 				//If it doesn't exist, it's a unrequested feedback
 				else{
-					//Check if the subject contains the word "General feedback" or variants of this string
-					String subjectEmail=openNotReadEmail.getSubject().toLowerCase();
-					if(subjectEmail.contains("general feedback")){
+					//String subjectEmail=openNotReadEmail.getSubject().toLowerCase();
+					//Get the TO field && remove the mycarer.feedback email address if it's there by mistake
+					List<EmailAddress> toElements=openNotReadEmail.getToRecipients().getItems();
+					for(EmailAddress toElem:toElements){
+						//Remove the mycareer.feedback address if added in the TO field
+						if(toElem.getAddress().equalsIgnoreCase(Constants.MAILBOX_ADDRESS)){
+							toElements.remove(toElem);
+						}
+					}
+					
+					//Get the Sender of the email
+					EmailAddress fromFieldEmail=openNotReadEmail.getFrom();
+					
+					if(toElements.size()<0){
+						//No user in the CC field, impossible to find employee/s
+						System.out.println("\t"+LocalTime.now()+" - No user can be linked to this feedback");
+						
+						//Send error message to feedback provider
+//						{
+//							String bodyError="Hi,\nThank you for your feedback, unfortunately the system could not find any valid employees to associate your feedback to.\n"
+//									+ "When sending a feedback to one or more employees, please add their email addresses into the CC field and NOT inside the TO field.\n\nRegards,\nThe MyCareer Team";
+//							contactUserViaEmail(fromFieldEmail.getAddress(), "Feedback Error", bodyError);
+//						}
+						
+						System.out.println("\t"+LocalTime.now()+" - Irrelevant Email found, Moved to DRAFTS");
+						//It is an irrelevant email to the system, move it to another folder so that
+						//the system admin can manage them separately
+						openNotReadEmail.move(WellKnownFolderName.Drafts);
+						
+						//Interrupt the flow and move to to the next email
+						continue;
+					}
+					
+					
+					else{
 						System.out.println("\t"+LocalTime.now()+" - General Feedback found...");
 						//If the email enters this portion of code, this is a unrequested feedback
-						//Get the Sender of the email
-						EmailAddress fromFieldEmail=openNotReadEmail.getFrom();
+						
 						//The email is internal the company if the email address contains @soprasteria.com
 						String type="";
 						if(fromFieldEmail.toString().contains("@soprasteria.com"))
 							type="Internal";
 						else
 							type="External";
-						//Get the TO field && remove the mycarer.feedback email address if it's there by mistake
-						List<EmailAddress> toElements=openNotReadEmail.getToRecipients().getItems();
-						for(EmailAddress toElem:toElements){
-							//Remove the mycareer.feedback address if added in the TO field
-							if(toElem.getAddress().equalsIgnoreCase(Constants.MAILBOX_ADDRESS)){
-								toElements.remove(toElem);
-							}
-//							//Remove the user email address if found
-//							if(ccElem.getAddress().equalsIgnoreCase(fromFieldEmail.getAddress())){
-//								ccElements.remove(ccElem);
-//							}
+						
+						String cleanBodyEmail=cleanEmailBody(openNotReadEmail.getBody().toString()).trim();
+						if(cleanBodyEmail.length()<3){
+							System.out.println("\t"+LocalTime.now()+" - Irrelevant Email found, empty body,  Moved to DRAFTS");
+							openNotReadEmail.move(WellKnownFolderName.Drafts);
+							continue;
 						}
 
 						//Search for employee/s to link this feedback to
-						if(toElements.size()<0){
-							//No user in the CC field, impossible to find employee/s
-							System.out.println("\t"+LocalTime.now()+" - No user can be linked to this feedback");
-							
-							//Send error message to feedback provider
-							{
-								String bodyError="Hi,\nThank you for your feedback, unfortunately the system could not find any valid employees to associate your feedback to.\n"
-										+ "When sending a feedback to one or more employees, please add their email addresses into the CC field and NOT inside the TO field.\n\nRegards,\nThe MyCareer Team";
-								contactUserViaEmail(fromFieldEmail.getAddress(), "Feedback Error", bodyError);
-							}
-							//Interrupt the flow and move to to the next email
-							continue;
-						}
+						
 						//For each employee found in the TO field,
 						//Create the feedback object and add it to the user data
 						List<String> successfullyAdded=new ArrayList<>();
@@ -279,8 +299,9 @@ public final class IMAPService {
 							try{
 								ADProfile_Basic userFound=ADProfileDAO.authenticateUserProfile(toElem.getAddress());
 								//Remove unnecessary part of the email body
-								String cleanBodyEmail=cleanEmailBody(openNotReadEmail.getBody().toString());
-								Feedback feedbackObj=new Feedback(0,fromFieldEmail.getAddress(),cleanBodyEmail,type,"Email");
+								
+								cleanBodyEmail=cleanEmailBody(openNotReadEmail.getBody().toString());
+								Feedback feedbackObj=new Feedback("",fromFieldEmail.getAddress(),cleanBodyEmail,type,"Email");
 								//Add the full email body
 								feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
 								//Attach the feedback to the User on the Database
@@ -318,12 +339,6 @@ public final class IMAPService {
 
 						//Praise feedback provider
 						praiseFeedbackProvider(fromFieldEmail, successfullyAdded, unsuccessfullyAdded);
-					}
-					else{
-						System.out.println("\t"+LocalTime.now()+" - Irrelevant Email found, Moved to DRAFTS");
-						//It is an irrelevant email to the system, move it to another folder so that
-						//the system admin can manage them separately
-						openNotReadEmail.move(WellKnownFolderName.Drafts);
 					}
 				}
 			}

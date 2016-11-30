@@ -20,98 +20,77 @@ public class Feedback implements Serializable{
 
 	private static final long serialVersionUID = -3137541299399492965L;
 	//Global Variables
-	private int id, performance;
-	private String fromWho, description, type, source, emailBody, timeStamp, requestID;
+	private String id, fromWho, description, type, source, emailBody, timeStamp;
 
 	//Empty Constructor
 	public Feedback(){
-		this.id=Constants.INVALID_INT;
-		this.performance=Constants.INVALID_INT;
+		this.id="";
 		this.fromWho="";
 		this.description="";
 		this.type="";
 		this.source="";
-		timeStamp=null;
-		this.requestID="";
+		this.timeStamp=null;
 		this.emailBody="";
 	}
 
 	//Constructor with parameters
 	public Feedback(
-			int id, 
-			int perf, 
+			String id,
 			String from, 
 			String desc, 
 			String type, 
 			String source) throws InvalidAttributeValueException{
 		this.setID(id);
-		this.setPerformance(perf);
 		this.setFromWho(from);
 		this.setDescription(desc);
 		this.setType(type);
 		this.setSource(source);
 		this.timeStamp=null;
 		this.setTimeStamp();
-		this.requestID="";
 		this.emailBody="";
 	}
 
 	//Constructor with parameters
 	public Feedback(
-			int perf, 
 			String from, 
 			String desc, 
 			String type, 
 			String source) throws InvalidAttributeValueException{
-		this.setPerformance(perf);
+		this.id="";
 		this.setFromWho(from);
 		this.setDescription(desc);
 		this.setType(type);
 		this.setSource(source);
 		this.timeStamp=null;
 		this.setTimeStamp();
-		requestID="";
 		this.emailBody="";
 	}
 
-	public void setID(int id) throws InvalidAttributeValueException{
-		if(id>0)
+	public void setID(String id) throws InvalidAttributeValueException{
+		if(id!=null)
 			this.id=id;
 		else{
-			this.id=Constants.INVALID_INT;
+			this.id=Constants.INVALID_STRING;
 			throw new InvalidAttributeValueException("The value "+id+" is not valid in this context");
 		}
 	}
 
-	public int getID(){
+	public String getID(){
 		return this.id;
 	}
 
-	public void setPerformance(int performance) throws InvalidAttributeValueException{
-		if(performance>=0 && performance<=100)
-			this.performance=performance;
-		else{
-			this.performance=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The performance value is not valid in this context");
-		}
-	}
-
-	public int getPerformance(){
-		return this.performance;
-	}
-
-	public void setRequestID(String id) throws InvalidAttributeValueException{
-		if(id!=null)
-			this.requestID=id;
-		else{
-			this.requestID=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The requestID is not valid in this context");
-		}
-	}
-
-	public String getRequestID(){
-		return this.requestID;
-	}
+//	public void setRequestID(String id) throws InvalidAttributeValueException{
+//		if(id!=null)
+//			this.requestID=id;
+//		else{
+//			this.requestID=Constants.INVALID_STRING;
+//			throw new InvalidAttributeValueException("The requestID is not valid in this context");
+//		}
+//	}
+//
+//	public String getRequestID(){
+//		return this.requestID;
+//	}
 
 	/**
 	 * 
@@ -214,13 +193,11 @@ public class Feedback implements Serializable{
 	public String toString(){
 		String s="";
 		s+="ID "+this.id+"\n"
-				+ "Performance "+this.performance+"\n"
 				+ "From "+this.fromWho+"\n"
 				+ "Description "+this.description+"\n"
 				+ "Type "+this.type+"\n"
 				+ "Source "+this.source+"\n"
 				+ "TimeStamp "+this.getTimeStamp()+"\n"
-				+ "RequestID "+this.requestID+"\n"
 				+ "Full Email Body: "+this.getEmailBody();
 		return s;
 	}
@@ -231,7 +208,7 @@ public class Feedback implements Serializable{
 	}
 
 	public boolean isFeedbackValid(){
-		return (this.getID()!=-1 && this.getTimeStamp()!=null && !this.getFromWho().contains("Invalid") && !this.getDescription().contains("Invalid") && !this.getType().contains("Invalid") && !this.getSource().contains("Invalid"));
+		return (!this.getID().equals(Constants.INVALID_STRING) && this.getTimeStamp()!=null && !this.getFromWho().contains("Invalid") && !this.getDescription().contains("Invalid") && !this.getType().contains("Invalid") && !this.getSource().contains("Invalid"));
 	}
 
 	public boolean compare(Feedback obj){
