@@ -60,7 +60,7 @@ public final class SMTPService {
 
 			//Open a connection with the Email Server
 			System.out.println("\t"+LocalTime.now()+" - Establishing a connection with the Mail Server");
-			openIMAPConnection();
+			initiateIMAPConnection();
 
 
 			//PART2
@@ -280,7 +280,7 @@ public final class SMTPService {
 	 * 
 	 * @throws Exception
 	 */
-	private static void openIMAPConnection() throws Exception{
+	private static void initiateIMAPConnection() throws Exception{
 		if(emailService==null){
 			emailService = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
 			emailService.setMaximumPoolingConnections(1);
