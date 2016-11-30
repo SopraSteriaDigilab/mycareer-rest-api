@@ -481,8 +481,8 @@ public class AppController {
 	 * @param employeeID the employee ID
 	 * @return all the feedback requests created by the given user
 	 */
-	@RequestMapping(value="/getGroupFeedbackRequests/{employeeID}", method=RequestMethod.GET)
-	public ResponseEntity<?> getFeedbackRequests(
+	@RequestMapping(value="/getRequestedFeedback/{employeeID}", method=RequestMethod.GET)
+	public ResponseEntity<?> getGroupFeedbackRequests(
 			@PathVariable("employeeID") long employeeID){
 		try{
 			return ResponseEntity.ok(EmployeeDAO.getGroupFeedbackRequestsForUser(employeeID));

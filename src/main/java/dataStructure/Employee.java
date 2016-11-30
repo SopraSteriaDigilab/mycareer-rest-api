@@ -675,7 +675,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		if(obj==null)
 			return false;
 		//At this point the Feedback hasn't got an ID, let's create it
-		obj.setID(""+feedback.size()+1);
+		obj.setID(""+(feedback.size()+1));
 		if(obj.isFeedbackValid())
 			return feedback.add(obj);
 		return false;

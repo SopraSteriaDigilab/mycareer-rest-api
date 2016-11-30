@@ -108,7 +108,7 @@ public class FeedbackRequest implements Serializable {
 			if(replies.contains(reply))
 				return false;
 			//If it doesn't exists, add it after updating the feedback ID
-			reply.setID(""+replies.size()+1);
+			reply.setID(""+(replies.size()+1));
 			return replies.add(reply);
 		}
 		return false;

@@ -41,14 +41,6 @@ public  class EmployeeDAO {
 	//There is only 1 instance of the Datastore in the whole system
 	private static Datastore dbConnection=null;
 
-	//	public static boolean insertFeedback() throws InvalidAttributeValueException, MongoException {
-	//		if(dbConnection==null)
-	//			dbConnection=getMongoDBConnection();
-	//		Feedback f1 = new Feedback(0, "Ben Cassidy", "Creating this to test the filter date.", "internal", "E-mail");
-	//		return insertNewGeneralFeedback(675590, f1);
-	//		
-	//	}
-
 	public static String getFullNameUser(long employeeID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();

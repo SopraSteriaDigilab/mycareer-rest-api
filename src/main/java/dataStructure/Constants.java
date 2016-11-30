@@ -35,27 +35,35 @@ public final class Constants {
 	public static final int MONGODB_PORT=27017;
 	public static final String MONGODB_DB_NAME="Development";
 	//AD Details
-	public static final String AD_HOST="ldap://one.steria.dom";
+//	public static final String AD_HOST="ldap://one.steria.dom";
+//	public static final int AD_PORT=389;
+//	public static final String AD_AUTHENTICATION="simple";
+//	public static final String AD_USERNAME="PICCOLI Michael - 675599";
+//	public static final String AD_PASSWORD="";
+//	public static final String AD_TREE="OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom";
+//	public static final String[] AD_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "employeeID", "objectGUID", "mail", "directReports"};
+	
+	public static final String AD_HOST="ldap://emea.msad.sopra";
 	public static final int AD_PORT=389;
 	public static final String AD_AUTHENTICATION="simple";
-	public static final String AD_USERNAME="PICCOLI Michael - 675599";
-	public static final String AD_SERVERS="OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom";
-	public static final String AD_PASSWORD="";
-	public static final String[] AD_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "employeeID", "objectGUID", "mail", "directReports"};
+	public static final String AD_USERNAME="svc_mycareer@emea.msad.sopra";
+	public static final String AD_PASSWORD="N9T$SiPSZ";
+	public static final String AD_TREE="ou=uk,ou=users,ou=sopragroup,ou=usersemea,DC=emea,DC=msad,DC=sopra";
+	public static final String[] AD_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "extensionAttribute7", "objectGUID", "mail", "directReports"};
 	
 
 	//Constants for the emailServices package
-//	public static final String MAILBOX_ADDRESS="MYCAREER.FEEDBACK@soprasteria.com";
-//	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
-//	public static final String MAIL_PASSWORD="";
-	public static final String MAILBOX_ADDRESS="Feedback.UK@soprasteria.com";
-	public static final String MAIL_USERNAME="Feedback.UK@soprasteria.com";
-	public static final String MAIL_PASSWORD="Auto_Map_$459$";
+	public static final String MAILBOX_ADDRESS="MYCAREER.FEEDBACK@soprasteria.com";
+	public static final String MAIL_USERNAME="@soprasteria.com";
+	public static final String MAIL_PASSWORD="";
 	
-	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
+//	public static final String MAILBOX_ADDRESS="Feedback.UK@soprasteria.com";
+//	public static final String MAIL_USERNAME="Feedback.UK@soprasteria.com";
+//	public static final String MAIL_PASSWORD="Auto_Map_$459$";
+//	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
 	
 	//public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/Services.wsdl";
-	//public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
+	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
 	public static final long MAIL_REFRESH_TIME=(1*60*1000); //1 minute
 
