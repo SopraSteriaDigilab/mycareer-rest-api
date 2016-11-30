@@ -182,9 +182,7 @@ public final class IMAPService {
 					}
 					
 					//Create an Feedback Object					
-					Feedback feedbackObj=new Feedback(1,fromFieldEmail.getAddress(),bodyEmail,type,"Email");
-					//Add the request id to the feedback object
-					feedbackObj.setRequestID(requestIDSetInSubject);
+					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),bodyEmail,type,"Email");
 					//Add the whole email body to the feedback
 					feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
 
@@ -208,7 +206,7 @@ public final class IMAPService {
 					}
 
 					//Now that we have all the details, pass this data to the EmployeeDAO which will try to link the feedback to the user
-					boolean res=EmployeeDAO.linkFeedbackReqReplyToUser(emailEmployee, feedbackObj);
+					boolean res=EmployeeDAO.linkFeedbackReqReplyToUserGroupFBReq(emailEmployee, requestIDSetInSubject, feedbackObj);
 					//If the task has been completed successfully, set the email as read and move it to the Journal Folder
 					if(res){
 						openNotReadEmail.setIsRead(true);
@@ -303,7 +301,7 @@ public final class IMAPService {
 								//Remove unnecessary part of the email body
 								
 								cleanBodyEmail=cleanEmailBody(openNotReadEmail.getBody().toString());
-								Feedback feedbackObj=new Feedback(0,fromFieldEmail.getAddress(),cleanBodyEmail,type,"Email");
+								Feedback feedbackObj=new Feedback("",fromFieldEmail.getAddress(),cleanBodyEmail,type,"Email");
 								//Add the full email body
 								feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
 								//Attach the feedback to the User on the Database
