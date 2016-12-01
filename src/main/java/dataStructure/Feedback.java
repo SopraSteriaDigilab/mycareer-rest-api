@@ -20,7 +20,7 @@ public class Feedback implements Serializable{
 
 	private static final long serialVersionUID = -3137541299399492965L;
 	//Global Variables
-	private String id, fromWho, description, type, source, emailBody, timeStamp;
+	private String id, fromWho, description, type, source, emailBody, timeStamp, fullName;
 
 	//Empty Constructor
 	public Feedback(){
@@ -31,6 +31,7 @@ public class Feedback implements Serializable{
 		this.source="";
 		this.timeStamp=null;
 		this.emailBody="";
+		this.fullName="";
 	}
 
 	//Constructor with parameters
@@ -48,6 +49,7 @@ public class Feedback implements Serializable{
 		this.timeStamp=null;
 		this.setTimeStamp();
 		this.emailBody="";
+		this.fullName="";
 	}
 
 	//Constructor with parameters
@@ -64,6 +66,7 @@ public class Feedback implements Serializable{
 		this.timeStamp=null;
 		this.setTimeStamp();
 		this.emailBody="";
+		this.fullName="";
 	}
 
 	public void setID(String id) throws InvalidAttributeValueException{
@@ -107,6 +110,19 @@ public class Feedback implements Serializable{
 	}
 
 	public String getFromWho(){
+		return this.fromWho;
+	}
+	
+	public void setFullName(String name) throws InvalidAttributeValueException{
+		if(name!=null && name.length()>0 && name.length()<250)
+			this.fullName=name;
+		else{
+			this.fullName=Constants.INVALID_STRING;
+			throw new InvalidAttributeValueException("The given 'fullName' value is not valid in this context");
+		}
+	}
+
+	public String getFullName(){
 		return this.fromWho;
 	}
 
@@ -194,6 +210,7 @@ public class Feedback implements Serializable{
 		String s="";
 		s+="ID "+this.id+"\n"
 				+ "From "+this.fromWho+"\n"
+				+ "Full Name "+this.fullName+"\n"
 				+ "Description "+this.description+"\n"
 				+ "Type "+this.type+"\n"
 				+ "Source "+this.source+"\n"
