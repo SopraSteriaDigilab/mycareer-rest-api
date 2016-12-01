@@ -61,7 +61,7 @@ public final class IMAPService {
 
 	/**
 	 * 
-	 * This method initiate the email service and checks for new emails every minute
+	 * This method initiate the email service and checks for new emails at regular intervals
 	 * 
 	 * @throws URISyntaxException
 	 */
@@ -170,8 +170,17 @@ public final class IMAPService {
 					EmailAddress fromFieldEmail=openNotReadEmail.getFrom();
 					//The email is internal the company if the email address contains @soprasteria.com
 					String type="";
-					if(fromFieldEmail.toString().contains("@soprasteria.com"))
+					String fullNameFeedbackProvider="";
+					if(fromFieldEmail.toString().contains("@soprasteria.com")){
 						type="Internal";
+						//Find the full name of the employee providing the feedback from the AD
+						try{
+							fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(fromFieldEmail.toString());
+						}
+						catch(Exception e){
+							System.out.println("\t"+LocalTime.now()+" - Error while finding the full name of the feedback provider\n"+e.getMessage());
+						}
+					}
 					else
 						type="External";
 					//Get the body of the email extracting only the necessary parts
@@ -185,6 +194,8 @@ public final class IMAPService {
 					
 					//Create an Feedback Object					
 					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),bodyEmail,type,"Email");
+					//Add the full name of the feedback provider (if any)
+					feedbackObj.setFullName(fullNameFeedbackProvider);
 					//Add the whole email body to the feedback
 					feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
 
@@ -278,8 +289,17 @@ public final class IMAPService {
 						
 						//The email is internal the company if the email address contains @soprasteria.com
 						String type="";
-						if(fromFieldEmail.toString().contains("@soprasteria.com"))
+						String fullNameFeedbackProvider="";
+						if(fromFieldEmail.toString().contains("@soprasteria.com")){
 							type="Internal";
+							//Find the full name of the employee providing the feedback from the AD
+							try{
+								fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(fromFieldEmail.toString());
+							}
+							catch(Exception e){
+								System.out.println("\t"+LocalTime.now()+" - Error while finding the full name of the feedback provider\n"+e.getMessage());
+							}
+						}
 						else
 							type="External";
 						
@@ -303,6 +323,8 @@ public final class IMAPService {
 								
 								cleanBodyEmail=cleanEmailBody(openNotReadEmail.getBody().toString());
 								Feedback feedbackObj=new Feedback("",fromFieldEmail.getAddress(),cleanBodyEmail,type,"Email");
+								//Add the full name of the feedback provider (if any)
+								feedbackObj.setFullName(fullNameFeedbackProvider);
 								//Add the full email body
 								feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
 								//Attach the feedback to the User on the Database

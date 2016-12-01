@@ -53,15 +53,15 @@ public final class Constants {
 	
 
 	//Constants for the emailServices package
-//	public static final String MAILBOX_ADDRESS="MYCAREER.FEEDBACK@soprasteria.com";
-//	public static final String MAIL_USERNAME="@soprasteria.com";
-//	public static final String MAIL_PASSWORD="";
-//	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
+	public static final String MAILBOX_ADDRESS="MYCAREER.FEEDBACK@soprasteria.com";
+	public static final String MAIL_USERNAME="@soprasteria.com";
+	public static final String MAIL_PASSWORD="";
+	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 	
-	public static final String MAILBOX_ADDRESS="feedback.UK@soprasteria.com";
-	public static final String MAIL_USERNAME="feedback.UK@soprasteria.com";
-	public static final String MAIL_PASSWORD="Auto_Map_$459$";
-	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
+//	public static final String MAILBOX_ADDRESS="feedback.UK@soprasteria.com";
+//	public static final String MAIL_USERNAME="feedback.UK@soprasteria.com";
+//	public static final String MAIL_PASSWORD="Auto_Map_$459$";
+//	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
 		//	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/Services.wsdl";
 	
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
