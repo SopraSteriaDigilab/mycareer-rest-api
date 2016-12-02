@@ -3,6 +3,7 @@ package functionalities;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.activity.InvalidActivityException;
 import javax.management.InvalidAttributeValueException;
@@ -121,6 +122,16 @@ public  class EmployeeDAO {
 		Employee e = query.get();
 		return e.getGroupFeedbackRequestsList();
 	}
+	
+	//PLEASE FINA AN APPROPRIATE NAME FOR THIS METHOD
+//	public static Map<String, Map<Integer, String>> getNoteInformation(long employeeID) throws InvalidAttributeValueException{
+//		if(dbConnection==null)
+//			dbConnection=getMongoDBConnection();
+//		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+//		if(query.get()==null)
+//			throw new InvalidAttributeValueException("No user with such ID");
+//		//
+//	}
 
 	public static String getUserFullNmeFromUserID(long employeeID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
