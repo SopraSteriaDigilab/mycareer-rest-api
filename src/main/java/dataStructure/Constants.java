@@ -26,6 +26,7 @@ public final class Constants {
 	public static final String COMPLETE_DATE_NOT_SET="Ongoing";
 	public static final String PENDING_FEEDBACK="Pending";
 	public static final String RECEIVED_ALL_FEEDBACK="Received";
+	public static final int MAX_TITLE_LENGTH=151;
 
 	//Constants for the Functionalities package
 	//MongoDB Details
