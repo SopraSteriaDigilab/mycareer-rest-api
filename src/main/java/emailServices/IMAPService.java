@@ -193,7 +193,7 @@ public final class IMAPService {
 					}
 					
 					//Create an Feedback Object					
-					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),bodyEmail,type,"Email");
+					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),bodyEmail,type,"Email",true);
 					//Add the full name of the feedback provider (if any)
 					if(type.equals("Internal"))
 						feedbackObj.setFullName(fullNameFeedbackProvider);
@@ -323,7 +323,7 @@ public final class IMAPService {
 								//Remove unnecessary part of the email body
 								
 								cleanBodyEmail=cleanEmailBody(openNotReadEmail.getBody().toString());
-								Feedback feedbackObj=new Feedback("",fromFieldEmail.getAddress(),cleanBodyEmail,type,"Email");
+								Feedback feedbackObj=new Feedback(1,fromFieldEmail.getAddress(),cleanBodyEmail,type,"Email",false);
 								//Add the full name of the feedback provider (if any)
 								if(type.equals("Internal"))
 									feedbackObj.setFullName(fullNameFeedbackProvider);

@@ -639,6 +639,31 @@ public class AppController {
 	}
 	
 	
+	/**
+	 * Gets all IDs and Titles for each Objective, Competency,Feedback, Development need,
+	 * and team member for this {@code employeeID}.
+	 * 
+	 * @param employeeID
+	 */
+	@RequestMapping(value="/getIDTitlePairs/{employeeID}", method=RequestMethod.GET)
+	public ResponseEntity<?> getIDTitlePairs(@PathVariable long employeeID){
+		if(employeeID>0)
+			try {
+				//Retrieve and return the ID Title pairs from the system
+				return ResponseEntity.ok(EmployeeDAO.getIDTitlePairsDataStructure(employeeID));
+			}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+		else
+			return ResponseEntity.badRequest().body("The given ID is invalid");
+	}
+	
+	
+	
 	private void areInputValuesEmpty(String... args) throws InvalidAttributeValueException{
 		for(String str : args){
 			if(str.length() < 1 || str.isEmpty()){
