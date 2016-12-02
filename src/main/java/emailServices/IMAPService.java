@@ -223,7 +223,7 @@ public final class IMAPService {
 					//If the task has been completed successfully, set the email as read and move it to the Journal Folder
 					if(res){
 						openNotReadEmail.setIsRead(true);
-						//openNotReadEmail.move(WellKnownFolderName.Journal);
+						openNotReadEmail.move(WellKnownFolderName.Inbox);
 						System.out.println("\t"+LocalTime.now()+" - Reply to a Feedback Request linked correctly");
 						{
 							//Praise Feedback provider
@@ -358,7 +358,7 @@ public final class IMAPService {
 						}
 						//Move the email to the Journal Folder
 						openNotReadEmail.setIsRead(true);
-						//openNotReadEmail.move(WellKnownFolderName.Journal);
+						openNotReadEmail.move(WellKnownFolderName.Inbox);
 
 						//Praise feedback provider
 						praiseFeedbackProvider(fromFieldEmail, successfullyAdded, unsuccessfullyAdded);
