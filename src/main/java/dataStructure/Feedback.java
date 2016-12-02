@@ -20,11 +20,13 @@ public class Feedback implements Serializable{
 
 	private static final long serialVersionUID = -3137541299399492965L;
 	//Global Variables
-	private String id, fromWho, description, type, source, emailBody, timeStamp, fullName;
+	private int id;
+	private String fromWho, description, type, source, emailBody, timeStamp, fullName;
+	private boolean isRequested;
 
 	//Empty Constructor
 	public Feedback(){
-		this.id="";
+		this.id=0;
 		this.fromWho="";
 		this.description="";
 		this.type="";
@@ -32,15 +34,23 @@ public class Feedback implements Serializable{
 		this.timeStamp=null;
 		this.emailBody="";
 		this.fullName="";
+		this.isRequested=false;
+	}
+	
+	
+	//Constructor with parameter
+	public Feedback(int id) throws InvalidAttributeValueException{
+		this.setID(id);
 	}
 
 	//Constructor with parameters
 	public Feedback(
-			String id,
+			int id,
 			String from, 
 			String desc, 
 			String type, 
-			String source) throws InvalidAttributeValueException{
+			String source,
+			boolean requested) throws InvalidAttributeValueException{
 		this.setID(id);
 		this.setFromWho(from);
 		this.setDescription(desc);
@@ -50,6 +60,7 @@ public class Feedback implements Serializable{
 		this.setTimeStamp();
 		this.emailBody="";
 		this.fullName="";
+		this.isRequested=requested;
 	}
 
 	//Constructor with parameters
@@ -57,8 +68,9 @@ public class Feedback implements Serializable{
 			String from, 
 			String desc, 
 			String type, 
-			String source) throws InvalidAttributeValueException{
-		this.id="";
+			String source,
+			boolean requested) throws InvalidAttributeValueException{
+		this.id=0;
 		this.setFromWho(from);
 		this.setDescription(desc);
 		this.setType(type);
@@ -67,19 +79,28 @@ public class Feedback implements Serializable{
 		this.setTimeStamp();
 		this.emailBody="";
 		this.fullName="";
+		this.isRequested=requested;
 	}
 
-	public void setID(String id) throws InvalidAttributeValueException{
-		if(id!=null)
+	public void setID(int id) throws InvalidAttributeValueException{
+		if(id!=0)
 			this.id=id;
 		else{
-			this.id=Constants.INVALID_STRING;
+			this.id=Constants.INVALID_INT;
 			throw new InvalidAttributeValueException("The value "+id+" is not valid in this context");
 		}
 	}
 
-	public String getID(){
+	public int getID(){
 		return this.id;
+	}
+	
+	public void setIsRequested(boolean value){
+		this.isRequested=value;
+	}
+	
+	public boolean getIsRequested(){
+		return this.isRequested;
 	}
 
 //	public void setRequestID(String id) throws InvalidAttributeValueException{
@@ -214,6 +235,7 @@ public class Feedback implements Serializable{
 				+ "Description "+this.description+"\n"
 				+ "Type "+this.type+"\n"
 				+ "Source "+this.source+"\n"
+				+ "Is Requested "+this.isRequested+"\n"
 				+ "TimeStamp "+this.getTimeStamp()+"\n"
 				+ "Full Email Body: "+this.getEmailBody();
 		return s;
@@ -225,7 +247,11 @@ public class Feedback implements Serializable{
 	}
 
 	public boolean isFeedbackValid(){
-		return (!this.getID().equals(Constants.INVALID_STRING) && this.getTimeStamp()!=null && !this.getFromWho().contains("Invalid") && !this.getDescription().contains("Invalid") && !this.getType().contains("Invalid") && !this.getSource().contains("Invalid"));
+		return (this.getID()!=Constants.INVALID_INT && this.getTimeStamp()!=null && !this.getFromWho().contains("Invalid") && !this.getDescription().contains("Invalid") && !this.getType().contains("Invalid") && !this.getSource().contains("Invalid"));
+	}
+	
+	public boolean isFeedbackValidForFeedbackRequest(){
+		return this.getID()!=Constants.INVALID_INT;
 	}
 
 	public boolean compare(Feedback obj){

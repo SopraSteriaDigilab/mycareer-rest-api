@@ -146,6 +146,7 @@ public class ADProfileDAO {
 		//Specify the search scope
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
+		
 		String searchFilter = "(mail=" + email + ")";
 		
 		// Search for objects using the filter
@@ -167,6 +168,44 @@ public class ADProfileDAO {
 		ldapContext.close();
 		ldapContext=null;
 		throw new InvalidAttributeValueException("The given email address doesn't match any Sopra Steria employee");
+	}
+	
+	public static String findEmployeeFullNameFromID(String id) throws NamingException, InvalidAttributeValueException{
+		//Verify the given ID
+		if(id==null || id.length()<1)
+			throw new InvalidAttributeValueException("The given ID is invalid");
+		//Instantiate the connection
+		if(ldapContext==null)
+			ldapContext = getADConnection();
+
+		// Create the search controls         
+		SearchControls searchCtls = new SearchControls();
+		//Specify the attributes to return
+		searchCtls.setReturningAttributes(Constants.AD_ATTRIBUTES);
+		//Specify the search scope
+		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		//specify the LDAP search filter
+		String searchFilter = "(extensionAttribute7=s" + id + ")";
+		
+		// Search for objects using the filter
+		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_TREE, searchFilter, searchCtls);
+
+		//Check the results retrieved
+		if(answer.hasMoreElements()){
+			SearchResult sr = (SearchResult)answer.next();
+			Attributes attrs = sr.getAttributes();
+			
+			//Find and return the full name
+			String surname=(String)attrs.get("sn").get();
+			//Convert the upper case surname into a lower case string with only the 1st char uppercase
+			surname=surname.substring(0,1).toUpperCase()+surname.substring(1).toLowerCase();
+			String forename=(String)attrs.get("givenName").get();
+			return surname+" "+forename;
+		}
+		//Close the connection with the AD
+		ldapContext.close();
+		ldapContext=null;
+		throw new InvalidAttributeValueException("The given employeeID doesn't match any Sopra Steria employee");
 	}
 
 	private static DirContext getADConnection() throws NamingException{

@@ -2,14 +2,20 @@ package functionalities;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.activity.InvalidActivityException;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
+
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
+import org.mongodb.morphia.aggregation.Projection;
+import org.mongodb.morphia.aggregation.Sort;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import com.mongodb.MongoClient;
@@ -88,9 +94,37 @@ public  class EmployeeDAO {
 		if(query.get()==null)
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
-		List<Feedback> feedbackList = e.getFeedbackList();
+		List<Feedback> feedbackList = e.getAllFeedback();
 		Collections.reverse(feedbackList);
 		return feedbackList;
+	}
+
+	public static int getLatestFeedbackIDForUser(long employeeID) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		//db.employeeDataDev.aggregate([{$project:{employeeID:1,"feedback.id":1, _id:0}},{$match:{employeeID:675599}}, {$unwind:"feedback"},{$sort:{feedback:-1}},{$limit:1},{$project:{latestFeedbackID:"$feedback.id"}}])
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+		//		Iterator<String> aggregate=dbConnection
+		//				.createAggregation(Employee.class)
+		//				.project(Projection.projection("employeeID"), Projection.projection("feedback.id"))
+		//				.match(dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID))
+		//				.unwind("feedback")
+		//				.sort(Sort.descending("feedback"))
+		//				.limit(1)
+		//				.project(Projection.projection("feedback.id", "latestFeedbackID"))
+		//				.aggregate(String.class);
+		//		
+		//		if(aggregate!=null){
+		//			String s=aggregate.next();
+		//			System.out.print(Integer.valueOf(s));
+		//			//int num=aggregate.next();
+		//		}
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such ID");
+		Employee e = query.get();
+		List<Feedback> feedbackList = e.getAllFeedback();
+		Feedback latest=feedbackList.get(feedbackList.size()-1);
+		return latest.getID();
 	}
 
 	public static List<Note> getNotesForUser(long employeeID) throws InvalidAttributeValueException{
@@ -122,16 +156,77 @@ public  class EmployeeDAO {
 		Employee e = query.get();
 		return e.getGroupFeedbackRequestsList();
 	}
-	
+
 	//PLEASE FINA AN APPROPRIATE NAME FOR THIS METHOD
-//	public static Map<String, Map<Integer, String>> getNoteInformation(long employeeID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
-//		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-//		if(query.get()==null)
-//			throw new InvalidAttributeValueException("No user with such ID");
-//		//
-//	}
+	public static Map<String, Map<Integer, String>> getIDTitlePairsDataStructure(long employeeID) throws InvalidAttributeValueException{
+		if(dbConnection==null)
+			dbConnection=getMongoDBConnection();
+		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+		if(query.get()==null)
+			throw new InvalidAttributeValueException("No user with such ID");
+		//Get the whole employee object
+		Employee e = query.get();
+		//Get the latest version of all the user objectives
+		List<Objective> objectives=e.getLatestVersionObjectives();
+		//Get the user competencies
+		List<Competency> competencies=e.getLatestVersionCompetencies();
+		//Get all the development needs
+		List<DevelopmentNeed> developmentNeeds=e.getLatestVersionDevelopmentNeeds();
+		//Get Feedback (generic and requested)
+		List<Feedback> allFeedback=e.getAllFeedback();
+
+		List<String> reportees=new ArrayList<>();
+		if(e.getIsManager()){
+			reportees=e.getReporteeCNs();
+		}
+		//For each reportee, get the full name
+		Map<Integer, String> reporteesDetails=new HashMap<>();
+		try{
+			int counter=1;
+			for(String reportee: reportees){
+				reporteesDetails.put(counter++, ADProfileDAO.findEmployeeFullNameFromID(reportee));
+			}
+					
+		}
+		catch(Exception error){}
+
+		//Let's create the object that is going to be returned to the front-end
+		Map<String, Map<Integer, String>> map=new HashMap<>();
+		map.put("Objectives", convertListToHashMap(objectives));
+		map.put("Competencies", convertListToHashMap(competencies));
+		map.put("Development Needs", convertListToHashMap(developmentNeeds));
+		map.put("Feedback", convertListToHashMap(allFeedback));
+		map.put("Team", reporteesDetails);
+		return map;		
+	}
+
+	private static Map<Integer,String> convertListToHashMap(List<? extends Object> data) throws InvalidAttributeValueException{
+		if(data!=null){
+			Map<Integer,String> mapConverted=new HashMap<>(); 
+			for(Object temp: data){
+				if(temp instanceof Objective){
+					Objective dataConv=(Objective)temp;
+					mapConverted.put(dataConv.getID(), dataConv.getTitle());
+				}
+				else if(temp instanceof Competency){
+					Competency dataConv=(Competency)temp;
+					mapConverted.put(dataConv.getID(), dataConv.getTitle());
+				}
+				else if(temp instanceof DevelopmentNeed){
+					DevelopmentNeed dataConv=(DevelopmentNeed)temp;
+					mapConverted.put(dataConv.getID(), dataConv.getTitle());
+				}
+				else if (temp instanceof Feedback){
+					Feedback dataConv=(Feedback)temp;
+					mapConverted.put(dataConv.getID(), dataConv.getFromWho());
+				}
+				else
+					throw new InvalidAttributeValueException("Invalid Data type");
+			}
+			return mapConverted;
+		}
+		return null;
+	}
 
 	public static String getUserFullNmeFromUserID(long employeeID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
@@ -268,16 +363,23 @@ public  class EmployeeDAO {
 				if(querySearch.get()!=null){
 					Employee e = querySearch.get();
 					//Extract its List of Objectives
-					List<Feedback> dataFromDB=e.getFeedbackList();
+					List<Feedback> dataFromDB=e.getAllFeedback();
 					//Verify if the feedback is already within the user DB to avoid adding duplicated feedback
 					for(Feedback f:dataFromDB){
 						if(f.compare((Feedback)data))
 							throw new InvalidAttributeValueException("The given feedback is a duplicate");
 					}
+					Feedback temp=(Feedback)data;
+					try{
+						temp.setID(getLatestFeedbackIDForUser(employeeID)+1);
+					}
+					catch(Exception error){
+						temp.setID(1);
+					}
 					//Add the new objective to the list
 					if(e.addGenericFeedback((Feedback)data)){
 						//Update the List<List<objective>> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getFeedbackList());
+						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getAllFeedback());
 						//Commit the changes to the DB
 						dbConnection.update(querySearch, ops);
 						return true;
@@ -794,35 +896,46 @@ public  class EmployeeDAO {
 				GroupFeedbackRequest groupFBReq=e.getSpecificGroupFeedbackRequest(fbReqID.trim());
 				//Verify that something has been returned, if so, we have the feedback request object, let's add the feedback to it
 				boolean flag=false;
+				try{
+					data.setID(getLatestFeedbackIDForUser(basicProfile.getEmployeeID())+1);
+				}
+				catch(Exception error){
+					data.setID(1);
+				}
+
 				if(groupFBReq!=null){
 					flag=true;
 					FeedbackRequest feedbackReqUpdated=e.getSpecificFeedbackRequestFromGroupFBRequests(fbReqID.trim());
 					//Add the feedback to the current feedback request object 
+					//Add the general feedback to the user
+					e.addGenericFeedback(data);
 					boolean res1=feedbackReqUpdated.addReply(data);
 					//Update the feedback request object inside the group feedback request object
 					boolean res2=groupFBReq.updateFeedbackRequest(feedbackReqUpdated);
 					boolean res3=e.updateGroupFeedbackRequest(groupFBReq);
 					//Verify if the operations have been completed successfully
 					if(!res1 || !res2 || !res3)
-						//Set the flag to false, since there has been a problem trying to link the feedback to a feedback request.
-						//This will allow the system to save the feedback as a general feedback instead
-						flag=false;
-					else{
-						//Update the data in the DB
-						UpdateOperations<Employee> ops2 = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", e.getGroupFeedbackRequestsList());
-						//Commit the changes to the DB
-						dbConnection.update(querySearch, ops2);
-					}
+						throw new InvalidAttributeValueException("Something went wrong while adding the feedback to user "+basicProfile.getEmployeeID());
+					//Set the flag to false, since there has been a problem trying to link the feedback to a feedback request.
+					//This will allow the system to save the feedback as a general feedback instead
+					//flag=false;						
+					//else{
+					//Update the data in the DB
+					UpdateOperations<Employee> ops2 = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", e.getGroupFeedbackRequestsList());
+					//Commit the changes to the DB
+					dbConnection.update(querySearch, ops2);
+					//}
 				}
 
 				if(!flag){
+					data.setIsRequested(false);
 					//Add the general feedback to the user
 					e.addGenericFeedback(data);
-
-					//Update the user data in the DB
-					UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getFeedbackList());
-					dbConnection.update(querySearch, ops1);
 				}
+				//Update the user data in the DB
+				UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getAllFeedback());
+				dbConnection.update(querySearch, ops1);
+				//}
 				return true;
 			}
 			//Since we use the authenticateUSerProfile method, the system will never go in the else statement
@@ -834,26 +947,26 @@ public  class EmployeeDAO {
 		return false;
 	}
 
-//	public static boolean removeEmailAddressFromFeedbackReq(String email, String reqID, String addressToRemove) throws InvalidAttributeValueException{
-//		if(email.length()<0 || reqID.length()<0)
-//			throw new InvalidAttributeValueException("The email address provided or the request ID are invalid");
-//		//Establish a connection with the DB
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
-//		//Get the user from the DB
-//		Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("emailAddress =", email);
-//		if(querySearch.get()!=null){
-//			Employee e = querySearch.get();
-//			FeedbackRequest requestObj=e.getSpecificGroupFeedbackRequest(reqID);
-//			if(requestObj!=null){
-//				return requestObj.removeRecipient(addressToRemove);
-//			}
-//			throw new InvalidAttributeValueException("No feedback request matched the given ID");
-//		}
-//		else{
-//			throw new InvalidAttributeValueException("No user with such email address has been found in the DB");
-//		}
-//	}
+	//	public static boolean removeEmailAddressFromFeedbackReq(String email, String reqID, String addressToRemove) throws InvalidAttributeValueException{
+	//		if(email.length()<0 || reqID.length()<0)
+	//			throw new InvalidAttributeValueException("The email address provided or the request ID are invalid");
+	//		//Establish a connection with the DB
+	//		if(dbConnection==null)
+	//			dbConnection=getMongoDBConnection();
+	//		//Get the user from the DB
+	//		Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("emailAddress =", email);
+	//		if(querySearch.get()!=null){
+	//			Employee e = querySearch.get();
+	//			FeedbackRequest requestObj=e.getSpecificGroupFeedbackRequest(reqID);
+	//			if(requestObj!=null){
+	//				return requestObj.removeRecipient(addressToRemove);
+	//			}
+	//			throw new InvalidAttributeValueException("No feedback request matched the given ID");
+	//		}
+	//		else{
+	//			throw new InvalidAttributeValueException("No user with such email address has been found in the DB");
+	//		}
+	//	}
 
 	private static Datastore getMongoDBConnection() throws MongoException{
 		if(dbConnection==null){
