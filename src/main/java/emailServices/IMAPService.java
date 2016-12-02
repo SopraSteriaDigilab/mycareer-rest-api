@@ -175,7 +175,7 @@ public final class IMAPService {
 						type="Internal";
 						//Find the full name of the employee providing the feedback from the AD
 						try{
-							fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(fromFieldEmail.toString());
+							fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(fromFieldEmail.getAddress().toString());
 						}
 						catch(Exception e){
 							System.out.println("\t"+LocalTime.now()+" - Error while finding the full name of the feedback provider\n"+e.getMessage());
@@ -294,7 +294,7 @@ public final class IMAPService {
 							type="Internal";
 							//Find the full name of the employee providing the feedback from the AD
 							try{
-								fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(fromFieldEmail.toString());
+								fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(fromFieldEmail.getAddress().toString());
 							}
 							catch(Exception e){
 								System.out.println("\t"+LocalTime.now()+" - Error while finding the full name of the feedback provider\n"+e.getMessage());
