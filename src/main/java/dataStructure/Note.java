@@ -21,7 +21,7 @@ public class Note implements Serializable{
 	private static final long serialVersionUID = 3232489026577284657L;
 	//Global Variables
 	private int id, noteType, linkID;
-	private String body, timeStamp, fromWho;
+	private String body, timeStamp, fromWho, linkTitle;
 	
 	//Empty Constructor
 	public Note(){
@@ -31,7 +31,7 @@ public class Note implements Serializable{
 		this.body="";
 		this.timeStamp=null;
 		this.fromWho="";
-		
+		this.linkTitle="";
 	}
 	
 	//Constructor with Parameters
@@ -43,6 +43,7 @@ public class Note implements Serializable{
 		this.timeStamp=null;
 		this.setTimeStamp();
 		this.setFromWho(from);
+		this.linkTitle="";
 	}
 	
 	/**
@@ -78,13 +79,24 @@ public class Note implements Serializable{
 	public void setNoteType(int noteType) throws InvalidAttributeValueException {
 		if(noteType >= 0 && noteType <= 6){
 			this.noteType = noteType;
-		}else{
+		}else
 			throw new InvalidAttributeValueException("Note type must be from 0 to 6");
-		}
 	}
 
 	public int getNoteType() {
 		return noteType;
+	}
+	
+	public void setLinkTitle(String linkTitle) throws InvalidAttributeValueException{
+		if(linkTitle!=null && linkTitle.length()>0 && linkTitle.length()<Constants.MAX_TITLE_LENGTH){
+			this.linkTitle=linkTitle;
+		}
+		else
+			throw new InvalidAttributeValueException("The title of the note link is invalid");
+	}
+	
+	public String getLinkTitle(){
+		return this.linkTitle;
 	}
 	
 	
@@ -95,9 +107,9 @@ public class Note implements Serializable{
 	 * @throws InvalidAttributeValueException
 	 */
 	public void setLinkID(int linkID) throws InvalidAttributeValueException {
-		if(id>0){
+		if(id>0)
 			this.linkID = linkID;
-		}else{
+		else{
 			this.id=Constants.INVALID_INT;
 			throw new InvalidAttributeValueException("An ID with value "+id+" is not valid in this context");
 		}
@@ -168,7 +180,10 @@ public class Note implements Serializable{
 		s+="ID "+this.id+"\n"
 			+ "Body "+this.body+"\n"
 			+ "From "+this.fromWho+"\n"
-			+ "Time "+this.getTimeStamp();
+			+ "Time "+this.getTimeStamp()
+			+ "Note Type "+this.noteType+"\n"
+			+ "LinkID "+this.linkID+"\n"
+			+ "Link Title "+this.linkTitle+"\n";
 		return s;
 	}
 	

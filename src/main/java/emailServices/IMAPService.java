@@ -195,7 +195,8 @@ public final class IMAPService {
 					//Create an Feedback Object					
 					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),bodyEmail,type,"Email");
 					//Add the full name of the feedback provider (if any)
-					feedbackObj.setFullName(fullNameFeedbackProvider);
+					if(type.equals("Internal"))
+						feedbackObj.setFullName(fullNameFeedbackProvider);
 					//Add the whole email body to the feedback
 					feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
 
@@ -324,7 +325,8 @@ public final class IMAPService {
 								cleanBodyEmail=cleanEmailBody(openNotReadEmail.getBody().toString());
 								Feedback feedbackObj=new Feedback("",fromFieldEmail.getAddress(),cleanBodyEmail,type,"Email");
 								//Add the full name of the feedback provider (if any)
-								feedbackObj.setFullName(fullNameFeedbackProvider);
+								if(type.equals("Internal"))
+									feedbackObj.setFullName(fullNameFeedbackProvider);
 								//Add the full email body
 								feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
 								//Attach the feedback to the User on the Database
