@@ -326,10 +326,12 @@ public class AppController {
 	@RequestMapping(value="/addNote/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNoteToAUser(
 			@PathVariable("employeeID") long employeeID,
+			@RequestParam int noteType,
+			@RequestParam int linkID,
 			@RequestParam(value="from") String from,
 			@RequestParam(value="body") String body){
 		try{
-			Note obj=new Note(1,body,from);
+			Note obj=new Note(1, noteType, linkID, body,from);
 			boolean inserted=EmployeeDAO.insertNewNote(employeeID,obj);
 			if(inserted)
 				return ResponseEntity.ok("Note inserted correctly!");
@@ -358,10 +360,12 @@ public class AppController {
 	public ResponseEntity<?> addNewVersionNoteToAUser(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="noteID") int noteID,
+			@RequestParam int noteType,
+			@RequestParam int linkID,
 			@RequestParam(value="from") String from,
 			@RequestParam(value="body") String body){
 		try{
-			Note obj=new Note(noteID,body,from);
+			Note obj=new Note(noteID, noteType, linkID, body,from);
 			boolean inserted=EmployeeDAO.addNewVersionNote(employeeID, noteID, obj);
 			if(inserted)
 				return ResponseEntity.ok("Note modified correctly!");
