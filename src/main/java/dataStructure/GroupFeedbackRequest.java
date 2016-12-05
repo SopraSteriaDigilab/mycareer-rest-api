@@ -3,11 +3,12 @@ package dataStructure;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.activity.InvalidActivityException;
 
-public class GroupFeedbackRequest implements Serializable{
+public class GroupFeedbackRequest implements Serializable, Iterable<FeedbackRequest>{
 
 	//Global Constant
 	private static final long serialVersionUID = 6950535901949268747L;
@@ -108,4 +109,26 @@ public class GroupFeedbackRequest implements Serializable{
 		return s;
 	}
 
+	/*
+	 * Adapted from Source: http://stackoverflow.com/questions/5849154/can-we-write-our-own-iterator-in-java
+	 */
+	@Override
+	public Iterator<FeedbackRequest> iterator() {
+		Iterator<FeedbackRequest> iterator=new Iterator<FeedbackRequest>(){
+
+			private int currentIndex=0;
+			
+			@Override
+			public boolean hasNext() {
+				return currentIndex < requests.size() && requests.get(currentIndex)!=null;
+			}
+
+			@Override
+			public FeedbackRequest next() {
+				return requests.get(currentIndex++);
+			}
+			
+		};
+		return iterator;
+	}
 }

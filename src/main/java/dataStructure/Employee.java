@@ -142,6 +142,16 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	public List<Feedback> getAllFeedback(){
 		return this.feedback;
 	}
+	
+	public Feedback getSpecificFeedback(int id) throws InvalidClassException{
+		if(id>0){
+			return feedback.stream()
+					.filter(f->f.getID()==id)
+					.findFirst()
+					.get();
+		}
+		throw new InvalidClassException("Feedback ID Invalid");
+	}
 
 	/**
 	 * 
