@@ -23,6 +23,7 @@ import microsoft.exchange.webservices.data.core.enumeration.property.BasePropert
 import microsoft.exchange.webservices.data.core.enumeration.property.BodyType;
 import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
 import microsoft.exchange.webservices.data.core.enumeration.search.LogicalOperator;
+import microsoft.exchange.webservices.data.core.enumeration.service.ConflictResolutionMode;
 import microsoft.exchange.webservices.data.core.service.folder.Folder;
 import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.core.service.item.Item;
@@ -221,10 +222,10 @@ public final class IMAPService {
 
 					//Now that we have all the details, pass this data to the EmployeeDAO which will try to link the feedback to the user
 					boolean res=EmployeeDAO.linkFeedbackReqReplyToUserGroupFBReq(emailEmployee, requestIDSetInSubject, feedbackObj);
-					//If the task has been completed successfully, set the email as read and move it to the Journal Folder
+					//If the task has been completed successfully, mark the Email as read and update it into the mail server
 					if(res){
 						openNotReadEmail.setIsRead(true);
-						openNotReadEmail.move(WellKnownFolderName.Inbox);
+						openNotReadEmail.update(ConflictResolutionMode.AutoResolve);
 						System.out.println("\t"+LocalTime.now()+" - Reply to a Feedback Request linked correctly");
 						{
 							//Praise Feedback provider
@@ -358,9 +359,9 @@ public final class IMAPService {
 								}
 							}
 						}
-						//Move the email to the Journal Folder
+						//Mark the Email as read and update it into the mail server
 						openNotReadEmail.setIsRead(true);
-						openNotReadEmail.move(WellKnownFolderName.Inbox);
+						openNotReadEmail.update(ConflictResolutionMode.AutoResolve);
 
 						//Praise feedback provider
 						praiseFeedbackProvider(fromFieldEmail, successfullyAdded, unsuccessfullyAdded);
@@ -570,7 +571,7 @@ public final class IMAPService {
 		emailService.setCredentials(credentials);
 		emailService.setUrl(new URI(Constants.MAIL_EXCHANGE_URI));
 		//This allows the trace listener to listen to requests and responses
-		//THIS IS IF YOU WANT TO ADD A LISTENER FOR PUSHNOTIFICATIONS
+		//THIS IS IF YOU WANT TO ADD A LISTENER FOR PUSH NOTIFICATIONS
 		//emailService.setTraceEnabled(true);
 		//emailService.setTraceFlags(EnumSet.allOf(TraceFlags.class));
 		//		emailService.setTraceListener(new ITraceListener() {

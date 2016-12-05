@@ -46,10 +46,8 @@ public class ADProfile_Basic implements Serializable{
 	public void setEmployeeID(long id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.employeeID=id;
-		else{
-			this.employeeID=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The value "+id+" is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_USERID_CONTEXT);
 	}
 
 	public long getEmployeeID(){
@@ -67,10 +65,8 @@ public class ADProfile_Basic implements Serializable{
 		if(user!=null && user.length()>0 && user.length()<50){
 			this.username=user;
 		}
-		else{
-			this.username=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'username' is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_USERNAME_CONTEXT);
 	}
 
 	public String getUsername(){
@@ -82,7 +78,7 @@ public class ADProfile_Basic implements Serializable{
 			this.surname=name.substring(0,1).toUpperCase()+name.substring(1).toLowerCase();
 		}
 		else
-			throw new InvalidAttributeValueException("The surname provided is not valid in this context");
+			throw new InvalidAttributeValueException(Constants.INVALID_SURNAME_CONTEXT);
 	}
 	
 	public String getSurname(){
@@ -94,7 +90,7 @@ public class ADProfile_Basic implements Serializable{
 			this.forename=name;
 		}
 		else
-			throw new InvalidAttributeValueException("The forename provided is not valid in this context");
+			throw new InvalidAttributeValueException(Constants.INVALID_FORENAME_CONTEXT);
 	}
 	
 	public String getForename(){

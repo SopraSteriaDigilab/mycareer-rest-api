@@ -584,8 +584,9 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @param id Competency need ID
 	 * @return the Competency data object
+	 * @throws InvalidAttributeValueException 
 	 */
-	public Competency getLatestVersionOfSpecificCompetency(int id){
+	public Competency getLatestVersionOfSpecificCompetency(int id) throws InvalidAttributeValueException{
 		//Verify if the id is valid
 		if(id<0)
 			return null;

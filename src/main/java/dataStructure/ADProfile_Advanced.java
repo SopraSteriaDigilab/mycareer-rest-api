@@ -60,10 +60,8 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	public void setEmailAddress(String email) throws InvalidAttributeValueException{
 		if(email!=null && email.length()>0 && email.contains("@"))
 			this.emailAddress=email;
-		else{
-			this.emailAddress=Constants.INVALID_EMAIL;
-			throw new InvalidAttributeValueException("The given 'Email Address' is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_MAIL_CONTEXT);
 	}
 
 	public String getEmailAddress(){
@@ -79,10 +77,8 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 		if(guid!=null && guid.length()>0){
 			this.GUID=guid;
 		}
-		else{
-			this.GUID=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'GUID' is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_GUID_CONTEXT);
 	}
 
 	public String getGUID(){
@@ -98,10 +94,8 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 		if(com!=null && com.length()>0 && com.length()<150){
 			this.company=com;
 		}
-		else{
-			this.company=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'company' is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_COMPANY_CONTEXT);
 	}
 
 	public String getCompany(){
@@ -117,10 +111,8 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 		if(team!=null && team.length()>0 && team.length()<150){
 			this.team=team;
 		}
-		else{
-			this.team=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'team' is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_TEAM_CONTEXT);
 	}
 
 	public String getTeam(){
@@ -137,8 +129,10 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 		if(this.reporteeCNs==null)
 			this.reporteeCNs=new ArrayList<String>();
 		//Add each elements inside the list
-		for(String temp:reportees){
-			reporteeCNs.add(temp);
+		if(reportees!=null){
+			for(String temp:reportees){
+				reporteeCNs.add(temp);
+			}
 		}
 	}
 

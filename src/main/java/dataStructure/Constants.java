@@ -27,6 +27,31 @@ public final class Constants {
 	public static final String PENDING_FEEDBACK="Pending";
 	public static final String RECEIVED_ALL_FEEDBACK="Received";
 	public static final int MAX_TITLE_LENGTH=151;
+	
+	//Invalid Messages
+	public static final String INVALID_MAIL_CONTEXT="The given 'Email Address' is not valid in this context";
+	public static final String INVALID_GUID_CONTEXT="The given 'GUID' is not valid in this context";
+	public static final String INVALID_COMPANY_CONTEXT="The given 'company' is not valid in this context";
+	public static final String INVALID_TEAM_CONTEXT="The given 'team' is not valid in this context";
+	public static final String INVALID_USERID_CONTEXT="The given 'ID' is not valid in this context";
+	public static final String INVALID_USERNAME_CONTEXT="The given 'username' is not valid in this context";
+	public static final String INVALID_SURNAME_CONTEXT="The given 'surname' is not valid in this context";
+	public static final String INVALID_FORENAME_CONTEXT="The given 'forename' is not valid in this context";
+	public static final String INVALID_TITLE_CONTEXT="The given 'title' is not valid in this context";
+	public static final String INVALID_DESCRIPTION_CONTEXT="The given 'description' is not valid in this context";
+	public static final String INVALID_PROGRESS_CONTEXT="The given 'progress' value is not valid in this context";
+	public static final String INVALID_CATEGORY_CONTEXT="The given 'category' value is not valid in this context";
+	public static final String INVALID_PASTDATE_CONTEXT="The given date is invalid because it is in the past";
+	public static final String INVALID_DATEFORMAT_CONTEXT="The format for the given 'date' is not valid";
+//	public static final String INVALID_DESCRIPTION_CONTEXT="";
+//	public static final String INVALID_DESCRIPTION_CONTEXT="";
+//	public static final String INVALID_DESCRIPTION_CONTEXT="";
+//	public static final String INVALID_DESCRIPTION_CONTEXT="";
+//	public static final String INVALID_DESCRIPTION_CONTEXT="";
+//	public static final String INVALID_DESCRIPTION_CONTEXT="";
+//	public static final String INVALID_DESCRIPTION_CONTEXT="";
+	
+	
 
 	//Constants for the Functionalities package
 	//MongoDB Details
@@ -55,8 +80,8 @@ public final class Constants {
 
 	//Constants for the emailServices package
 	public static final String MAILBOX_ADDRESS="MYCAREER.FEEDBACK@soprasteria.com";
-	public static final String MAIL_USERNAME="@soprasteria.com";
-	public static final String MAIL_PASSWORD="";
+	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
+	public static final String MAIL_PASSWORD="MikeSopra16$";
 	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 	
 //	public static final String MAILBOX_ADDRESS="feedback.UK@soprasteria.com";
