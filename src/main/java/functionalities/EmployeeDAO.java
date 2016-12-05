@@ -1,21 +1,16 @@
 package functionalities;
 
+import java.io.InvalidClassException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.activity.InvalidActivityException;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
-
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
-import org.mongodb.morphia.aggregation.Projection;
-import org.mongodb.morphia.aggregation.Sort;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import com.mongodb.MongoClient;
@@ -147,17 +142,34 @@ public  class EmployeeDAO {
 		return e.getLatestVersionDevelopmentNeeds();
 	}
 
-	public static List<GroupFeedbackRequest> getGroupFeedbackRequestsForUser(long employeeID) throws InvalidAttributeValueException{
+	public static List<GroupFeedbackRequest> getGroupFeedbackRequestsForUser(long employeeID) throws InvalidAttributeValueException, InvalidClassException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
 		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 		if(query.get()==null)
 			throw new InvalidAttributeValueException("No user with such ID");
 		Employee e = query.get();
-		return e.getGroupFeedbackRequestsList();
+		List<GroupFeedbackRequest> requested=e.getGroupFeedbackRequestsList();
+		
+		//Each Feedback contained within the groupFeedbackRequest->feedbackRequest->feedback is not completed. 
+		//For each of them we need to get the full feedback object from the feedback list, stored separately within the user data
+		for(GroupFeedbackRequest groupReq: requested){
+			for(FeedbackRequest req: groupReq){
+				//Get all the feedback included within the feedbackRequest object
+				List<Feedback> listF=req.getReplies();
+				
+				//The feedback will be retrieved from the user data
+				List<Feedback> filledList=new ArrayList<>();
+				for(int i=0; i<listF.size(); i++){
+					filledList.add(e.getSpecificFeedback(listF.get(i).getID()));
+				}
+				//Substitute the list of feedback
+				req.setReplies(filledList);
+			}
+		}		
+		return requested;
 	}
 
-	//PLEASE FINA AN APPROPRIATE NAME FOR THIS METHOD
 	public static Map<String, Map<Integer, String>> getIDTitlePairsDataStructure(long employeeID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
