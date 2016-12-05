@@ -213,7 +213,7 @@ public class AppController {
 			@RequestParam(value="title") String title,
 			@RequestParam(value="description") String description,
 			@RequestParam(value="completedBy") String completedBy,
-			@RequestParam String proposedBy){
+			@RequestParam(value="proposedBy") String proposedBy){
 		try{
 			Objective obj=new Objective(0,0,title,description,completedBy);
 			obj.setProposedBy(proposedBy);
@@ -255,7 +255,7 @@ public class AppController {
 			@RequestParam(value="description") String description,
 			@RequestParam(value="completedBy") String completedBy,
 			@RequestParam(value="progress") int progress,
-			@RequestParam String proposedBy){
+			@RequestParam(value="proposedBy") String proposedBy){
 		try{
 			Objective obj=new Objective(objectiveID,progress,0,title,description,completedBy);
 			obj.setProposedBy(proposedBy);
@@ -326,8 +326,8 @@ public class AppController {
 	@RequestMapping(value="/addNote/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNoteToAUser(
 			@PathVariable("employeeID") long employeeID,
-			@RequestParam int noteType,
-			@RequestParam int linkID,
+			@RequestParam(value="noteType") int noteType,
+			@RequestParam(value="linkID") int linkID,
 			@RequestParam(value="from") String from,
 			@RequestParam(value="body") String body){
 		try{
@@ -360,8 +360,8 @@ public class AppController {
 	public ResponseEntity<?> addNewVersionNoteToAUser(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="noteID") int noteID,
-			@RequestParam int noteType,
-			@RequestParam int linkID,
+			@RequestParam(value="noteType") int noteType,
+			@RequestParam(value="linkID") int linkID,
 			@RequestParam(value="from") String from,
 			@RequestParam(value="body") String body){
 		try{

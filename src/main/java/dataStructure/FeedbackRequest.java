@@ -3,6 +3,7 @@ package dataStructure;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
 import com.google.gson.Gson;
@@ -16,7 +17,7 @@ import com.google.gson.Gson;
  * This class contains the definition of the FeedbackRequest object
  *
  */
-public class FeedbackRequest implements Serializable {
+public class FeedbackRequest implements Serializable, Iterable<Feedback> {
 
 	private static final long serialVersionUID = 47606158926933500L;
 	//Global Variables
@@ -146,6 +147,29 @@ public class FeedbackRequest implements Serializable {
 			s+=temp.toString();
 		}
 		return s;
+	}
+	
+	/*
+	 * Adapted from Source: http://stackoverflow.com/questions/5849154/can-we-write-our-own-iterator-in-java
+	 */
+	@Override
+	public Iterator<Feedback> iterator() {
+		Iterator<Feedback> iterator=new Iterator<Feedback>(){
+
+			private int currentIndex=0;
+			
+			@Override
+			public boolean hasNext() {
+				return currentIndex < replies.size() && replies.get(currentIndex)!=null;
+			}
+
+			@Override
+			public Feedback next() {
+				return replies.get(currentIndex++);
+			}
+			
+		};
+		return iterator;
 	}
 
 }
