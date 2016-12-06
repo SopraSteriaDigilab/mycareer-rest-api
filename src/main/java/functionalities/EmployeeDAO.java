@@ -1,12 +1,10 @@
 package functionalities;
 
-import java.io.InvalidClassException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.activity.InvalidActivityException;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import org.mongodb.morphia.Datastore;
@@ -142,7 +140,7 @@ public  class EmployeeDAO {
 		return e.getLatestVersionDevelopmentNeeds();
 	}
 
-	public static List<GroupFeedbackRequest> getGroupFeedbackRequestsForUser(long employeeID) throws InvalidAttributeValueException, InvalidClassException{
+	public static List<GroupFeedbackRequest> getGroupFeedbackRequestsForUser(long employeeID) throws InvalidAttributeValueException{
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
 		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
@@ -154,7 +152,8 @@ public  class EmployeeDAO {
 		//Each Feedback contained within the groupFeedbackRequest->feedbackRequest->feedback is not completed. 
 		//For each of them we need to get the full feedback object from the feedback list, stored separately within the user data
 		for(GroupFeedbackRequest groupReq: requested){
-			for(FeedbackRequest req: groupReq){
+			List<FeedbackRequest> feedReqListTemp=groupReq.getRequestList();
+			for(FeedbackRequest req: feedReqListTemp){
 				//Get all the feedback included within the feedbackRequest object
 				List<Feedback> listF=req.getReplies();
 				
@@ -166,7 +165,8 @@ public  class EmployeeDAO {
 				//Substitute the list of feedback
 				req.setReplies(filledList);
 			}
-		}		
+		}
+		
 		return requested;
 	}
 
@@ -891,7 +891,7 @@ public  class EmployeeDAO {
 			throw new InvalidAttributeValueException("The data provided is not valid");
 	}
 
-	public static boolean linkFeedbackReqReplyToUserGroupFBReq(String requester, String fbReqID, Feedback data) throws InvalidAttributeValueException, NamingException, InvalidActivityException{
+	public static boolean linkFeedbackReqReplyToUserGroupFBReq(String requester, String fbReqID, Feedback data) throws InvalidAttributeValueException, NamingException{
 		if(data!=null && data.isFeedbackValid()){
 			//Establish a connection with the DB
 			if(dbConnection==null)
@@ -906,7 +906,7 @@ public  class EmployeeDAO {
 				Employee e = querySearch.get();
 				//Retrieve specific GRoupFeedbackRequest object from user data
 				GroupFeedbackRequest groupFBReq=e.getSpecificGroupFeedbackRequest(fbReqID.trim());
-				//Verify that something has been returned, if so, we have the feedback request object, let's add the feedback to it
+				
 				boolean flag=false;
 				try{
 					data.setID(getLatestFeedbackIDForUser(basicProfile.getEmployeeID())+1);
@@ -914,7 +914,7 @@ public  class EmployeeDAO {
 				catch(Exception error){
 					data.setID(1);
 				}
-
+				//Verify that something has been returned, if so, we have the feedback request object, let's add the feedback to it
 				if(groupFBReq!=null){
 					flag=true;
 					FeedbackRequest feedbackReqUpdated=e.getSpecificFeedbackRequestFromGroupFBRequests(fbReqID.trim());
@@ -928,15 +928,10 @@ public  class EmployeeDAO {
 					//Verify if the operations have been completed successfully
 					if(!res1 || !res2 || !res3)
 						throw new InvalidAttributeValueException("Something went wrong while adding the feedback to user "+basicProfile.getEmployeeID());
-					//Set the flag to false, since there has been a problem trying to link the feedback to a feedback request.
-					//This will allow the system to save the feedback as a general feedback instead
-					//flag=false;						
-					//else{
 					//Update the data in the DB
 					UpdateOperations<Employee> ops2 = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", e.getGroupFeedbackRequestsList());
 					//Commit the changes to the DB
 					dbConnection.update(querySearch, ops2);
-					//}
 				}
 
 				if(!flag){

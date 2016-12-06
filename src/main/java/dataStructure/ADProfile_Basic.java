@@ -1,9 +1,7 @@
 package dataStructure;
 
 import java.io.Serializable;
-
 import javax.management.InvalidAttributeValueException;
-
 import com.google.gson.Gson;
 
 /**

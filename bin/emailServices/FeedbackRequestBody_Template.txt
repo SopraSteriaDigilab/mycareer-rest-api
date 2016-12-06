@@ -1,18 +1,19 @@
 Hi,
  
-[FeedbackRequester_name] has requested your feedback. Sopra Steria is committed to helping its employees to be the best they can be, your feedback is a key part of helping them to know they are doing a great job and also help them to be better.
+[FeedbackRequester_name] has requested your feedback. 
  
 Simply reply to this email to provide [FeedbackRequester_name] with feedback. 
 They supplied the following comment:
 “[FeedbackRequest_Comments]”
- 
+
+
 The following headings may help you.
-Context
-What went well?
-What could be improved?
+1) Context
+2) What went well?
+3) What could be improved?
+4) What was the time period in which feedback was observed?
 
  
 You can find more information on the Performance Management page on F2F. (External link required)
- 
-+-+-+-+-+- Please don’t edit anything below this line +-+-+-+-+-
+
 Request ID:

@@ -3,18 +3,20 @@ package dataStructure;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import javax.management.InvalidAttributeValueException;
+import org.mongodb.morphia.annotations.Embedded;
+import com.google.gson.Gson;
 
-import javax.activity.InvalidActivityException;
-
-public class GroupFeedbackRequest implements Serializable, Iterable<FeedbackRequest>{
+@Embedded
+public class GroupFeedbackRequest implements Serializable{//, Iterable<FeedbackRequest>{
 
 	//Global Constant
 	private static final long serialVersionUID = 6950535901949268747L;
 	
 	//Global Variables
 	private String id;
+	@Embedded
 	private List<FeedbackRequest> requests;
 	
 	//Empty Constructor
@@ -40,42 +42,42 @@ public class GroupFeedbackRequest implements Serializable, Iterable<FeedbackRequ
 		return this.id;
 	}
 	
-	public void setRequestList(List<FeedbackRequest> reqs) throws InvalidActivityException{
+	public void setRequestList(List<FeedbackRequest> reqs) throws InvalidAttributeValueException{
 		if(reqs!=null)
 			this.requests=reqs;
 		else
-			throw new InvalidActivityException("The feedback request list is invalid");
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACKREQLIST_CONTEXT);
 	}
 	
 	public List<FeedbackRequest> getRequestList(){
 		return this.requests;
 	}
 	
-	public boolean addFeedbackRequest(FeedbackRequest fb) throws InvalidActivityException{
+	public boolean addFeedbackRequest(FeedbackRequest fb) throws InvalidAttributeValueException{
 		if(this.requests==null)
 			this.requests=new ArrayList<FeedbackRequest>();
 		if(fb!=null && fb.isValid()){
 			for(FeedbackRequest t: requests){
 				if(t.getID().equals(fb.getID()))
-					throw new InvalidActivityException("The Feedback request is a duplicate and cannot be added to this GroupFeedback");
+					throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKDUPLICATE_CONTEXT);
 			}
 			//If the object passes this stage, it's a valid feedback request and can be added to this groupRequests
 			return requests.add(fb);
 		}
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQLIST_CONTEXT);
 	}
 	
-	public boolean removeFeedbackRequest(String id){
+	public boolean removeFeedbackRequest(String id) throws InvalidAttributeValueException{
 		if(id!=null && this.requests!=null){
 			for(FeedbackRequest t: requests){
 				if(t.getID().equals(id))
 					return requests.remove(t);
 			}
 		}
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_ID_CONTEXT);
 	}
 	
-	public boolean updateFeedbackRequest(FeedbackRequest fb){
+	public boolean updateFeedbackRequest(FeedbackRequest fb) throws InvalidAttributeValueException{
 		if(fb!=null && fb.isValid() && this.requests!=null){
 			for(int i=0; i<requests.size(); i++){
 				//Once the item is found, remove it from the list and insert the updated one
@@ -84,19 +86,27 @@ public class GroupFeedbackRequest implements Serializable, Iterable<FeedbackRequ
 					return requests.add(fb);
 				}
 			}
+			return false;
+			//throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_NOTFOUND_CONTEXT);
 		}
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_CONTEXT);
 	}
 	
-	public FeedbackRequest searchFeedbackRequestID(String id) throws InvalidActivityException{
+	public FeedbackRequest searchFeedbackRequestID(String id) throws InvalidAttributeValueException{
 		if(id!=null && !id.equals("")){
 			for(FeedbackRequest t:requests){
 				if(t.getID().equals(id))
 					return t;
 			}
 			return null;
+			//throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_NOTFOUND_CONTEXT);
 		}
-		throw new InvalidActivityException("The Feedback Request ID is invalid");
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_ID_CONTEXT);
+	}
+	
+	public String toGson(){
+		Gson gsonData=new Gson();
+		return gsonData.toJson(this);
 	}
 	
 	@Override
@@ -112,23 +122,23 @@ public class GroupFeedbackRequest implements Serializable, Iterable<FeedbackRequ
 	/*
 	 * Adapted from Source: http://stackoverflow.com/questions/5849154/can-we-write-our-own-iterator-in-java
 	 */
-	@Override
-	public Iterator<FeedbackRequest> iterator() {
-		Iterator<FeedbackRequest> iterator=new Iterator<FeedbackRequest>(){
-
-			private int currentIndex=0;
-			
-			@Override
-			public boolean hasNext() {
-				return currentIndex < requests.size() && requests.get(currentIndex)!=null;
-			}
-
-			@Override
-			public FeedbackRequest next() {
-				return requests.get(currentIndex++);
-			}
-			
-		};
-		return iterator;
-	}
+//	@Override
+//	public Iterator<FeedbackRequest> iterator() {
+//		Iterator<FeedbackRequest> iterator=new Iterator<FeedbackRequest>(){
+//
+//			private int currentIndex=0;
+//			
+//			@Override
+//			public boolean hasNext() {
+//				return currentIndex < requests.size() && requests.get(currentIndex)!=null;
+//			}
+//
+//			@Override
+//			public FeedbackRequest next() {
+//				return requests.get(currentIndex++);
+//			}
+//			
+//		};
+//		return iterator;
+//	}
 }

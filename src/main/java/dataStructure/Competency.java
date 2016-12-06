@@ -2,9 +2,7 @@ package dataStructure;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
 import javax.management.InvalidAttributeValueException;
-
 import org.mongodb.morphia.annotations.Embedded;
 import com.google.gson.Gson;
 
