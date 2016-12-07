@@ -131,28 +131,95 @@ public class ADProfileDAO {
 		throw new InvalidAttributeValueException("No username has been found for employee ID: "+employeeID);
 	}
 
-	private static DirContext getADConnection() throws NamingException{
+	public static String findEmployeeFullNameFromEmailAddress(String email) throws NamingException, InvalidAttributeValueException{
+		//Verify the given email address
+		if(email==null || email.length()<1)
+			throw new InvalidAttributeValueException("The given email address is invalid");
+		//Instantiate the connection
+		if(ldapContext==null)
+			ldapContext = getADConnection();
+
+		// Create the search controls         
+		SearchControls searchCtls = new SearchControls();
+		//Specify the attributes to return
+		searchCtls.setReturningAttributes(Constants.AD_ATTRIBUTES);
+		//Specify the search scope
+		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		//specify the LDAP search filter
 		
-//		Hashtable<String, String> env = new Hashtable<String, String>();
-//		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-//		env.put(Context.SECURITY_AUTHENTICATION, "simple");
-//		env.put(Context.PROVIDER_URL, "ldap://emea.msad.sopra:389");
-//		 
-//		// The value of Context.SECURITY_PRINCIPAL must be the logon username with the domain name
-//		env.put(Context.SECURITY_PRINCIPAL, "svc_mycareer@emea.msad.sopra");
-//		// The value of the Context.SECURITY_CREDENTIALS should be the user's password
-//		env.put(Context.SECURITY_CREDENTIALS, "N9T$SiPSZ");
+		String searchFilter = "(mail=" + email + ")";
+		
+		// Search for objects using the filter
+		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_TREE, searchFilter, searchCtls);
+
+		//Check the results retrieved
+		if(answer.hasMoreElements()){
+			SearchResult sr = (SearchResult)answer.next();
+			Attributes attrs = sr.getAttributes();
+			
+			//Find and return the full name
+			String surname=(String)attrs.get("sn").get();
+			//Convert the upper case surname into a lower case string with only the 1st char uppercase
+			surname=surname.substring(0,1).toUpperCase()+surname.substring(1).toLowerCase();
+			String forename=(String)attrs.get("givenName").get();
+			return surname+" "+forename;
+		}
+		//Close the connection with the AD
+		ldapContext.close();
+		ldapContext=null;
+		throw new InvalidAttributeValueException("The given email address doesn't match any Sopra Steria employee");
+	}
+	
+	public static String findEmployeeFullNameFromID(String id) throws NamingException, InvalidAttributeValueException{
+		//Verify the given ID
+		if(id==null || id.length()<1)
+			throw new InvalidAttributeValueException("The given ID is invalid");
+		//Instantiate the connection
+		if(ldapContext==null)
+			ldapContext = getADConnection();
+
+		// Create the search controls         
+		SearchControls searchCtls = new SearchControls();
+		//Specify the attributes to return
+		searchCtls.setReturningAttributes(Constants.AD_ATTRIBUTES);
+		//Specify the search scope
+		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		//specify the LDAP search filter
+		String searchFilter = "(extensionAttribute7=s" + id + ")";
+		
+		// Search for objects using the filter
+		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_TREE, searchFilter, searchCtls);
+
+		//Check the results retrieved
+		if(answer.hasMoreElements()){
+			SearchResult sr = (SearchResult)answer.next();
+			Attributes attrs = sr.getAttributes();
+			
+			//Find and return the full name
+			String surname=(String)attrs.get("sn").get();
+			//Convert the upper case surname into a lower case string with only the 1st char uppercase
+			surname=surname.substring(0,1).toUpperCase()+surname.substring(1).toLowerCase();
+			String forename=(String)attrs.get("givenName").get();
+			return surname+" "+forename;
+		}
+		//Close the connection with the AD
+		ldapContext.close();
+		ldapContext=null;
+		throw new InvalidAttributeValueException("The given employeeID doesn't match any Sopra Steria employee");
+	}
+
+	private static DirContext getADConnection() throws NamingException{
 
 		Hashtable<String, String> ldapEnvironmentSettings = new Hashtable<String, String>();
 		ldapEnvironmentSettings.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 		ldapEnvironmentSettings.put(Context.PROVIDER_URL,  Constants.AD_HOST+":"+Constants.AD_PORT);
 		ldapEnvironmentSettings.put(Context.SECURITY_AUTHENTICATION, Constants.AD_AUTHENTICATION);
-		
+
 		//This is essential in order to retrieve the user GUID later on in the process
 		ldapEnvironmentSettings.put("java.naming.ldap.attributes.binary", "objectGUID");
-		
+
 		ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, Constants.AD_USERNAME);
-//		ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, "cn="+Constants.AD_USERNAME+","+Constants.AD_TREE);
+		//ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, "cn="+Constants.AD_USERNAME+","+Constants.AD_TREE);
 		ldapEnvironmentSettings.put(Context.SECURITY_CREDENTIALS, Constants.AD_PASSWORD);
 		return new InitialDirContext(ldapEnvironmentSettings);
 	}

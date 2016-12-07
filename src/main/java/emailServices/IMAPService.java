@@ -61,7 +61,7 @@ public final class IMAPService {
 
 	/**
 	 * 
-	 * This method initiate the email service and checks for new emails every minute
+	 * This method initiate the email service and checks for new emails at regular intervals
 	 * 
 	 * @throws URISyntaxException
 	 */
@@ -97,6 +97,8 @@ public final class IMAPService {
 	private static void retrieveNewEmails() throws Exception{
 		//Open the Inbox folder for the given mailbox
 		Folder inboxFolder = Folder.bind(emailService, WellKnownFolderName.Inbox);
+		
+		
 		//Verify if there are unread mails
 		if(inboxFolder.getUnreadCount()>0){
 			System.out.println("\t"+LocalTime.now()+" - Processing unread emails ...");
@@ -168,8 +170,17 @@ public final class IMAPService {
 					EmailAddress fromFieldEmail=openNotReadEmail.getFrom();
 					//The email is internal the company if the email address contains @soprasteria.com
 					String type="";
-					if(fromFieldEmail.toString().contains("@soprasteria.com"))
+					String fullNameFeedbackProvider="";
+					if(fromFieldEmail.toString().contains("@soprasteria.com")){
 						type="Internal";
+						//Find the full name of the employee providing the feedback from the AD
+						try{
+							fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(fromFieldEmail.getAddress().toString());
+						}
+						catch(Exception e){
+							System.out.println("\t"+LocalTime.now()+" - Error while finding the full name of the feedback provider\n"+e.getMessage());
+						}
+					}
 					else
 						type="External";
 					//Get the body of the email extracting only the necessary parts
@@ -182,7 +193,10 @@ public final class IMAPService {
 					}
 					
 					//Create an Feedback Object					
-					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),bodyEmail,type,"Email");
+					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),bodyEmail,type,"Email",true);
+					//Add the full name of the feedback provider (if any)
+					if(type.equals("Internal"))
+						feedbackObj.setFullName(fullNameFeedbackProvider);
 					//Add the whole email body to the feedback
 					feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
 
@@ -210,7 +224,7 @@ public final class IMAPService {
 					//If the task has been completed successfully, set the email as read and move it to the Journal Folder
 					if(res){
 						openNotReadEmail.setIsRead(true);
-						openNotReadEmail.move(WellKnownFolderName.Journal);
+						openNotReadEmail.move(WellKnownFolderName.Inbox);
 						System.out.println("\t"+LocalTime.now()+" - Reply to a Feedback Request linked correctly");
 						{
 							//Praise Feedback provider
@@ -237,7 +251,6 @@ public final class IMAPService {
 				
 				//If it doesn't exist, it's a unrequested feedback
 				else{
-					//String subjectEmail=openNotReadEmail.getSubject().toLowerCase();
 					//Get the TO field && remove the mycarer.feedback email address if it's there by mistake
 					List<EmailAddress> toElements=openNotReadEmail.getToRecipients().getItems();
 					for(EmailAddress toElem:toElements){
@@ -277,8 +290,17 @@ public final class IMAPService {
 						
 						//The email is internal the company if the email address contains @soprasteria.com
 						String type="";
-						if(fromFieldEmail.toString().contains("@soprasteria.com"))
+						String fullNameFeedbackProvider="";
+						if(fromFieldEmail.toString().contains("@soprasteria.com")){
 							type="Internal";
+							//Find the full name of the employee providing the feedback from the AD
+							try{
+								fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(fromFieldEmail.getAddress().toString());
+							}
+							catch(Exception e){
+								System.out.println("\t"+LocalTime.now()+" - Error while finding the full name of the feedback provider\n"+e.getMessage());
+							}
+						}
 						else
 							type="External";
 						
@@ -301,7 +323,10 @@ public final class IMAPService {
 								//Remove unnecessary part of the email body
 								
 								cleanBodyEmail=cleanEmailBody(openNotReadEmail.getBody().toString());
-								Feedback feedbackObj=new Feedback("",fromFieldEmail.getAddress(),cleanBodyEmail,type,"Email");
+								Feedback feedbackObj=new Feedback(1,fromFieldEmail.getAddress(),cleanBodyEmail,type,"Email",false);
+								//Add the full name of the feedback provider (if any)
+								if(type.equals("Internal"))
+									feedbackObj.setFullName(fullNameFeedbackProvider);
 								//Add the full email body
 								feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
 								//Attach the feedback to the User on the Database
@@ -335,7 +360,7 @@ public final class IMAPService {
 						}
 						//Move the email to the Journal Folder
 						openNotReadEmail.setIsRead(true);
-						openNotReadEmail.move(WellKnownFolderName.Journal);
+						openNotReadEmail.move(WellKnownFolderName.Inbox);
 
 						//Praise feedback provider
 						praiseFeedbackProvider(fromFieldEmail, successfullyAdded, unsuccessfullyAdded);
@@ -554,6 +579,11 @@ public final class IMAPService {
 		//                log("Type:" + traceType + " Message:" + traceMessage);
 		//            }
 		//        });
+		
+		//https://mailbox.corp.sopra/ews/exchange.asmx
+		// Setup binding with username and password of the delegate account
+//		credentials = new WebCredentials(Constants.MAIL_USERNAME, Constants.MAIL_PASSWORD, "corp.sopra");
+//		emailService.setCredentials(credentials);
 	}
 
 	/**
@@ -569,5 +599,36 @@ public final class IMAPService {
 		if(timer!=null)
 			timer.cancel();
 	}
+	
+//	private static TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager(){
+//	public java.security.cert.X509Certificate[] getAcceptedIssuers(){
+//			return null;
+//	  	}
+//	public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String    authType) {
+//	}
+//
+//	public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) 
+//	{
+//	}
+//	}
+//
+//	// Java Secure Socket Connection 
+//	private static HostnameVerifier hv = new HostnameVerifier() 
+//	{
+//	@Override
+//		public boolean verify(String urlHostName, SSLSession session) 
+//	{
+//			return true;
+//		}
+//	};
+//
+//	//Sets the ssl config.
+//	private static void setSSLConfig() throws Exception 
+//	{
+//	   SSLContext context = SSLContext.getInstance("SSL");
+//	   context.init(null, trustAllCerts, new java.security.SecureRandom());
+//	   HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+//	   HttpsURLConnection.setDefaultHostnameVerifier(hv);
+//	}
 
 }

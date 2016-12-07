@@ -20,24 +20,30 @@ public class Note implements Serializable{
 	
 	private static final long serialVersionUID = 3232489026577284657L;
 	//Global Variables
-	private int id;
-	private String body, timeStamp, fromWho;
+	private int id, noteType, linkID;
+	private String body, timeStamp, fromWho, linkTitle;
 	
 	//Empty Constructor
 	public Note(){
 		this.id=Constants.INVALID_INT;
+		this.noteType=Constants.INVALID_INT;
+		this.linkID=Constants.INVALID_INT;
 		this.body="";
 		this.timeStamp=null;
 		this.fromWho="";
+		this.linkTitle="";
 	}
 	
 	//Constructor with Parameters
-	public Note(int id, String body, String from) throws InvalidAttributeValueException{
+	public Note(int id, int noteType, int linkID, String body, String from) throws InvalidAttributeValueException{
 		this.setID(id);
+		this.setNoteType(noteType);
+		this.setLinkID(linkID);
 		this.setBody(body);
 		this.timeStamp=null;
 		this.setTimeStamp();
 		this.setFromWho(from);
+		this.linkTitle="";
 	}
 	
 	/**
@@ -59,6 +65,62 @@ public class Note implements Serializable{
 		return this.id;
 	}
 	
+	/**
+	 * 
+	 * @param noteType This contains the type of note at int.
+	 * 0 - General
+	 * 1 - Objective
+	 * 2 - Competency
+	 * 3 - Feedback
+	 * 4 - Development
+	 * 5 - Team
+	 * @throws InvalidAttributeValueException 
+	 */
+	public void setNoteType(int noteType) throws InvalidAttributeValueException {
+		if(noteType >= 0 && noteType <= 6){
+			this.noteType = noteType;
+		}else
+			throw new InvalidAttributeValueException("Note type must be from 0 to 6");
+	}
+
+	public int getNoteType() {
+		return noteType;
+	}
+	
+	public void setLinkTitle(String linkTitle) throws InvalidAttributeValueException{
+		if(linkTitle!=null && linkTitle.length()>0 && linkTitle.length()<Constants.MAX_TITLE_LENGTH){
+			this.linkTitle=linkTitle;
+		}
+		else
+			throw new InvalidAttributeValueException("The title of the note link is invalid");
+	}
+	
+	public String getLinkTitle(){
+		return this.linkTitle;
+	}
+	
+	
+	/**
+	 * This method sets the linkID of the note
+	 * 
+	 * @param id
+	 * @throws InvalidAttributeValueException
+	 */
+	public void setLinkID(int linkID) throws InvalidAttributeValueException {
+		if(id>0)
+			this.linkID = linkID;
+		else{
+			this.id=Constants.INVALID_INT;
+			throw new InvalidAttributeValueException("An ID with value "+id+" is not valid in this context");
+		}
+	}
+	
+	public int getLinkID() {
+		return linkID;
+	}
+
+
+
 	/**
 	 * 
 	 * @param body This contains the notes of the user, but the text must not exceed the 1000 characters
@@ -118,7 +180,10 @@ public class Note implements Serializable{
 		s+="ID "+this.id+"\n"
 			+ "Body "+this.body+"\n"
 			+ "From "+this.fromWho+"\n"
-			+ "Time "+this.getTimeStamp();
+			+ "Time "+this.getTimeStamp()
+			+ "Note Type "+this.noteType+"\n"
+			+ "LinkID "+this.linkID+"\n"
+			+ "Link Title "+this.linkTitle+"\n";
 		return s;
 	}
 	

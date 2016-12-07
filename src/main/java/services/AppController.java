@@ -213,7 +213,7 @@ public class AppController {
 			@RequestParam(value="title") String title,
 			@RequestParam(value="description") String description,
 			@RequestParam(value="completedBy") String completedBy,
-			@RequestParam String proposedBy){
+			@RequestParam(value="proposedBy") String proposedBy){
 		try{
 			Objective obj=new Objective(0,0,title,description,completedBy);
 			obj.setProposedBy(proposedBy);
@@ -255,7 +255,7 @@ public class AppController {
 			@RequestParam(value="description") String description,
 			@RequestParam(value="completedBy") String completedBy,
 			@RequestParam(value="progress") int progress,
-			@RequestParam String proposedBy){
+			@RequestParam(value="proposedBy") String proposedBy){
 		try{
 			Objective obj=new Objective(objectiveID,progress,0,title,description,completedBy);
 			obj.setProposedBy(proposedBy);
@@ -326,10 +326,12 @@ public class AppController {
 	@RequestMapping(value="/addNote/{employeeID}", method=RequestMethod.POST)
 	public ResponseEntity<?> addNoteToAUser(
 			@PathVariable("employeeID") long employeeID,
+			@RequestParam(value="noteType") int noteType,
+			@RequestParam(value="linkID") int linkID,
 			@RequestParam(value="from") String from,
 			@RequestParam(value="body") String body){
 		try{
-			Note obj=new Note(1,body,from);
+			Note obj=new Note(1, noteType, linkID, body,from);
 			boolean inserted=EmployeeDAO.insertNewNote(employeeID,obj);
 			if(inserted)
 				return ResponseEntity.ok("Note inserted correctly!");
@@ -358,10 +360,12 @@ public class AppController {
 	public ResponseEntity<?> addNewVersionNoteToAUser(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="noteID") int noteID,
+			@RequestParam(value="noteType") int noteType,
+			@RequestParam(value="linkID") int linkID,
 			@RequestParam(value="from") String from,
 			@RequestParam(value="body") String body){
 		try{
-			Note obj=new Note(noteID,body,from);
+			Note obj=new Note(noteID, noteType, linkID, body,from);
 			boolean inserted=EmployeeDAO.addNewVersionNote(employeeID, noteID, obj);
 			if(inserted)
 				return ResponseEntity.ok("Note modified correctly!");
@@ -633,6 +637,31 @@ public class AppController {
 			return ResponseEntity.badRequest().body(result + e.getMessage()  +", ");
 		} 
 	}
+	
+	
+	/**
+	 * Gets all IDs and Titles for each Objective, Competency,Feedback, Development need,
+	 * and team member for this {@code employeeID}.
+	 * 
+	 * @param employeeID
+	 */
+	@RequestMapping(value="/getIDTitlePairs/{employeeID}", method=RequestMethod.GET)
+	public ResponseEntity<?> getIDTitlePairs(@PathVariable long employeeID){
+		if(employeeID>0)
+			try {
+				//Retrieve and return the ID Title pairs from the system
+				return ResponseEntity.ok(EmployeeDAO.getIDTitlePairsDataStructure(employeeID));
+			}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+		else
+			return ResponseEntity.badRequest().body("The given ID is invalid");
+	}
+	
 	
 	
 	private void areInputValuesEmpty(String... args) throws InvalidAttributeValueException{

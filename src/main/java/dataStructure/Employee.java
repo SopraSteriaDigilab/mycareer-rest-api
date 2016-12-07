@@ -139,8 +139,18 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		}
 	}
 
-	public List<Feedback> getFeedbackList(){
+	public List<Feedback> getAllFeedback(){
 		return this.feedback;
+	}
+	
+	public Feedback getSpecificFeedback(int id) throws InvalidClassException{
+		if(id>0){
+			return feedback.stream()
+					.filter(f->f.getID()==id)
+					.findFirst()
+					.get();
+		}
+		throw new InvalidClassException("Feedback ID Invalid");
 	}
 
 	/**
@@ -675,7 +685,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		if(obj==null)
 			return false;
 		//At this point the Feedback hasn't got an ID, let's create it
-		obj.setID(""+(feedback.size()+1));
+		obj.setID((feedback.size()+1));
 		if(obj.isFeedbackValid())
 			return feedback.add(obj);
 		return false;
@@ -698,7 +708,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			//If the appropriate objective is found, add the feedback to its list
 			if(this.objectives.get(i).get(0).getID()==objectiveID){
 				//Now that the related objective is found, create an ID for this feedback
-				obj.setID(""+this.objectives.get(i).size()+1);
+				obj.setID(this.objectives.get(i).size()+1);
 				//Validate the data
 				if(obj.isFeedbackValid())
 					//Try to add the new feedback
