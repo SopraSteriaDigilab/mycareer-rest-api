@@ -254,7 +254,7 @@ public final class SMTPService {
 			body+=reqID;
 			mb.setText(body);
 			//Set tje body type to plain text
-			mb.setBodyType(BodyType.Text);;
+			mb.setBodyType(BodyType.Text);
 			//Return the filled message
 			return mb;
 		}catch(Exception e){
