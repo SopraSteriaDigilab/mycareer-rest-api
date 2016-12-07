@@ -1,14 +1,11 @@
 package dataStructure;
 
-import java.io.InvalidClassException;
 import java.io.Serializable;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import javax.activity.InvalidActivityException;
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
@@ -74,7 +71,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			List<List<DevelopmentNeed>> needs,
 			List<GroupFeedbackRequest> requests,
 			List<List<Competency>> competencies,
-			List<String> reportees) throws InvalidAttributeValueException, InvalidClassException{
+			List<String> reportees) throws InvalidAttributeValueException{
 		super(employeeID, guid, name, surname,email,username,company,team,isManager);
 		this.setFeedbackList(feeds);
 		this.setObjectiveList(objectives);
@@ -116,7 +113,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * @throws InvalidClassException
 	 * @throws InvalidAttributeValueException
 	 */
-	public void setFeedbackList(List<Feedback> feeds)throws InvalidClassException, InvalidAttributeValueException{
+	public void setFeedbackList(List<Feedback> feeds) throws InvalidAttributeValueException{
 		if(feeds!=null){
 			//Create a counter that keeps count of the error produced
 			int errorCounter=0;
@@ -131,26 +128,24 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}
 			//Verify if there has been any error
 			if(errorCounter!=0)
-				throw new InvalidClassException("Not all the feedback were added due to their format/status");
+				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST_CONTEXT);
 		}
-		else{
-			this.feedback=null;
-			//throw new InvalidAttributeValueException("The list of feedback given is null");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACKLIST_CONTEXT);
 	}
 
 	public List<Feedback> getAllFeedback(){
 		return this.feedback;
 	}
 	
-	public Feedback getSpecificFeedback(int id) throws InvalidClassException{
+	public Feedback getSpecificFeedback(int id) throws InvalidAttributeValueException {
 		if(id>0){
 			return feedback.stream()
 					.filter(f->f.getID()==id)
 					.findFirst()
 					.get();
 		}
-		throw new InvalidClassException("Feedback ID Invalid");
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKID_CONTEXT);
 	}
 
 	/**
@@ -176,16 +171,14 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 					}
 				}
 				else
-					throw new InvalidAttributeValueException("The list of objectives given is null");
+					throw new InvalidAttributeValueException(Constants.INVALID_NULLOBJECTIVE_CONTEXT);
 			}
 			//Verify if there were errors during the import of objectives
 			if(errorCounter!=0)
-				throw new InvalidAttributeValueException("Not all objective elements were valid");
+				throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVELIST_CONTEXT);
 		}
-		else{
-			this.objectives=null;
-			//throw new InvalidAttributeValueException("The list of feedback given is null");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLOBJECTIVELIST_CONTEXT);
 	}
 
 	public List<List<Objective>> getObjectiveList(){
@@ -220,11 +213,12 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @param id id of the objective to search
 	 * @return the objective data
+	 * @throws InvalidAttributeValueException 
 	 */
-	public Objective getLatestVersionOfSpecificObjective(int id){
+	public Objective getLatestVersionOfSpecificObjective(int id) throws InvalidAttributeValueException{
 		//Verify if the id is valid
 		if(id<0)
-			return null;
+			throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVEID_CONTEXT);
 		//Search for the objective with the given ID
 		for(List<Objective> subList:objectives){
 			if((subList.get(0)).getID()==id){
@@ -260,16 +254,14 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 					}
 				}
 				else
-					throw new InvalidAttributeValueException("The given list of notes is null");
+					throw new InvalidAttributeValueException(Constants.INVALID_NULLNOTE_CONTEXT);
 			}
 			//Verify if there were errors during the import of objectives
 			if(errorCounter!=0)
-				throw new InvalidAttributeValueException("Not all note elements were valid");
+				throw new InvalidAttributeValueException(Constants.INVALID_NOTELIST_CONTEXT);
 		}
-		else{
-			this.notes=null;
-			throw new InvalidAttributeValueException("The list of feedback given is null");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLNOTELIST_CONTEXT);
 	}
 
 	public List<List<Note>> getNoteList(){
@@ -300,11 +292,12 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @param id id of the note
 	 * @return the note data
+	 * @throws InvalidAttributeValueException 
 	 */
-	public Note getLatestVersionOfSpecificNotee(int id){
+	public Note getLatestVersionOfSpecificNotee(int id) throws InvalidAttributeValueException{
 		//Verify if the id is valid
 		if(id<0)
-			return null;
+			throw new InvalidAttributeValueException(Constants.INVALID_NOTEID_CONTEXT);
 		//Search for the note with the given ID
 		for(List<Note> subList:notes){
 			if((subList.get(0)).getID()==id){
@@ -341,16 +334,14 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 					}
 				}
 				else
-					throw new InvalidAttributeValueException("The list of development needs given is null");
+					throw new InvalidAttributeValueException(Constants.INVALID_NULLDEVNEED_CONTEXT);
 			}
 			//Verify if there were errors during the import of development needs
 			if(errorCounter!=0)
-				throw new InvalidAttributeValueException("Not all development need elements were valid");
+				throw new InvalidAttributeValueException(Constants.INVALID_DEVNEEDSLIST_CONTEXT);
 		}
-		else{
-			this.objectives=null;
-			//throw new InvalidAttributeValueException("The list of feedback given is null");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLDEVNEEDSLIST_CONTEXT);
 	}
 
 	/**
@@ -386,16 +377,18 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	}
 
 	/**
+	 * @throws InvalidAttributeValueException 
 	 * 
 	 * This method returns the latest version of a specific development need, given its ID
 	 * 
 	 * @param id development need ID
 	 * @return the DevelopmentNeed data object
+	 * @throws  
 	 */
-	public DevelopmentNeed getLatestVersionOfSpecificDevelopmentNeed(int id){
+	public DevelopmentNeed getLatestVersionOfSpecificDevelopmentNeed(int id) throws InvalidAttributeValueException{
 		//Verify if the id is valid
 		if(id<0)
-			return null;
+			throw new InvalidAttributeValueException(Constants.INVALID_DEVNEEDID_CONTEXT);
 		//Search for the development need with the given ID
 		for(List<DevelopmentNeed> subList:developmentNeeds){
 			if((subList.get(0)).getID()==id){
@@ -429,12 +422,10 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}
 			//Verify if there were errors during the import of development needs
 			if(errorCounter!=0)
-				throw new InvalidAttributeValueException("Not all feedback requests were valid");
+				throw new InvalidAttributeValueException(Constants.INVALID_GROUPFEEDBACKREQUESTLIST_CONTEXT);
 		}
-		else{
-			this.groupFeedbackRequests=null;
-			//throw new InvalidAttributeValueException("The list of feedback given is null");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUESTLIST_CONTEXT);
 	}
 
 	/**
@@ -453,9 +444,9 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @param id
 	 * @return
-	 * @throws InvalidActivityException 
+	 * @throws InvalidAttributeValueException 
 	 */
-	public FeedbackRequest getSpecificFeedbackRequestFromGroupFBRequests(String id) throws InvalidActivityException{
+	public FeedbackRequest getSpecificFeedbackRequestFromGroupFBRequests(String id) throws InvalidAttributeValueException{
 		if(id!=null && !id.equals("")){
 			//			return feedbackRequests.stream()
 			//			.filter(t -> t.getID().equals(id))
@@ -466,9 +457,10 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}
 		}
 		return null;
+		//throw new InvalidAttributeValueException(Constants.INVALID_GROUPFEEDBACKREQUESTID_CONTEXT);
 	}
 	
-	public GroupFeedbackRequest getSpecificGroupFeedbackRequest(String id) throws InvalidActivityException{
+	public GroupFeedbackRequest getSpecificGroupFeedbackRequest(String id) throws InvalidAttributeValueException{
 		if(id!=null && !id.equals("")){
 			for(int i=0; i<groupFeedbackRequests.size(); i++){
 				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(id) != null)
@@ -476,6 +468,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}
 		}
 		return null;
+		//throw new InvalidAttributeValueException(Constants.INVALID_GROUPFEEDBACKREQUESTID_CONTEXT);
 	}
 
 	/**
@@ -501,11 +494,11 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 					}//for
 				}//if
 				else
-					throw new InvalidAttributeValueException("The list of development needs given is null");
+					throw new InvalidAttributeValueException(Constants.INVALID_NULLCOMPETENECYLIST_CONTEXT);
 			}//for
 			//Verify if there have been any error during the insertion of competencies
 			if(errorCounter>0)
-				throw new InvalidAttributeValueException("There have been "+errorCounter+" errors during the insertion of competencies");
+				throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCYLIST_CONTEXT);
 		}//if
 	}//setCompetenciesList
 
@@ -584,8 +577,9 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @param id Competency need ID
 	 * @return the Competency data object
+	 * @throws InvalidAttributeValueException 
 	 */
-	public Competency getLatestVersionOfSpecificCompetency(int id){
+	public Competency getLatestVersionOfSpecificCompetency(int id) throws InvalidAttributeValueException{
 		//Verify if the id is valid
 		if(id<0)
 			return null;
@@ -602,7 +596,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}//if
 			index++;
 		}//for
-		return null;
+		throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCYTID_CONTEXT);
 	}//getLatestVersionOfSpecificCompetency
 
 	public String toString(){
@@ -683,12 +677,12 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			feedback=new ArrayList<Feedback>();
 		//Verify that the object is not null
 		if(obj==null)
-			return false;
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACK_CONTEXT);
 		//At this point the Feedback hasn't got an ID, let's create it
 		obj.setID((feedback.size()+1));
 		if(obj.isFeedbackValid())
 			return feedback.add(obj);
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK_CONTEXT);
 	}
 
 	/**
@@ -701,7 +695,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	public boolean addFeedbackToObjective(int objectiveID, Feedback obj) throws InvalidAttributeValueException{
 		//Verify the data is valid
 		if(objectiveID<0 && obj==null)
-			return false;
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACK_OBJECTIVEID_CONTEXT);
 		//Search for the objective ID within the list of objectives
 		//add the objective if the ID is found
 		for(int i=0; i<this.objectives.size(); i++){
@@ -714,7 +708,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 					//Try to add the new feedback
 					return this.objectives.get(i).get(this.objectives.get(i).size()-1).addFeedback(obj);
 				else
-					return false;
+					throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK_CONTEXT);
 			}
 		}
 		return false;
@@ -731,7 +725,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			objectives=new ArrayList<List<Objective>>();
 		//Verify that the objective is not null
 		if(obj==null)
-			return false;
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLOBJECTIVE_CONTEXT);
 		//At this point, the objective hasn't got an ID, let's create one
 		obj.setID(objectives.size()+1);
 		if(obj.isObjectiveValid()){
@@ -742,7 +736,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			//Action completed, verify the results
 			return (res1 && res2);
 		}
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE_CONTEXT);
 	}
 
 	/**
@@ -750,11 +744,12 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @param obj objective data
 	 * @return
+	 * @throws InvalidAttributeValueException 
 	 */
-	public boolean editObjective(Objective obj){
+	public boolean editObjective(Objective obj) throws InvalidAttributeValueException{
 		//Verify that the object is not null
 		if(obj==null)
-			return false;
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLOBJECTIVE_CONTEXT);
 		//Step 1: Verify that the object contains valid data 
 		if(obj.isObjectiveValid()){
 			//Step 2: Verify that the ID contained within the Objective object is in the system
@@ -767,7 +762,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				}
 			}
 		}
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE_CONTEXT);
 	}
 
 	/**
@@ -783,7 +778,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			notes=new ArrayList<List<Note>>();
 		//Verify that the note is not null
 		if(obj==null)
-			return false;
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLNOTE_CONTEXT);
 		//At this point, the note hasn't got an ID, let's create one
 		obj.setID(notes.size()+1);
 		if(obj.isNoteValid()){
@@ -794,7 +789,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			//Action completed, verify the results
 			return (res1 && res2);
 		}
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_NOTE_CONTEXT);
 	}
 
 	/**
@@ -803,11 +798,12 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @param obj note data
 	 * @return
+	 * @throws InvalidAttributeValueException 
 	 */
-	public boolean editNote(Note obj){
+	public boolean editNote(Note obj) throws InvalidAttributeValueException{
 		//Verify that the object is not null
 		if(obj==null)
-			return false;
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLNOTE_CONTEXT);
 		//Step 1: Verify that the object contains valid data 
 		if(obj.isNoteValid()){
 			//Step 2: Verify that the ID contained within the note object is in the system
@@ -820,7 +816,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				}
 			}
 		}
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_NOTE_CONTEXT);
 	}
 
 	/**
@@ -836,7 +832,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
 		//Verify that the note is not null
 		if(obj==null)
-			return false;
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLDEVNEED_CONTEXT);
 		//At this point, the note hasn't got an ID, let's create one
 		obj.setID(developmentNeeds.size()+1);
 		if(obj.isDevelopmentNeedValid()){
@@ -847,7 +843,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			//Action completed, verify the results
 			return (res1 && res2);
 		}
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_DEVNEED_CONTEXT);
 	}
 
 	/**
@@ -856,11 +852,12 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @param obj the updated version of the development need
 	 * @return a boolean value that indicates whether the task has been successfully or not
+	 * @throws InvalidAttributeValueException 
 	 */
-	public boolean editDevelopmentNeed(DevelopmentNeed obj){
+	public boolean editDevelopmentNeed(DevelopmentNeed obj) throws InvalidAttributeValueException{
 		//Verify that the object is not null
 		if(obj==null)
-			return false;
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLDEVNEED_CONTEXT);
 		//Step 1: Verify that the object contains valid data 
 		if(obj.isDevelopmentNeedValid()){
 			//Step 2: Verify that the ID contained within the note object is in the system
@@ -873,7 +870,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				}
 			}
 		}
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_DEVNEED_CONTEXT);
 	}
 
 	/**
@@ -882,13 +879,14 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @param obj the feedback request object to insert
 	 * @return true if it completes correctly, false otherwise
+	 * @throws InvalidAttributeValueException 
 	 */
-	public boolean addGroupFeedbackRequest(GroupFeedbackRequest obj){
+	public boolean addGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
 		if(groupFeedbackRequests==null)
 			groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
 		//Verify that the object is not null
 		if(obj==null)
-			return false;
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
 		//The object has now been validated and can be added to the list for this user
 		return groupFeedbackRequests.add(obj);
 	}
@@ -899,8 +897,9 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @param obj the new feedback request object containing the right ID
 	 * @return true if it completes correctly, false otherwise
+	 * @throws InvalidAttributeValueException 
 	 */
-	public boolean updateGroupFeedbackRequest(GroupFeedbackRequest obj){
+	public boolean updateGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
 		if(obj!=null){
 			for(int i=0; i<groupFeedbackRequests.size(); i++){
 				if(groupFeedbackRequests.get(i).getID().equals(obj.getID())){
@@ -909,7 +908,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				}
 			}
 		}
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
 	}
 
 	/**
@@ -945,14 +944,12 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		}
 		//Verify that the object is not null
 		if(obj==null)
-			throw new InvalidAttributeValueException("The given Competency object is empty");
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLCOMPETENCY_CONTEXT);
 		//Step 1: Verify that the object contains valid data 
-		if(obj.isValid()){
+		if(obj.isValid())
 			//Step 2: Verify that the ID contained within the competency object is in the system
-			competencies.get(obj.getID()).add(obj);
-			return true;
-		}
-		return false;
+			return competencies.get(obj.getID()).add(obj);
+		throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCY_CONTEXT);
 	}
 	
 	/**
@@ -968,13 +965,10 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			public int compare(Objective o1, Objective o2) {
 				YearMonth ym1 = o1.getTimeToCompletByYearMonth();
 				YearMonth ym2 = o2.getTimeToCompletByYearMonth();
-				
-				if(ym1.equals(ym2)){
-					return 0;
-				}
-				return ym1.isBefore(ym2) ? -1 : 1;
+				//Ternary Expression that return 0 if the ym1 equals ym2, or return the result of the second ternary expression which 
+				//checks if ym1 is before ym2 and returns -1 if true, 1 if false 
+				return (ym1.equals(ym2)) ?  0 :  ((ym1.isBefore(ym2)) ? -1 : 1);
 			}
-
 		});	
 	}
 

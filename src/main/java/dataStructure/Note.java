@@ -55,10 +55,8 @@ public class Note implements Serializable{
 	public void setID(int id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.id=id;
-		else{
-			this.id=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("An ID with value "+id+" is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_USERID_CONTEXT);
 	}
 	
 	public int getID(){
@@ -80,7 +78,7 @@ public class Note implements Serializable{
 		if(noteType >= 0 && noteType <= 6){
 			this.noteType = noteType;
 		}else
-			throw new InvalidAttributeValueException("Note type must be from 0 to 6");
+			throw new InvalidAttributeValueException(Constants.INVALID_NOTE_TYPE);
 	}
 
 	public int getNoteType() {
@@ -92,7 +90,7 @@ public class Note implements Serializable{
 			this.linkTitle=linkTitle;
 		}
 		else
-			throw new InvalidAttributeValueException("The title of the note link is invalid");
+			throw new InvalidAttributeValueException(Constants.INVALID_NOTE_LINKTYTLE);
 	}
 	
 	public String getLinkTitle(){
@@ -109,10 +107,8 @@ public class Note implements Serializable{
 	public void setLinkID(int linkID) throws InvalidAttributeValueException {
 		if(id>0)
 			this.linkID = linkID;
-		else{
-			this.id=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("An ID with value "+id+" is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_USERID_CONTEXT);
 	}
 	
 	public int getLinkID() {
@@ -128,10 +124,8 @@ public class Note implements Serializable{
 	public void setBody(String body) throws InvalidAttributeValueException{
 		if(body!=null && body.length()>0 && body.length()<1001)
 			this.body=body;
-		else{
-			this.body=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The body is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_NOTE_BODY);
 	}
 	
 	public String getBody(){
@@ -146,10 +140,8 @@ public class Note implements Serializable{
 	public void setFromWho(String from) throws InvalidAttributeValueException{
 		if(from!=null && from.length()>0 && from.length()<150)
 			this.fromWho=from;
-		else{
-			this.fromWho=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The name of the note writer is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_NOTE_FROMWHO);
 	}
 	
 	public String getFromWho(){
@@ -169,8 +161,6 @@ public class Note implements Serializable{
 	}
 	
 	public String getTimeStamp(){
-		//return this.timeStamp.format(Constants.DATE_TIME_FORMAT);
-		//DateFormat dateFormat = new SimpleDateFormat(Constants.COMPLETE_DATE_TIME_FORMAT);
 		return this.timeStamp;
 	}
 	

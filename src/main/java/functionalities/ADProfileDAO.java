@@ -59,7 +59,7 @@ public class ADProfileDAO {
 			Attributes attrs = sr.getAttributes();
 			ADProfile_Advanced adObj=new ADProfile_Advanced();
 			//Extract the information from the AD and add it to our object
-			adObj.setEmployeeID(Long.parseLong((String)attrs.get("extensionAttribute7").get().toString().substring(1)));
+			adObj.setEmployeeID(Long.parseLong(attrs.get("extensionAttribute7").get().toString().substring(1)));
 			//Extract the GUID which is a hexadecimal number and must be converted before using it
 			UUID uid=UUID.nameUUIDFromBytes((byte[])attrs.get("objectGUID").get());
 			adObj.setGUID(uid.toString());

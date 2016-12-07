@@ -76,10 +76,8 @@ public class DevelopmentNeed implements Serializable{
 	public void setID(int id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.id=id;
-		else{
-			this.id=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The ID with value  "+id+" is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_USERID_CONTEXT);
 	}
 
 	public int getID(){
@@ -97,10 +95,8 @@ public class DevelopmentNeed implements Serializable{
 	public void setProgress(int progress) throws InvalidAttributeValueException{
 		if(progress>=-0 && progress<=2)
 			this.progress=progress;
-		else{
-			this.progress=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The given 'progress' value is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_PROGRESS_CONTEXT);
 	}
 
 	public int getProgress(){
@@ -110,10 +106,8 @@ public class DevelopmentNeed implements Serializable{
 	public void setCategory(int cat) throws InvalidAttributeValueException{
 		if(cat>=0 && cat<=5)
 			this.category=cat;
-		else{
-			this.category=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The category with value  "+cat+" is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_CATEGORY_CONTEXT);
 	}
 
 	public int getCategory(){
@@ -127,10 +121,8 @@ public class DevelopmentNeed implements Serializable{
 	public void setTitle(String title) throws InvalidAttributeValueException{
 		if(title!=null && title.length()>0 && title.length()<151)
 			this.title=title;
-		else{
-			this.title=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'title' is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_TITLE_CONTEXT);
 	}
 
 	public String getTitle(){
@@ -144,10 +136,8 @@ public class DevelopmentNeed implements Serializable{
 	public void setDescription(String description) throws InvalidAttributeValueException{
 		if(description!=null && description.length()>0 && description.length()<1001)
 			this.description=description;
-		else{
-			this.description=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'description' is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_DESCRIPTION_CONTEXT);
 	}
 
 	public String getDescription(){
@@ -189,12 +179,10 @@ public class DevelopmentNeed implements Serializable{
 			if(totalMonthsApart>=0)
 				this.timeToCompleteBy=temp.toString();
 			else
-				throw new InvalidAttributeValueException("The given date is invalid because it is in the past");
+				throw new InvalidAttributeValueException(Constants.INVALID_PASTDATE_CONTEXT);
 		}
-		else{
-			this.timeToCompleteBy=null;
-			throw new InvalidAttributeValueException("The format for the given 'date' is not valid");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_DATEFORMAT_CONTEXT);
 	}
 
 	public String getTimeToCompleteBy(){
@@ -203,6 +191,15 @@ public class DevelopmentNeed implements Serializable{
 			return temp.format(Constants.YEAR_MONTH_FORMAT);
 		}
 		return this.timeToCompleteBy;
+	}
+	
+	public boolean isDevelopmentNeedValid(){
+		return (this.getID()>0 && this.getCategory()>=0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.timeToCompleteBy!=null);
+	}
+	
+	public String toGson(){
+		Gson gsonData=new Gson();
+		return gsonData.toJson(this);
 	}
 
 	@Override
@@ -215,15 +212,6 @@ public class DevelopmentNeed implements Serializable{
 				+ "TimeStamp "+this.getTimeStamp()+"\n"
 				+ "TimeToCompleteBy "+this.getTimeToCompleteBy()+"\n";
 		return s;
-	}
-
-	public String toGson(){
-		Gson gsonData=new Gson();
-		return gsonData.toJson(this);
-	}
-	
-	public boolean isDevelopmentNeedValid(){
-		return (this.getID()>0 && this.getCategory()>=0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.timeToCompleteBy!=null);
 	}
 
 }
