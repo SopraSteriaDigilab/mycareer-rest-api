@@ -2,6 +2,7 @@ package dataStructure;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.annotations.Embedded;
 import com.google.gson.Gson;
 
@@ -44,11 +45,11 @@ public class Competency implements Serializable {
 	}
 
 	//Method to set ID
-	public void setID(int id){
+	public void setID(int id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.id=id;
 		else
-			this.id=Constants.INVALID_INT;
+			throw new InvalidAttributeValueException(Constants.INVALID_USERID_CONTEXT);
 	}
 
 	//Method returning ID
@@ -82,14 +83,14 @@ public class Competency implements Serializable {
 	 * 
 	 * This method sets the Competency based on a valid id as well as returning true
 	 * for IsSelected method
+	 * @throws InvalidAttributeValueException 
 	 */
-	public void setTitle(int compId) {
+	public void setTitle(int compId) throws InvalidAttributeValueException {
 		if(compId == 0 | compId < Constants.COMPETENCY_NAMES.length) {
 			this.title = Constants.COMPETENCY_NAMES[compId];
 		}//if
-		else{
-			this.title = Constants.INVALID_STRING;
-		}//else
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_TITLE_CONTEXT);
 	}//setCompetencyName
 
 	//Method to return Competency Name
@@ -101,14 +102,14 @@ public class Competency implements Serializable {
 	 * 
 	 * This method sets the competency Description based on a valid id & returning true
 	 * for IsSelected method
+	 * @throws InvalidAttributeValueException 
 	 */
-	public void setDescription(int compId) {
+	public void setDescription(int compId) throws InvalidAttributeValueException {
 		if(compId == 0 | compId < Constants.COMPETENCY_NAMES.length) {
 			this.description = Constants.COMPETENCY_DESCRIPTIONS[compId];
 		}//if
-		else{
-			this.description = Constants.INVALID_STRING;
-		}//else
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_DESCRIPTION_CONTEXT);
 	}//setCompetencyName
 
 	//Method to return Competency Description

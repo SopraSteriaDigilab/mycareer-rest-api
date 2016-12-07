@@ -23,6 +23,7 @@ import microsoft.exchange.webservices.data.core.enumeration.property.BasePropert
 import microsoft.exchange.webservices.data.core.enumeration.property.BodyType;
 import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
 import microsoft.exchange.webservices.data.core.enumeration.search.LogicalOperator;
+import microsoft.exchange.webservices.data.core.enumeration.service.ConflictResolutionMode;
 import microsoft.exchange.webservices.data.core.service.folder.Folder;
 import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.core.service.item.Item;
@@ -31,6 +32,7 @@ import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
+import microsoft.exchange.webservices.data.property.complex.MimeContent;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import microsoft.exchange.webservices.data.search.filter.SearchFilter;
@@ -65,7 +67,7 @@ public final class IMAPService {
 	 * 
 	 * @throws URISyntaxException
 	 */
-	public static void initiateIMAPService() throws URISyntaxException{
+	public static void initiateIMAPService(){
 		//Schedule a task to run every minute
 		timer = new Timer();
 		timer.schedule(new TimerTask() {
@@ -78,9 +80,11 @@ public final class IMAPService {
 					//Check for new emails and then close the connection with the email server
 					retrieveNewEmails();
 					closeIMAPConnection();
-					System.out.println("\t"+LocalTime.now()+" - Task Completed\n");
 				} catch (Exception e) {
-					System.out.println("\t"+LocalTime.now()+" - Email Service Error: "+e.toString());
+					System.err.println("\t"+LocalTime.now()+" - Email Service Error: "+e.toString());
+				}
+				finally{
+					System.out.println("\t"+LocalTime.now()+" - Task Completed\n");
 				}
 			}
 		}, 0, Constants.MAIL_REFRESH_TIME);
@@ -152,7 +156,6 @@ public final class IMAPService {
 						
 						//For now, just move the email into the DRAFTS folder
 						openNotReadEmail.move(WellKnownFolderName.Drafts);
-						//boolean res1=EmployeeDAO.removeEmailAddressFromFeedbackReq(emailEmployee, requestIDSetInSubject1);
 					}
 					//Interrupt the flow and skip to the next email
 					continue;
@@ -221,10 +224,10 @@ public final class IMAPService {
 
 					//Now that we have all the details, pass this data to the EmployeeDAO which will try to link the feedback to the user
 					boolean res=EmployeeDAO.linkFeedbackReqReplyToUserGroupFBReq(emailEmployee, requestIDSetInSubject, feedbackObj);
-					//If the task has been completed successfully, set the email as read and move it to the Journal Folder
+					//If the task has been completed successfully, mark the Email as read and update it into the mail server
 					if(res){
 						openNotReadEmail.setIsRead(true);
-						openNotReadEmail.move(WellKnownFolderName.Inbox);
+						openNotReadEmail.update(ConflictResolutionMode.AutoResolve);
 						System.out.println("\t"+LocalTime.now()+" - Reply to a Feedback Request linked correctly");
 						{
 							//Praise Feedback provider
@@ -265,15 +268,7 @@ public final class IMAPService {
 					
 					if(toElements.size()<0){
 						//No user in the CC field, impossible to find employee/s
-						System.out.println("\t"+LocalTime.now()+" - No user can be linked to this feedback");
-						
-						//Send error message to feedback provider
-//						{
-//							String bodyError="Hi,\nThank you for your feedback, unfortunately the system could not find any valid employees to associate your feedback to.\n"
-//									+ "When sending a feedback to one or more employees, please add their email addresses into the CC field and NOT inside the TO field.\n\nRegards,\nThe MyCareer Team";
-//							contactUserViaEmail(fromFieldEmail.getAddress(), "Feedback Error", bodyError);
-//						}
-						
+						System.out.println("\t"+LocalTime.now()+" - No user can be linked to this feedback");						
 						System.out.println("\t"+LocalTime.now()+" - Irrelevant Email found, Moved to DRAFTS");
 						//It is an irrelevant email to the system, move it to another folder so that
 						//the system admin can manage them separately
@@ -358,9 +353,9 @@ public final class IMAPService {
 								}
 							}
 						}
-						//Move the email to the Journal Folder
+						//Mark the Email as read and update it into the mail server
 						openNotReadEmail.setIsRead(true);
-						openNotReadEmail.move(WellKnownFolderName.Inbox);
+						openNotReadEmail.update(ConflictResolutionMode.AutoResolve);
 
 						//Praise feedback provider
 						praiseFeedbackProvider(fromFieldEmail, successfullyAdded, unsuccessfullyAdded);
@@ -570,7 +565,7 @@ public final class IMAPService {
 		emailService.setCredentials(credentials);
 		emailService.setUrl(new URI(Constants.MAIL_EXCHANGE_URI));
 		//This allows the trace listener to listen to requests and responses
-		//THIS IS IF YOU WANT TO ADD A LISTENER FOR PUSHNOTIFICATIONS
+		//THIS IS IF YOU WANT TO ADD A LISTENER FOR PUSH NOTIFICATIONS
 		//emailService.setTraceEnabled(true);
 		//emailService.setTraceFlags(EnumSet.allOf(TraceFlags.class));
 		//		emailService.setTraceListener(new ITraceListener() {
