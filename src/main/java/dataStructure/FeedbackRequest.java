@@ -3,9 +3,9 @@ package dataStructure;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
+import org.mongodb.morphia.annotations.Embedded;
 import com.google.gson.Gson;
 
 /**
@@ -17,11 +17,13 @@ import com.google.gson.Gson;
  * This class contains the definition of the FeedbackRequest object
  *
  */
-public class FeedbackRequest implements Serializable, Iterable<Feedback> {
+@Embedded
+public class FeedbackRequest implements Serializable{//, Iterable<Feedback> {
 
 	private static final long serialVersionUID = 47606158926933500L;
 	//Global Variables
 	private String feedbackID, timeStamp, recipient;
+	@Embedded
 	private List<Feedback> replies;
 
 	public FeedbackRequest(){
@@ -56,10 +58,6 @@ public class FeedbackRequest implements Serializable, Iterable<Feedback> {
 		return this.feedbackID;
 	}
 
-	//	public String getGroupID(){
-	//		return this.groupFeedbackID;
-	//	}
-
 	/**
 	 * 
 	 * This method saves the current DateTime inside the timeStamp object only if the object does not
@@ -77,11 +75,10 @@ public class FeedbackRequest implements Serializable, Iterable<Feedback> {
 	}
 
 	public void setRecipient(String toField) throws InvalidAttributeValueException{
-		if(toField!=null && !toField.equals("")){
+		if(toField!=null && !toField.equals(""))
 			this.recipient=toField;
-			return;
-		}
-		throw new InvalidAttributeValueException("The given TO Field is Invalid");
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_RECIPIENT_CONTEXT);
 	}
 
 	public String getRecipient(){
@@ -89,11 +86,10 @@ public class FeedbackRequest implements Serializable, Iterable<Feedback> {
 	}
 
 	public void setReplies(List<Feedback> data) throws InvalidAttributeValueException{
-		if(data!=null){
+		if(data!=null)
 			this.replies=data;
-			return;
-		}
-		throw new InvalidAttributeValueException("The given list of Replies is empty");
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACKREQ_REPLIES_CONTEXT);
 	}
 
 	public List<Feedback> getReplies(){
@@ -105,14 +101,14 @@ public class FeedbackRequest implements Serializable, Iterable<Feedback> {
 			this.replies=new ArrayList<Feedback>();
 		//Validate the feedback
 		if(reply!=null && reply.isFeedbackValidForFeedbackRequest()){
-			//Check if the element already exists within the user data 
-			if(replies.contains(reply))
-				return false;
-			//If it doesn't exists, add it after updating the feedback ID
-			//reply.setID((replies.size()+1));
+			//Check if the element already exists within the user data
+			for(Feedback rep: replies){
+				if(rep.getEmailBody().equalsIgnoreCase(reply.getEmailBody()))
+					return false;
+			}
 			return replies.add(new Feedback(reply.getID()));
 		}
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK_CONTEXT);
 	}
 
 	public boolean removeReply(Feedback reply) throws InvalidAttributeValueException{
@@ -121,10 +117,10 @@ public class FeedbackRequest implements Serializable, Iterable<Feedback> {
 				if(t.getID()==reply.getID())
 					return replies.remove(t);
 			}
-			return false;
+			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKNOTFOUND_CONTEXT);
 		}
 		else
-			throw new InvalidAttributeValueException("Invalid Reply");
+			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK_CONTEXT);
 	}
 	
 	public boolean isValid(){
@@ -152,24 +148,24 @@ public class FeedbackRequest implements Serializable, Iterable<Feedback> {
 	/*
 	 * Adapted from Source: http://stackoverflow.com/questions/5849154/can-we-write-our-own-iterator-in-java
 	 */
-	@Override
-	public Iterator<Feedback> iterator() {
-		Iterator<Feedback> iterator=new Iterator<Feedback>(){
-
-			private int currentIndex=0;
-			
-			@Override
-			public boolean hasNext() {
-				return currentIndex < replies.size() && replies.get(currentIndex)!=null;
-			}
-
-			@Override
-			public Feedback next() {
-				return replies.get(currentIndex++);
-			}
-			
-		};
-		return iterator;
-	}
+//	@Override
+//	public Iterator<Feedback> iterator() {
+//		Iterator<Feedback> iterator=new Iterator<Feedback>(){
+//
+//			private int currentIndex=0;
+//			
+//			@Override
+//			public boolean hasNext() {
+//				return currentIndex < replies.size() && replies.get(currentIndex)!=null;
+//			}
+//
+//			@Override
+//			public Feedback next() {
+//				return replies.get(currentIndex++);
+//			}
+//			
+//		};
+//		return iterator;
+//	}
 
 }

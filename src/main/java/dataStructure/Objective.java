@@ -1,15 +1,12 @@
 package dataStructure;
 
-import java.io.InvalidClassException;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.management.InvalidAttributeValueException;
-
 import org.mongodb.morphia.annotations.Embedded;
 import com.google.gson.Gson;
 
@@ -104,10 +101,8 @@ public class Objective implements Serializable{
 	public void setID(int id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.id=id;
-		else{
-			this.id=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The ID with value "+id+" is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_USERID_CONTEXT);
 	}
 
 	public int getID(){
@@ -125,20 +120,20 @@ public class Objective implements Serializable{
 	public void setProgress(int progress) throws InvalidAttributeValueException{
 		if(progress>=-1 && progress<=2)
 			this.progress=progress;
-		else{
-			this.progress=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The given 'progress' value is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_PROGRESS_CONTEXT);
 	}
 
 	public int getProgress(){
 		return this.progress;
 	}
 	
-	public void setProposedBy(String name){
+	public void setProposedBy(String name) throws InvalidAttributeValueException{
 		if(name!=null){
 			this.proposedBy=name;
 		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE_PROPOSEDBY);
 	}
 	
 	public String getProposedBy(){
@@ -155,10 +150,8 @@ public class Objective implements Serializable{
 	public void setPerformance(int performance) throws InvalidAttributeValueException{
 		if(performance>=0 && performance<=2)
 			this.performance=performance;
-		else{
-			this.performance=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The given 'performance' value is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE_PERFORMANCE);
 	}
 
 	public int getPerformance(){
@@ -180,10 +173,8 @@ public class Objective implements Serializable{
 	public void setTitle(String title) throws InvalidAttributeValueException{
 		if(title!=null && title.length()>0 && title.length()<151)
 			this.title=title;
-		else{
-			this.title=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'title' is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_TITLE_CONTEXT);
 	}
 
 	public String getTitle(){
@@ -197,10 +188,8 @@ public class Objective implements Serializable{
 	public void setDescription(String description) throws InvalidAttributeValueException{
 		if(description!=null && description.length()>0 && description.length()<1001)
 			this.description=description;
-		else{
-			this.description=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'description' is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_DESCRIPTION_CONTEXT);
 	}
 
 	public String getDescription(){
@@ -219,8 +208,6 @@ public class Objective implements Serializable{
 	}
 
 	public String getTimeStamp(){
-		//return this.timeStamp.format(Constants.DATE_TIME_FORMAT);
-		///DateFormat dateFormat = new SimpleDateFormat(Constants.COMPLETE_DATE_TIME_FORMAT);
 		return this.timeStamp;
 	}
 
@@ -242,11 +229,11 @@ public class Objective implements Serializable{
 			if(totalMonthsApart>=0)
 				this.timeToCompleteBy=temp.toString();
 			else
-				throw new InvalidAttributeValueException("The given date is invalid because it is in the past");
+				throw new InvalidAttributeValueException(Constants.INVALID_PASTDATE_CONTEXT);
 		}
 		else{
 			this.timeToCompleteBy=null;
-			throw new InvalidAttributeValueException("The format for the given 'date' is not valid");
+			throw new InvalidAttributeValueException(Constants.INVALID_DATEFORMAT_CONTEXT);
 		}
 	}
 
@@ -265,7 +252,7 @@ public class Objective implements Serializable{
 	 * @throws InvalidClassException
 	 * @throws InvalidAttributeValueException
 	 */
-	public void setFeedback(List<Feedback> listData) throws InvalidClassException, InvalidAttributeValueException{
+	public void setFeedback(List<Feedback> listData) throws InvalidAttributeValueException{
 		if(listData!=null){
 			//Create a counter that keeps count of the error produced
 			int errorCounter=0;
@@ -280,11 +267,11 @@ public class Objective implements Serializable{
 			}
 			//Verify if there has been any error
 			if(errorCounter!=0)
-				throw new InvalidClassException("Not all the feedback were added due to their format/status");
+				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST_CONTEXT);
 		}
 		else{
 			this.feedback=null;
-			throw new InvalidAttributeValueException("The list of feedback given is null");
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACKLIST_CONTEXT);
 		}
 	}
 
@@ -324,14 +311,17 @@ public class Objective implements Serializable{
 	 * 
 	 * @param obj feedback data
 	 * @return
+	 * @throws InvalidAttributeValueException 
 	 */
-	public boolean addFeedback(Feedback obj){
+	public boolean addFeedback(Feedback obj) throws InvalidAttributeValueException{
 		if(feedback==null)
 			feedback=new ArrayList<Feedback>();
 		//Validate the feedback
+		if(obj==null)
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACK_CONTEXT);
 		if(obj.isFeedbackValid())
 			return feedback.add(obj);
-		return false;
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK_CONTEXT);
 	}
 
 	public boolean isObjectiveValid(){

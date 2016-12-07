@@ -85,10 +85,8 @@ public class Feedback implements Serializable{
 	public void setID(int id) throws InvalidAttributeValueException{
 		if(id!=0)
 			this.id=id;
-		else{
-			this.id=Constants.INVALID_INT;
-			throw new InvalidAttributeValueException("The value "+id+" is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKID_CONTEXT);
 	}
 
 	public int getID(){
@@ -103,19 +101,6 @@ public class Feedback implements Serializable{
 		return this.isRequested;
 	}
 
-//	public void setRequestID(String id) throws InvalidAttributeValueException{
-//		if(id!=null)
-//			this.requestID=id;
-//		else{
-//			this.requestID=Constants.INVALID_STRING;
-//			throw new InvalidAttributeValueException("The requestID is not valid in this context");
-//		}
-//	}
-//
-//	public String getRequestID(){
-//		return this.requestID;
-//	}
-
 	/**
 	 * 
 	 * @param from this string contains the name of who left the feedback and it
@@ -124,10 +109,8 @@ public class Feedback implements Serializable{
 	public void setFromWho(String from) throws InvalidAttributeValueException{
 		if(from!=null && from.length()>0 && from.length()<150)
 			this.fromWho=from;
-		else{
-			this.fromWho=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'fromWho' value is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_FROMWHO_CONTEXT);
 	}
 
 	public String getFromWho(){
@@ -137,10 +120,8 @@ public class Feedback implements Serializable{
 	public void setFullName(String name) throws InvalidAttributeValueException{
 		if(name!=null && name.length()>0 && name.length()<250)
 			this.fullName=name;
-		else{
-			this.fullName=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'fullName' value is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_FULLNAME_CONTEXT);
 	}
 
 	public String getFullName(){
@@ -154,10 +135,8 @@ public class Feedback implements Serializable{
 	public void setDescription(String description) throws InvalidAttributeValueException{
 		if(description!=null && description.length()>0 && description.length()<5001)
 			this.description=description;
-		else{
-			this.description=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'description' value is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_DESCRIPTION_CONTEXT);
 	}
 
 	public String getDescription(){
@@ -181,10 +160,8 @@ public class Feedback implements Serializable{
 	public void setType(String type) throws InvalidAttributeValueException{
 		if(type!=null && type.length()>0 && (type.toLowerCase().equals("internal") || type.toLowerCase().equals("external")))
 			this.type=type;
-		else{
-			this.type=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'type' value is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKTYPE_CONTEXT);
 	}
 
 	public String getType(){
@@ -198,10 +175,8 @@ public class Feedback implements Serializable{
 	public void setSource(String source) throws InvalidAttributeValueException{
 		if(source!=null && source.length()>0 && source.length()<30)
 			this.source=source;
-		else{
-			this.source=Constants.INVALID_STRING;
-			throw new InvalidAttributeValueException("The given 'source' value is not valid in this context");
-		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKSOURCE_CONTEXT);
 	}
 
 	public String getSource(){
@@ -221,8 +196,6 @@ public class Feedback implements Serializable{
 	}
 
 	public String getTimeStamp(){
-		//return this.timeStamp.format(Constants.DATE_TIME_FORMAT);
-		//DateFormat dateFormat = new SimpleDateFormat(Constants.COMPLETE_DATE_TIME_FORMAT);
 		return this.timeStamp;
 	}
 

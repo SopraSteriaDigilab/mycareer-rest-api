@@ -49,9 +49,9 @@ public final class SMTPService {
 
 	public static synchronized boolean createFeedbackRequest(long employeeID, String notes, String... mailTo) throws InvalidAttributeValueException{
 		if(notes.length()>1000)
-			throw new InvalidAttributeValueException("The notes cannot exceed the 1000 characters");
+			throw new InvalidAttributeValueException(Constants.INVALID_SMTPSERVICE_NOTES);
 		if(mailTo.length>20)
-			throw new InvalidAttributeValueException("Too many email addresses, The maximum number allowed is 20");
+			throw new InvalidAttributeValueException(Constants.INVALID_SMTPSERVICE_TOOMANYADDRESSES);
 		try{
 
 
@@ -120,7 +120,6 @@ public final class SMTPService {
 					//Generate a Template email, add the Request ID an any further information
 					msg.setBody(fillTemplate(fullNameEmployeeRequester, tempFeedbackReq.getID(), notes));
 					msg.getToRecipients().add(s);
-					//msg.getCcRecipients().add(Constants.MAILBOX_ADDRESS);
 					//msg.setFrom(new EmailAddress(Constants.MAILBOX_ADDRESS));
 					msg.sendAndSaveCopy();
 					//Add the request to the list of requests
