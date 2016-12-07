@@ -32,7 +32,6 @@ import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
-import microsoft.exchange.webservices.data.property.complex.MimeContent;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import microsoft.exchange.webservices.data.search.filter.SearchFilter;
@@ -81,7 +80,8 @@ public final class IMAPService {
 					retrieveNewEmails();
 					closeIMAPConnection();
 				} catch (Exception e) {
-					System.err.println("\t"+LocalTime.now()+" - Email Service Error: "+e.toString());
+					System.err.println("\t"+LocalTime.now()+" - Email Service Error:"
+							+ "\n\tIMAPSErvice.Java --> "+e.toString());
 				}
 				finally{
 					System.out.println("\t"+LocalTime.now()+" - Task Completed\n");
@@ -181,7 +181,7 @@ public final class IMAPService {
 							fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(fromFieldEmail.getAddress().toString());
 						}
 						catch(Exception e){
-							System.out.println("\t"+LocalTime.now()+" - Error while finding the full name of the feedback provider\n"+e.getMessage());
+							System.out.println("\t"+LocalTime.now()+" IMAPSErvice.Java --> Error while finding the full name of the feedback provider\n"+e.getMessage());
 						}
 					}
 					else
@@ -196,12 +196,14 @@ public final class IMAPService {
 					}
 					
 					//Create an Feedback Object					
-					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),bodyEmail,type,"Email",true);
+					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),type,"Email",true);
 					//Add the full name of the feedback provider (if any)
 					if(type.equals("Internal"))
 						feedbackObj.setFullName(fullNameFeedbackProvider);
 					//Add the whole email body to the feedback
 					feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
+//					openNotReadEmail.load(new PropertySet(ItemSchema.MimeContent));
+//					feedbackObj.setEmailBody(openNotReadEmail.getMimeContent().toString());
 
 					//Find email address of employee to link feedback to
 					String emailEmployee=findEmployeeEmailFromSubject(openNotReadEmail);
@@ -293,7 +295,7 @@ public final class IMAPService {
 								fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(fromFieldEmail.getAddress().toString());
 							}
 							catch(Exception e){
-								System.out.println("\t"+LocalTime.now()+" - Error while finding the full name of the feedback provider\n"+e.getMessage());
+								System.out.println("\t"+LocalTime.now()+" IMAPSErvice.Java --> Error while finding the full name of the feedback provider\n"+e.getMessage());
 							}
 						}
 						else
@@ -317,8 +319,8 @@ public final class IMAPService {
 								ADProfile_Basic userFound=ADProfileDAO.authenticateUserProfile(toElem.getAddress());
 								//Remove unnecessary part of the email body
 								
-								cleanBodyEmail=cleanEmailBody(openNotReadEmail.getBody().toString());
-								Feedback feedbackObj=new Feedback(1,fromFieldEmail.getAddress(),cleanBodyEmail,type,"Email",false);
+								//cleanBodyEmail=cleanEmailBody(openNotReadEmail.getBody().toString());
+								Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),type,"Email",false);
 								//Add the full name of the feedback provider (if any)
 								if(type.equals("Internal"))
 									feedbackObj.setFullName(fullNameFeedbackProvider);
@@ -555,10 +557,11 @@ public final class IMAPService {
 	/**
 	 * 
 	 * This method initiates the authentication with the email server
+	 * @throws URISyntaxException 
 	 * 
 	 * @throws Exception
 	 */
-	private static void initiateIMAPConnection() throws Exception{
+	private static void initiateIMAPConnection() throws Exception {
 		emailService = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
 		emailService.setMaximumPoolingConnections(1);
 		credentials = new WebCredentials(Constants.MAIL_USERNAME, Constants.MAIL_PASSWORD);

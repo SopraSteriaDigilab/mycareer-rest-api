@@ -129,9 +129,8 @@ public class Objective implements Serializable{
 	}
 	
 	public void setProposedBy(String name) throws InvalidAttributeValueException{
-		if(name!=null){
+		if(name!=null)
 			this.proposedBy=name;
-		}
 		else
 			throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE_PROPOSEDBY);
 	}
@@ -201,10 +200,8 @@ public class Objective implements Serializable{
 	 */
 	private void setTimeStamp(){
 		//Check if the timeStamp has already a value assigned
-		if(timeStamp==null){
-			LocalDateTime temp=LocalDateTime.now();
-			this.timeStamp=temp.toString();
-		}
+		if(timeStamp==null)
+			this.timeStamp=LocalDateTime.now().toString();
 	}
 
 	public String getTimeStamp(){
@@ -231,10 +228,8 @@ public class Objective implements Serializable{
 			else
 				throw new InvalidAttributeValueException(Constants.INVALID_PASTDATE_CONTEXT);
 		}
-		else{
-			this.timeToCompleteBy=null;
+		else
 			throw new InvalidAttributeValueException(Constants.INVALID_DATEFORMAT_CONTEXT);
-		}
 	}
 
 	public String getTimeToCompleteBy(){
@@ -261,18 +256,15 @@ public class Objective implements Serializable{
 			for(Feedback temp:listData){
 				if(temp.isFeedbackValid())
 					this.feedback.add(temp);
-				else{
+				else
 					errorCounter++;
-				}
 			}
 			//Verify if there has been any error
 			if(errorCounter!=0)
 				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST_CONTEXT);
 		}
-		else{
-			this.feedback=null;
+		else
 			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACKLIST_CONTEXT);
-		}
 	}
 
 	public List<Feedback> getFeedback(){
@@ -281,29 +273,6 @@ public class Objective implements Serializable{
 			data.add(temp);
 		}
 		return data;
-	}
-
-	@Override
-	public String toString(){
-		String s="";
-		s+="ID "+this.id+"\n"
-				+ "Progress "+this.progress+"\n"
-				+ "Performance "+this.performance+"\n"
-				+ "Is Archived  "+this.isArchived+"\n"
-				+ "Title "+this.title+"\n"
-				+ "Description "+this.description+"\n"
-				+ "TimeStamp "+this.getTimeStamp()+"\n"
-				+ "TimeToCompleteBy "+this.getTimeToCompleteBy()+"\n"
-				+ "ProposedBy "+this.getProposedBy()+"\n";
-		for(Feedback temp: this.feedback){
-			s+=temp.toString();
-		}
-		return s;
-	}
-
-	public String toGson(){
-		Gson gsonData=new Gson();
-		return gsonData.toJson(this);
 	}
 
 	/**
@@ -327,7 +296,32 @@ public class Objective implements Serializable{
 	public boolean isObjectiveValid(){
 		return (this.getID()>0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.getTimeStamp()!=null && this.getTimeToCompleteBy()!=null);
 	}
+	
 	public boolean isObjectiveValidWithoutID(){
 		return (this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.getTimeStamp()!=null && this.getTimeToCompleteBy()!=null);
 	}
+	
+	public String toGson(){
+		Gson gsonData=new Gson();
+		return gsonData.toJson(this);
+	}
+	
+	@Override
+	public String toString(){
+		String s="";
+		s+="ID "+this.id+"\n"
+				+ "Progress "+this.progress+"\n"
+				+ "Performance "+this.performance+"\n"
+				+ "Is Archived  "+this.isArchived+"\n"
+				+ "Title "+this.title+"\n"
+				+ "Description "+this.description+"\n"
+				+ "TimeStamp "+this.getTimeStamp()+"\n"
+				+ "TimeToCompleteBy "+this.getTimeToCompleteBy()+"\n"
+				+ "ProposedBy "+this.getProposedBy()+"\n";
+		for(Feedback temp: this.feedback){
+			s+=temp.toString();
+		}
+		return s;
+	}
+	
 }
