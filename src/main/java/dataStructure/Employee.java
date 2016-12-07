@@ -72,7 +72,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			List<GroupFeedbackRequest> requests,
 			List<List<Competency>> competencies,
 			List<String> reportees) throws InvalidAttributeValueException{
-		super(employeeID, guid, name, surname,email,username,company,team,isManager);
+		super(employeeID, guid, name, surname,email,username,company,team,isManager,reportees);
 		this.setFeedbackList(feeds);
 		this.setObjectiveList(objectives);
 		this.setNoteList(notes);
@@ -90,7 +90,8 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				userData.getUsername(), 
 				userData.getCompany(),
 				userData.getTeam(), 
-				userData.getIsManager());
+				userData.getIsManager(),
+				userData.getReporteeCNs());
 		this.feedback=new ArrayList<Feedback>();
 		this.objectives=new ArrayList<List<Objective>>();
 		this.notes=new ArrayList<List<Note>>();
@@ -122,9 +123,8 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			for(Feedback temp:feeds){
 				if(temp.isFeedbackValid())
 					this.feedback.add(temp);
-				else{
+				else
 					errorCounter++;
-				}
 			}
 			//Verify if there has been any error
 			if(errorCounter!=0)
@@ -457,7 +457,6 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}
 		}
 		return null;
-		//throw new InvalidAttributeValueException(Constants.INVALID_GROUPFEEDBACKREQUESTID_CONTEXT);
 	}
 	
 	public GroupFeedbackRequest getSpecificGroupFeedbackRequest(String id) throws InvalidAttributeValueException{
@@ -468,7 +467,6 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}
 		}
 		return null;
-		//throw new InvalidAttributeValueException(Constants.INVALID_GROUPFEEDBACKREQUESTID_CONTEXT);
 	}
 
 	/**
@@ -491,16 +489,16 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 					for(int j=0; j<comps.get(i).size(); j++){	
 						if(!this.competencies.get(this.competencies.size()-1).add(comps.get(i).get(j)))
 							errorCounter++;
-					}//for
-				}//if
+					}
+				}
 				else
 					throw new InvalidAttributeValueException(Constants.INVALID_NULLCOMPETENECYLIST_CONTEXT);
-			}//for
+			}
 			//Verify if there have been any error during the insertion of competencies
 			if(errorCounter>0)
 				throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCYLIST_CONTEXT);
-		}//if
-	}//setCompetenciesList
+		}
+	}
 
 	/**
 	 * 
@@ -518,7 +516,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}
 		}
 		return this.competencies;
-	}//getCompetenciesList
+	}
 
 	/**
 	 * 
@@ -569,7 +567,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		organisedList.addAll(notSelected);
 		//Once the list if full, return it to the user
 		return organisedList;
-	}//getLatestVersionCompetencies
+	}
 
 	/**
 	 * 
@@ -593,77 +591,10 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				temp.setTitle(index);
 				temp.setDescription(index);
 				return (temp);
-			}//if
+			}
 			index++;
-		}//for
+		}
 		throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCYTID_CONTEXT);
-	}//getLatestVersionOfSpecificCompetency
-
-	public String toString(){
-		String s="";
-		s+=super.toString();
-		//Add the feedback
-		s+="Feedback:\n";
-		for(Feedback temp:this.feedback){
-			s+=temp.toString()+"\n";
-		}
-		//Add the objectives
-		s+="Objectives:\n";
-		int counter=1;
-		for(List<Objective> objList: objectives){
-			s+="Objective "+counter++ +"\n";
-			int version=1;
-			for(Objective obj: objList){
-				s+="Version "+version++ +"\n"+obj.toString()+"\n";
-			}
-		}
-		//Add the Notes
-		s+="Notes:\n";
-		counter=1;
-		for(List<Note> noteList: notes){
-			s+="Note "+counter++ +"\n";
-			int version=1;
-			for(Note obj: noteList){
-				s+="Version "+version++ +"\n"+obj.toString()+"\n";
-			}
-		}
-		//Add the Development needs
-		s+="Development Needs:\n";
-		counter=1;
-		for(List<DevelopmentNeed> noteList: developmentNeeds){
-			s+="Development Need "+counter++ +"\n";
-			int version=1;
-			for(DevelopmentNeed obj: noteList){
-				s+="Version "+version++ +"\n"+obj.toString()+"\n";
-			}
-		}
-		//Add the Feedback requests
-		s+="Group Feedback Requests:\n";
-		counter=1;
-		for(GroupFeedbackRequest t:groupFeedbackRequests){
-			s+="Request "+counter++ +"\n";
-			s+=t.toString();
-		}
-		//Add the Competencies
-		s+="Competencies: ";
-		//Retrieve all the sublists
-		int indexSubList=0;
-		for(List<Competency> subList: this.competencies){
-			//For each sublist, retrieve each element and add them to the s string including the title and description
-			int compCounter=0;
-			try{
-				for(Competency comp:subList){
-					s+="Competency: "+compCounter++ +"\n";
-					s+=comp.toString(indexSubList++);
-				}
-			}catch(Exception r){}
-		}
-		return s;
-	}
-
-	public String toGson(){
-		Gson gsonData=new Gson();
-		return gsonData.toJson(this);
 	}
 
 	/**
@@ -810,10 +741,9 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			for(int i=0; i<notes.size(); i++){
 				List<Note> listTemp=notes.get(i);
 				//The elements within each list has all the same ID, so pick the first one and compare it
-				if((listTemp.get(0)).getID()==obj.getID()){
+				if((listTemp.get(0)).getID()==obj.getID())
 					//Add the note to the end of the list
 					return notes.get(i).add(obj);
-				}
 			}
 		}
 		throw new InvalidAttributeValueException(Constants.INVALID_NOTE_CONTEXT);
@@ -864,10 +794,9 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			for(int i=0; i<developmentNeeds.size(); i++){
 				List<DevelopmentNeed> listTemp=developmentNeeds.get(i);
 				//The elements within each list has all the same ID, so pick the first one and compare it
-				if((listTemp.get(0)).getID()==obj.getID()){
+				if((listTemp.get(0)).getID()==obj.getID())
 					//Add the note to the end of the list
 					return developmentNeeds.get(i).add(obj);
-				}
 			}
 		}
 		throw new InvalidAttributeValueException(Constants.INVALID_DEVNEED_CONTEXT);
@@ -902,10 +831,9 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	public boolean updateGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
 		if(obj!=null){
 			for(int i=0; i<groupFeedbackRequests.size(); i++){
-				if(groupFeedbackRequests.get(i).getID().equals(obj.getID())){
+				if(groupFeedbackRequests.get(i).getID().equals(obj.getID()))
 					//Remove the obsolete object and add the new one
 					return (groupFeedbackRequests.remove(groupFeedbackRequests.get(i))) && (groupFeedbackRequests.add(obj));
-				}
 			}
 		}
 		throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
@@ -1041,6 +969,74 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		if(itemsUpdated>0)
 			return true;
 		return false;
+	}
+	
+	public String toGson(){
+		Gson gsonData=new Gson();
+		return gsonData.toJson(this);
+	}
+	
+	@Override
+	public String toString(){
+		String s="";
+		s+=super.toString();
+		//Add the feedback
+		s+="Feedback:\n";
+		for(Feedback temp:this.feedback){
+			s+=temp.toString()+"\n";
+		}
+		//Add the objectives
+		s+="Objectives:\n";
+		int counter=1;
+		for(List<Objective> objList: objectives){
+			s+="Objective "+counter++ +"\n";
+			int version=1;
+			for(Objective obj: objList){
+				s+="Version "+version++ +"\n"+obj.toString()+"\n";
+			}
+		}
+		//Add the Notes
+		s+="Notes:\n";
+		counter=1;
+		for(List<Note> noteList: notes){
+			s+="Note "+counter++ +"\n";
+			int version=1;
+			for(Note obj: noteList){
+				s+="Version "+version++ +"\n"+obj.toString()+"\n";
+			}
+		}
+		//Add the Development needs
+		s+="Development Needs:\n";
+		counter=1;
+		for(List<DevelopmentNeed> noteList: developmentNeeds){
+			s+="Development Need "+counter++ +"\n";
+			int version=1;
+			for(DevelopmentNeed obj: noteList){
+				s+="Version "+version++ +"\n"+obj.toString()+"\n";
+			}
+		}
+		//Add the Feedback requests
+		s+="Group Feedback Requests:\n";
+		counter=1;
+		for(GroupFeedbackRequest t:groupFeedbackRequests){
+			s+="Request "+counter++ +"\n";
+			s+=t.toString();
+		}
+		//Add the Competencies
+		s+="Competencies: ";
+		//Retrieve all the sublists
+		int indexSubList=0;
+		for(List<Competency> subList: this.competencies){
+			//For each sublist, retrieve each element and add them to the s string including the title and description
+			int compCounter=0;
+			try{
+				for(Competency comp:subList){
+					s+="Competency: "+compCounter++ +"\n";
+					s+=comp.toString(indexSubList++);
+				}
+			}catch(Exception r){}
+		}
+		return s;
 	}
 
 }

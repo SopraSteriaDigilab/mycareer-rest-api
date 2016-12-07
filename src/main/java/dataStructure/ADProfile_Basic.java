@@ -60,9 +60,8 @@ public class ADProfile_Basic implements Serializable{
 	 * @throws InvalidAttributeValueException
 	 */
 	public void setUsername(String user) throws InvalidAttributeValueException{
-		if(user!=null && user.length()>0 && user.length()<50){
+		if(user!=null && user.length()>0 && user.length()<50)
 			this.username=user;
-		}
 		else
 			throw new InvalidAttributeValueException(Constants.INVALID_USERNAME_CONTEXT);
 	}
@@ -72,9 +71,8 @@ public class ADProfile_Basic implements Serializable{
 	}
 
 	public void setSurname(String name) throws InvalidAttributeValueException{
-		if(name!=null && !name.equals("") && name.length()<300){
+		if(name!=null && !name.equals("") && name.length()<300)
 			this.surname=name.substring(0,1).toUpperCase()+name.substring(1).toLowerCase();
-		}
 		else
 			throw new InvalidAttributeValueException(Constants.INVALID_SURNAME_CONTEXT);
 	}
@@ -84,9 +82,8 @@ public class ADProfile_Basic implements Serializable{
 	}
 	
 	public void setForename(String name) throws InvalidAttributeValueException{
-		if(name!=null && !name.equals("") && name.length()<300){
+		if(name!=null && !name.equals("") && name.length()<300)
 			this.forename=name;
-		}
 		else
 			throw new InvalidAttributeValueException(Constants.INVALID_FORENAME_CONTEXT);
 	}

@@ -149,15 +149,11 @@ public class DevelopmentNeed implements Serializable{
 	 */
 	private void setTimeStamp(){
 		//Check if the timeStamp has already a value assigned
-		if(timeStamp==null){
-			LocalDateTime temp=LocalDateTime.now();
-			this.timeStamp=temp.toString();
-		}
+		if(timeStamp==null)
+			this.timeStamp=LocalDateTime.now().toString();
 	}
 
 	public String getTimeStamp(){
-		//return this.timeStamp.format(Constants.DATE_TIME_FORMAT);
-		///DateFormat dateFormat = new SimpleDateFormat(Constants.COMPLETE_DATE_TIME_FORMAT);
 		return this.timeStamp;
 	}
 

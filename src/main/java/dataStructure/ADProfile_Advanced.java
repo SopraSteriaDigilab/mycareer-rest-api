@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
 
+import com.google.gson.Gson;
+
 /**
  * 
  * @author Michael Piccoli
@@ -42,13 +44,14 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 			String username,
 			String company,
 			String team,
-			boolean isManager) throws InvalidAttributeValueException{
+			boolean isManager,
+			List<String> reps) throws InvalidAttributeValueException{
 		super(employeeID, surname, name, isManager, username);
 		this.setGUID(guid);
 		this.setEmailAddress(email);
 		this.setCompany(company);
 		this.setTeam(team);
-		this.reporteeCNs=new ArrayList<String>();
+		this.setReporteeCNs(reps);
 	}
 
 	/**
@@ -73,9 +76,8 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	 * @throws InvalidAttributeValueException
 	 */
 	public void setGUID(String guid) throws InvalidAttributeValueException{
-		if(guid!=null && guid.length()>0){
+		if(guid!=null && guid.length()>0)
 			this.GUID=guid;
-		}
 		else
 			throw new InvalidAttributeValueException(Constants.INVALID_GUID_CONTEXT);
 	}
@@ -90,9 +92,8 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	 * @throws InvalidAttributeValueException
 	 */
 	public void setCompany(String com) throws InvalidAttributeValueException{
-		if(com!=null && com.length()>0 && com.length()<150){
+		if(com!=null && com.length()>0 && com.length()<150)
 			this.company=com;
-		}
 		else
 			throw new InvalidAttributeValueException(Constants.INVALID_COMPANY_CONTEXT);
 	}
@@ -107,9 +108,8 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	 * @throws InvalidAttributeValueException
 	 */
 	public void setTeam(String team) throws InvalidAttributeValueException{
-		if(team!=null && team.length()>0 && team.length()<150){
+		if(team!=null && team.length()>0 && team.length()<150)
 			this.team=team;
-		}
 		else
 			throw new InvalidAttributeValueException(Constants.INVALID_TEAM_CONTEXT);
 	}
@@ -122,8 +122,9 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	 * This method assigns reportees to a manager
 	 * 
 	 * @param repostees
+	 * @throws InvalidAttributeValueException 
 	 */
-	public void setReporteeCNs(List<String> reportees){
+	public void setReporteeCNs(List<String> reportees) throws InvalidAttributeValueException{
 		//Instantiate the list if it hasn't been already done so
 		if(this.reporteeCNs==null)
 			this.reporteeCNs=new ArrayList<String>();
@@ -133,6 +134,8 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 				reporteeCNs.add(temp);
 			}
 		}
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLREPORTEESLIST);
 	}
 
 	public List<String> getReporteeCNs(){
@@ -144,15 +147,23 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	 * 
 	 * @param cn
 	 * @return true of false indicating whether the operation was successful or not
+	 * @throws InvalidAttributeValueException 
 	 */
-	public boolean addReportee(String cn){
+	public boolean addReportee(String cn) throws InvalidAttributeValueException{
 		if(this.reporteeCNs==null)
 			this.reporteeCNs=new ArrayList<>();
 		if(cn!=null && cn.length()>1)
 			return reporteeCNs.add(cn);
-		return false;
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_NULLREPORTEE);
+	}
+	
+	public String toGson(){
+		Gson gsonData=new Gson();
+		return gsonData.toJson(this);
 	}
 
+	@Override
 	public String toString(){
 		String s="";
 		s+=super.toString();

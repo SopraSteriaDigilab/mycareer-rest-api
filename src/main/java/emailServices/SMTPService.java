@@ -1,8 +1,11 @@
 package emailServices;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,7 +146,7 @@ public final class SMTPService {
 				contactAdministrator(subject, body);
 				
 				System.out.println("\t"+LocalTime.now()+" - Email Service Error, Admin has been contacted");
-				throw new InvalidAttributeValueException("Email Service Error");
+				throw new InvalidAttributeValueException("Email Service Error: "+serviceE.getMessage());
 			}
 			catch(Exception e){
 				//If an exception happens, the email address is incorrect, move it to the invalid list
@@ -205,8 +208,9 @@ public final class SMTPService {
 		catch(ServiceRequestException se){
 			//closeIMAPConnection();
 			throw new InvalidAttributeValueException(se.getMessage());
-		}
-		catch(Exception e){
+		}catch (URISyntaxException e1) {
+			throw new InvalidAttributeValueException(e1.getMessage());
+		}catch(Exception e){
 			throw new InvalidAttributeValueException(e.getMessage());
 		}
 	}
@@ -257,7 +261,9 @@ public final class SMTPService {
 			mb.setBodyType(BodyType.Text);
 			//Return the filled message
 			return mb;
-		}catch(Exception e){
+		}catch(FileNotFoundException e){
+			throw new InvalidAttributeValueException(e.getMessage()+"\n"+e.getCause());
+		}catch (IOException e) {
 			throw new InvalidAttributeValueException(e.getMessage()+"\n"+e.getCause());
 		}
 	}
@@ -276,10 +282,11 @@ public final class SMTPService {
 	/**
 	 * 
 	 * This method initiates the authentication with the email server
+	 * @throws URISyntaxException 
 	 * 
 	 * @throws Exception
 	 */
-	private static void initiateIMAPConnection() throws Exception{
+	private static void initiateIMAPConnection() throws URISyntaxException{
 		if(emailService==null){
 			emailService = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
 			emailService.setMaximumPoolingConnections(1);
