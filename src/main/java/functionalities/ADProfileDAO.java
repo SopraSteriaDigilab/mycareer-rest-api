@@ -115,7 +115,7 @@ public class ADProfileDAO {
 		//Specify the search scope
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
-		String searchFilter="(employeeNumber=" + employeeID + ")";
+		String searchFilter="(extensionAttribute7=s" + employeeID + ")";
 		// Search for objects using the filter
 		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_TREE, searchFilter, searchCtls);
 
