@@ -75,9 +75,9 @@ public class Note implements Serializable{
 	 * @throws InvalidAttributeValueException 
 	 */
 	public void setNoteType(int noteType) throws InvalidAttributeValueException {
-		if(noteType >= 0 && noteType <= 6){
+		if(noteType >= 0 && noteType <= 6)
 			this.noteType = noteType;
-		}else
+		else
 			throw new InvalidAttributeValueException(Constants.INVALID_NOTE_TYPE);
 	}
 
@@ -86,9 +86,8 @@ public class Note implements Serializable{
 	}
 	
 	public void setLinkTitle(String linkTitle) throws InvalidAttributeValueException{
-		if(linkTitle!=null && linkTitle.length()>0 && linkTitle.length()<Constants.MAX_TITLE_LENGTH){
+		if(linkTitle!=null && linkTitle.length()>0 && linkTitle.length()<Constants.MAX_TITLE_LENGTH)
 			this.linkTitle=linkTitle;
-		}
 		else
 			throw new InvalidAttributeValueException(Constants.INVALID_NOTE_LINKTYTLE);
 	}
@@ -154,14 +153,25 @@ public class Note implements Serializable{
 	 * contain anything yet
 	 */
 	private void setTimeStamp(){
-		if(this.timeStamp==null){
-			LocalDateTime temp=LocalDateTime.now();
-			this.timeStamp=temp.toString();
-		}
+		if(this.timeStamp==null)
+			this.timeStamp=LocalDateTime.now().toString();
 	}
 	
 	public String getTimeStamp(){
 		return this.timeStamp;
+	}
+	
+	/**
+	 * Method used to check if the Note object is valid
+	 * @return
+	 */
+	public boolean isNoteValid(){
+		return (this.getID()>0 && !this.getBody().contains("Invalid") && !this.getFromWho().contains("Invalid"));
+	}
+	
+	public String toGson(){
+		Gson gsonData=new Gson();
+		return gsonData.toJson(this);
 	}
 	
 	@Override
@@ -175,19 +185,6 @@ public class Note implements Serializable{
 			+ "LinkID "+this.linkID+"\n"
 			+ "Link Title "+this.linkTitle+"\n";
 		return s;
-	}
-	
-	public String toGson(){
-		Gson gsonData=new Gson();
-		return gsonData.toJson(this);
-	}
-	
-	/**
-	 * Method used to check if the Note object is valid
-	 * @return
-	 */
-	public boolean isNoteValid(){
-		return (this.getID()>0 && !this.getBody().contains("Invalid") && !this.getFromWho().contains("Invalid"));
 	}
 
 }

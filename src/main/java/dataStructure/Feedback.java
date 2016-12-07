@@ -21,14 +21,13 @@ public class Feedback implements Serializable{
 	private static final long serialVersionUID = -3137541299399492965L;
 	//Global Variables
 	private int id;
-	private String fromWho, description, type, source, emailBody, timeStamp, fullName;
+	private String fromWho, type, source, emailBody, timeStamp, fullName;
 	private boolean isRequested;
 
 	//Empty Constructor
 	public Feedback(){
 		this.id=0;
 		this.fromWho="";
-		this.description="";
 		this.type="";
 		this.source="";
 		this.timeStamp=null;
@@ -46,14 +45,12 @@ public class Feedback implements Serializable{
 	//Constructor with parameters
 	public Feedback(
 			int id,
-			String from, 
-			String desc, 
+			String from,
 			String type, 
 			String source,
 			boolean requested) throws InvalidAttributeValueException{
 		this.setID(id);
 		this.setFromWho(from);
-		this.setDescription(desc);
 		this.setType(type);
 		this.setSource(source);
 		this.timeStamp=null;
@@ -66,13 +63,11 @@ public class Feedback implements Serializable{
 	//Constructor with parameters
 	public Feedback(
 			String from, 
-			String desc, 
 			String type, 
 			String source,
 			boolean requested) throws InvalidAttributeValueException{
 		this.id=0;
 		this.setFromWho(from);
-		this.setDescription(desc);
 		this.setType(type);
 		this.setSource(source);
 		this.timeStamp=null;
@@ -127,26 +122,10 @@ public class Feedback implements Serializable{
 	public String getFullName(){
 		return this.fromWho;
 	}
-
-	/**
-	 * 
-	 * @param description This string must be valid and with a length less than 1000 characters
-	 */
-	public void setDescription(String description) throws InvalidAttributeValueException{
-		if(description!=null && description.length()>0 && description.length()<5001)
-			this.description=description;
-		else
-			throw new InvalidAttributeValueException(Constants.INVALID_DESCRIPTION_CONTEXT);
-	}
-
-	public String getDescription(){
-		return this.description;
-	}
 	
 	public void setEmailBody(String body){
-		if(body!=null){
+		if(body!=null)
 			this.emailBody=body;
-		}
 	}
 	
 	public String getEmailBody(){
@@ -189,38 +168,16 @@ public class Feedback implements Serializable{
 	 * contain anything yet
 	 */
 	private void setTimeStamp(){
-		if(this.timeStamp==null){
-			LocalDateTime temp=LocalDateTime.now();
-			this.timeStamp=temp.toString();
-		}
+		if(this.timeStamp==null)
+			this.timeStamp=LocalDateTime.now().toString();
 	}
 
 	public String getTimeStamp(){
 		return this.timeStamp;
-	}
-
-	@Override
-	public String toString(){
-		String s="";
-		s+="ID "+this.id+"\n"
-				+ "From "+this.fromWho+"\n"
-				+ "Full Name "+this.fullName+"\n"
-				+ "Description "+this.description+"\n"
-				+ "Type "+this.type+"\n"
-				+ "Source "+this.source+"\n"
-				+ "Is Requested "+this.isRequested+"\n"
-				+ "TimeStamp "+this.getTimeStamp()+"\n"
-				+ "Full Email Body: "+this.getEmailBody();
-		return s;
-	}
-
-	public String toGson(){
-		Gson gsonData=new Gson();
-		return gsonData.toJson(this);
-	}
+	}	
 
 	public boolean isFeedbackValid(){
-		return (this.getID()!=Constants.INVALID_INT && this.getTimeStamp()!=null && !this.getFromWho().contains("Invalid") && !this.getDescription().contains("Invalid") && !this.getType().contains("Invalid") && !this.getSource().contains("Invalid"));
+		return (this.getID()!=Constants.INVALID_INT && this.getTimeStamp()!=null && !this.getFromWho().contains("Invalid") && !this.getType().contains("Invalid") && !this.getSource().contains("Invalid"));
 	}
 	
 	public boolean isFeedbackValidForFeedbackRequest(){
@@ -228,7 +185,26 @@ public class Feedback implements Serializable{
 	}
 
 	public boolean compare(Feedback obj){
-		return ((this.description.contains(obj.getDescription())) && (this.fromWho.equals(obj.getFromWho())) && (this.source.equals(obj.getSource())));
+		return ((this.fromWho.equals(obj.getFromWho())) && (this.source.equals(obj.getSource()) && (this.getEmailBody().equalsIgnoreCase(obj.getEmailBody()))));
+	}
+	
+	public String toGson(){
+		Gson gsonData=new Gson();
+		return gsonData.toJson(this);
+	}
+	
+	@Override
+	public String toString(){
+		String s="";
+		s+="ID "+this.id+"\n"
+				+ "From "+this.fromWho+"\n"
+				+ "Full Name "+this.fullName+"\n"
+				+ "Type "+this.type+"\n"
+				+ "Source "+this.source+"\n"
+				+ "Is Requested "+this.isRequested+"\n"
+				+ "TimeStamp "+this.getTimeStamp()+"\n"
+				+ "Email Body: "+this.getEmailBody();
+		return s;
 	}
 
 }
