@@ -95,13 +95,10 @@ public final class Constants {
 	public static final String INVALID_OBJECTIVE_PERFORMANCE="The given 'performance' value is not valid in this context";
 	public static final String INVALID_SMTPSERVICE_NOTES="The notes cannot exceed 1000 characters";
 	public static final String INVALID_SMTPSERVICE_TOOMANYADDRESSES="Too many email addresses, The maximum number allowed is 20";
+	public static final String INVALID_NULLREPORTEESLIST="THe given list of reportees is null";
+	public static final String INVALID_NULLREPORTEE="THe given 'reportee' is null";
 	
 	
-	
-	
-	
-	
-
 	//Constants for the Functionalities package
 	//MongoDB Details
 	public static final String MONGODB_USERNAME="michael";
@@ -110,22 +107,21 @@ public final class Constants {
 	public static final int MONGODB_PORT=27017;
 	public static final String MONGODB_DB_NAME="Development";
 	//AD Details
-//	public static final String AD_HOST="ldap://one.steria.dom";
-//	public static final int AD_PORT=389;
-//	public static final String AD_AUTHENTICATION="simple";
-//	public static final String AD_USERNAME="PICCOLI Michael - 675599";
-//	public static final String AD_PASSWORD="";
-//	public static final String AD_TREE="OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom";
-//	public static final String[] AD_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "employeeID", "objectGUID", "mail", "directReports"};
-	
-	public static final String AD_HOST="ldap://emea.msad.sopra";
+	//Common Ones
 	public static final int AD_PORT=389;
 	public static final String AD_AUTHENTICATION="simple";
-	public static final String AD_USERNAME="svc_mycareer@emea.msad.sopra";
-	public static final String AD_PASSWORD="N9T$SiPSZ";
-	public static final String AD_TREE="ou=uk,ou=users,ou=sopragroup,ou=usersemea,DC=emea,DC=msad,DC=sopra";
-	public static final String[] AD_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "extensionAttribute7", "objectGUID", "mail", "directReports"};
-	
+	//Sopra AD Details
+	public static final String AD_SOPRA_HOST="ldap://emea.msad.sopra";
+	public static final String AD_SOPRA_USERNAME="svc_mycareer@emea.msad.sopra";
+	public static final String AD_SOPRA_PASSWORD="N9T$SiPSZ";
+	public static final String AD_SOPRA_TREE="ou=uk,ou=users,ou=sopragroup,ou=usersemea,DC=emea,DC=msad,DC=sopra";
+	public static final String[] AD_SOPRA_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "extensionAttribute7", "objectGUID", "mail", "department"};
+	//Steria AD Details
+	public static final String AD_STERIA_HOST="ldap://one.steria.dom";
+	public static final String AD_STERIA_USERNAME="PICCOLI Michael - 675599";
+	public static final String AD_STERIA_PASSWORD="";
+	public static final String AD_STERIA_TREE="OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom";
+	public static final String[] AD_STERIA_ATTRIBUTES={"directReports"};
 
 	//Constants for the emailServices package
 	public static final String MAILBOX_ADDRESS="MYCAREER.FEEDBACK@soprasteria.com";

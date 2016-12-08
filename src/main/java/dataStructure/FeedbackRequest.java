@@ -64,10 +64,8 @@ public class FeedbackRequest implements Serializable{//, Iterable<Feedback> {
 	 * contain anything yet
 	 */
 	private void setTimeStamp(){
-		if(this.timeStamp==null){
-			LocalDateTime temp=LocalDateTime.now();
-			this.timeStamp=temp.toString();
-		}
+		if(this.timeStamp==null)
+			this.timeStamp=LocalDateTime.now().toString();
 	}
 
 	public String getTimeStamp(){

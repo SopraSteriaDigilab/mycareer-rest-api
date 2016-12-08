@@ -87,7 +87,6 @@ public class GroupFeedbackRequest implements Serializable{//, Iterable<FeedbackR
 				}
 			}
 			return false;
-			//throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_NOTFOUND_CONTEXT);
 		}
 		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_CONTEXT);
 	}
@@ -99,7 +98,6 @@ public class GroupFeedbackRequest implements Serializable{//, Iterable<FeedbackR
 					return t;
 			}
 			return null;
-			//throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_NOTFOUND_CONTEXT);
 		}
 		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_ID_CONTEXT);
 	}

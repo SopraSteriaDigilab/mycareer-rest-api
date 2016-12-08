@@ -68,15 +68,13 @@ public class Competency implements Serializable {
 	 * contain anything yet
 	 */
 	private void setTimeStamp(){
-		if(this.timeStamp==null){
-			LocalDateTime temp=LocalDateTime.now();
-			this.timeStamp=temp.toString();
-		}//if
-	}//setTimeStamp
+		if(this.timeStamp==null)
+			this.timeStamp=LocalDateTime.now().toString();
+	}
 
 	public String getTimeStamp(){
 		return this.timeStamp;
-	}//getTimeStamp
+	}
 
 
 	/**
@@ -86,17 +84,16 @@ public class Competency implements Serializable {
 	 * @throws InvalidAttributeValueException 
 	 */
 	public void setTitle(int compId) throws InvalidAttributeValueException {
-		if(compId == 0 | compId < Constants.COMPETENCY_NAMES.length) {
+		if(compId == 0 | compId < Constants.COMPETENCY_NAMES.length)
 			this.title = Constants.COMPETENCY_NAMES[compId];
-		}//if
 		else
 			throw new InvalidAttributeValueException(Constants.INVALID_TITLE_CONTEXT);
-	}//setCompetencyName
+	}
 
 	//Method to return Competency Name
 	public String getTitle(){
 		return title;
-	}//getCompetencyName
+	}
 
 	/**
 	 * 
@@ -105,17 +102,16 @@ public class Competency implements Serializable {
 	 * @throws InvalidAttributeValueException 
 	 */
 	public void setDescription(int compId) throws InvalidAttributeValueException {
-		if(compId == 0 | compId < Constants.COMPETENCY_NAMES.length) {
+		if(compId == 0 | compId < Constants.COMPETENCY_NAMES.length)
 			this.description = Constants.COMPETENCY_DESCRIPTIONS[compId];
-		}//if
 		else
 			throw new InvalidAttributeValueException(Constants.INVALID_DESCRIPTION_CONTEXT);
-	}//setCompetencyName
+	}
 
 	//Method to return Competency Description
 	public String getCompentencyDescription(){
 		return description;
-	}//getCompetencyName	
+	}
 
 	//returns boolean result determining if TimeStamp is valid
 	public boolean isValid(){

@@ -29,7 +29,6 @@ public class ADProfileDAO {
 
 	private static DirContext ldapContext;
 
-	@SuppressWarnings("unchecked")
 	public static ADProfile_Basic authenticateUserProfile(String usernameEmail) throws NamingException, InvalidAttributeValueException {
 		//Verify the given string
 		if(usernameEmail==null || usernameEmail.equals("") || usernameEmail.length()<1)
@@ -41,7 +40,7 @@ public class ADProfileDAO {
 		// Create the search controls         
 		SearchControls searchCtls = new SearchControls();
 		//Specify the attributes to return
-		searchCtls.setReturningAttributes(Constants.AD_ATTRIBUTES);
+		searchCtls.setReturningAttributes(Constants.AD_SOPRA_ATTRIBUTES);
 		//Specify the search scope
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
@@ -51,7 +50,7 @@ public class ADProfileDAO {
 		else
 			searchFilter = "(sAMAccountName=" + usernameEmail + ")";
 		// Search for objects using the filter
-		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_TREE, searchFilter, searchCtls);
+		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_SOPRA_TREE, searchFilter, searchCtls);
 
 		//Check the results retrieved
 		if(answer.hasMoreElements()){
@@ -68,23 +67,13 @@ public class ADProfileDAO {
 			adObj.setEmailAddress((String)attrs.get("mail").get());
 			adObj.setUsername((String)attrs.get("sAMAccountName").get());
 			adObj.setCompany((String) attrs.get("company").get());
-			adObj.setTeam("603 GOVERNMENT UK");
+			adObj.setTeam((String) attrs.get("department").get());
 
-			//Try to extract the reportees of a user
+			//Try to extract the reportees of a user by calling a static method inside the ADReporteedDAO which deals with the connection with the STERIA AD
 			try{
-				NamingEnumeration<String> isUserAManager=(NamingEnumeration<String>) attrs.get("directReports").getAll();
-				while(isUserAManager.hasMoreElements()){
-					//Get the current element
-					String s=isUserAManager.next().toString();
-					//Split it by commas
-					String[] t=s.split(",");
-					//We need to extract only the 1st element of the array, removing the first 3 chars (cn=)
-					adObj.addReportee(t[0].substring(3));
-				}
-				adObj.setIsManager(true);
+				adObj=ADReporteesDAO.findManagerReportees(adObj.getUsername(), adObj);
 			}catch(Exception e){
-				//If if goes here, it means the user is not a manager
-				adObj.setIsManager(false);
+				//Nothing to do if this operation fails
 			}
 			//Close the connection with the AD
 			ldapContext.close();
@@ -111,13 +100,13 @@ public class ADProfileDAO {
 		// Create the search controls         
 		SearchControls searchCtls = new SearchControls();
 		//Specify the attributes to return
-		searchCtls.setReturningAttributes(Constants.AD_ATTRIBUTES);
+		searchCtls.setReturningAttributes(Constants.AD_SOPRA_ATTRIBUTES);
 		//Specify the search scope
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
 		String searchFilter="(extensionAttribute7=s" + employeeID + ")";
 		// Search for objects using the filter
-		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_TREE, searchFilter, searchCtls);
+		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_SOPRA_TREE, searchFilter, searchCtls);
 
 		//Check the results retrieved
 		if(answer.hasMoreElements()){
@@ -142,7 +131,7 @@ public class ADProfileDAO {
 		// Create the search controls         
 		SearchControls searchCtls = new SearchControls();
 		//Specify the attributes to return
-		searchCtls.setReturningAttributes(Constants.AD_ATTRIBUTES);
+		searchCtls.setReturningAttributes(Constants.AD_SOPRA_ATTRIBUTES);
 		//Specify the search scope
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
@@ -150,7 +139,7 @@ public class ADProfileDAO {
 		String searchFilter = "(mail=" + email + ")";
 		
 		// Search for objects using the filter
-		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_TREE, searchFilter, searchCtls);
+		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_SOPRA_TREE, searchFilter, searchCtls);
 
 		//Check the results retrieved
 		if(answer.hasMoreElements()){
@@ -170,7 +159,7 @@ public class ADProfileDAO {
 		throw new InvalidAttributeValueException("The given email address doesn't match any Sopra Steria employee");
 	}
 	
-	public static String findEmployeeFullNameFromID(String id) throws NamingException, InvalidAttributeValueException{
+	public static String findEmployeeFullNameFromID(String id)throws InvalidAttributeValueException, NamingException{
 		//Verify the given ID
 		if(id==null || id.length()<1)
 			throw new InvalidAttributeValueException("The given ID is invalid");
@@ -181,14 +170,14 @@ public class ADProfileDAO {
 		// Create the search controls         
 		SearchControls searchCtls = new SearchControls();
 		//Specify the attributes to return
-		searchCtls.setReturningAttributes(Constants.AD_ATTRIBUTES);
+		searchCtls.setReturningAttributes(Constants.AD_SOPRA_ATTRIBUTES);
 		//Specify the search scope
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
 		String searchFilter = "(extensionAttribute7=s" + id + ")";
 		
 		// Search for objects using the filter
-		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_TREE, searchFilter, searchCtls);
+		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_SOPRA_TREE, searchFilter, searchCtls);
 
 		//Check the results retrieved
 		if(answer.hasMoreElements()){
@@ -212,15 +201,15 @@ public class ADProfileDAO {
 
 		Hashtable<String, String> ldapEnvironmentSettings = new Hashtable<String, String>();
 		ldapEnvironmentSettings.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		ldapEnvironmentSettings.put(Context.PROVIDER_URL,  Constants.AD_HOST+":"+Constants.AD_PORT);
+		ldapEnvironmentSettings.put(Context.PROVIDER_URL,  Constants.AD_SOPRA_HOST+":"+Constants.AD_PORT);
 		ldapEnvironmentSettings.put(Context.SECURITY_AUTHENTICATION, Constants.AD_AUTHENTICATION);
 
 		//This is essential in order to retrieve the user GUID later on in the process
 		ldapEnvironmentSettings.put("java.naming.ldap.attributes.binary", "objectGUID");
 
-		ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, Constants.AD_USERNAME);
+		ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, Constants.AD_SOPRA_USERNAME);
 		//ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, "cn="+Constants.AD_USERNAME+","+Constants.AD_TREE);
-		ldapEnvironmentSettings.put(Context.SECURITY_CREDENTIALS, Constants.AD_PASSWORD);
+		ldapEnvironmentSettings.put(Context.SECURITY_CREDENTIALS, Constants.AD_SOPRA_PASSWORD);
 		return new InitialDirContext(ldapEnvironmentSettings);
 	}
 }

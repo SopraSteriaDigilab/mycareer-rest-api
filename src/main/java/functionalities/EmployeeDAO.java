@@ -1,5 +1,6 @@
 package functionalities;
 
+import java.security.cert.PKIXRevocationChecker.Option;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
 import dataStructure.ADProfile_Advanced;
@@ -36,12 +38,12 @@ import dataStructure.Objective;
  * This class contains the definition of the EmployeeDAO object
  *
  */
-public  class EmployeeDAO {
+public class EmployeeDAO {
 
 	//There is only 1 instance of the Datastore in the whole system
 	private static Datastore dbConnection=null;
 
-	public static String getFullNameUser(long employeeID) throws InvalidAttributeValueException{
+	public static String getFullNameUser(long employeeID) throws InvalidAttributeValueException {
 		if(dbConnection==null)
 			dbConnection=getMongoDBConnection();
 		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
@@ -983,9 +985,12 @@ public  class EmployeeDAO {
 					+ "" + Constants.MONGODB_HOST + ":"
 					+ "" + Constants.MONGODB_PORT + "/"
 					+ "" + Constants.MONGODB_DB_NAME;
+
+			MongoClientOptions options=MongoClientOptions.builder().maxWaitTime(5).build();
 			MongoClient client = new MongoClient(new MongoClientURI(mongoClientURI));
+			
 			final Morphia morphia =new Morphia();
-			//client.getMongoOptions().setMaxWaitTime(10);
+
 			//Add packages
 			morphia.mapPackage("dataStructure.Employee");
 			dbConnection=morphia.createDatastore(client, Constants.MONGODB_DB_NAME);
