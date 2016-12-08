@@ -29,10 +29,10 @@ public class ADReporteesDAO {
 	private static DirContext ldapContext;
 
 	@SuppressWarnings("unchecked")
-	public static ADProfile_Advanced findManagerReportees(Long employeeID, ADProfile_Advanced userData) throws NamingException, InvalidAttributeValueException {
+	public static ADProfile_Advanced findManagerReportees(String username, ADProfile_Advanced userData) throws NamingException, InvalidAttributeValueException {
 		//Verify the given string
-		if(employeeID<0 || userData==null)
-			throw new InvalidAttributeValueException("The given employeeID is invalid");
+		if(username==null || username.length()<2 || userData==null)
+			throw new InvalidAttributeValueException("The given AD username or the user data are invalid");
 		//Instantiate the connection
 		if(ldapContext==null)
 			ldapContext = getADConnection();
@@ -44,7 +44,7 @@ public class ADReporteesDAO {
 		//Specify the search scope
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
-		String searchFilter="(employeeID=" + employeeID + ")";
+		String searchFilter="(sAMAccountName=" + username + ")";
 		// Search for objects using the filter
 		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_STERIA_TREE, searchFilter, searchCtls);
 
@@ -77,7 +77,7 @@ public class ADReporteesDAO {
 			//Close the connection with the AD
 			ldapContext.close();
 			ldapContext=null;
-			throw new InvalidAttributeValueException("No match in the Steria AD for user "+employeeID);
+			throw new InvalidAttributeValueException("No match in the Steria AD for user "+username);
 		}
 		//return the object
 		return userData;

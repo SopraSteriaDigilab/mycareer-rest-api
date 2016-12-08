@@ -71,7 +71,7 @@ public class ADProfileDAO {
 
 			//Try to extract the reportees of a user by calling a static method inside the ADReporteedDAO which deals with the connection with the STERIA AD
 			try{
-				adObj=ADReporteesDAO.findManagerReportees(adObj.getEmployeeID(), adObj);
+				adObj=ADReporteesDAO.findManagerReportees(adObj.getUsername(), adObj);
 			}catch(Exception e){
 				//Nothing to do if this operation fails
 			}

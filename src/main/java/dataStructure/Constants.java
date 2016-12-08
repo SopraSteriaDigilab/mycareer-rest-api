@@ -121,7 +121,7 @@ public final class Constants {
 	public static final String AD_STERIA_USERNAME="PICCOLI Michael - 675599";
 	public static final String AD_STERIA_PASSWORD="";
 	public static final String AD_STERIA_TREE="OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom";
-	public static final String[] AD_STERIA_ATTRIBUTES={"employeeID", "directReports"};
+	public static final String[] AD_STERIA_ATTRIBUTES={"directReports"};
 
 	//Constants for the emailServices package
 	public static final String MAILBOX_ADDRESS="MYCAREER.FEEDBACK@soprasteria.com";
