@@ -106,7 +106,7 @@ public class FeedbackRequest implements Serializable{//, Iterable<Feedback> {
 			}
 			return replies.add(new Feedback(reply.getID()));
 		}
-		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK_CONTEXT);
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
 	}
 
 	public boolean removeReply(Feedback reply) throws InvalidAttributeValueException{
@@ -118,7 +118,7 @@ public class FeedbackRequest implements Serializable{//, Iterable<Feedback> {
 			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKNOTFOUND_CONTEXT);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
 	}
 	
 	public boolean isValid(){

@@ -128,10 +128,10 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}
 			//Verify if there has been any error
 			if(errorCounter!=0)
-				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST_CONTEXT);
+				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACKLIST_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACKLIST);
 	}
 
 	public List<Feedback> getAllFeedback(){
@@ -145,7 +145,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 					.findFirst()
 					.get();
 		}
-		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKID_CONTEXT);
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKID);
 	}
 
 	/**
@@ -171,14 +171,14 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 					}
 				}
 				else
-					throw new InvalidAttributeValueException(Constants.INVALID_NULLOBJECTIVE_CONTEXT);
+					throw new InvalidAttributeValueException(Constants.NULL_OBJECTIVE);
 			}
 			//Verify if there were errors during the import of objectives
 			if(errorCounter!=0)
-				throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVELIST_CONTEXT);
+				throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVELIST);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLOBJECTIVELIST_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.NULL_OBJECTIVELIST);
 	}
 
 	public List<List<Objective>> getObjectiveList(){
@@ -218,7 +218,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	public Objective getLatestVersionOfSpecificObjective(int id) throws InvalidAttributeValueException{
 		//Verify if the id is valid
 		if(id<0)
-			throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVEID_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVEID);
 		//Search for the objective with the given ID
 		for(List<Objective> subList:objectives){
 			if((subList.get(0)).getID()==id){
@@ -254,14 +254,14 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 					}
 				}
 				else
-					throw new InvalidAttributeValueException(Constants.INVALID_NULLNOTE_CONTEXT);
+					throw new InvalidAttributeValueException(Constants.NULL_NOTE);
 			}
 			//Verify if there were errors during the import of objectives
 			if(errorCounter!=0)
-				throw new InvalidAttributeValueException(Constants.INVALID_NOTELIST_CONTEXT);
+				throw new InvalidAttributeValueException(Constants.INVALID_NOTELIST);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLNOTELIST_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.NULL_NOTELIST);
 	}
 
 	public List<List<Note>> getNoteList(){
@@ -297,7 +297,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	public Note getLatestVersionOfSpecificNotee(int id) throws InvalidAttributeValueException{
 		//Verify if the id is valid
 		if(id<0)
-			throw new InvalidAttributeValueException(Constants.INVALID_NOTEID_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_NOTEID);
 		//Search for the note with the given ID
 		for(List<Note> subList:notes){
 			if((subList.get(0)).getID()==id){
@@ -608,12 +608,12 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			feedback=new ArrayList<Feedback>();
 		//Verify that the object is not null
 		if(obj==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACK_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACK);
 		//At this point the Feedback hasn't got an ID, let's create it
 		obj.setID((feedback.size()+1));
 		if(obj.isFeedbackValid())
 			return feedback.add(obj);
-		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK_CONTEXT);
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
 	}
 
 	/**
@@ -639,7 +639,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 					//Try to add the new feedback
 					return this.objectives.get(i).get(this.objectives.get(i).size()-1).addFeedback(obj);
 				else
-					throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK_CONTEXT);
+					throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
 			}
 		}
 		return false;
@@ -656,7 +656,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			objectives=new ArrayList<List<Objective>>();
 		//Verify that the objective is not null
 		if(obj==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLOBJECTIVE_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.NULL_OBJECTIVE);
 		//At this point, the objective hasn't got an ID, let's create one
 		obj.setID(objectives.size()+1);
 		if(obj.isObjectiveValid()){
@@ -667,7 +667,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			//Action completed, verify the results
 			return (res1 && res2);
 		}
-		throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE_CONTEXT);
+		throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE);
 	}
 
 	/**
@@ -680,7 +680,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	public boolean editObjective(Objective obj) throws InvalidAttributeValueException{
 		//Verify that the object is not null
 		if(obj==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLOBJECTIVE_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.NULL_OBJECTIVE);
 		//Step 1: Verify that the object contains valid data 
 		if(obj.isObjectiveValid()){
 			//Step 2: Verify that the ID contained within the Objective object is in the system
@@ -693,7 +693,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				}
 			}
 		}
-		throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE_CONTEXT);
+		throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE);
 	}
 
 	/**
@@ -709,7 +709,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			notes=new ArrayList<List<Note>>();
 		//Verify that the note is not null
 		if(obj==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLNOTE_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.NULL_NOTE);
 		//At this point, the note hasn't got an ID, let's create one
 		obj.setID(notes.size()+1);
 		if(obj.isNoteValid()){
@@ -720,7 +720,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			//Action completed, verify the results
 			return (res1 && res2);
 		}
-		throw new InvalidAttributeValueException(Constants.INVALID_NOTE_CONTEXT);
+		throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
 	}
 
 	/**
@@ -734,7 +734,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	public boolean editNote(Note obj) throws InvalidAttributeValueException{
 		//Verify that the object is not null
 		if(obj==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLNOTE_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.NULL_NOTE);
 		//Step 1: Verify that the object contains valid data 
 		if(obj.isNoteValid()){
 			//Step 2: Verify that the ID contained within the note object is in the system
@@ -746,7 +746,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 					return notes.get(i).add(obj);
 			}
 		}
-		throw new InvalidAttributeValueException(Constants.INVALID_NOTE_CONTEXT);
+		throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
 	}
 
 	/**

@@ -102,7 +102,7 @@ public class Objective implements Serializable{
 		if(id>0)
 			this.id=id;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_USERID_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	public int getID(){
@@ -121,7 +121,7 @@ public class Objective implements Serializable{
 		if(progress>=-1 && progress<=2)
 			this.progress=progress;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_PROGRESS_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_PROGRESS);
 	}
 
 	public int getProgress(){
@@ -173,7 +173,7 @@ public class Objective implements Serializable{
 		if(title!=null && title.length()>0 && title.length()<151)
 			this.title=title;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_TITLE_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_TITLE);
 	}
 
 	public String getTitle(){
@@ -188,7 +188,7 @@ public class Objective implements Serializable{
 		if(description!=null && description.length()>0 && description.length()<1001)
 			this.description=description;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_DESCRIPTION_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_DESCRIPTION);
 	}
 
 	public String getDescription(){
@@ -226,10 +226,10 @@ public class Objective implements Serializable{
 			if(totalMonthsApart>=0)
 				this.timeToCompleteBy=temp.toString();
 			else
-				throw new InvalidAttributeValueException(Constants.INVALID_PASTDATE_CONTEXT);
+				throw new InvalidAttributeValueException(Constants.INVALID_PASTDATE);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_DATEFORMAT_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_DATEFORMAT);
 	}
 
 	public String getTimeToCompleteBy(){
@@ -261,10 +261,10 @@ public class Objective implements Serializable{
 			}
 			//Verify if there has been any error
 			if(errorCounter!=0)
-				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST_CONTEXT);
+				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACKLIST_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACKLIST);
 	}
 
 	public List<Feedback> getFeedback(){
@@ -287,10 +287,10 @@ public class Objective implements Serializable{
 			feedback=new ArrayList<Feedback>();
 		//Validate the feedback
 		if(obj==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACK_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACK);
 		if(obj.isFeedbackValid())
 			return feedback.add(obj);
-		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK_CONTEXT);
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
 	}
 
 	public boolean isObjectiveValid(){

@@ -63,7 +63,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 		if(email!=null && email.length()>0 && email.contains("@"))
 			this.emailAddress=email;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_MAIL_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_GUID);
 	}
 
 	public String getEmailAddress(){
@@ -79,7 +79,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 		if(guid!=null && guid.length()>0)
 			this.GUID=guid;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_GUID_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_GUID);
 	}
 
 	public String getGUID(){
@@ -95,7 +95,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 		if(com!=null && com.length()>0 && com.length()<150)
 			this.company=com;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_COMPANY_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_COMPANY);
 	}
 
 	public String getCompany(){
@@ -111,7 +111,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 		if(team!=null && team.length()>0 && team.length()<150)
 			this.team=team;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_TEAM_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_TEAM);
 	}
 
 	public String getTeam(){

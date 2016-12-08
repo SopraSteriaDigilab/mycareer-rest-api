@@ -49,7 +49,7 @@ public class Competency implements Serializable {
 		if(id>0)
 			this.id=id;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_USERID_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	//Method returning ID
@@ -87,7 +87,7 @@ public class Competency implements Serializable {
 		if(compId == 0 | compId < Constants.COMPETENCY_NAMES.length)
 			this.title = Constants.COMPETENCY_NAMES[compId];
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_TITLE_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_TITLE);
 	}
 
 	//Method to return Competency Name
@@ -105,7 +105,7 @@ public class Competency implements Serializable {
 		if(compId == 0 | compId < Constants.COMPETENCY_NAMES.length)
 			this.description = Constants.COMPETENCY_DESCRIPTIONS[compId];
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_DESCRIPTION_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_DESCRIPTION);
 	}
 
 	//Method to return Competency Description

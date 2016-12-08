@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import emailServices.IMAPService;
+import functionalities.EmployeeDAO;
 
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 public class Application {
@@ -16,7 +17,9 @@ public class Application {
 			//Start the Restful WebService
 			SpringApplication.run(Application.class, args);
 			//Start the EmailService that checks for new emails and add the feedback to a user
-			//IMAPService.initiateIMAPService();
+			IMAPService.initiateIMAPService();
+			//SendRandomEmails.sendRandomEmail("william.kenny@soprasteria.com",3);
+			EmployeeDAO.getFullNameUser(675599);
 		} catch (Exception e) {
 			System.err.println("Application Error: "+e.getMessage());
 		}
