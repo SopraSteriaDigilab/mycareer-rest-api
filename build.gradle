@@ -20,8 +20,8 @@ apply plugin: 'java'
 apply plugin: 'spring-boot'
 
 jar {
-    baseName = 'gs-spring-boot'
-    version =  '0.1.0'
+    baseName = 'spring_myCareer_BE'
+    version =  '1.0'
 }
 
 repositories {

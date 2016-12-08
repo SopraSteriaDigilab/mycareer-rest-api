@@ -81,7 +81,7 @@ public class Feedback implements Serializable{
 		if(id!=0)
 			this.id=id;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKID_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKID);
 	}
 
 	public int getID(){
@@ -105,7 +105,7 @@ public class Feedback implements Serializable{
 		if(from!=null && from.length()>0 && from.length()<150)
 			this.fromWho=from;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_FROMWHO_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_FROMWHO);
 	}
 
 	public String getFromWho(){
@@ -116,11 +116,11 @@ public class Feedback implements Serializable{
 		if(name!=null && name.length()>0 && name.length()<250)
 			this.fullName=name;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_FULLNAME_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_FULLNAME);
 	}
 
 	public String getFullName(){
-		return this.fromWho;
+		return this.fullName;
 	}
 	
 	public void setEmailBody(String body){
@@ -140,7 +140,7 @@ public class Feedback implements Serializable{
 		if(type!=null && type.length()>0 && (type.toLowerCase().equals("internal") || type.toLowerCase().equals("external")))
 			this.type=type;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKTYPE_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_FEEDBACKTYPE);
 	}
 
 	public String getType(){
@@ -155,7 +155,7 @@ public class Feedback implements Serializable{
 		if(source!=null && source.length()>0 && source.length()<30)
 			this.source=source;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKSOURCE_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_FEEDBACKSOURCE);
 	}
 
 	public String getSource(){
