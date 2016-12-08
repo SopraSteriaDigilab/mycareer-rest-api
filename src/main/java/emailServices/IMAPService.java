@@ -557,11 +557,10 @@ public final class IMAPService {
 	/**
 	 * 
 	 * This method initiates the authentication with the email server
-	 * @throws URISyntaxException 
 	 * 
 	 * @throws Exception
 	 */
-	private static void initiateIMAPConnection() throws Exception {
+	private static void initiateIMAPConnection() throws Exception{
 		emailService = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
 		emailService.setMaximumPoolingConnections(1);
 		credentials = new WebCredentials(Constants.MAIL_USERNAME, Constants.MAIL_PASSWORD);

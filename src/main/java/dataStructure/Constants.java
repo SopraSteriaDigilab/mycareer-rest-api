@@ -29,39 +29,45 @@ public final class Constants {
 	public static final int MAX_TITLE_LENGTH=151;
 	
 	//Invalid Messages
-	public static final String INVALID_MAIL_CONTEXT="The given 'Email Address' is not valid in this context";
-	public static final String INVALID_GUID_CONTEXT="The given 'GUID' is not valid in this context";
-	public static final String INVALID_COMPANY_CONTEXT="The given 'company' is not valid in this context";
-	public static final String INVALID_TEAM_CONTEXT="The given 'team' is not valid in this context";
-	public static final String INVALID_USERID_CONTEXT="The given 'ID' is not valid in this context";
-	public static final String INVALID_USERNAME_CONTEXT="The given 'username' is not valid in this context";
-	public static final String INVALID_SURNAME_CONTEXT="The given 'surname' is not valid in this context";
-	public static final String INVALID_FORENAME_CONTEXT="The given 'forename' is not valid in this context";
-	public static final String INVALID_TITLE_CONTEXT="The given 'title' is not valid in this context";
-	public static final String INVALID_DESCRIPTION_CONTEXT="The given 'description' is not valid in this context";
-	public static final String INVALID_PROGRESS_CONTEXT="The given 'progress' value is not valid in this context";
-	public static final String INVALID_CATEGORY_CONTEXT="The given 'category' value is not valid in this context";
-	public static final String INVALID_FROMWHO_CONTEXT="The given 'fromWho' value is not valid in this context";
-	public static final String INVALID_FULLNAME_CONTEXT="The given 'fullName' value is not valid in this context";
-	public static final String INVALID_FEEDBACKTYPE_CONTEXT="The given 'feedback type' value is not valid in this context";
-	public static final String INVALID_FEEDBACKSOURCE_CONTEXT="The given 'source' value is not valid in this context";
-	public static final String INVALID_PASTDATE_CONTEXT="The given date is not valid because it is in the past";
-	public static final String INVALID_DATEFORMAT_CONTEXT="The format of the given 'date' is not valid";
-	public static final String INVALID_FEEDBACKLIST_CONTEXT="Not all feedback were added due to their incorrect format/status";
-	public static final String INVALID_NULLFEEDBACKLIST_CONTEXT="The given list of feedback is null";
-	public static final String INVALID_NULLFEEDBACK_CONTEXT="The given feedback is null";
-	public static final String INVALID_FEEDBACK_CONTEXT="The given feedback is not valid";
-	public static final String INVALID_FEEDBACKID_CONTEXT="The given Feedback ID is not valid";
-	public static final String INVALID_OBJECTIVELIST_CONTEXT="Not all Objectives were added due to their incorrect format/status";
-	public static final String INVALID_NULLOBJECTIVE_CONTEXT="The given Objective is null";
-	public static final String INVALID_NULLOBJECTIVELIST_CONTEXT="The given list of Objectives is null";
-	public static final String INVALID_OBJECTIVEID_CONTEXT="The given Objective ID is not valid";
-	public static final String INVALID_OBJECTIVE_CONTEXT="The given Objective is not valid";
-	public static final String INVALID_NULLNOTE_CONTEXT="The given Note is null";
-	public static final String INVALID_NULLNOTELIST_CONTEXT="The given list of Notes is null";
-	public static final String INVALID_NOTELIST_CONTEXT="Not all Notes were added due to their incorrect format/status";
-	public static final String INVALID_NOTEID_CONTEXT="The given Note ID is not valid";
-	public static final String INVALID_NOTE_CONTEXT="The given Note is not valid";
+	public static final String INVALID_CONTEXT_MAIL="The given 'Email Address' is not valid in this context";
+	public static final String INVALID_CONTEXT_GUID="The given 'GUID' is not valid in this context";
+	public static final String INVALID_CONTEXT_COMPANY="The given 'company' is not valid in this context";
+	public static final String INVALID_CONTEXT_TEAM="The given 'team' is not valid in this context";
+	public static final String INVALID_CONTEXT_USERID="The given 'ID' is not valid in this context";
+	public static final String INVALID_CONTEXT_USERNAME="The given 'username' is not valid in this context";
+	public static final String INVALID_CONTEXT_SURNAME="The given 'surname' is not valid in this context";
+	public static final String INVALID_CONTEXT_FORENAME="The given 'forename' is not valid in this context";
+	public static final String INVALID_CONTEXT_TITLE="The given 'title' is not valid in this context";
+	public static final String INVALID_CONTEXT_DESCRIPTION="The given 'description' is not valid in this context";
+	public static final String INVALID_CONTEXT_PROGRESS="The given 'progress' value is not valid in this context";
+	public static final String INVALID_CONTEXT_CATEGORY="The given 'category' value is not valid in this context";
+	public static final String INVALID_CONTEXT_FROMWHO="The given 'fromWho' value is not valid in this context";
+	public static final String INVALID_CONTEXT_FULLNAME="The given 'fullName' value is not valid in this context";
+	public static final String INVALID_CONTEXT_FEEDBACKTYPE="The given 'Feedback type' value is not valid in this context";
+	public static final String INVALID_CONTEXT_FEEDBACKSOURCE="The given 'Feedback source' value is not valid in this context";
+	
+	public static final String INVALID_PASTDATE="The given date is not valid because it is in the past";
+	public static final String INVALID_DATEFORMAT="The given date format is not valid";
+	public static final String INVALID_FEEDBACKLIST="Not all feedback were added due to their incorrect format/status";
+	public static final String INVALID_FEEDBACK="The given feedback is not valid";
+	public static final String INVALID_FEEDBACKID="The given Feedback ID is not valid";
+	public static final String INVALID_OBJECTIVELIST="Not all Objectives were added due to their incorrect format/status";
+	public static final String INVALID_OBJECTIVEID="The given Objective ID is not valid";
+	public static final String INVALID_OBJECTIVE="The given Objective is not valid";
+	public static final String INVALID_NOTELIST="Not all Notes were added due to their incorrect format/status";
+	public static final String INVALID_NOTEID="The given Note ID is not valid";
+	public static final String INVALID_NOTE="The given Note is not valid";
+	
+	public static final String NULL_FEEDBACKLIST="The given list of feedback is null";
+	public static final String NULL_FEEDBACK="The given feedback is null";
+	public static final String NULL_OBJECTIVE="The given Objective is null";
+	public static final String NULL_OBJECTIVELIST="The given list of Objectives is null";
+	public static final String NULL_NOTE="The given Note is null";
+	public static final String NULL_NOTELIST="The given list of Notes is null";
+	
+	
+	
+	
 	public static final String INVALID_NULLDEVNEEDSLIST_CONTEXT="The given list of Development Needs is null";
 	public static final String INVALID_DEVNEEDSLIST_CONTEXT="Not all Development Needs were added due to their incorrect format/status";
 	public static final String INVALID_NULLDEVNEED_CONTEXT="The given Development Need is null";
@@ -95,8 +101,30 @@ public final class Constants {
 	public static final String INVALID_OBJECTIVE_PERFORMANCE="The given 'performance' value is not valid in this context";
 	public static final String INVALID_SMTPSERVICE_NOTES="The notes cannot exceed 1000 characters";
 	public static final String INVALID_SMTPSERVICE_TOOMANYADDRESSES="Too many email addresses, The maximum number allowed is 20";
-	public static final String INVALID_NULLREPORTEESLIST="THe given list of reportees is null";
-	public static final String INVALID_NULLREPORTEE="THe given 'reportee' is null";
+	public static final String INVALID_NULLREPORTEESLIST="The given list of reportees is null";
+	public static final String INVALID_NULLREPORTEE="The given 'reportee' is null";
+	public static final String INVALID_IDNOTFOND="No employee matches the given ID";
+	public static final String INVALID_OBJECTIVEIDNOTFOND="No objective ID matches the user data";
+	public static final String INVALID_USEREMAIL="The given email address does not match any valid employee";
+	public static final String OBJECTIVE_NOTADDED_ERROR="The given objective couldn't be added! Please try again later!";
+	public static final String FEEDBACK_NOTADDED_ERROR="The given feedback couldn't be added! Please try again later!";
+	public static final String NOTE_NOTADDED_ERROR="The given note couldn't be added! Please try again later!";
+	public static final String DEVELOPMENTNEED_NOTADDED_ERROR="The given development need couldn't be added! Please try again later!";
+	public static final String GROUPFBREQ_NOTADDED_ERROR="The given feedback request couldn't be added! Please try again later!";
+	public static final String DUPLICATE_FEEDBACK="The given feedback couldn't be added because it is a duplicate";
+	public static final String INVALID_OBJECTIVE_OR_EMPLOYEEID="The given Employee ID or Objective ID are invalid";
+	public static final String INVALID_NOTE_OR_EMPLOYEEID="The given Employee ID or Note ID are invalid";
+	public static final String INVALID_DEVNEED_OR_EMPLOYEEID="The given Employee ID or Development Need ID are invalid";
+	public static final String INVALID_FBREQ_OR_EMPLOYEEID="The given Employee ID or Feedback Request ID are invalid";
+	public static final String INVALID_COMPETENCY_OR_EMPLOYEEID="The given Employee ID or Compentecy Title are invalid";
+	public static final String INVALID_USERGUID_NOTFOUND="The given user GUID didn't match any result in the Active Directory";
+	public static final String NULL_USER_DATA="The given user data is invalid";
+	public static final String ERROR_LINKING_FBTOUSER="Something went wrong while adding the feedback to user ";
+	public static final String INVALID_EMAILORUSERNAME_AD="The given 'username/email address' is not valid in this context";
+	public static final String NOTFOUND_EMAILORUSERNAME_AD="The given 'username/email address' didn't match any valid employee: ";
+	public static final String INVALID_IDMATCHUSERNAME="The given ID didn't match any employee: ";
+	public static final String INVALID_EMAIL_AD="The given email address didn't match any employee: ";
+	public static final String NOTFOUND_USERNAME_AD="The given 'username' didn't match any valid employee: ";
 	
 	
 	//Constants for the Functionalities package

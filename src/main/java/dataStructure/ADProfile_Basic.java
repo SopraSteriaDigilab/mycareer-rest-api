@@ -45,7 +45,7 @@ public class ADProfile_Basic implements Serializable{
 		if(id>0)
 			this.employeeID=id;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_USERID_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	public long getEmployeeID(){
@@ -63,7 +63,7 @@ public class ADProfile_Basic implements Serializable{
 		if(user!=null && user.length()>0 && user.length()<50)
 			this.username=user;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_USERNAME_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERNAME);
 	}
 
 	public String getUsername(){
@@ -74,7 +74,7 @@ public class ADProfile_Basic implements Serializable{
 		if(name!=null && !name.equals("") && name.length()<300)
 			this.surname=name.substring(0,1).toUpperCase()+name.substring(1).toLowerCase();
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_SURNAME_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_SURNAME);
 	}
 	
 	public String getSurname(){
@@ -85,7 +85,7 @@ public class ADProfile_Basic implements Serializable{
 		if(name!=null && !name.equals("") && name.length()<300)
 			this.forename=name;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_FORENAME_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_FORENAME);
 	}
 	
 	public String getForename(){

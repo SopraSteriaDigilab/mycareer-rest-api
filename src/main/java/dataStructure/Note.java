@@ -56,7 +56,7 @@ public class Note implements Serializable{
 		if(id>0)
 			this.id=id;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_USERID_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
 	}
 	
 	public int getID(){
@@ -107,7 +107,7 @@ public class Note implements Serializable{
 		if(id>0)
 			this.linkID = linkID;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_USERID_CONTEXT);
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
 	}
 	
 	public int getLinkID() {

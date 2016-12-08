@@ -32,7 +32,7 @@ public class ADReporteesDAO {
 	public static ADProfile_Advanced findManagerReportees(String username, ADProfile_Advanced userData) throws NamingException, InvalidAttributeValueException {
 		//Verify the given string
 		if(username==null || username.length()<2 || userData==null)
-			throw new InvalidAttributeValueException("The given AD username or the user data are invalid");
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERNAME);
 		//Instantiate the connection
 		if(ldapContext==null)
 			ldapContext = getADConnection();
@@ -77,7 +77,7 @@ public class ADReporteesDAO {
 			//Close the connection with the AD
 			ldapContext.close();
 			ldapContext=null;
-			throw new InvalidAttributeValueException("No match in the Steria AD for user "+username);
+			throw new InvalidAttributeValueException(Constants.NOTFOUND_USERNAME_AD + username);
 		}
 		//return the object
 		return userData;
