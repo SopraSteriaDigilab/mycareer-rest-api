@@ -32,7 +32,7 @@ public class ADProfileDAO {
 	public static ADProfile_Basic authenticateUserProfile(String usernameEmail) throws NamingException, InvalidAttributeValueException {
 		//Verify the given string
 		if(usernameEmail==null || usernameEmail.equals("") || usernameEmail.length()<1)
-			throw new InvalidAttributeValueException("The given username is invalid");
+			throw new InvalidAttributeValueException(Constants.INVALID_EMAILORUSERNAME_AD);
 		//Instantiate the connection
 		if(ldapContext==null)
 			ldapContext = getADConnection();
@@ -84,14 +84,14 @@ public class ADProfileDAO {
 			//Close the connection with the AD
 			ldapContext.close();
 			ldapContext=null;
-			throw new InvalidAttributeValueException("No match in the AD for user "+usernameEmail);
+			throw new InvalidAttributeValueException(Constants.NOTFOUND_EMAILORUSERNAME_AD + usernameEmail);
 		}
 	}
 
 	public static ADProfile_Basic verifyIfUserExists(long employeeID) throws NamingException, InvalidAttributeValueException{
 		//Verify the long
 		if(employeeID<1)
-			throw new InvalidAttributeValueException("No valid employeeID");
+			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
 		//Instantiate the connection
 		if(ldapContext==null)
 			ldapContext = getADConnection();
@@ -117,13 +117,13 @@ public class ADProfileDAO {
 			if(!userName.equals(""))
 				return ADProfileDAO.authenticateUserProfile(userName);
 		}
-		throw new InvalidAttributeValueException("No username has been found for employee ID: "+employeeID);
+		throw new InvalidAttributeValueException(Constants.INVALID_IDMATCHUSERNAME+employeeID);
 	}
 
 	public static String findEmployeeFullNameFromEmailAddress(String email) throws NamingException, InvalidAttributeValueException{
 		//Verify the given email address
 		if(email==null || email.length()<1)
-			throw new InvalidAttributeValueException("The given email address is invalid");
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_MAIL);
 		//Instantiate the connection
 		if(ldapContext==null)
 			ldapContext = getADConnection();
@@ -156,13 +156,13 @@ public class ADProfileDAO {
 		//Close the connection with the AD
 		ldapContext.close();
 		ldapContext=null;
-		throw new InvalidAttributeValueException("The given email address doesn't match any Sopra Steria employee");
+		throw new InvalidAttributeValueException(Constants.INVALID_EMAIL_AD + email);
 	}
 	
 	public static String findEmployeeFullNameFromID(String id)throws InvalidAttributeValueException, NamingException{
 		//Verify the given ID
 		if(id==null || id.length()<1)
-			throw new InvalidAttributeValueException("The given ID is invalid");
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
 		//Instantiate the connection
 		if(ldapContext==null)
 			ldapContext = getADConnection();
@@ -194,7 +194,7 @@ public class ADProfileDAO {
 		//Close the connection with the AD
 		ldapContext.close();
 		ldapContext=null;
-		throw new InvalidAttributeValueException("The given employeeID doesn't match any Sopra Steria employee");
+		throw new InvalidAttributeValueException(Constants.INVALID_IDMATCHUSERNAME + id);
 	}
 
 	private static DirContext getADConnection() throws NamingException{

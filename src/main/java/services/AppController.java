@@ -63,7 +63,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body("The given ID is invalid");
+			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body("The given ID is invalid");
+			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -109,7 +109,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body("The given ID is invalid");
+			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -132,7 +132,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body("The given ID is invalid");
+			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body("The given ID is invalid");
+			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
