@@ -21,6 +21,7 @@ import microsoft.exchange.webservices.data.core.PropertySet;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.property.BasePropertySet;
 import microsoft.exchange.webservices.data.core.enumeration.property.BodyType;
+import microsoft.exchange.webservices.data.core.enumeration.property.OofState;
 import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
 import microsoft.exchange.webservices.data.core.enumeration.search.LogicalOperator;
 import microsoft.exchange.webservices.data.core.enumeration.service.ConflictResolutionMode;
@@ -31,6 +32,8 @@ import microsoft.exchange.webservices.data.core.service.schema.EmailMessageSchem
 import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
+import microsoft.exchange.webservices.data.property.complex.InternetMessageHeader;
+import microsoft.exchange.webservices.data.property.complex.InternetMessageHeaderCollection;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
@@ -123,6 +126,19 @@ public final class IMAPService {
 				EmailMessage openNotReadEmail = EmailMessage.bind(emailService, tempMail.getId(),psPropset);
 				//Load the message
 				openNotReadEmail.load();
+				
+				//Verify if the email is auto-generated
+				
+				//InternetMessageHeaderCollection headers=openNotReadEmail.getInternetMessageHeaders();
+				//System.out.println(headers.toString());
+				InternetMessageHeader auto=openNotReadEmail.getInternetMessageHeaders().find("Auto-Submitted");
+				if(openNotReadEmail.getInternetMessageHeaders().find("Auto-Submitted")!=null){
+					System.out.println("\t"+LocalTime.now()+" - The email is auto-generated,  Moved to DRAFTS");
+					openNotReadEmail.move(WellKnownFolderName.Drafts);
+					continue;
+				}
+				//headers.contains(InternetMessageHeader//("Auto-Submitted"));
+				//headers.contains(InternetMessageHead)
 
 				
 				//STEP 1 CHECK FOR UNDELIVERED EMAILS
@@ -314,6 +330,7 @@ public final class IMAPService {
 						//Create the feedback object and add it to the user data
 						List<String> successfullyAdded=new ArrayList<>();
 						List<String> unsuccessfullyAdded=new ArrayList<>();
+						boolean errorFlag=false;
 						for(EmailAddress toElem: toElements){
 							try{
 								ADProfile_Basic userFound=ADProfileDAO.authenticateUserProfile(toElem.getAddress());
@@ -343,7 +360,7 @@ public final class IMAPService {
 									unsuccessfullyAdded.add(toElem.getAddress());
 								}
 							}
-							catch(InvalidAttributeValueException e){
+							catch(Exception e){
 								System.out.println("\t"+LocalTime.now()+" - "+e.getMessage());
 								//User not found in the AD, add it to the list of invalid addresses
 								if (e.getMessage().contains("No match in the AD for user"))
@@ -352,9 +369,13 @@ public final class IMAPService {
 									openNotReadEmail.setIsRead(false);
 									openNotReadEmail.move(WellKnownFolderName.Drafts);
 									System.out.println("\t"+LocalTime.now()+" - General Error: "+e.getMessage());
+									errorFlag=true;
+									break;
 								}
 							}
 						}
+						if(errorFlag)
+							continue;
 						//Mark the Email as read and update it into the mail server
 						openNotReadEmail.setIsRead(true);
 						openNotReadEmail.update(ConflictResolutionMode.AutoResolve);
