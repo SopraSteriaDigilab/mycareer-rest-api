@@ -66,8 +66,6 @@ public final class Constants {
 	public static final String NULL_NOTELIST="The given list of Notes is null";
 	
 	
-	
-	
 	public static final String INVALID_NULLDEVNEEDSLIST_CONTEXT="The given list of Development Needs is null";
 	public static final String INVALID_DEVNEEDSLIST_CONTEXT="Not all Development Needs were added due to their incorrect format/status";
 	public static final String INVALID_NULLDEVNEED_CONTEXT="The given Development Need is null";

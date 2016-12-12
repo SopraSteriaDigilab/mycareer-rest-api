@@ -98,15 +98,16 @@ public class AppController {
 	 */
 	@RequestMapping(value="/getNotes/{employeeID}", method=RequestMethod.GET)
 	public ResponseEntity<?> getNotes(@PathVariable long employeeID){
-		if(employeeID>0)
+		if(employeeID>0){
 			try{
 				return ResponseEntity.ok(EmployeeDAO.getNotesForUser(employeeID));
 			}
-		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
-		}
-		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			catch(MongoException me){
+				return ResponseEntity.badRequest().body("DataBase Connection Error");
+			}
+			catch(Exception e){
+				return ResponseEntity.badRequest().body(e.getMessage());
+			}
 		}
 		else
 			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
@@ -155,7 +156,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * 
 	 * This method allows the front-end to retrieve all the reportees associated with a user
@@ -532,7 +533,7 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
 	@RequestMapping(value="/authenticateUserProfile", method=RequestMethod.GET)
 	public ResponseEntity<?> authenticateUserProfile(@RequestParam(value="userName_Email") String userName){
 		try {
@@ -544,12 +545,12 @@ public class AppController {
 		} catch (InvalidAttributeValueException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		} catch (NamingException e){
-//			return ResponseEntity.badRequest().body("AD Connection Error");
+			//			return ResponseEntity.badRequest().body("AD Connection Error");
 			return ResponseEntity.badRequest().body(e.toString());
 		}	
 	}
-	
-	
+
+
 	/**
 	 * 
 	 * This method allows the front-end to propose a new objective for a list of users
@@ -581,7 +582,7 @@ public class AppController {
 
 			//Check that input variables are not empty
 			areInputValuesEmpty(title, description, completedBy);
-			
+
 			//Get email addresses and check they are not empty and limit to 20
 			String[] emailAddresses=emails.split(",");
 			if(emailAddresses.length >19){
@@ -593,13 +594,13 @@ public class AppController {
 				}
 				emailSet.add(email.trim());
 			}
-			
+
 			//check date is not in the past
 			YearMonth temp=YearMonth.parse(completedBy,Constants.YEAR_MONTH_FORMAT);
 			if(temp.isBefore(YearMonth.now())){
 				throw new InvalidAttributeValueException("Date can not be in the past");
 			}
-			
+
 			//get user and loop through emails and add objective
 			String proposedBy=EmployeeDAO.getFullNameUser(employeeID);
 			for(String email : emailSet){
@@ -620,7 +621,7 @@ public class AppController {
 					errorResult += er.getMessage();
 				}
 			}
-			
+
 			//If any error pop up, add to result
 			if(errorInserting){
 				if(!insertAccepted){ result = ""; }
@@ -628,7 +629,7 @@ public class AppController {
 			}
 
 			return ResponseEntity.ok(result);
-			
+
 		} catch (InvalidAttributeValueException e) {
 			if(!insertAccepted){ result = ""; }
 			return ResponseEntity.badRequest().body(result + e.getMessage()  +", ");
@@ -637,8 +638,8 @@ public class AppController {
 			return ResponseEntity.badRequest().body(result + e.getMessage()  +", ");
 		} 
 	}
-	
-	
+
+
 	/**
 	 * Gets all IDs and Titles for each Objective, Competency,Feedback, Development need,
 	 * and team member for this {@code employeeID}.
@@ -661,9 +662,9 @@ public class AppController {
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
 	}
-	
-	
-	
+
+
+
 	private void areInputValuesEmpty(String... args) throws InvalidAttributeValueException{
 		for(String str : args){
 			if(str.length() < 1 || str.isEmpty()){
@@ -671,5 +672,5 @@ public class AppController {
 			}
 		}
 	}
-	
+
 }

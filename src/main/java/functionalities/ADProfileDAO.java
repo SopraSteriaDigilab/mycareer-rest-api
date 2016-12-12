@@ -151,7 +151,7 @@ public class ADProfileDAO {
 			//Convert the upper case surname into a lower case string with only the 1st char uppercase
 			surname=surname.substring(0,1).toUpperCase()+surname.substring(1).toLowerCase();
 			String forename=(String)attrs.get("givenName").get();
-			return surname+" "+forename;
+			return forename+" "+surname;
 		}
 		//Close the connection with the AD
 		ldapContext.close();
