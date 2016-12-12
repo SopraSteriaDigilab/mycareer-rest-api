@@ -227,7 +227,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				return (subList.get(subList.size()-1));
 			}
 		}
-		return null;
+		throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVEIDNOTFOND);
 	}
 
 	/**

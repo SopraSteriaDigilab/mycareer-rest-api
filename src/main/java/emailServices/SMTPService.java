@@ -91,7 +91,7 @@ public final class SMTPService {
 			//Get email address of the user requesting feedback which also validates the emaployeeID
 			String emailAddresEmployeeRequester=EmployeeDAO.getUserEmailAddressFromID(employeeID);
 			//Get the full name of the employee from his/hers ID
-			String fullNameEmployeeRequester=EmployeeDAO.getUserFullNmeFromUserID(employeeID);
+			String fullNameEmployeeRequester=EmployeeDAO.getUserFullNameFromUserID(employeeID);
 
 
 			//PART 4

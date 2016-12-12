@@ -48,6 +48,7 @@ dependencies {
     
     //Morphia library for the communication with MongoDB
     compile ("org.mongodb.morphia:morphia:1.2.1")
+    //compile ("org.mongodb:mongodb-driver:3.4.0")
     
     //JavaMail library for the communication with the SMTP Email Server
     compile ("javax.mail:mail:1.5.0-b01")
