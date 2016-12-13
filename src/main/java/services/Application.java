@@ -17,7 +17,7 @@ public class Application {
 			SpringApplication.run(Application.class, args);
 			//Start the EmailService that checks for new emails and add the feedback to a user
 			//IMAPService.initiateIMAPService();
-			//SendRandomEmails.sendRandomEmail("william.kenny@soprasteria.com",3);
+			//SendRandomEmails.sendRandomEmail("michael.piccoli@soprasteria.com",500);
 		} catch (Exception e) {
 			System.err.println("Application Error: "+e.getMessage());
 		}

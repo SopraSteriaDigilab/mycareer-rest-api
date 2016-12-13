@@ -65,7 +65,9 @@ public class Feedback implements Serializable{
 			String from, 
 			String type, 
 			String source,
-			boolean requested) throws InvalidAttributeValueException{
+			boolean requested,
+			String fullName,
+			String emailBody) throws InvalidAttributeValueException{
 		this.id=0;
 		this.setFromWho(from);
 		this.setType(type);
@@ -75,6 +77,8 @@ public class Feedback implements Serializable{
 		this.emailBody="";
 		this.fullName="";
 		this.isRequested=requested;
+		this.setFullName(fullName);
+		this.setEmailBody(emailBody);
 	}
 
 	public void setID(int id) throws InvalidAttributeValueException{
@@ -113,7 +117,7 @@ public class Feedback implements Serializable{
 	}
 	
 	public void setFullName(String name) throws InvalidAttributeValueException{
-		if(name!=null && name.length()>0 && name.length()<250)
+		if(name!=null && name.length()<250)
 			this.fullName=name;
 		else
 			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_FULLNAME);
