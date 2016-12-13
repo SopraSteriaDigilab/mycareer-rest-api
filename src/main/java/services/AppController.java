@@ -220,7 +220,7 @@ public class AppController {
 			obj.setProposedBy(proposedBy);
 			boolean inserted=EmployeeDAO.insertNewObjective(employeeID,obj);
 			if(inserted)
-				return ResponseEntity.ok("Objective inserted correctly!");
+				return ResponseEntity.ok("Objective inserted correctly");
 			else
 				return ResponseEntity.badRequest().body("Error while adding the objective");
 		}
@@ -262,7 +262,7 @@ public class AppController {
 			obj.setProposedBy(proposedBy);
 			boolean inserted=EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj);
 			if(inserted)
-				return ResponseEntity.ok("Objective modified correctly!");
+				return ResponseEntity.ok("Objective modified correctly");
 			else
 				return ResponseEntity.badRequest().body("Error while editing the objective");
 		}
@@ -292,7 +292,7 @@ public class AppController {
 			//Retrieve the object with the given ID from the DB data
 			Objective obj=EmployeeDAO.getSpecificObjectiveForUser(employeeID, objectiveID);
 			if(obj.getIsArchived()==isArchived)
-				return ResponseEntity.ok("The status of the objective has not changed!");
+				return ResponseEntity.ok("The status of the objective has not changed");
 			//Create a new object which stores the data from the retrieved element but sets a new timestamp to it
 			Objective newObjUpdated=new Objective(obj);			
 			newObjUpdated.setIsArchived(isArchived); 
@@ -300,9 +300,9 @@ public class AppController {
 			boolean inserted=EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, newObjUpdated);
 			if(inserted){
 				if(isArchived)
-					return ResponseEntity.ok("The objective has been archived!");
+					return ResponseEntity.ok("The objective has been archived");
 				else
-					return ResponseEntity.ok("The objective has been unarchived!");
+					return ResponseEntity.ok("The objective has been restored");
 			}
 			else
 				return ResponseEntity.badRequest().body("Error while editing the objective");
@@ -335,7 +335,7 @@ public class AppController {
 			Note obj=new Note(1, noteType, linkID, body,from);
 			boolean inserted=EmployeeDAO.insertNewNote(employeeID,obj);
 			if(inserted)
-				return ResponseEntity.ok("Note inserted correctly!");
+				return ResponseEntity.ok("Note inserted correctly");
 			else
 				return ResponseEntity.badRequest().body("Error while adding the Note");
 		}
@@ -369,7 +369,7 @@ public class AppController {
 			Note obj=new Note(noteID, noteType, linkID, body,from);
 			boolean inserted=EmployeeDAO.addNewVersionNote(employeeID, noteID, obj);
 			if(inserted)
-				return ResponseEntity.ok("Note modified correctly!");
+				return ResponseEntity.ok("Note modified correctly");
 			else
 				return ResponseEntity.badRequest().body("Error while editing the Note");
 		}
@@ -402,7 +402,7 @@ public class AppController {
 			DevelopmentNeed obj=new DevelopmentNeed(1,0,cat,title,description,timeToCompleteBy);
 			boolean inserted=EmployeeDAO.insertNewDevelopmentNeed(employeeID,obj);
 			if(inserted)
-				return ResponseEntity.ok("Development need inserted correctly!");
+				return ResponseEntity.ok("Development need inserted correctly");
 			else
 				return ResponseEntity.badRequest().body("Error while adding the Development need");
 		}
@@ -438,7 +438,7 @@ public class AppController {
 			DevelopmentNeed obj=new DevelopmentNeed(devNeedID,progress,cat,title,description,timeToCompleteBy);
 			boolean inserted=EmployeeDAO.addNewVersionDevelopmentNeed(employeeID, devNeedID, obj);
 			if(inserted)
-				return ResponseEntity.ok("Development need modified correctly!");
+				return ResponseEntity.ok("Development need modified correctly");
 			else
 				return ResponseEntity.badRequest().body("Error while editing the Development need");
 		}
@@ -469,12 +469,12 @@ public class AppController {
 				emailAddressesToField[i]=emailAddressesToField[i].trim();
 			}
 			if(emailAddressesToField[0].length()<1)
-				return ResponseEntity.badRequest().body("No recipients inserted!");
+				return ResponseEntity.badRequest().body("No recipients inserted");
 			boolean done=SMTPService.createFeedbackRequest(employeeID, notes, emailAddressesToField);
 			if(done)
-				return ResponseEntity.ok("Feedback request sent! A Confirmation Email is on its way");
+				return ResponseEntity.ok("Feedback request sent. A Confirmation Email is on its way");
 			else
-				return ResponseEntity.badRequest().body("Error while creating a feedback request!");
+				return ResponseEntity.badRequest().body("Error while creating a feedback request");
 		}
 		catch(Exception e){
 			return ResponseEntity.badRequest().body(e.getMessage());
@@ -522,7 +522,7 @@ public class AppController {
 			Competency obj=new Competency(index,status);
 			boolean inserted=EmployeeDAO.addNewVersionCompetency(employeeID,obj,title);
 			if(inserted)
-				return ResponseEntity.ok("Competency updated correctly!");
+				return ResponseEntity.ok("Competency updated correctly");
 			else
 				return ResponseEntity.badRequest().body("Error while updating the Competency");
 		}
