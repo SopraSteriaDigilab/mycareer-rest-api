@@ -234,17 +234,17 @@ public final class IMAPService {
 						openNotReadEmail.setIsRead(true);
 						openNotReadEmail.update(ConflictResolutionMode.AutoResolve);
 						System.out.println("\t"+LocalTime.now()+" - Reply to a Feedback Request linked correctly");
-						{
-							//Praise Feedback provider
-							List<String> sentTo=new ArrayList<>();
-							sentTo.add(emailEmployee);
-							praiseFeedbackProvider(fromFieldEmail, sentTo, null);
-							
-							//Notify user about the new feedback added
-							String bodyErrorEmail="Hi,\nGood news for you!\nThe user "+fromFieldEmail.toString()+" had sent you a feedback!\n"
-									+ "Login into MyCareer website to find out how you did!\n\nRegards,\nTeam MyCareer";
-							contactUserViaEmail(emailEmployee, "New Feedback Received", bodyErrorEmail);
-						}
+						
+						//Praise Feedback provider
+						//Commented out because Pav wants to reduce the amount of emails sent to a feedback provider
+						//List<String> sentTo=new ArrayList<>();
+						//sentTo.add(emailEmployee);
+						//praiseFeedbackProvider(fromFieldEmail, sentTo, null);
+
+						//Notify user about the new feedback added
+						String bodyErrorEmail="Hi,\nGood news for you!\nThe user "+fromFieldEmail.toString()+" had sent you a feedback!\n"
+								+ "Login into MyCareer website to find out how you did!\n\nRegards,\nTeam MyCareer";
+						contactUserViaEmail(emailEmployee, "New Feedback Received", bodyErrorEmail);
 					}
 					else{
 						System.out.println("\t"+LocalTime.now()+" - Error while linking the feedback request response");
@@ -362,7 +362,8 @@ public final class IMAPService {
 						openNotReadEmail.update(ConflictResolutionMode.AutoResolve);
 
 						//Praise feedback provider
-						praiseFeedbackProvider(fromFieldEmail, successfullyAdded, unsuccessfullyAdded);
+						if(unsuccessfullyAdded.size()>0)
+							praiseFeedbackProvider(fromFieldEmail, successfullyAdded, unsuccessfullyAdded);
 					}
 				}
 			}

@@ -170,7 +170,7 @@ public final class SMTPService {
 
 			//Link the group feedback request to the requester
 			if(!EmployeeDAO.insertNewGroupFeedbackRequest(employeeID, groupRequest))
-				System.out.println("\t"+LocalTime.now()+" - A Group Feedback request has been sent, however it could not be saved on the permanent storage!"+groupRequest.toString());
+				System.out.println("\t"+LocalTime.now()+" - A Group Feedback request has been sent, however it could not be saved onto the permanent storage!"+groupRequest.toString());
 
 			
 			//PART 8
@@ -248,9 +248,6 @@ public final class SMTPService {
 						line=line.replace("[FeedbackRequest_Comments]", notes);
 					else
 						line="No Comment Added";
-				}
-				if(line.contains("(External link required)")){
-					line=line.replace("(External link required)", "\nhttp://portal.corp.sopra/hr/HR_UK_SG/mycareerpath/Performancemanagement/Pages/default.aspx");
 				}
 				body+=line+"\n";
 			}
