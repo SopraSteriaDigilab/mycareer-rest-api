@@ -46,7 +46,7 @@ public class ADReporteesDAO {
 		//specify the LDAP search filter
 		String searchFilter="(sAMAccountName=" + username + ")";
 		// Search for objects using the filter
-		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_STERIA_TREE, searchFilter, searchCtls);
+		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_STERIA_SEARCH_TREE, searchFilter, searchCtls);
 
 		//Check the results retrieved
 		if(answer.hasMoreElements()){
@@ -93,7 +93,7 @@ public class ADReporteesDAO {
 		//This is essential in order to retrieve the user GUID later on in the process
 		//ldapEnvironmentSettings.put("java.naming.ldap.attributes.binary", "objectGUID");
 
-		ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, "cn="+Constants.AD_STERIA_USERNAME+","+Constants.AD_STERIA_TREE);
+		ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, "cn="+Constants.AD_STERIA_USERNAME+","+Constants.AD_STERIA_LOGIN_TREE);
 		ldapEnvironmentSettings.put(Context.SECURITY_CREDENTIALS, Constants.AD_STERIA_PASSWORD);
 		return new InitialDirContext(ldapEnvironmentSettings);
 	}
