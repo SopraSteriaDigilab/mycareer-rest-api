@@ -140,7 +140,7 @@ public final class IMAPService {
 						|| subjectEmailCheck.toLowerCase().contains("undeliverable") 
 						|| subjectEmailCheck.toLowerCase().contains("undelivered")
 						|| subjectEmailCheck.contains("New Feedback Received")
-						|| subjectEmailCheck.contains("A BIG Thank You!")
+						|| subjectEmailCheck.contains("A BIG Thank You")
 						|| subjectEmailCheck.toLowerCase().contains("auto")){
 					System.out.println("\t"+LocalTime.now()+" - The email is auto-generated/ The subject is empty/ Undeliverable Email,  Moved to DRAFTS");
 					openNotReadEmail.move(WellKnownFolderName.Drafts);
@@ -217,7 +217,7 @@ public final class IMAPService {
 						//Notify the feedback provider regarding the USER NOT FOUND error
 						{
 							String bodyError="Hi,\nThank you for your feedback, unfortunately the system could not identify a valid employee to associate your feedback to.\n"
-									+ "Please do NOT change the subject of the feedback request when replying to a feedback request!\n\nRegards,\nThe MyCareer Team";
+									+ "Please do NOT change the subject of the feedback request when replying to a feedback request.\n\nRegards,\nThe MyCareer Team";
 							contactUserViaEmail(fromFieldEmail.getAddress(), "Feedback Error", bodyError);
 						}
 						//Interrupt the flow for this email and move on to the next one
@@ -234,17 +234,17 @@ public final class IMAPService {
 						openNotReadEmail.setIsRead(true);
 						openNotReadEmail.update(ConflictResolutionMode.AutoResolve);
 						System.out.println("\t"+LocalTime.now()+" - Reply to a Feedback Request linked correctly");
-						{
-							//Praise Feedback provider
-							List<String> sentTo=new ArrayList<>();
-							sentTo.add(emailEmployee);
-							praiseFeedbackProvider(fromFieldEmail, sentTo, null);
-							
-							//Notify user about the new feedback added
-							String bodyErrorEmail="Hi,\nGood news for you!\nThe user "+fromFieldEmail.toString()+" had sent you a feedback!\n"
-									+ "Login into MyCareer website to find out how you did!\n\nRegards,\nTeam MyCareer";
-							contactUserViaEmail(emailEmployee, "New Feedback Received", bodyErrorEmail);
-						}
+						
+						//Praise Feedback provider
+						//Commented out because Pav wants to reduce the amount of emails sent to a feedback provider
+						//List<String> sentTo=new ArrayList<>();
+						//sentTo.add(emailEmployee);
+						//praiseFeedbackProvider(fromFieldEmail, sentTo, null);
+
+						//Notify user about the new feedback added
+						String bodyErrorEmail="Hi,\nGood news for you.\nThe user "+fromFieldEmail.toString()+" had sent you a feedback.\n"
+								+ "Login into MyCareer website to find out how you did.\n\nRegards,\nTeam MyCareer";
+						contactUserViaEmail(emailEmployee, "New Feedback Received", bodyErrorEmail);
 					}
 					else{
 						System.out.println("\t"+LocalTime.now()+" - Error while linking the feedback request response");
@@ -331,8 +331,8 @@ public final class IMAPService {
 									
 									//Notice employee/s regarding the new feedback received
 									{
-										String bodyEmailMsg="Hi,\nGood news for you!\nThe user "+fromFieldEmail.toString()+" has given you a new feedback!\n"
-												+ "Login into MyCareer website to find out how you did!\n\nRegards,\nTeam MyCareer";
+										String bodyEmailMsg="Hi,\nGood news for you.\nThe user "+fromFieldEmail.toString()+" has given you a new feedback.\n"
+												+ "Login into MyCareer website to find out how you did.\n\nRegards,\nTeam MyCareer";
 										contactUserViaEmail(toElem.getAddress(), "New Feedback Received", bodyEmailMsg);
 									}
 								}
@@ -362,7 +362,8 @@ public final class IMAPService {
 						openNotReadEmail.update(ConflictResolutionMode.AutoResolve);
 
 						//Praise feedback provider
-						praiseFeedbackProvider(fromFieldEmail, successfullyAdded, unsuccessfullyAdded);
+						if(unsuccessfullyAdded.size()>0)
+							praiseFeedbackProvider(fromFieldEmail, successfullyAdded, unsuccessfullyAdded);
 					}
 				}
 			}
@@ -520,10 +521,10 @@ public final class IMAPService {
 	 */
 	private static void praiseFeedbackProvider(EmailAddress to, List<String> delivered, List<String> undelivered) throws Exception{
 		EmailMessage msg= new EmailMessage(emailService);
-		msg.setSubject("A BIG Thank You!");
+		msg.setSubject("A BIG Thank You");
 		MessageBody mexB=new MessageBody();
 		mexB.setBodyType(BodyType.Text);
-		String body="Hi,\n\nWe have processed your feedback!\nThis is what happened:\n\n";
+		String body="Hi,\n\nWe have processed your feedback.\nThis is what happened:\n\n";
 		if(delivered!=null && delivered.size()>0){
 			body+="We have linked your feedback to:\n";
 			body+=getStringFromListEmails(delivered)+"\n";

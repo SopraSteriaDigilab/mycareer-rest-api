@@ -136,7 +136,7 @@ public final class SMTPService {
 				contactAdministrator(subject, body);
 				
 				System.out.println("\t"+LocalTime.now()+" - Error Loading the Template, Admin has been contacted");
-				throw new InvalidAttributeValueException("Error while loading the template, Operation Interrupted!\nThe Administrator has been contacted");
+				throw new InvalidAttributeValueException("Error while loading the template, Operation Interrupted.\nThe Administrator has been contacted");
 			}
 			//Catch all the error regarding the email service and send an email to the system administrator when such error happens
 			catch(ServiceRequestException serviceE){
@@ -170,7 +170,7 @@ public final class SMTPService {
 
 			//Link the group feedback request to the requester
 			if(!EmployeeDAO.insertNewGroupFeedbackRequest(employeeID, groupRequest))
-				System.out.println("\t"+LocalTime.now()+" - A Group Feedback request has been sent, however it could not be saved on the permanent storage!"+groupRequest.toString());
+				System.out.println("\t"+LocalTime.now()+" - A Group Feedback request has been sent, however it could not be saved onto the permanent storage!"+groupRequest.toString());
 
 			
 			//PART 8
@@ -181,7 +181,7 @@ public final class SMTPService {
 			EmailMessage msg= new EmailMessage(emailService);
 			msg.setSubject("Feedback Request Sent");
 			//Fill the email with the error details
-			String bodyMsg="Hi, "+fullNameEmployeeRequester+"\n\nThank you for using MyCareer to request feedback!\n\n";
+			String bodyMsg="Hi, "+fullNameEmployeeRequester+"\n\nThank you for using MyCareer to request feedback.\n\n";
 			if(validEmailAddressesList.size()>0){
 				bodyMsg+="A feedback request has been successfully sent to the following addresses:\n";
 				bodyMsg+=getStringFromListEmails(validEmailAddressesList)+"\n";
@@ -248,9 +248,6 @@ public final class SMTPService {
 						line=line.replace("[FeedbackRequest_Comments]", notes);
 					else
 						line="No Comment Added";
-				}
-				if(line.contains("(External link required)")){
-					line=line.replace("(External link required)", "\nhttp://portal.corp.sopra/hr/HR_UK_SG/mycareerpath/Performancemanagement/Pages/default.aspx");
 				}
 				body+=line+"\n";
 			}
