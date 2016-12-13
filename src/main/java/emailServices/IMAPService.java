@@ -21,7 +21,6 @@ import microsoft.exchange.webservices.data.core.PropertySet;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.property.BasePropertySet;
 import microsoft.exchange.webservices.data.core.enumeration.property.BodyType;
-import microsoft.exchange.webservices.data.core.enumeration.property.OofState;
 import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
 import microsoft.exchange.webservices.data.core.enumeration.search.LogicalOperator;
 import microsoft.exchange.webservices.data.core.enumeration.service.ConflictResolutionMode;
@@ -32,8 +31,6 @@ import microsoft.exchange.webservices.data.core.service.schema.EmailMessageSchem
 import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
-import microsoft.exchange.webservices.data.property.complex.InternetMessageHeader;
-import microsoft.exchange.webservices.data.property.complex.InternetMessageHeaderCollection;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
@@ -104,11 +101,12 @@ public final class IMAPService {
 	private static void retrieveNewEmails() throws Exception{
 		//Open the Inbox folder for the given mailbox
 		Folder inboxFolder = Folder.bind(emailService, WellKnownFolderName.Inbox);
-		
+		int counter=1;
+		int unreadCounter=inboxFolder.getUnreadCount();
 		
 		//Verify if there are unread mails
-		if(inboxFolder.getUnreadCount()>0){
-			System.out.println("\t"+LocalTime.now()+" - Processing unread emails ...");
+		if(unreadCounter>0){
+			System.out.println("\t"+LocalTime.now()+" - Processing unread emails...");
 			//Retrieve list of unread mails
 			//Create a filter to use while retrieving the data
 			SearchFilter unreadEmailsFilter = new SearchFilter.SearchFilterCollection(LogicalOperator.And, new SearchFilter.IsEqualTo(EmailMessageSchema.IsRead, false));
@@ -124,61 +122,55 @@ public final class IMAPService {
 				psPropset.setRequestedBodyType(BodyType.Text);
 				//Retrieve only the properties previously set for the message with the given ID
 				EmailMessage openNotReadEmail = EmailMessage.bind(emailService, tempMail.getId(),psPropset);
+				System.out.println("\t"+LocalTime.now()+" - Loading Element ("+counter++ +"/"+unreadCounter+")...");
 				//Load the message
 				openNotReadEmail.load();
 				
+				
+				//STEP 1 CHECK FOR INVALID EMAILS
+				
+				
 				//Verify if the email is auto-generated
-				
-				//InternetMessageHeaderCollection headers=openNotReadEmail.getInternetMessageHeaders();
-				//System.out.println(headers.toString());
-				InternetMessageHeader auto=openNotReadEmail.getInternetMessageHeaders().find("Auto-Submitted");
-				if(openNotReadEmail.getInternetMessageHeaders().find("Auto-Submitted")!=null){
-					System.out.println("\t"+LocalTime.now()+" - The email is auto-generated,  Moved to DRAFTS");
-					openNotReadEmail.move(WellKnownFolderName.Drafts);
-					continue;
-				}
-				//headers.contains(InternetMessageHeader//("Auto-Submitted"));
-				//headers.contains(InternetMessageHead)
-
-				
-				//STEP 1 CHECK FOR UNDELIVERED EMAILS
-				
-				
 				//Check if the subject contains the word "undelivered" which means that an address was invalid,
 				//therefore it must be removed from the feedback request object of the user]
-				String subjectEmailCheck=openNotReadEmail.getSubject();
-				
-				
-				//Email with empty subject
-				
-				if(subjectEmailCheck==null){
-					System.out.println("\t"+LocalTime.now()+" - Irrelevant Email found, No Subject,  Moved to DRAFTS");
+				String subjectEmailCheck=openNotReadEmail.getSubject();		
+				if(openNotReadEmail.getInternetMessageHeaders().find("Auto-Submitted")!=null
+						|| openNotReadEmail.getInternetMessageHeaders().find("Return-Path").equals("<>")
+						|| subjectEmailCheck==null
+						|| subjectEmailCheck.toLowerCase().contains("undeliverable") 
+						|| subjectEmailCheck.toLowerCase().contains("undelivered")
+						|| subjectEmailCheck.contains("New Feedback Received")
+						|| subjectEmailCheck.contains("A BIG Thank You!")
+						|| subjectEmailCheck.toLowerCase().contains("auto")){
+					System.out.println("\t"+LocalTime.now()+" - The email is auto-generated/ The subject is empty/ Undeliverable Email,  Moved to DRAFTS");
 					openNotReadEmail.move(WellKnownFolderName.Drafts);
 					continue;
 				}
-				
-				
-				if(subjectEmailCheck.toLowerCase().contains("undeliverable") || subjectEmailCheck.toLowerCase().contains("undelivered")){
+
+				//if(subjectEmailCheck.toLowerCase().contains("undeliverable") || subjectEmailCheck.toLowerCase().contains("undelivered")){
 					//Remove email address from senders inside feedback request obj
-					String requestIDSetInSubject1=retrieveRequestID(openNotReadEmail);
+					//String requestIDSetInSubject1=retrieveRequestID(openNotReadEmail);
 					//Find email address of employee
-					String emailEmployee=findEmployeeEmailFromSubject(openNotReadEmail);
-					if(emailEmployee.equals("") || requestIDSetInSubject1.equals("")){
-						System.out.println("\t"+LocalTime.now()+" - Invalid Employee, The undelivered email will be moved to the DRAFT folder");
-						openNotReadEmail.move(WellKnownFolderName.Drafts);
-					}
-					else{
+					//String emailEmployee=findEmployeeEmailFromSubject(openNotReadEmail);
+					//if(emailEmployee.equals("") || requestIDSetInSubject1.equals("")){
+						//System.out.println("\t"+LocalTime.now()+" - Invalid Employee, The undelivered email will be moved to the DRAFT folder");
+						//openNotReadEmail.move(WellKnownFolderName.Drafts);
+					//}
+					//else{
 						//HOW DO I RETRIEVE THE EMAIL ADDRESS FROM THE EMAIL NOW? 
 						
 						//For now, just move the email into the DRAFTS folder
-						openNotReadEmail.move(WellKnownFolderName.Drafts);
-					}
+						//openNotReadEmail.move(WellKnownFolderName.Drafts);
+					//}
 					//Interrupt the flow and skip to the next email
-					continue;
-				}
+					//continue;
+				//}
+				
 				
 				
 				//STEP 2 CHECK FOR A REQUEST ID INSIDE THE SUBJECT
+				
+				
 				
 				//Check for a RequestID inside the body of the email
 				String requestIDSetInSubject=retrieveRequestID(openNotReadEmail);
@@ -190,6 +182,7 @@ public final class IMAPService {
 					//The email is internal the company if the email address contains @soprasteria.com
 					String type="";
 					String fullNameFeedbackProvider="";
+					
 					if(fromFieldEmail.toString().contains("@soprasteria.com")){
 						type="Internal";
 						//Find the full name of the employee providing the feedback from the AD
@@ -202,6 +195,7 @@ public final class IMAPService {
 					}
 					else
 						type="External";
+
 					//Get the body of the email extracting only the necessary parts
 					String bodyEmail=extractReplyToFeedbackRequest(openNotReadEmail).trim();
 					bodyEmail=cleanEmailBody(bodyEmail).trim();
@@ -210,16 +204,6 @@ public final class IMAPService {
 						openNotReadEmail.move(WellKnownFolderName.Drafts);
 						continue;
 					}
-					
-					//Create an Feedback Object					
-					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),type,"Email",true);
-					//Add the full name of the feedback provider (if any)
-					if(type.equals("Internal"))
-						feedbackObj.setFullName(fullNameFeedbackProvider);
-					//Add the whole email body to the feedback
-					feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
-//					openNotReadEmail.load(new PropertySet(ItemSchema.MimeContent));
-//					feedbackObj.setEmailBody(openNotReadEmail.getMimeContent().toString());
 
 					//Find email address of employee to link feedback to
 					String emailEmployee=findEmployeeEmailFromSubject(openNotReadEmail);
@@ -239,6 +223,9 @@ public final class IMAPService {
 						//Interrupt the flow for this email and move on to the next one
 						continue;
 					}
+					
+					//Create an Feedback Object					
+					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),type,"Email",true, fullNameFeedbackProvider, openNotReadEmail.getBody().toString());
 
 					//Now that we have all the details, pass this data to the EmployeeDAO which will try to link the feedback to the user
 					boolean res=EmployeeDAO.linkFeedbackReqReplyToUserGroupFBReq(emailEmployee, requestIDSetInSubject, feedbackObj);
@@ -284,8 +271,8 @@ public final class IMAPService {
 					//Get the Sender of the email
 					EmailAddress fromFieldEmail=openNotReadEmail.getFrom();
 					
-					if(toElements.size()<0){
-						//No user in the CC field, impossible to find employee/s
+					if(toElements.size()<1){
+						//No user in the TO field, impossible to find employee/s
 						System.out.println("\t"+LocalTime.now()+" - No user can be linked to this feedback");						
 						System.out.println("\t"+LocalTime.now()+" - Irrelevant Email found, Moved to DRAFTS");
 						//It is an irrelevant email to the system, move it to another folder so that
@@ -336,13 +323,7 @@ public final class IMAPService {
 								ADProfile_Basic userFound=ADProfileDAO.authenticateUserProfile(toElem.getAddress());
 								//Remove unnecessary part of the email body
 								
-								//cleanBodyEmail=cleanEmailBody(openNotReadEmail.getBody().toString());
-								Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),type,"Email",false);
-								//Add the full name of the feedback provider (if any)
-								if(type.equals("Internal"))
-									feedbackObj.setFullName(fullNameFeedbackProvider);
-								//Add the full email body
-								feedbackObj.setEmailBody(openNotReadEmail.getBody().toString());
+								Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),type,"Email",false,fullNameFeedbackProvider,openNotReadEmail.getBody().toString());
 								//Attach the feedback to the User on the Database
 								if(EmployeeDAO.insertNewGeneralFeedback(userFound.getEmployeeID(), feedbackObj)){
 									System.out.println("\t"+LocalTime.now()+" - General Feedback added correctly to user "+userFound.getEmployeeID());

@@ -16,6 +16,7 @@ import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -841,6 +842,40 @@ public class EmployeeDAO {
 		return dbConnection;
 	}
 	
+//	private static MongoDatabase getMongoDBConnection() throws MongoException{
+//		if(dbConnection==null){
+//			//This currently doesn't fully work. the waitTime is not taken by the DB
+//			MongoClientOptions options=MongoClientOptions.builder()
+//					.maxWaitTime(10000)
+//					//.maxConnectionIdleTime(1000)
+//					.connectTimeout(10000)
+//					//.socketKeepAlive(true)
+//					//.cursorFinalizerEnabled(true)
+//					//.socketTimeout(100)
+//					//.readConcern(ReadConcern.MAJORITY)
+//					//.writeConcern(WriteConcern.ACKNOWLEDGED)
+//					.build();
+//			//Server details
+//			ServerAddress srvAddr = new ServerAddress(Constants.MONGODB_HOST, Constants.MONGODB_PORT);
+//			List<ServerAddress> serverList=new ArrayList<>();
+//			serverList.add(srvAddr);
+//			//Setup the credentials
+//			MongoCredential credentials= MongoCredential.createCredential(Constants.MONGODB_USERNAME, Constants.MONGODB_DB_NAME, Constants.MONGODB_PASSWORD.toCharArray());
+//			List<MongoCredential> credentialList=new ArrayList<>();
+//			credentialList.add(credentials);
+//			//Instantiate mongo client and Morphia
+//			MongoClient client = new MongoClient(serverList, credentialList, options);
+//			//final Morphia morphia =new Morphia();
+//			//Add packages to Morphia and open the connection
+//			//morphia.mapPackage("dataStructure.Employee");
+//			//dbConnection=morphia.createDatastore(client, Constants.MONGODB_DB_NAME);
+//			//dbConnection.ensureIndexes();
+//			MongoDatabase db=client.getDatabase(Constants.MONGODB_DB_NAME);
+//			//dbConnection=db.getCollection("employeeDataDev");
+//		}
+//		return dbConnection;
+//	}
+//	
 //	public static String getFullNameUser2(long employeeID) throws InvalidAttributeValueException {
 //		if(dbConnection==null)
 //			dbConnection=getMongoDBConnection();
@@ -849,10 +884,17 @@ public class EmployeeDAO {
 //		//whereQuery.
 //		Document query= new Document("employeeID", employeeID);
 //		Document filter= new Document("surname", 1).append("forename", 1).append("_id", 0);
-//		MongoCollection<Document> coll=dbConnection.getCollection("employeeDataDev");
-//		ArrayList<Document> returnValue=coll.find(query).projection(filter).into(new ArrayList<Document>());
+//		//MongoCollection<Document> coll=dbConnection.getCollection("employeeDataDev");
+//		//ArrayList<Document> returnValue=coll.find(query).projection(filter).into(new ArrayList<Document>());
 //		
 //		Document doc0=returnValue.get(0);
+//		
+//		MongoCollection<Document> col=dbConnection.getCollection("employeeDataDev");
+////		DBObject query2=BasicDBObjectBuilder.start().add("username", 675599).get();
+////		FindIterable<Document> cursor=col.find(query);
+//		List<Document> foundDocs=col.find(Filters.eq("",675599),"");
+//		
+//		
 //		//coll.find().filter("employeeID =", employeeID).get();
 //		//DBCollection coll=dbConnection.getCollection(Constants.MONGODB_DB_NAME);
 //		//FindIterable<Document> doc=coll.find(new Document("",new Document("",""))).projection(new Document("surname",1)).projection(new Document("forename",1))
@@ -866,5 +908,6 @@ public class EmployeeDAO {
 //		return "";
 //	}
 	
-		private static MongoDatabase dbConnection2=null;
+//		private static MongoDatabase dbConnection=null;
+//		private static MongoDatabase dbConnection=null;
 }
