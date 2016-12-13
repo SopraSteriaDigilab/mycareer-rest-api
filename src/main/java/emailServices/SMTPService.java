@@ -136,7 +136,7 @@ public final class SMTPService {
 				contactAdministrator(subject, body);
 				
 				System.out.println("\t"+LocalTime.now()+" - Error Loading the Template, Admin has been contacted");
-				throw new InvalidAttributeValueException("Error while loading the template, Operation Interrupted!\nThe Administrator has been contacted");
+				throw new InvalidAttributeValueException("Error while loading the template, Operation Interrupted.\nThe Administrator has been contacted");
 			}
 			//Catch all the error regarding the email service and send an email to the system administrator when such error happens
 			catch(ServiceRequestException serviceE){
@@ -181,7 +181,7 @@ public final class SMTPService {
 			EmailMessage msg= new EmailMessage(emailService);
 			msg.setSubject("Feedback Request Sent");
 			//Fill the email with the error details
-			String bodyMsg="Hi, "+fullNameEmployeeRequester+"\n\nThank you for using MyCareer to request feedback!\n\n";
+			String bodyMsg="Hi, "+fullNameEmployeeRequester+"\n\nThank you for using MyCareer to request feedback.\n\n";
 			if(validEmailAddressesList.size()>0){
 				bodyMsg+="A feedback request has been successfully sent to the following addresses:\n";
 				bodyMsg+=getStringFromListEmails(validEmailAddressesList)+"\n";
