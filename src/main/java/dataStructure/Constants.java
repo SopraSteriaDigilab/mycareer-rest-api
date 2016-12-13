@@ -104,11 +104,11 @@ public final class Constants {
 	public static final String INVALID_IDNOTFOND="No employee matches the given ID";
 	public static final String INVALID_OBJECTIVEIDNOTFOND="No objective ID matches the user data";
 	public static final String INVALID_USEREMAIL="The given email address does not match any valid employee";
-	public static final String OBJECTIVE_NOTADDED_ERROR="The given objective couldn't be added! Please try again later!";
-	public static final String FEEDBACK_NOTADDED_ERROR="The given feedback couldn't be added! Please try again later!";
-	public static final String NOTE_NOTADDED_ERROR="The given note couldn't be added! Please try again later!";
-	public static final String DEVELOPMENTNEED_NOTADDED_ERROR="The given development need couldn't be added! Please try again later!";
-	public static final String GROUPFBREQ_NOTADDED_ERROR="The given feedback request couldn't be added! Please try again later!";
+	public static final String OBJECTIVE_NOTADDED_ERROR="The given objective couldn't be added Please try again later";
+	public static final String FEEDBACK_NOTADDED_ERROR="The given feedback couldn't be added Please try again later";
+	public static final String NOTE_NOTADDED_ERROR="The given note couldn't be added Please try again later";
+	public static final String DEVELOPMENTNEED_NOTADDED_ERROR="The given development need couldn't be added Please try again later";
+	public static final String GROUPFBREQ_NOTADDED_ERROR="The given feedback request couldn't be added Please try again later";
 	public static final String DUPLICATE_FEEDBACK="The given feedback couldn't be added because it is a duplicate";
 	public static final String INVALID_OBJECTIVE_OR_EMPLOYEEID="The given Employee ID or Objective ID are invalid";
 	public static final String INVALID_NOTE_OR_EMPLOYEEID="The given Employee ID or Note ID are invalid";
