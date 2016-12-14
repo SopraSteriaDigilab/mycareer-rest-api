@@ -344,7 +344,7 @@ public final class IMAPService {
 							catch(Exception e){
 								System.out.println("\t"+LocalTime.now()+" - "+e.getMessage());
 								//User not found in the AD, add it to the list of invalid addresses
-								if (e.getMessage().contains("No match in the AD for user"))
+								if (e.getMessage().contains(Constants.NOTFOUND_EMAILORUSERNAME_AD))
 									unsuccessfullyAdded.add(toElem.getAddress());
 								else{
 									openNotReadEmail.setIsRead(false);
@@ -566,7 +566,7 @@ public final class IMAPService {
 	private static void initiateIMAPConnection() throws Exception{
 		emailService = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
 		emailService.setMaximumPoolingConnections(1);
-		credentials = new WebCredentials(Constants.MAIL_USERNAME, Constants.MAIL_PASSWORD);
+		credentials = new WebCredentials("FbackUK", Constants.MAIL_PASSWORD);
 		emailService.setCredentials(credentials);
 		emailService.setUrl(new URI(Constants.MAIL_EXCHANGE_URI));
 		//This allows the trace listener to listen to requests and responses

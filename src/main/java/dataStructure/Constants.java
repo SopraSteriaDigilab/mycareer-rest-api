@@ -130,6 +130,9 @@ public final class Constants {
 	public static final String MONGODB_USERNAME="michael";
 	public static final String MONGODB_PASSWORD="leahcim";
 	public static final String MONGODB_HOST="127.0.0.1";
+	//UAT DB Server
+//	public static final String MONGODB_HOST="172.25.112.149";
+
 	public static final int MONGODB_PORT=27017;
 	public static final String MONGODB_DB_NAME="Development";
 	//AD Details
@@ -150,17 +153,12 @@ public final class Constants {
 	public static final String AD_STERIA_LOGIN_TREE="OU=Service Accounts,OU=UKCentral,OU=UK,OU=Resources,DC=one,DC=steria,DC=dom";
 	public static final String[] AD_STERIA_ATTRIBUTES={"directReports"};
 
-	//Constants for the emailServices package
-	public static final String MAILBOX_ADDRESS="MYCAREER.FEEDBACK@soprasteria.com";
-	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
-	public static final String MAIL_PASSWORD="";
-	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
-	
-//	public static final String MAILBOX_ADDRESS="feedback.UK@soprasteria.com";
-//	public static final String MAIL_USERNAME="feedback.UK@soprasteria.com";
-//	public static final String MAIL_PASSWORD="Auto_Map_$459$";
-//	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
-		//	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/Services.wsdl";
+	//Constants for the emailServices package	
+	public static final String MAILBOX_ADDRESS="feedback.UK@soprasteria.com";
+	public static final String MAIL_USERNAME="feedback.UK@soprasteria.com";
+	public static final String MAIL_PASSWORD="Auto_Map_$459$";
+	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
+//	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 	
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
 	public static final long MAIL_REFRESH_TIME=(1*60*1000); //1 minute
