@@ -468,6 +468,26 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		}
 		return null;
 	}
+	
+	public String removeSpecificFeedbackRequest(String fbID) throws InvalidAttributeValueException{
+		if(fbID!=null && !fbID.equals("")){
+			for(int i=0; i<groupFeedbackRequests.size(); i++){
+				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID)!=null){
+					//Remove the full group Request Feedback if it contains only 1 feedback request
+					String emailRecipient=groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID).getRecipient();
+					if(groupFeedbackRequests.get(i).getRequestList().size()==1)
+						groupFeedbackRequests.remove(i);
+					//Alternatively, remove the given feedback request
+					else
+						groupFeedbackRequests.get(i).removeFeedbackRequest(fbID);
+					//Return the email address found
+					return emailRecipient;
+				}
+			}
+			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_NOTFOUND_CONTEXT);
+		}
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_ID_CONTEXT);
+	}
 
 	/**
 	 * 

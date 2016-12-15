@@ -63,7 +63,7 @@ public final class SMTPService {
 
 			//Open a connection with the Email Server
 			System.out.println("\t"+LocalTime.now()+" - Establishing a connection with the Mail Server");
-			initiateIMAPConnection();
+			initiateSMTPConnection();
 
 
 			//PART2
@@ -147,6 +147,9 @@ public final class SMTPService {
 				
 				System.out.println("\t"+LocalTime.now()+" - Email Service Error, Admin has been contacted");
 				throw new InvalidAttributeValueException("Email Service Error: "+serviceE.getMessage());
+			}
+			catch(NullPointerException ne){
+				throw new InvalidAttributeValueException("Error while reading the Template");
 			}
 			catch(Exception e){
 				//If an exception happens, the email address is incorrect, move it to the invalid list
@@ -237,7 +240,8 @@ public final class SMTPService {
 		//Read in the content from the template file stored in the externalData package
 		try{
 			@SuppressWarnings("resource")
-			BufferedReader inputFile=new BufferedReader(new FileReader("src/main/java/emailServices/FeedbackRequestBody_Template.txt"));
+//			BufferedReader inputFile=new BufferedReader(new FileReader("src/main/java/emailServices/FeedbackRequestBody_Template.txt"));
+			BufferedReader inputFile=new BufferedReader(new FileReader("/home/mycareer/mycareer/dev/web-api/FeedbackRequestBody_Template.txt"));
 			String line="";
 			while((line=inputFile.readLine())!=null){
 				if(line.contains("[FeedbackRequester_name]")){
@@ -283,12 +287,11 @@ public final class SMTPService {
 	 * 
 	 * @throws Exception
 	 */
-	private static void initiateIMAPConnection() throws URISyntaxException{
+	private static void initiateSMTPConnection() throws URISyntaxException{
 		if(emailService==null){
 			emailService = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
 			emailService.setMaximumPoolingConnections(1);
-			if(credentials==null)
-				credentials = new WebCredentials(Constants.MAIL_USERNAME, Constants.MAIL_PASSWORD);
+			credentials = new WebCredentials(Constants.MAIL_USERNAME, Constants.MAIL_PASSWORD);
 			emailService.setCredentials(credentials);
 			emailService.setUrl(new URI(Constants.MAIL_EXCHANGE_URI));
 		}
