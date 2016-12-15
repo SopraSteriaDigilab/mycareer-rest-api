@@ -7,30 +7,15 @@ import java.util.List;
 import java.util.Map;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.bson.Document;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-
 import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
@@ -789,26 +774,28 @@ public class EmployeeDAO {
 		return false;
 	}
 
-	//	public static boolean removeEmailAddressFromFeedbackReq(String email, String reqID, String addressToRemove) throws InvalidAttributeValueException{
-	//		if(email.length()<0 || reqID.length()<0)
-	//			throw new InvalidAttributeValueException("The email address provided or the request ID are invalid");
-	//		//Establish a connection with the DB
-	//		if(dbConnection==null)
-	//			dbConnection=getMongoDBConnection();
-	//		//Get the user from the DB
-	//		Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("emailAddress =", email);
-	//		if(querySearch.get()!=null){
-	//			Employee e = querySearch.get();
-	//			FeedbackRequest requestObj=e.getSpecificGroupFeedbackRequest(reqID);
-	//			if(requestObj!=null){
-	//				return requestObj.removeRecipient(addressToRemove);
-	//			}
-	//			throw new InvalidAttributeValueException("No feedback request matched the given ID");
-	//		}
-	//		else{
-	//			throw new InvalidAttributeValueException("No user with such email address has been found in the DB");
-	//		}
-	//	}
+		public static String removeFeedbackReqFromUser(String reqID, long empID) throws InvalidAttributeValueException{
+			if(reqID.length()<0 || empID<0)
+				throw new InvalidAttributeValueException(Constants.INVALID_FBREQ_OR_EMPLOYEEID);
+			//Establish a connection with the DB
+			if(dbConnection==null)
+				dbConnection=getMongoDBConnection();
+			//Get the user from the DB
+			Employee querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", empID).get();
+			if(querySearch!=null){
+				String emailRes=querySearch.removeSpecificFeedbackRequest(reqID);
+				if(!emailRes.equals("")){
+					//Update the user data in the DB
+					UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", querySearch.getGroupFeedbackRequestsList());
+					dbConnection.update(querySearch, ops1);
+					return emailRes;
+				}
+				throw new InvalidAttributeValueException(Constants.NOTDELETED_FBREQ);
+			}
+			else{
+				throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			}
+		}
 
 	private static Datastore getMongoDBConnection() throws MongoException{
 		if(dbConnection==null){
@@ -824,9 +811,11 @@ public class EmployeeDAO {
 					//.writeConcern(WriteConcern.ACKNOWLEDGED)
 					.build();
 			//Server details
-			ServerAddress srvAddr = new ServerAddress(Constants.MONGODB_HOST, Constants.MONGODB_PORT);
 			List<ServerAddress> serverList=new ArrayList<>();
-			serverList.add(srvAddr);
+			//UAT DB1, UAT DB2, UAT
+			serverList.add(new ServerAddress(Constants.MONGODB_HOST_UATDB1, Constants.MONGODB_PORT_UATDB1));
+			serverList.add(new ServerAddress(Constants.MONGODB_HOST_UATDB2, Constants.MONGODB_PORT_UATDB2));
+			serverList.add(new ServerAddress(Constants.MONGODB_HOST_UAT, Constants.MONGODB_PORT_UAT));
 			//Setup the credentials
 			MongoCredential credentials= MongoCredential.createCredential(Constants.MONGODB_USERNAME, Constants.MONGODB_DB_NAME, Constants.MONGODB_PASSWORD.toCharArray());
 			List<MongoCredential> credentialList=new ArrayList<>();

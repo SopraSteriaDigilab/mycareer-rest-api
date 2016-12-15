@@ -126,22 +126,67 @@ public final class IMAPService {
 				//Load the message
 				openNotReadEmail.load();
 				
-				
 				//STEP 1 CHECK FOR INVALID EMAILS
 				
 				
 				//Verify if the email is auto-generated
 				//Check if the subject contains the word "undelivered" which means that an address was invalid,
 				//therefore it must be removed from the feedback request object of the user]
-				String subjectEmailCheck=openNotReadEmail.getSubject();		
+				String subjectEmailCheck=openNotReadEmail.getSubject();
 				if(openNotReadEmail.getInternetMessageHeaders().find("Auto-Submitted")!=null
-						|| openNotReadEmail.getInternetMessageHeaders().find("Return-Path").equals("<>")
+						//|| openNotReadEmail.getInternetMessageHeaders().find("Return-Path").equals("<>")
 						|| subjectEmailCheck==null
 						|| subjectEmailCheck.toLowerCase().contains("undeliverable") 
 						|| subjectEmailCheck.toLowerCase().contains("undelivered")
 						|| subjectEmailCheck.contains("New Feedback Received")
 						|| subjectEmailCheck.contains("A BIG Thank You")
 						|| subjectEmailCheck.toLowerCase().contains("auto")){
+					//Extract the Undeliverable emails
+					if(subjectEmailCheck.toLowerCase().contains("undeliver") && subjectEmailCheck.contains("Feedback Request")){
+						System.out.println("\t"+LocalTime.now()+" - Undeliverable Email found...");
+						//Find the Request ID, the employeeID and remove this data from the DB as well as
+						//sending an error message to the feedback requester
+						String reqID_Undelivered=retrieveRequestID(openNotReadEmail);
+						if(!reqID_Undelivered.equals("")){
+							Long reqID_EmpID;
+							try {
+								String employeeIDFromSubject = openNotReadEmail.getSubject();
+								int indexEmp=employeeIDFromSubject.indexOf("_");
+								employeeIDFromSubject=employeeIDFromSubject.substring(indexEmp-6, indexEmp);
+								reqID_EmpID=Long.parseLong(employeeIDFromSubject);
+								//Now that we have the user ID, let's try to remove the full request from the system
+								try{
+									String incorrectEmailAddress=EmployeeDAO.removeFeedbackReqFromUser(reqID_Undelivered, reqID_EmpID);
+									if(!incorrectEmailAddress.equals("")){
+										System.out.println("\t"+LocalTime.now()+" Undeliverbale Feedback Request Removed Successfully from employee: "+reqID_EmpID);
+										//Update email
+										openNotReadEmail.setIsRead(true);
+										openNotReadEmail.update(ConflictResolutionMode.AutoResolve);
+										//Send email to feedback requester regarding the invalid email address
+										String emailSender=EmployeeDAO.getUserEmailAddressFromID(reqID_EmpID);
+										if(!emailSender.equals("")){
+											contactUserViaEmail(emailSender, "Incorrect Email Address", "Hi,\nThe Email address provided: "
+													+ ""+incorrectEmailAddress+" is incorrect.\nFor this reason, a feedback request could not be sent to the above recipient.\n"
+															+ "\nRegards,\nTeam MyCareer");
+											continue;
+										}
+										openNotReadEmail.move(WellKnownFolderName.Drafts);
+										System.out.println("\t"+LocalTime.now()+" Invalid Email address found! Email moved to DRAFTS");
+									}
+								}
+								catch(InvalidAttributeValueException er){
+									System.out.println("\t"+LocalTime.now()+" Error - "+er.getMessage());
+									openNotReadEmail.move(WellKnownFolderName.Drafts);
+								}
+							} catch (Exception e) {
+								//If an error occurs while retriving the employeeID, move the mail to the Draft folder
+								System.out.println("\t"+LocalTime.now()+" - The system is unable to retrieve a valid employeeID from the email subject, Email moved to DRAFTS");
+								openNotReadEmail.move(WellKnownFolderName.Drafts);
+							}
+							//Process the next email
+							continue;
+						}
+					}
 					System.out.println("\t"+LocalTime.now()+" - The email is auto-generated/ The subject is empty/ Undeliverable Email,  Moved to DRAFTS");
 					openNotReadEmail.move(WellKnownFolderName.Drafts);
 					continue;
@@ -566,7 +611,7 @@ public final class IMAPService {
 	private static void initiateIMAPConnection() throws Exception{
 		emailService = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
 		emailService.setMaximumPoolingConnections(1);
-		credentials = new WebCredentials("FbackUK", Constants.MAIL_PASSWORD);
+		credentials = new WebCredentials(Constants.MAIL_USERNAME, Constants.MAIL_PASSWORD);
 		emailService.setCredentials(credentials);
 		emailService.setUrl(new URI(Constants.MAIL_EXCHANGE_URI));
 		//This allows the trace listener to listen to requests and responses
