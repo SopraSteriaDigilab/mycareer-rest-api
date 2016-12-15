@@ -123,17 +123,31 @@ public final class Constants {
 	public static final String INVALID_IDMATCHUSERNAME="The given ID didn't match any employee: ";
 	public static final String INVALID_EMAIL_AD="The given email address didn't match any employee: ";
 	public static final String NOTFOUND_USERNAME_AD="The given 'username' didn't match any valid employee: ";
+	public static final String NOTDELETED_FBREQ="The given Feedback Request coul not be removed from the system";
 	
 	
 	//Constants for the Functionalities package
 	//MongoDB Details
-	public static final String MONGODB_USERNAME="michael";
-	public static final String MONGODB_PASSWORD="leahcim";
-	public static final String MONGODB_HOST="127.0.0.1";
+//	public static final String MONGODB_USERNAME="michael";
+//	public static final String MONGODB_PASSWORD="leahcim";
+	public static final String MONGODB_USERNAME="myCareerUATAPI";
+	public static final String MONGODB_PASSWORD="qcybdjerapi";
+	//DB Servers
+	//Local DB
+//	public static final String MONGODB_HOST="127.0.0.1";
 	//UAT DB Server
-//	public static final String MONGODB_HOST="172.25.112.149";
+	public static final String MONGODB_HOST_UATDB1="172.25.112.149";
+	public static final String MONGODB_HOST_UATDB2="172.25.112.149";
+	public static final String MONGODB_HOST_UAT="172.25.112.148";
+	//Development DB Server
+//	public static final String MONGODB_HOST="172.25.112.189";
+	//Production DB Server
+//	public static final String MONGODB_HOST="172.25.113.43";
 
-	public static final int MONGODB_PORT=27017;
+
+	public static final int MONGODB_PORT_UATDB1=27017;
+	public static final int MONGODB_PORT_UATDB2=27018;
+	public static final int MONGODB_PORT_UAT=27017;
 	public static final String MONGODB_DB_NAME="Development";
 	//AD Details
 	//Common Ones
@@ -155,9 +169,11 @@ public final class Constants {
 
 	//Constants for the emailServices package	
 	public static final String MAILBOX_ADDRESS="feedback.UK@soprasteria.com";
-	public static final String MAIL_USERNAME="feedback.UK@soprasteria.com";
+	public static final String MAIL_USERNAME="FbackUK";
 	public static final String MAIL_PASSWORD="Auto_Map_$459$";
 	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
+//	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
+//	public static final String MAIL_PASSWORD="";
 //	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 	
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";

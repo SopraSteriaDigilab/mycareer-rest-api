@@ -33,7 +33,7 @@ import functionalities.EmployeeDAO;
  * This class contains all the available roots of the web service
  *
  */
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "127.0.0.1")
 @RestController
 public class AppController {
 
