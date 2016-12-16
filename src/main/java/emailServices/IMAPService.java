@@ -140,7 +140,8 @@ public final class IMAPService {
 						|| subjectEmailCheck.toLowerCase().contains("undelivered")
 						|| subjectEmailCheck.contains("New Feedback Received")
 						|| subjectEmailCheck.contains("A BIG Thank You")
-						|| subjectEmailCheck.toLowerCase().contains("auto")){
+						|| subjectEmailCheck.toLowerCase().contains("auto")
+						|| subjectEmailCheck.contains("Email Service Error")){
 					//Extract the Undeliverable emails
 					if(subjectEmailCheck.toLowerCase().contains("undeliver") && subjectEmailCheck.contains("Feedback Request")){
 						System.out.println("\t"+LocalTime.now()+" - Undeliverable Email found...");
@@ -187,7 +188,7 @@ public final class IMAPService {
 							continue;
 						}
 					}
-					System.out.println("\t"+LocalTime.now()+" - The email is auto-generated/ The subject is empty/ Undeliverable Email,  Moved to DRAFTS");
+					System.out.println("\t"+LocalTime.now()+" - Irrelevant Email,  Moved to DRAFTS");
 					openNotReadEmail.move(WellKnownFolderName.Drafts);
 					continue;
 				}
