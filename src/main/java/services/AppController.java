@@ -559,7 +559,7 @@ public class AppController {
 	 * @param title a string that doesn't exceed 150 characters
 	 * @param description a string that doesn't exceed 1000 characters
 	 * @param completedBy a valid month and year in the following format: yyyy-MM
-	 * @param progress a value between -1 and 2
+	 * @param emails, a string of email addresses
 	 * 	-1 => Not Relevant to my career anymore
 	 *  0 => Awaiting
 	 *  1 => In Flight
@@ -585,9 +585,9 @@ public class AppController {
 
 			//Get email addresses and check they are not empty and limit to 20
 			String[] emailAddresses=emails.split(",");
-			if(emailAddresses.length >19){
-				throw new InvalidAttributeValueException("There is a maximum of 20 allowed emails in one request.");
-			}
+//			if(emailAddresses.length >19){
+//				throw new InvalidAttributeValueException("There is a maximum of 20 allowed emails in one request.");
+//			}
 			for(String email : emailAddresses){
 				if(email.length() < 1){
 					throw new InvalidAttributeValueException("One or more of the emails are invalid");
