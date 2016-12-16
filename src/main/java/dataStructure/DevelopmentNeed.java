@@ -189,6 +189,10 @@ public class DevelopmentNeed implements Serializable{
 		return this.timeToCompleteBy;
 	}
 	
+	public YearMonth getTimeToCompleteByYearMonth(){
+		return YearMonth.parse(this.timeToCompleteBy,Constants.YEAR_MONTH_FORMAT);
+	}
+	
 	public boolean isDevelopmentNeedValid(){
 		return (this.getID()>0 && this.getCategory()>=0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.timeToCompleteBy!=null);
 	}
