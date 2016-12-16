@@ -123,6 +123,7 @@ public class EmployeeDAO {
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+		
 		return queryRes.getLatestVersionDevelopmentNeeds();
 	}
 
