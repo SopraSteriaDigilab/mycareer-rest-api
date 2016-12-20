@@ -283,7 +283,13 @@ public class EmployeeDAO {
 
 		for(String str : queryRes.getReporteeCNs()){
 			long temp =  Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
-			reporteeList.add(ADProfileDAO.verifyIfUserExists(temp));
+			//System.out.println("Extract Emp ID Rep: "+temp);
+			try{
+				reporteeList.add(ADProfileDAO.verifyIfUserExists(temp));
+			}catch(Exception e){
+				System.err.println(e.getMessage());
+			}
+			
 		}
 
 		return reporteeList;

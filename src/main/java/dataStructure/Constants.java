@@ -123,13 +123,13 @@ public final class Constants {
 	public static final String INVALID_IDMATCHUSERNAME="The given ID didn't match any employee: ";
 	public static final String INVALID_EMAIL_AD="The given email address didn't match any employee: ";
 	public static final String NOTFOUND_USERNAME_AD="The given 'username' didn't match any valid employee: ";
-	public static final String NOTDELETED_FBREQ="The given Feedback Request coul not be removed from the system";
+	public static final String NOTDELETED_FBREQ="The given Feedback Request could not be removed from the system";
 	
 	
 	//Constants for the Functionalities package
 	//MongoDB Details
-//	public static final String MONGODB_USERNAME="michael";
-//	public static final String MONGODB_PASSWORD="leahcim";
+//	public static final String MONGODB_USERNAME="myCareerAPI";
+//	public static final String MONGODB_PASSWORD="qcybdjer";
 	public static final String MONGODB_USERNAME="myCareerUATAPI";
 	public static final String MONGODB_PASSWORD="qcybdjerapi";
 	//DB Servers
@@ -157,13 +157,15 @@ public final class Constants {
 	public static final String AD_SOPRA_HOST="ldap://emea.msad.sopra";
 	public static final String AD_SOPRA_USERNAME="svc_mycareer@emea.msad.sopra";
 	public static final String AD_SOPRA_PASSWORD="N9T$SiPSZ";
-	public static final String AD_SOPRA_TREE="ou=uk,ou=users,ou=sopragroup,ou=usersemea,DC=emea,DC=msad,DC=sopra";
+//	public static final String AD_SOPRA_TREE="ou=uk,ou=users,ou=sopragroup,ou=usersemea,DC=emea,DC=msad,DC=sopra";
+	public static final String AD_SOPRA_TREE="ou=usersemea,DC=emea,DC=msad,DC=sopra";
 	public static final String[] AD_SOPRA_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "extensionAttribute7", "objectGUID", "mail", "department"};
 	//Steria AD Details
 	public static final String AD_STERIA_HOST="ldap://one.steria.dom";
 	public static final String AD_STERIA_USERNAME="UK-SVC-CAREER";
 	public static final String AD_STERIA_PASSWORD="3I=AkSiGRr";
-	public static final String AD_STERIA_SEARCH_TREE="OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom";
+//	public static final String AD_STERIA_SEARCH_TREE="OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom";
+	public static final String AD_STERIA_SEARCH_TREE="DC=one,DC=steria,DC=dom";
 	public static final String AD_STERIA_LOGIN_TREE="OU=Service Accounts,OU=UKCentral,OU=UK,OU=Resources,DC=one,DC=steria,DC=dom";
 	public static final String[] AD_STERIA_ATTRIBUTES={"directReports"};
 
