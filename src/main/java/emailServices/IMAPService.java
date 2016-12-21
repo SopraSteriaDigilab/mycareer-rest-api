@@ -149,8 +149,8 @@ public final class IMAPService {
 						|| subjectEmailCheck.toLowerCase().contains("auto")
 						|| subjectEmailCheck.contains("Email Service Error")){
 					//Extract the Undeliverable emails
-					if(subjectEmailCheck.toLowerCase().contains("undeliver") && subjectEmailCheck.contains("Feedback Request")){
-						//Treat the undeliverable email 
+					if(subjectEmailCheck.toLowerCase().contains("undeliver") && subjectEmailCheck.toLowerCase().contains("request")){
+						//Treat the undeliverable email
 						undeliverableEmailFound(openNotReadEmail);
 						continue;
 

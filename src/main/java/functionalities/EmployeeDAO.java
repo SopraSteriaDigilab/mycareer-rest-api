@@ -11,11 +11,15 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
+import org.mongodb.morphia.query.UpdateResults;
+
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
+import com.mongodb.WriteResult;
+
 import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
@@ -726,6 +730,7 @@ public class EmployeeDAO {
 			if(dbConnection==null)
 				dbConnection=getMongoDBConnection();
 
+			UpdateResults updateResult1 = null, updateResult2=null;
 			//Get the userData from the DB/AD as well as updating the user profile if needed
 			ADProfile_Basic basicProfile=ADProfileDAO.authenticateUserProfile(requester);
 			//Search for the feedbackReqID inside the user data (using the employeeID inside the basicProfile
@@ -760,7 +765,8 @@ public class EmployeeDAO {
 					//Update the data in the DB
 					UpdateOperations<Employee> ops2 = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", e.getGroupFeedbackRequestsList());
 					//Commit the changes to the DB
-					dbConnection.update(querySearch, ops2);
+					updateResult1=dbConnection.update(querySearch, ops2);
+					
 				}
 
 				if(!flag){
@@ -770,8 +776,16 @@ public class EmployeeDAO {
 				}
 				//Update the user data in the DB
 				UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getAllFeedback());
-				dbConnection.update(querySearch, ops1);
-				return true;
+				updateResult1=dbConnection.update(querySearch, ops1);
+				if(updateResult1!=null && updateResult1.getWriteResult().equals(WriteResult.unacknowledged()) && updateResult2!=null && updateResult2.getWriteResult().equals(WriteResult.unacknowledged())){
+					System.out.println("Feedback added to user: "+requester);
+					return true;
+				}
+				else{
+					System.out.println("Error while updating the record on the DB for user: "+requester);
+					return false;
+				}
+				
 			}
 			//Since we use the authenticateUSerProfile method, the system will never go in the else statement
 			//else{}
@@ -820,9 +834,9 @@ public class EmployeeDAO {
 			//Server details
 			List<ServerAddress> serverList=new ArrayList<>();
 			//UAT DB1, UAT DB2, UAT
-			serverList.add(new ServerAddress(Constants.MONGODB_HOST_UATDB1, Constants.MONGODB_PORT_UATDB1));
-			serverList.add(new ServerAddress(Constants.MONGODB_HOST_UATDB2, Constants.MONGODB_PORT_UATDB2));
-			serverList.add(new ServerAddress(Constants.MONGODB_HOST_UAT, Constants.MONGODB_PORT_UAT));
+			serverList.add(new ServerAddress(Constants.MONGODB_HOST1, Constants.MONGODB_PORT1));
+			serverList.add(new ServerAddress(Constants.MONGODB_HOST2, Constants.MONGODB_PORT2));
+			serverList.add(new ServerAddress(Constants.MONGODB_HOST3, Constants.MONGODB_PORT3));
 			//Setup the credentials
 			MongoCredential credentials= MongoCredential.createCredential(Constants.MONGODB_USERNAME, Constants.MONGODB_DB_NAME, Constants.MONGODB_PASSWORD.toCharArray());
 			List<MongoCredential> credentialList=new ArrayList<>();
