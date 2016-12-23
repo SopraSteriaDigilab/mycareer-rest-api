@@ -19,7 +19,7 @@ import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
-import emailServices.SMTPService;
+import ewsServices.SMTPService;
 import functionalities.ADProfileDAO;
 import functionalities.EmployeeDAO;
 
@@ -470,7 +470,8 @@ public class AppController {
 			}
 			if(emailAddressesToField[0].length()<1)
 				return ResponseEntity.badRequest().body("No recipients inserted");
-			boolean done=SMTPService.createFeedbackRequest(employeeID, notes, emailAddressesToField);
+			int attemptsCounter=1;
+			boolean done=SMTPService.tryToSendFeedbackRequest(attemptsCounter, employeeID, notes, emailAddressesToField);
 			if(done)
 				return ResponseEntity.ok("Feedback request sent. A Confirmation Email is on its way");
 			else

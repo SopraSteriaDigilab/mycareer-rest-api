@@ -1,5 +1,6 @@
 package functionalities;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -766,7 +767,6 @@ public class EmployeeDAO {
 					UpdateOperations<Employee> ops2 = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", e.getGroupFeedbackRequestsList());
 					//Commit the changes to the DB
 					updateResult1=dbConnection.update(querySearch, ops2);
-					
 				}
 
 				if(!flag){
@@ -776,15 +776,11 @@ public class EmployeeDAO {
 				}
 				//Update the user data in the DB
 				UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getAllFeedback());
-				updateResult1=dbConnection.update(querySearch, ops1);
-				if(updateResult1!=null && updateResult1.getWriteResult().equals(WriteResult.unacknowledged()) && updateResult2!=null && updateResult2.getWriteResult().equals(WriteResult.unacknowledged())){
-					System.out.println("Feedback added to user: "+requester);
+				updateResult2=dbConnection.update(querySearch, ops1);
+				if(updateResult2!=null && updateResult2.getUpdatedCount()>0)
 					return true;
-				}
-				else{
-					System.out.println("Error while updating the record on the DB for user: "+requester);
+				else
 					return false;
-				}
 				
 			}
 			//Since we use the authenticateUSerProfile method, the system will never go in the else statement

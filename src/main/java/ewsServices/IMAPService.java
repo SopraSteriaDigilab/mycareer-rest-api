@@ -1,4 +1,4 @@
-package emailServices;
+package ewsServices;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -153,7 +153,6 @@ public final class IMAPService {
 						//Treat the undeliverable email
 						undeliverableEmailFound(openNotReadEmail);
 						continue;
-
 					}
 					System.out.println("\t"+LocalTime.now()+" - Irrelevant Email,  Moved to DRAFTS");
 					openNotReadEmail.move(WellKnownFolderName.Drafts);
@@ -172,8 +171,10 @@ public final class IMAPService {
 				//STEP 3 WHEN REQUEST ID NOT FOUND, TRY TO RETRIEVE A UNREQUESTED FEEDBACK
 
 				//If it doesn't exist, it's a unrequested feedback
-				else
+				else{
 					genericFeedbackFound(openNotReadEmail);
+					continue;
+				}
 			}
 		}
 		else{
@@ -303,7 +304,7 @@ public final class IMAPService {
 				try{
 					String incorrectEmailAddress=EmployeeDAO.removeFeedbackReqFromUser(reqID_Undelivered, reqID_EmpID);
 					if(!incorrectEmailAddress.equals("")){
-						System.out.println("\t"+LocalTime.now()+" Undeliverbale Feedback Request Removed Successfully from employee: "+reqID_EmpID);
+						System.out.println("\t"+LocalTime.now()+" Undeliverable Feedback Request Removed Successfully from employee: "+reqID_EmpID);
 						//Update email
 						message.setIsRead(true);
 						message.update(ConflictResolutionMode.AutoResolve);
@@ -607,6 +608,7 @@ public final class IMAPService {
 		credentials = new WebCredentials(Constants.MAIL_USERNAME, Constants.MAIL_PASSWORD);
 		emailService.setCredentials(credentials);
 		emailService.setUrl(new URI(Constants.MAIL_EXCHANGE_URI));
+		emailService.setTimeout(120000);
 		//This allows the trace listener to listen to requests and responses
 		//THIS IS IF YOU WANT TO ADD A LISTENER FOR PUSH NOTIFICATIONS
 		//emailService.setTraceEnabled(true);
