@@ -73,8 +73,8 @@ public class ADProfileDAO {
 			try{
 				adObj=ADReporteesDAO.findManagerReportees(adObj.getUsername(), adObj);
 			}catch(Exception e){
+				//TO BE COMPLETED!!!
 				System.err.println(e.getMessage());
-				//Nothing to do if this operation fails
 			}
 			//Close the connection with the AD
 			ldapContext.close();

@@ -1,4 +1,4 @@
-package emailServices;
+package ewsServices;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -49,8 +49,33 @@ public final class SMTPService {
 	}
 
 	private SMTPService(){}
+	
+	public static synchronized boolean tryToSendFeedbackRequest (int counter, long employeeID, String notes, String... mailTo) throws Exception{
+		try{
+			System.out.println("\t"+LocalTime.now()+" - Sending Feedback Request/s. Attempt "+ counter +"/2");
+			return createFeedbackRequest(employeeID, notes, mailTo);
+		}
+		catch (InvalidAttributeValueException e) {
+			throw e;
+		}
+		catch(ServiceRequestException reqFailed){
+			if(counter<2){
+				System.out.println("\t"+LocalTime.now()+" - The Request Failed by the Exchange Server, The system is trying to recovering from this error. Attempt "+ counter++ +"/2");
+				tryToSendFeedbackRequest(counter, employeeID, notes, mailTo);
+			}
+			else{
+				System.out.println("\t"+LocalTime.now()+" - Maximum number of attempts reached.");
+				//Fill the email with the error details and contact the administrator
+				String subject="Email Service Error";
+				String body="There has been a problem with the email service.\n\n"+reqFailed.toString()+"\n\nRegards,\nMyCareer Team\n\n";
+				contactAdministrator(subject, body);
+				throw reqFailed;
+			}
+		}
+		return false;
+	}
 
-	public static synchronized boolean createFeedbackRequest(long employeeID, String notes, String... mailTo) throws InvalidAttributeValueException{
+	private static synchronized boolean createFeedbackRequest(long employeeID, String notes, String... mailTo) throws InvalidAttributeValueException, ServiceRequestException{
 		if(notes.length()>1000)
 			throw new InvalidAttributeValueException(Constants.INVALID_SMTPSERVICE_NOTES);
 		if(mailTo.length>20)
@@ -140,13 +165,8 @@ public final class SMTPService {
 			}
 			//Catch all the error regarding the email service and send an email to the system administrator when such error happens
 			catch(ServiceRequestException serviceE){
-				//Fill the email with the error details and contact the administrator
-				String subject="Email Service Error";
-				String body="There has been a problem with the email service.\n\n"+serviceE.toString()+"\n\nRegards,\nMyCareer Team\n\n";
-				contactAdministrator(subject, body);
-				
 				System.out.println("\t"+LocalTime.now()+" - Email Service Error, Admin has been contacted");
-				throw new InvalidAttributeValueException("Email Service Error: "+serviceE.getMessage());
+				throw new ServiceRequestException("Email Service Error: "+serviceE.getMessage());
 			}
 			catch(NullPointerException ne){
 				throw new InvalidAttributeValueException("Error while reading the Template");
@@ -210,7 +230,7 @@ public final class SMTPService {
 		}
 		catch(ServiceRequestException se){
 			//closeIMAPConnection();
-			throw new InvalidAttributeValueException(se.getMessage());
+			throw new ServiceRequestException(""+se.getMessage());
 		}catch (URISyntaxException e1) {
 			throw new InvalidAttributeValueException(e1.getMessage());
 		}catch(Exception e){
@@ -294,6 +314,7 @@ public final class SMTPService {
 			credentials = new WebCredentials(Constants.MAIL_USERNAME, Constants.MAIL_PASSWORD);
 			emailService.setCredentials(credentials);
 			emailService.setUrl(new URI(Constants.MAIL_EXCHANGE_URI));
+			emailService.setTimeout(20000);
 		}
 	}
 

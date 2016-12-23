@@ -1,4 +1,4 @@
-package emailServices;
+package ewsServices;
 
 
 import java.net.URI;
