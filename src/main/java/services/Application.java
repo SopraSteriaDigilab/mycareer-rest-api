@@ -4,12 +4,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-
-import emailServices.IMAPService;
+import ewsServices.IMAPService;
 
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 public class Application {
-
+	
     public static void main(String[] args) {
     	System.out.println("Welcome! :)");
     	System.out.println("MyCareer is booting... It won't take a while!");
@@ -20,9 +19,11 @@ public class Application {
 			//SpringApplication.exit(app, ExitCodeGenerator.class);
 			//Start the EmailService that checks for new emails and add the feedback to a user
 			IMAPService.initiateIMAPService();
+			//ContactListService.initiateJobService();
 		} catch (Exception e) {
 			System.err.println("Application Error: "+e.getMessage());
 		}
 		System.out.println("MyCareer is up and running! Enjoy ;)");
     }
+    
 }

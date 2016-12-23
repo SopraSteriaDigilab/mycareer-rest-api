@@ -27,7 +27,7 @@ public final class Constants {
 	public static final String PENDING_FEEDBACK="Pending";
 	public static final String RECEIVED_ALL_FEEDBACK="Received";
 	public static final int MAX_TITLE_LENGTH=151;
-	
+
 	//Invalid Messages
 	public static final String INVALID_CONTEXT_MAIL="The given 'Email Address' is not valid in this context";
 	public static final String INVALID_CONTEXT_GUID="The given 'GUID' is not valid in this context";
@@ -45,7 +45,7 @@ public final class Constants {
 	public static final String INVALID_CONTEXT_FULLNAME="The given 'fullName' value is not valid in this context";
 	public static final String INVALID_CONTEXT_FEEDBACKTYPE="The given 'Feedback type' value is not valid in this context";
 	public static final String INVALID_CONTEXT_FEEDBACKSOURCE="The given 'Feedback source' value is not valid in this context";
-	
+
 	public static final String INVALID_PASTDATE="The given date is not valid because it is in the past";
 	public static final String INVALID_DATEFORMAT="The given date format is not valid";
 	public static final String INVALID_FEEDBACKLIST="Not all feedback were added due to their incorrect format/status";
@@ -57,15 +57,15 @@ public final class Constants {
 	public static final String INVALID_NOTELIST="Not all Notes were added due to their incorrect format/status";
 	public static final String INVALID_NOTEID="The given Note ID is not valid";
 	public static final String INVALID_NOTE="The given Note is not valid";
-	
+
 	public static final String NULL_FEEDBACKLIST="The given list of feedback is null";
 	public static final String NULL_FEEDBACK="The given feedback is null";
 	public static final String NULL_OBJECTIVE="The given Objective is null";
 	public static final String NULL_OBJECTIVELIST="The given list of Objectives is null";
 	public static final String NULL_NOTE="The given Note is null";
 	public static final String NULL_NOTELIST="The given list of Notes is null";
-	
-	
+
+
 	public static final String INVALID_NULLDEVNEEDSLIST_CONTEXT="The given list of Development Needs is null";
 	public static final String INVALID_DEVNEEDSLIST_CONTEXT="Not all Development Needs were added due to their incorrect format/status";
 	public static final String INVALID_NULLDEVNEED_CONTEXT="The given Development Need is null";
@@ -90,7 +90,7 @@ public final class Constants {
 	public static final String INVALID_FEEDBACKREQ_CONTEXT="The given feedback request is not valid";
 	public static final String INVALID_FEEDBACKDUPLICATE_CONTEXT="The Feedback request is a duplicate and cannot be added to this GroupFeedback";
 	public static final String INVALID_FEEDBACKREQ_ID_CONTEXT="The given 'feedback request ID' value is not valid in this context";
-	
+
 	public static final String INVALID_NOTE_TYPE="A note type must be between 0 and 6";
 	public static final String INVALID_NOTE_LINKTYTLE="The given 'link title' value is not valid in this context";
 	public static final String INVALID_NOTE_BODY="The given 'note body' value is not valid in this context";
@@ -123,31 +123,48 @@ public final class Constants {
 	public static final String INVALID_IDMATCHUSERNAME="The given ID didn't match any employee: ";
 	public static final String INVALID_EMAIL_AD="The given email address didn't match any employee: ";
 	public static final String NOTFOUND_USERNAME_AD="The given 'username' didn't match any valid employee: ";
-	public static final String NOTDELETED_FBREQ="The given Feedback Request coul not be removed from the system";
-	
-	
+	public static final String NOTDELETED_FBREQ="The given Feedback Request could not be removed from the system";
+
+
 	//Constants for the Functionalities package
-	//MongoDB Details
-//	public static final String MONGODB_USERNAME="michael";
-//	public static final String MONGODB_PASSWORD="leahcim";
+	
+	//MongoDB Credentials
+
+	//Development Environment
+	//public static final String MONGODB_USERNAME="myCareerAPI";
+	//public static final String MONGODB_PASSWORD="qcybdjer";
+	//UAT Environment
 	public static final String MONGODB_USERNAME="myCareerUATAPI";
 	public static final String MONGODB_PASSWORD="qcybdjerapi";
-	//DB Servers
-	//Local DB
-//	public static final String MONGODB_HOST="127.0.0.1";
-	//UAT DB Server
-	public static final String MONGODB_HOST_UATDB1="172.25.112.149";
-	public static final String MONGODB_HOST_UATDB2="172.25.112.149";
-	public static final String MONGODB_HOST_UAT="172.25.112.148";
-	//Development DB Server
-//	public static final String MONGODB_HOST="172.25.112.189";
-	//Production DB Server
-//	public static final String MONGODB_HOST="172.25.113.43";
+	//Live Environment
+	//public static final String MONGODB_USERNAME="myCareerAPI";
+	//public static final String MONGODB_PASSWORD="3QKdgLH3zePxeXp8";
+
+	//Mongo Servers
+	
+	//Development Environment
+	//public static final String MONGODB_HOST1="127.0.0.1";
+	//public static final String MONGODB_HOST2="127.0.0.1";
+	//public static final String MONGODB_HOST3="127.0.0.1";
+	//public static final int MONGODB_PORT_UATDB1=27017;
+	//public static final int MONGODB_PORT_UATDB2=27018;
+	//public static final int MONGODB_PORT_UAT=27019;
+	//UAT Environment
+	public static final String MONGODB_HOST1="172.25.112.149";
+	public static final String MONGODB_HOST2="172.25.112.149";
+	public static final String MONGODB_HOST3="172.25.112.148";
+	public static final int MONGODB_PORT1=27017;
+	public static final int MONGODB_PORT2=27018;
+	public static final int MONGODB_PORT3=27017;
+	//Live Environment
+	//public static final String MONGODB_HOST1="172.25.112.149";
+	//public static final String MONGODB_HOST2="172.25.113.43";
+	//public static final String MONGODB_HOST3="172.25.113.42";
+	//public static final int MONGODB_PORT_UATDB1=27019;
+	//public static final int MONGODB_PORT_UATDB2=27017;
+	//public static final int MONGODB_PORT_UAT=27017;
 
 
-	public static final int MONGODB_PORT_UATDB1=27017;
-	public static final int MONGODB_PORT_UATDB2=27018;
-	public static final int MONGODB_PORT_UAT=27017;
 	public static final String MONGODB_DB_NAME="Development";
 	//AD Details
 	//Common Ones
@@ -157,13 +174,13 @@ public final class Constants {
 	public static final String AD_SOPRA_HOST="ldap://emea.msad.sopra";
 	public static final String AD_SOPRA_USERNAME="svc_mycareer@emea.msad.sopra";
 	public static final String AD_SOPRA_PASSWORD="N9T$SiPSZ";
-	public static final String AD_SOPRA_TREE="ou=uk,ou=users,ou=sopragroup,ou=usersemea,DC=emea,DC=msad,DC=sopra";
+	public static final String AD_SOPRA_TREE="ou=usersemea,DC=emea,DC=msad,DC=sopra";
 	public static final String[] AD_SOPRA_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "extensionAttribute7", "objectGUID", "mail", "department"};
 	//Steria AD Details
 	public static final String AD_STERIA_HOST="ldap://one.steria.dom";
 	public static final String AD_STERIA_USERNAME="UK-SVC-CAREER";
 	public static final String AD_STERIA_PASSWORD="3I=AkSiGRr";
-	public static final String AD_STERIA_SEARCH_TREE="OU=UK,OU=Internal,OU=People,DC=one,DC=steria,DC=dom";
+	public static final String AD_STERIA_SEARCH_TREE="DC=one,DC=steria,DC=dom";
 	public static final String AD_STERIA_LOGIN_TREE="OU=Service Accounts,OU=UKCentral,OU=UK,OU=Resources,DC=one,DC=steria,DC=dom";
 	public static final String[] AD_STERIA_ATTRIBUTES={"directReports"};
 
@@ -175,10 +192,18 @@ public final class Constants {
 //	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
 //	public static final String MAIL_PASSWORD="";
 //	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
-	
+
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
 	public static final long MAIL_REFRESH_TIME=(1*60*1000); //1 minute
-
+	
+	//Constants for the CORS header
+	
+	//Domain Dev Server
+//	public static final String CORS_IP_Domain="172.25.112.189";
+	//Domain UAT Server
+	public static final String CORS_IP_DOMAIN="172.25.112.148";
+	//Domain Live Server
+//	public static final String CORS_IP_Domain="172.25.113.42";
 	//Arrays Containing all Competences including both Names and Descriptions
 	public static final String [] COMPETENCY_NAMES  = new String[]
 			{
@@ -202,7 +227,7 @@ public final class Constants {
 					"Builds Sopra Steria's reputation in the market by setting high standards of service and delivery. Knows what to measure and how to measure it and looks for opportunities for synergies. Is committed to Service Excellence.",
 					"Works cooperatively with colleagues and considers their needs and the impact of decisions on them. Seeks to build relationships across the organisation and to work for the overall good of the business. Able to find common ground and gain trust. Encourages collaboration."
 			};
-	
+
 	public static int getCompetencyIDGivenTitle(String title){
 		for(int i=0; i<COMPETENCY_NAMES.length; i++){
 			if(COMPETENCY_NAMES[i].equalsIgnoreCase(title))
@@ -210,7 +235,7 @@ public final class Constants {
 		}
 		return -1;
 	}
-	
+
 	public static String getCompetencyNameGivenID(int id){
 		if(id>-1 && id<COMPETENCY_NAMES.length)
 			return COMPETENCY_NAMES[id];
@@ -222,7 +247,4 @@ public final class Constants {
 			return COMPETENCY_DESCRIPTIONS[id];
 		return null;
 	}
-
-
-
 }
