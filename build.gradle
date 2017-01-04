@@ -17,7 +17,7 @@ buildscript {
 
 apply plugin: 'eclipse'
 apply plugin: 'java'
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 
 jar {
     baseName = 'spring_myCareer_BE'
@@ -60,4 +60,12 @@ dependencies {
     //Test suits
     testCompile("junit:junit")
     //testCompile("org.springframework.boot:spring-boot-starter-test")
+    
+    //SSO with SPNEGO
+    compile files('libs/spnego-r7.jar')
+	compile files('libs/local_policy.jar')
+	compile files('libs/US_export_policy.jar')
+	
+	// kerberos security
+	//compile 'org.springframework.security.kerberos:spring-security-kerberos-web:1.0.1.RELEASE'
 }
