@@ -18,7 +18,7 @@ public class Application {
 			//ConfigurableApplicationContext app=SpringApplication.run(Application.class, args);
 			//SpringApplication.exit(app, ExitCodeGenerator.class);
 			//Start the EmailService that checks for new emails and add the feedback to a user
-//			IMAPService.initiateIMAPService();
+			IMAPService.initiateIMAPService();
 			//ContactListService.initiateJobService();
 		} catch (Exception e) {
 			System.err.println("Application Error: "+e.getMessage());

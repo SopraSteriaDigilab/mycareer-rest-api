@@ -1,56 +1,59 @@
 package services;
 
-import java.io.IOException;
 
+import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import dataStructure.Constants;
+import net.sourceforge.spnego.SpnegoHttpFilter;
 
-//@Configuration
-//@EnableWebMvc
-//@Component
-public class WebConfiguration{// implements Filter {
+@Configuration
+public class WebConfiguration extends OncePerRequestFilter {
 
-//	@Override
-//    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-//        HttpServletResponse response = (HttpServletResponse) res;
-//        response.setHeader("Access-Control-Allow-Origin", "*");
-//        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE, PATCH");
-//        response.setHeader("Access-Control-Max-Age", "3600");
-//        response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//        
-//        System.err.println("FILTERRRRRRRRRRRRRRRRRRRRRrr");
-//        
-//        
-//        chain.doFilter(req, res);  
-//    }
-//
-//	@Override
-//	public void init(FilterConfig filterConfig) throws ServletException {}
-//
-//
-//	@Override
-//	public void destroy() {}
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+		response.setHeader("Access-Control-Max-Age", "3600");
+		response.setHeader("Access-Control-Allow-Headers", "authorization, content-type, xsrf-token");
+		response.addHeader("Access-Control-Expose-Headers", "xsrf-token");
+		if ("OPTIONS".equals(request.getMethod())) {
+			response.setStatus(HttpServletResponse.SC_OK);
+		} else { 
+			filterChain.doFilter(request, response);
+		}
+	}
+
+	@Bean
+	public FilterRegistrationBean spnegoFilterRegistration() {
+		FilterRegistrationBean registration = new FilterRegistrationBean();
+		registration.setFilter(spnegoHttpFilter());
+		registration.setName("spnegoHttpFilter");
+		registration.addInitParameter("spnego.allow.basic", "true");
+		registration.addInitParameter("spnego.allow.localhost", "true");
+		registration.addInitParameter("spnego.allow.unsecure.basic", "true");
+		registration.addInitParameter("spnego.login.client.module", "spnego-client");
+		registration.addInitParameter("spnego.krb5.conf", "krb5.conf");
+		registration.addInitParameter("spnego.login.conf", "login.conf");
+		registration.addInitParameter("spnego.preauth.username", Constants.SPNEGO_USERNAME);
+		registration.addInitParameter("spnego.preauth.password", Constants.SPNEGO_PASSWORD);
+		registration.addInitParameter("spnego.login.server.module", "spnego-server");
+		registration.addInitParameter("spnego.prompt.ntlm", "true");
+		registration.addInitParameter("spnego.logger.level", "1");
+
+		return registration;
+	}
+
+	private Filter spnegoHttpFilter() {
+		return new SpnegoHttpFilter();
+	}
 
 
-}//{// extends WebMvcConfigurerAdapter {
-
-//	@Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**")
-//        	.allowedHeaders("*")
-//        	.allowedOrigins("*")
-//        	.allowedMethods("*")
-//        	.allowCredentials(true);
-//    }
-//}
+}
