@@ -6,13 +6,13 @@ import java.util.Set;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.mongodb.MongoException;
 import dataStructure.ADProfile_Basic;
@@ -23,7 +23,6 @@ import dataStructure.Note;
 import dataStructure.Objective;
 import ewsServices.SMTPService;
 import functionalities.ADProfileDAO;
-import functionalities.ADReporteesDAO;
 import functionalities.EmployeeDAO;
 
 /**
@@ -36,8 +35,7 @@ import functionalities.EmployeeDAO;
  * This class contains all the available roots of the web service
  *
  */
-//@CrossOrigin//(origins="http://mycareer-uat.duns.uk.sopra")
-@CrossOrigin("*")
+@CrossOrigin
 @RestController
 public class AppController {
 
@@ -46,9 +44,9 @@ public class AppController {
 		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
 	}
 	
-	@CrossOrigin("*")
-	@RequestMapping(value="/logMeIn", method=RequestMethod.GET)
-	public String index(HttpServletRequest request) {
+	@RequestMapping(value="/logMeIn", produces={"text/html"}, method=RequestMethod.GET)
+//	@RequestMapping(value="/logMeIn", method=RequestMethod.GET)
+	public @ResponseBody String index(HttpServletRequest request) {
 		return request.getRemoteUser();
 	}
 

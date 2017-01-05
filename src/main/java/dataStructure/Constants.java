@@ -190,9 +190,9 @@ public final class Constants {
 	public static final String MAIL_USERNAME="FbackUK";
 	public static final String MAIL_PASSWORD="Auto_Map_$459$";
 	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
-//	public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
-//	public static final String MAIL_PASSWORD="";
-//	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
+	//public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
+	//public static final String MAIL_PASSWORD="";
+	//public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
 	public static final long MAIL_REFRESH_TIME=(1*60*1000); //1 minute
@@ -200,13 +200,25 @@ public final class Constants {
 	//Constants for the CORS header
 	
 	//Domain Dev Server
-	public static final String CORS_IP_DOMAIN_DEV="172.25.112.189";
+	//public static final String CORS_IP_DOMAIN_DEV="172.25.112.189";
+	//public static final String CORS_SRV_DOMAIN_DEV="http://ldunsmycareerdev01.duns.uk.sopra";
 	//Domain UAT Server
-	public static final String CORS_IP_DOMAIN_UAT="172.25.112.148";
+	//public static final String CORS_IP_DOMAIN_UAT="172.25.112.148";
+	public static final String CORS_DOMAIN_UAT="http://mycareer-uat.duns.uk.sopra";
+	//public static final String CORS_SRV_DOMAIN_UAT="http://ldunsmycareeruat01.duns.uk.sopra";
+	
 	//Domain Live Server
-	public static final String CORS_IP_DOMAIN_LIVE="172.25.113.42";
-	//Local Host
-	public static final String CORS_IP_DOMAIN_LOCAL="127.0.0.1";
+	//public static final String CORS_IP_DOMAIN_LIVE="172.25.113.42";
+	public static final String CORS_DOMAIN_LIVE="http://mycareer.uk.corp.sopra";
+	//public static final String CORS_SRV_DOMAIN_LIVE="http://ldunsmycareer01.duns.uk.sopra";
+	
+	
+	//Constants for the SPNEGO-KERBEROS setup
+	
+	public static final String SPNEGO_USERNAME="mycareersvc";
+	public static final String SPNEGO_PASSWORD="Czam2mc2!";
+	
+	
 	//Arrays Containing all Competences including both Names and Descriptions
 	public static final String [] COMPETENCY_NAMES  = new String[]
 			{
