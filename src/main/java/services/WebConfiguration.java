@@ -19,11 +19,18 @@ public class WebConfiguration extends OncePerRequestFilter {
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-		response.setHeader("Access-Control-Allow-Origin", "*");
+		
+		//UAT 
+		response.setHeader("Access-Control-Allow-Origin", Constants.CORS_DOMAIN_UAT);
+		//Live
+		//response.setHeader("Access-Control-Allow-Origin", Constants.CORS_DOMAIN_LIVE);
+		
 		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 		response.setHeader("Access-Control-Max-Age", "3600");
-		response.setHeader("Access-Control-Allow-Headers", "authorization, content-type, xsrf-token");
+		response.setHeader("Access-Control-Allow-Headers", "authorization, xsrf-token, Content-Type, Accept");
 		response.addHeader("Access-Control-Expose-Headers", "xsrf-token");
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		
 		if ("OPTIONS".equals(request.getMethod())) {
 			response.setStatus(HttpServletResponse.SC_OK);
 		} else { 

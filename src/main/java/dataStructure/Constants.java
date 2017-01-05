@@ -200,17 +200,17 @@ public final class Constants {
 	//Constants for the CORS header
 	
 	//Domain Dev Server
-	public static final String CORS_IP_DOMAIN_DEV="172.25.112.189";
-	public static final String CORS_DOMAIN_DEV="http://ldunsmycareerdev01.duns.uk.sopra/";
+	//public static final String CORS_IP_DOMAIN_DEV="172.25.112.189";
+	//public static final String CORS_SRV_DOMAIN_DEV="http://ldunsmycareerdev01.duns.uk.sopra";
 	//Domain UAT Server
-	public static final String CORS_IP_DOMAIN_UAT="172.25.112.148";
-	public static final String CORS_DOMAIN_UAT="http://mycareer-uat.duns.uk.sopra/";
+	//public static final String CORS_IP_DOMAIN_UAT="172.25.112.148";
+	public static final String CORS_DOMAIN_UAT="http://mycareer-uat.duns.uk.sopra";
+	//public static final String CORS_SRV_DOMAIN_UAT="http://ldunsmycareeruat01.duns.uk.sopra";
+	
 	//Domain Live Server
-	public static final String CORS_IP_DOMAIN_LIVE="172.25.113.42";
-	public static final String CORS_DOMAIN_LIVE="http://mycareer.uk.corp.sopra/";
-	//Local Host
-	public static final String CORS_IP_DOMAIN_LOCAL="127.0.0.1";
-	public static final String CORS_DOMAIN_LOCAL="http://localhost/";
+	//public static final String CORS_IP_DOMAIN_LIVE="172.25.113.42";
+	public static final String CORS_DOMAIN_LIVE="http://mycareer.uk.corp.sopra";
+	//public static final String CORS_SRV_DOMAIN_LIVE="http://ldunsmycareer01.duns.uk.sopra";
 	
 	
 	//Constants for the SPNEGO-KERBEROS setup

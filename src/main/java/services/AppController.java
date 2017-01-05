@@ -35,7 +35,7 @@ import functionalities.EmployeeDAO;
  * This class contains all the available roots of the web service
  *
  */
-@CrossOrigin("*")
+@CrossOrigin
 @RestController
 public class AppController {
 
@@ -44,7 +44,6 @@ public class AppController {
 		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
 	}
 	
-
 	@RequestMapping(value="/logMeIn", produces={"text/html"}, method=RequestMethod.GET)
 //	@RequestMapping(value="/logMeIn", method=RequestMethod.GET)
 	public @ResponseBody String index(HttpServletRequest request) {
