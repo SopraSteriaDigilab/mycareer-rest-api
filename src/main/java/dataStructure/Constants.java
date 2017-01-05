@@ -207,6 +207,14 @@ public final class Constants {
 	public static final String CORS_IP_DOMAIN_LIVE="172.25.113.42";
 	//Local Host
 	public static final String CORS_IP_DOMAIN_LOCAL="127.0.0.1";
+	
+	
+	//Constants for the SPNEGO-KERBEROS setup
+	
+	public static final String SPNEGO_USERNAME="mycareersvc";
+	public static final String SPNEGO_PASSWORD="Czam2mc2!";
+	
+	
 	//Arrays Containing all Competences including both Names and Descriptions
 	public static final String [] COMPETENCY_NAMES  = new String[]
 			{

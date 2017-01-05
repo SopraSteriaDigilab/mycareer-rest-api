@@ -37,7 +37,7 @@ import functionalities.EmployeeDAO;
  *
  */
 //@CrossOrigin//(origins="http://mycareer-uat.duns.uk.sopra")
-@CrossOrigin("*")
+//@CrossOrigin("*")
 @RestController
 public class AppController {
 
@@ -46,7 +46,7 @@ public class AppController {
 		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
 	}
 	
-	@CrossOrigin("*")
+	//@CrossOrigin("*")
 	@RequestMapping(value="/logMeIn", method=RequestMethod.GET)
 	public String index(HttpServletRequest request) {
 		return request.getRemoteUser();
