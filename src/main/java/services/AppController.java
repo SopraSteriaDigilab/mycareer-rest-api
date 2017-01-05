@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +23,7 @@ import dataStructure.Note;
 import dataStructure.Objective;
 import ewsServices.SMTPService;
 import functionalities.ADProfileDAO;
+import functionalities.ADReporteesDAO;
 import functionalities.EmployeeDAO;
 
 /**
@@ -33,13 +36,20 @@ import functionalities.EmployeeDAO;
  * This class contains all the available roots of the web service
  *
  */
-@CrossOrigin(origins = "127.0.0.1")
+//@CrossOrigin//(origins="http://mycareer-uat.duns.uk.sopra")
+@CrossOrigin("*")
 @RestController
 public class AppController {
 
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public ResponseEntity<?> welcomePage(){
 		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
+	}
+	
+	@CrossOrigin("*")
+	@RequestMapping(value="/logMeIn", method=RequestMethod.GET)
+	public String index(HttpServletRequest request) {
+		return request.getRemoteUser();
 	}
 
 	/**

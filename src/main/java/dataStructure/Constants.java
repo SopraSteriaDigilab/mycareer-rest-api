@@ -171,7 +171,8 @@ public final class Constants {
 	public static final int AD_PORT=389;
 	public static final String AD_AUTHENTICATION="simple";
 	//Sopra AD Details
-	public static final String AD_SOPRA_HOST="ldap://emea.msad.sopra";
+//	public static final String AD_SOPRA_HOST="ldap://emea.msad.sopra";
+	public static final String AD_SOPRA_HOST="ldap://duns.ldap-ad.dmsi.corp.sopra";
 	public static final String AD_SOPRA_USERNAME="svc_mycareer@emea.msad.sopra";
 	public static final String AD_SOPRA_PASSWORD="N9T$SiPSZ";
 	public static final String AD_SOPRA_TREE="ou=usersemea,DC=emea,DC=msad,DC=sopra";
@@ -199,11 +200,13 @@ public final class Constants {
 	//Constants for the CORS header
 	
 	//Domain Dev Server
-//	public static final String CORS_IP_Domain="172.25.112.189";
+	public static final String CORS_IP_DOMAIN_DEV="172.25.112.189";
 	//Domain UAT Server
-	public static final String CORS_IP_DOMAIN="172.25.112.148";
+	public static final String CORS_IP_DOMAIN_UAT="172.25.112.148";
 	//Domain Live Server
-//	public static final String CORS_IP_Domain="172.25.113.42";
+	public static final String CORS_IP_DOMAIN_LIVE="172.25.113.42";
+	//Local Host
+	public static final String CORS_IP_DOMAIN_LOCAL="127.0.0.1";
 	//Arrays Containing all Competences including both Names and Descriptions
 	public static final String [] COMPETENCY_NAMES  = new String[]
 			{
