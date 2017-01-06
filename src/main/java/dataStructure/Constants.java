@@ -171,7 +171,6 @@ public final class Constants {
 	public static final int AD_PORT=389;
 	public static final String AD_AUTHENTICATION="simple";
 	//Sopra AD Details
-//	public static final String AD_SOPRA_HOST="ldap://emea.msad.sopra";
 	public static final String AD_SOPRA_HOST="ldap://duns.ldap-ad.dmsi.corp.sopra";
 	public static final String AD_SOPRA_USERNAME="svc_mycareer@emea.msad.sopra";
 	public static final String AD_SOPRA_PASSWORD="N9T$SiPSZ";
