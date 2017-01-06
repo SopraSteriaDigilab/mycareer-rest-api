@@ -15,15 +15,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.mongodb.MongoException;
+
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
-import ewsServices.SMTPService;
-import functionalities.ADProfileDAO;
-import functionalities.EmployeeDAO;
+import externalServices.ad.ADProfileDAO;
+import externalServices.ews.SMTPService;
+import externalServices.mongoDB.EmployeeDAO;
 
 /**
  * 

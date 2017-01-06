@@ -1,4 +1,4 @@
-package functionalities;
+package externalServices.ad;
 
 import java.util.Hashtable;
 import javax.management.InvalidAttributeValueException;
