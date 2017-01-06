@@ -1,4 +1,4 @@
-package functionalities;
+package externalServices.mongoDB;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -32,6 +32,7 @@ import dataStructure.FeedbackRequest;
 import dataStructure.GroupFeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
+import externalServices.ad.ADProfileDAO;
 
 /**
  * 

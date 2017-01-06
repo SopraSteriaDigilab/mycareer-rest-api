@@ -6,6 +6,7 @@ It searches for the public static void main() method to flag as a runnable class
 It provides a built-in dependency resolver that sets the version number to match Spring Boot dependencies. You can override any version you wish, but it will default to Boot�s chosen set of versions.
 */
 
+//This will is necessary for when the script is built. Do not change it
 buildscript {
     repositories {
         mavenCentral()
@@ -15,15 +16,18 @@ buildscript {
     }
 }
 
+//This are the gradle options enabled from the command line
 apply plugin: 'eclipse'
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 
+//Define the name of the JAR file created when the project is built as an executable archive
 jar {
-    baseName = 'spring_myCareer_BE'
+    baseName = 'myCareer_BE'
     version =  '1.0'
 }
 
+//This defines the repositories where the dependencies can be found and downloaded
 repositories {
 	maven { url "https://repo.spring.io/libs-release" }
     mavenCentral()
@@ -33,20 +37,18 @@ repositories {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+//List of dependencies/libraries to include within the project
 dependencies {
 	
 	//Development suits
 	//Exclude Tomcat because it is already part of Jetty
-    compile("org.springframework.boot:spring-boot-starter-web")// {
-        //exclude module: "spring-boot-starter-tomcat"
-    //}
+    compile("org.springframework.boot:spring-boot-starter-web")
     
     //GSON library
     compile ("com.google.code.gson:gson:2.7")
     
     //Morphia library for the communication with MongoDB
     compile ("org.mongodb.morphia:morphia:1.2.1")
-    //compile ("org.mongodb:mongodb-driver:3.4.0")
     
     //Library for the Exchange Server
     compile group: 'com.microsoft.ews-java-api', name: 'ews-java-api', version: '2.0'
@@ -61,11 +63,8 @@ dependencies {
     testCompile("junit:junit")
     //testCompile("org.springframework.boot:spring-boot-starter-test")
     
-    //SSO with SPNEGO
+    //SSO with SPNEGO (Internal libraries)
     compile files('libs/spnego-r7.jar')
 	compile files('libs/local_policy.jar')
 	compile files('libs/US_export_policy.jar')
-	
-	// kerberos security
-	//compile 'org.springframework.security.kerberos:spring-security-kerberos-web:1.0.1.RELEASE'
 }

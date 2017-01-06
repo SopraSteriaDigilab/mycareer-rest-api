@@ -1,4 +1,4 @@
-package ewsServices;
+package externalServices.ews;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,11 +11,12 @@ import javax.management.InvalidAttributeValueException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
 import dataStructure.ADProfile_Basic;
 import dataStructure.Constants;
 import dataStructure.Feedback;
-import functionalities.ADProfileDAO;
-import functionalities.EmployeeDAO;
+import externalServices.ad.ADProfileDAO;
+import externalServices.mongoDB.EmployeeDAO;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.PropertySet;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;

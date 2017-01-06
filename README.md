@@ -1,1 +1,1 @@
-This repository is for ceating the API as part of the My Career project.
+This repository is for creating the API as part of the My Career project.

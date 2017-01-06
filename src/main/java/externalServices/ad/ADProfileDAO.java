@@ -1,4 +1,4 @@
-package functionalities;
+package externalServices.ad;
 
 import java.util.Hashtable;
 import javax.management.InvalidAttributeValueException;
@@ -13,6 +13,8 @@ import javax.naming.directory.SearchResult;
 import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import dataStructure.Constants;
+import externalServices.mongoDB.EmployeeDAO;
+
 import java.util.UUID;
 
 /**

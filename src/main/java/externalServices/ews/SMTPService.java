@@ -1,4 +1,4 @@
-package ewsServices;
+package externalServices.ews;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -13,7 +13,7 @@ import javax.management.InvalidAttributeValueException;
 import dataStructure.Constants;
 import dataStructure.FeedbackRequest;
 import dataStructure.GroupFeedbackRequest;
-import functionalities.EmployeeDAO;
+import externalServices.mongoDB.EmployeeDAO;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.property.BodyType;
