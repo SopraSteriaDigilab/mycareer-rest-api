@@ -1,42 +1,41 @@
 package services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import static dataStructure.Constants.*;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 @Configuration
-@PropertySource({"development.properties", "production.properties"})
 public class EnvironmentSetup {
-
-//	@Autowired
-//    private ConfigurableEnvironment env;
-//	
-//	@Bean
-//    public PrefixResolvedPropertySource prefixResolver() {
-//        PrefixResolvedPropertySource prefixSource = new PrefixResolvedPropertySource("envTarget", env);
-//        env.getPropertySources().addFirst(prefixSource);
-//        env.
-//        return prefixSource;
-//    }
-//
-//    @Bean
-//    public ValueContainerPropertySource valueContainerPropertySource() {
-//        ValueContainerPropertySource source = new ValueContainerPropertySource("vcProperty", valueContainer());
-//        env.getPropertySources().addLast(source);
-//        return source;
-//    }
-//
-//    @Bean
-//    public ValueContainer valueContainer() {
-//        return new ValueContainer(env.getProperty("vcValue"));
-//    }
-//
-//    @Bean
-//    public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
-//        return new PropertySourcesPlaceholderConfigurer();
-//    }
-	
+	@Bean
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws UnknownHostException {
+		PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
+		Resource resource;
+		String host = InetAddress.getLocalHost().getHostName();
+		
+		switch (host) {
+			case DEV_SERVER_NAME:
+				resource = new ClassPathResource("dev.properties");
+				break;
+			case UAT_SERVER_NAME:
+				resource = new ClassPathResource("uat.properties");
+				break;
+			case LIVE_SERVER_NAME:
+				resource = new ClassPathResource("live.properties");
+				break;
+			default:
+				resource = new ClassPathResource("dev.properties");
+				break;
+		}
+		
+		pspc.setLocations(resource);
+		
+		return pspc;
+    }	
 }

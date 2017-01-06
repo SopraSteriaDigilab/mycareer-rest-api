@@ -1,5 +1,6 @@
 package services;
 
+import static dataStructure.Constants.*;
 
 import java.io.IOException;
 import javax.servlet.Filter;
@@ -9,19 +10,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import dataStructure.Constants;
 import net.sourceforge.spnego.SpnegoHttpFilter;
 
 @Configuration
 public class WebConfiguration extends OncePerRequestFilter {
+	
+	@Value("${domain.url}")
+	private String DOMAIN_URL; 
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		
 		//UAT 
-		response.setHeader("Access-Control-Allow-Origin", Constants.CORS_DOMAIN_UAT);
+		response.setHeader("Access-Control-Allow-Origin", DOMAIN_URL);
 		//Live
 		//response.setHeader("Access-Control-Allow-Origin", Constants.CORS_DOMAIN_LIVE);
 		
@@ -49,8 +53,8 @@ public class WebConfiguration extends OncePerRequestFilter {
 		registration.addInitParameter("spnego.login.client.module", "spnego-client");
 		registration.addInitParameter("spnego.krb5.conf", "krb5.conf");
 		registration.addInitParameter("spnego.login.conf", "login.conf");
-		registration.addInitParameter("spnego.preauth.username", Constants.SPNEGO_USERNAME);
-		registration.addInitParameter("spnego.preauth.password", Constants.SPNEGO_PASSWORD);
+		registration.addInitParameter("spnego.preauth.username", SPNEGO_USERNAME);
+		registration.addInitParameter("spnego.preauth.password", SPNEGO_PASSWORD);
 		registration.addInitParameter("spnego.login.server.module", "spnego-server");
 		registration.addInitParameter("spnego.prompt.ntlm", "true");
 		registration.addInitParameter("spnego.logger.level", "1");
