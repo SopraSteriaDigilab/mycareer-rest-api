@@ -1,0 +1,20 @@
+Hi,
+ 
+[FeedbackRequester_name] has requested your feedback. 
+ 
+Simply reply to this email to provide [FeedbackRequester_name] with feedback. 
+They supplied the following comment:
+“[FeedbackRequest_Comments]”
+
+
+The following headings may help you.
+1) Context
+2) What went well?
+3) What could be improved?
+4) What was the time period in which feedback was observed?
+
+ 
+You can find more information on the Performance Management page on F2F.
+--> http://portal.corp.sopra/hr/HR_UK_SG/mycareerpath/Performancemanagement/Pages/default.aspx
+
+Request ID:
