@@ -5,23 +5,26 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.mongodb.MongoException;
+
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
-import ewsServices.SMTPService;
-import functionalities.ADProfileDAO;
-import functionalities.EmployeeDAO;
+import externalServices.ad.ADProfileDAO;
+import externalServices.ews.SMTPService;
+import externalServices.mongoDB.EmployeeDAO;
 
 /**
  * 
@@ -33,13 +36,19 @@ import functionalities.EmployeeDAO;
  * This class contains all the available roots of the web service
  *
  */
-@CrossOrigin(origins = "127.0.0.1")
+@CrossOrigin
 @RestController
 public class AppController {
 
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public ResponseEntity<?> welcomePage(){
 		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
+	}
+	
+	@RequestMapping(value="/logMeIn", produces={"text/html"}, method=RequestMethod.GET)
+//	@RequestMapping(value="/logMeIn", method=RequestMethod.GET)
+	public @ResponseBody String index(HttpServletRequest request) {
+		return request.getRemoteUser();
 	}
 
 	/**
