@@ -202,7 +202,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}
 			
 			//Sort list by timeToCompelte
-			sortByTimeToComplete(organisedList);
+			sortObjectivesByTimeToComplete(organisedList);
 			
 			//Once the list if full, return it to the user
 			return organisedList;
@@ -371,6 +371,9 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				//The last element contains the latest version of the development need
 				organisedList.add(subList.get(subList.size()-1));
 			}
+			//Sort list by timeToCompelte
+			sortDevNeedsByTimeToComplete(organisedList);
+			
 			//Once the list if full, return it to the user
 			return organisedList;
 		}
@@ -467,6 +470,26 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}
 		}
 		return null;
+	}
+	
+	public String removeSpecificFeedbackRequest(String fbID) throws InvalidAttributeValueException{
+		if(fbID!=null && !fbID.equals("")){
+			for(int i=0; i<groupFeedbackRequests.size(); i++){
+				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID)!=null){
+					//Remove the full group Request Feedback if it contains only 1 feedback request
+					String emailRecipient=groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID).getRecipient();
+					if(groupFeedbackRequests.get(i).getRequestList().size()==1)
+						groupFeedbackRequests.remove(i);
+					//Alternatively, remove the given feedback request
+					else
+						groupFeedbackRequests.get(i).removeFeedbackRequest(fbID);
+					//Return the email address found
+					return emailRecipient;
+				}
+			}
+			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_NOTFOUND_CONTEXT);
+		}
+		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_ID_CONTEXT);
 	}
 
 	/**
@@ -887,12 +910,25 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * @param o (An Objective or Development Need)
 	 * @return List (or Objectives or Development Needs)
 	 */
-	private static void sortByTimeToComplete(List<Objective> objectivesList){
+	private static void sortObjectivesByTimeToComplete(List<Objective> objectivesList){
 		Collections.sort(objectivesList, new Comparator<Objective>(){
 			@Override
 			public int compare(Objective o1, Objective o2) {
-				YearMonth ym1 = o1.getTimeToCompletByYearMonth();
-				YearMonth ym2 = o2.getTimeToCompletByYearMonth();
+				YearMonth ym1 = o1.getTimeToCompleteByYearMonth();
+				YearMonth ym2 = o2.getTimeToCompleteByYearMonth();
+				//Ternary Expression that return 0 if the ym1 equals ym2, or return the result of the second ternary expression which 
+				//checks if ym1 is before ym2 and returns -1 if true, 1 if false 
+				return (ym1.equals(ym2)) ?  0 :  ((ym1.isBefore(ym2)) ? -1 : 1);
+			}
+		});	
+	}
+	
+	private static void sortDevNeedsByTimeToComplete(List<DevelopmentNeed> devNeeds){
+		Collections.sort(devNeeds, new Comparator<DevelopmentNeed>(){
+			@Override
+			public int compare(DevelopmentNeed o1, DevelopmentNeed o2) {
+				YearMonth ym1 = o1.getTimeToCompleteByYearMonth();
+				YearMonth ym2 = o2.getTimeToCompleteByYearMonth();
 				//Ternary Expression that return 0 if the ym1 equals ym2, or return the result of the second ternary expression which 
 				//checks if ym1 is before ym2 and returns -1 if true, 1 if false 
 				return (ym1.equals(ym2)) ?  0 :  ((ym1.isBefore(ym2)) ? -1 : 1);

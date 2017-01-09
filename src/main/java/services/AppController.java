@@ -5,23 +5,26 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.mongodb.MongoException;
+
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
-import emailServices.SMTPService;
-import functionalities.ADProfileDAO;
-import functionalities.EmployeeDAO;
+import externalServices.ad.ADProfileDAO;
+import externalServices.ews.SMTPService;
+import externalServices.mongoDB.EmployeeDAO;
 
 /**
  * 
@@ -33,13 +36,19 @@ import functionalities.EmployeeDAO;
  * This class contains all the available roots of the web service
  *
  */
-@CrossOrigin(origins = "*")
+@CrossOrigin
 @RestController
 public class AppController {
 
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public ResponseEntity<?> welcomePage(){
 		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
+	}
+	
+	@RequestMapping(value="/logMeIn", produces={"text/html"}, method=RequestMethod.GET)
+//	@RequestMapping(value="/logMeIn", method=RequestMethod.GET)
+	public @ResponseBody String index(HttpServletRequest request) {
+		return request.getRemoteUser();
 	}
 
 	/**
@@ -470,7 +479,8 @@ public class AppController {
 			}
 			if(emailAddressesToField[0].length()<1)
 				return ResponseEntity.badRequest().body("No recipients inserted");
-			boolean done=SMTPService.createFeedbackRequest(employeeID, notes, emailAddressesToField);
+			int attemptsCounter=1;
+			boolean done=SMTPService.tryToSendFeedbackRequest(attemptsCounter, employeeID, notes, emailAddressesToField);
 			if(done)
 				return ResponseEntity.ok("Feedback request sent. A Confirmation Email is on its way");
 			else
@@ -559,7 +569,7 @@ public class AppController {
 	 * @param title a string that doesn't exceed 150 characters
 	 * @param description a string that doesn't exceed 1000 characters
 	 * @param completedBy a valid month and year in the following format: yyyy-MM
-	 * @param progress a value between -1 and 2
+	 * @param emails, a string of email addresses
 	 * 	-1 => Not Relevant to my career anymore
 	 *  0 => Awaiting
 	 *  1 => In Flight
@@ -585,9 +595,9 @@ public class AppController {
 
 			//Get email addresses and check they are not empty and limit to 20
 			String[] emailAddresses=emails.split(",");
-			if(emailAddresses.length >19){
-				throw new InvalidAttributeValueException("There is a maximum of 20 allowed emails in one request.");
-			}
+//			if(emailAddresses.length >19){
+//				throw new InvalidAttributeValueException("There is a maximum of 20 allowed emails in one request.");
+//			}
 			for(String email : emailAddresses){
 				if(email.length() < 1){
 					throw new InvalidAttributeValueException("One or more of the emails are invalid");
