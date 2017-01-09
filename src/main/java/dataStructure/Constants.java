@@ -211,9 +211,9 @@ public final class Constants {
 	public static final String CORS_DOMAIN_LIVE="http://mycareer.uk.corp.sopra";
 	
 	// Server names
-	public static final String DEV_SERVER_NAME="ldunsmycareerdev01.duns.uk.sopra";
-	public static final String UAT_SERVER_NAME = "ldunsmycareeruat01.duns.uk.sopra";
-	public static final String LIVE_SERVER_NAME = "ldunsmycareer01.duns.uk.sopra";
+	public static final String DEV_SERVER_NAME="ldunsmycareerdev01";
+	public static final String UAT_SERVER_NAME = "ldunsmycareeruat01";
+	public static final String LIVE_SERVER_NAME = "ldunsmycareer01";
 	
 	
 	//Constants for the SPNEGO-KERBEROS setup

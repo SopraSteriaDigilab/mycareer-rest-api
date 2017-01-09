@@ -9,26 +9,26 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import net.sourceforge.spnego.SpnegoHttpFilter;
 
 @Configuration
+@PropertySource("${ENVIRONMENT}.properties")
 public class WebConfiguration extends OncePerRequestFilter {
 	
-	@Value("${domain.url}")
-	private String DOMAIN_URL; 
+	@Autowired
+	private Environment env;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		
-		//UAT 
-		response.setHeader("Access-Control-Allow-Origin", DOMAIN_URL);
-		//Live
-		//response.setHeader("Access-Control-Allow-Origin", Constants.CORS_DOMAIN_LIVE);
-		
+		response.setHeader("Access-Control-Allow-Origin", env.getProperty("domain.url.full"));
 		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 		response.setHeader("Access-Control-Max-Age", "3600");
 		response.setHeader("Access-Control-Allow-Headers", "authorization, xsrf-token, Content-Type, Accept");
