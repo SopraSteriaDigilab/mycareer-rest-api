@@ -19,7 +19,6 @@ import com.mongodb.ServerAddress;
 
 import externalServices.mongoDB.EmployeeDAO;
 
-
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
 public class EnvironmentSetup {
