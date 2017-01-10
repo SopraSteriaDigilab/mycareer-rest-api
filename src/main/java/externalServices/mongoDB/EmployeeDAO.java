@@ -1,6 +1,5 @@
 package externalServices.mongoDB;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,19 +8,11 @@ import java.util.Map;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.mongodb.morphia.query.UpdateResults;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
-import com.mongodb.ServerAddress;
-import com.mongodb.WriteResult;
 
 import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
@@ -56,8 +47,6 @@ public class EmployeeDAO {
 	}
 
 	public static String getFullNameUser(long employeeID) throws InvalidAttributeValueException {
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -65,8 +54,6 @@ public class EmployeeDAO {
 	}
 
 	public static List<Objective> getObjectivesForUser(long employeeID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -74,8 +61,6 @@ public class EmployeeDAO {
 	}
 
 	public static Objective getSpecificObjectiveForUser(long employeeID, int objectiveID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -83,8 +68,6 @@ public class EmployeeDAO {
 	}
 
 	public static List<Feedback> getFeedbackForUser(long employeeID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -94,8 +77,6 @@ public class EmployeeDAO {
 	}
 
 	public static int getLatestFeedbackIDForUser(long employeeID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		//db.employeeDataDev.aggregate([{$project:{employeeID:1,"feedback.id":1, _id:0}},{$match:{employeeID:675599}}, {$unwind:"feedback"},{$sort:{feedback:-1}},{$limit:1},{$project:{latestFeedbackID:"$feedback.id"}}])
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		//		Iterator<String> aggregate=dbConnection
@@ -121,8 +102,6 @@ public class EmployeeDAO {
 	}
 
 	public static List<Note> getNotesForUser(long employeeID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -130,8 +109,6 @@ public class EmployeeDAO {
 	}
 
 	public static List<DevelopmentNeed> getDevelopmentNeedsForUser(long employeeID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -140,8 +117,6 @@ public class EmployeeDAO {
 	}
 
 	public static List<GroupFeedbackRequest> getGroupFeedbackRequestsForUser(long employeeID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -168,8 +143,6 @@ public class EmployeeDAO {
 	}
 
 	public static Map<String, Map<Integer, String>> getIDTitlePairsDataStructure(long employeeID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 		if(query.get()==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -238,8 +211,6 @@ public class EmployeeDAO {
 	}
 
 	public static String getUserFullNameFromUserID(long employeeID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -247,8 +218,6 @@ public class EmployeeDAO {
 	}
 
 	public static long getUserIDFromEmailAddress(String email) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("emailAddress =", email).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_USEREMAIL);
@@ -256,8 +225,6 @@ public class EmployeeDAO {
 	}
 
 	public static String getUserEmailAddressFromID(long employeeID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -265,8 +232,6 @@ public class EmployeeDAO {
 	}
 
 	public static String getAllUserDataFromID(long employeeID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -275,8 +240,6 @@ public class EmployeeDAO {
 
 	//Returns list of Competencies for a user
 	public static List<Competency> getCompetenciesForUser(long employeeID) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -285,8 +248,6 @@ public class EmployeeDAO {
 
 	//Returns list of reportees for a user
 	public static List<ADProfile_Basic> getReporteesForUser(long employeeID) throws InvalidAttributeValueException, NamingException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
@@ -316,8 +277,6 @@ public class EmployeeDAO {
 	 * @throws InvalidAttributeValueException 
 	 */
 	public static boolean insertNewObjective(long employeeID, Object data) throws InvalidAttributeValueException, MongoException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		//Check the employeeID
 		if(employeeID>0){
 			if(data!=null && data instanceof Objective){
@@ -347,8 +306,6 @@ public class EmployeeDAO {
 	}
 
 	public static boolean insertNewGeneralFeedback(long employeeID, Object data)throws InvalidAttributeValueException, MongoException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		//Check the employeeID
 		if(employeeID>0){
 			if(data!=null && data instanceof Feedback){
@@ -392,8 +349,6 @@ public class EmployeeDAO {
 	}
 
 	public static boolean addNewVersionObjective(long employeeID, int objectiveID, Object data) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		//Check EmployeeID and ObjectiveID
 		if(employeeID>0 && objectiveID>0){
 			if(data!=null && data instanceof Objective){
@@ -440,8 +395,6 @@ public class EmployeeDAO {
 	}
 
 	public static boolean insertNewNote(long employeeID, Object data) throws InvalidAttributeValueException, MongoException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		//Check the employeeID
 		if(employeeID>0){
 			if(data!=null && data instanceof Note){
@@ -471,8 +424,6 @@ public class EmployeeDAO {
 	}
 
 	public static boolean addNewVersionNote(long employeeID, int noteID, Object data) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		//Check EmployeeID and noteID
 		if(employeeID>0 && noteID>0){
 			if(data!=null && data instanceof Note){
@@ -519,8 +470,6 @@ public class EmployeeDAO {
 	}
 
 	public static boolean insertNewDevelopmentNeed(long employeeID, Object data) throws InvalidAttributeValueException, MongoException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		//Check the employeeID
 		if(employeeID>0){
 			if(data!=null && data instanceof DevelopmentNeed){
@@ -550,8 +499,6 @@ public class EmployeeDAO {
 	}
 
 	public static boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, Object data) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		//Check EmployeeID and noteID
 		if(employeeID>0 && devNeedID>0){
 			if(data!=null && data instanceof DevelopmentNeed){
@@ -598,8 +545,6 @@ public class EmployeeDAO {
 	}
 
 	public static boolean insertNewGroupFeedbackRequest(long employeeID, Object data) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		//Check the employeeID
 		if(employeeID>0){
 			if(data!=null && data instanceof GroupFeedbackRequest){
@@ -630,8 +575,6 @@ public class EmployeeDAO {
 
 	public static boolean validateGroupFeedbackRequestID(long employeeID, String id) throws InvalidAttributeValueException{
 		if(employeeID>0 && !id.equals("")){
-//			if(dbConnection==null)
-//				dbConnection=getMongoDBConnection();
 			//Retrieve Employee with the given ID
 			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 			if(querySearch.get()!=null){
@@ -663,8 +606,6 @@ public class EmployeeDAO {
 	 * @throws InvalidAttributeValueException 
 	 */
 	public static boolean addNewVersionCompetency(long employeeID, Object data, String title) throws InvalidAttributeValueException{
-//		if(dbConnection==null)
-//			dbConnection=getMongoDBConnection();
 		//Check EmployeeID and noteID
 		if(employeeID>0 && title!=null && title.length()>0){
 			if(data!=null && data instanceof Competency && title!=null && title.length()>0){
@@ -695,8 +636,6 @@ public class EmployeeDAO {
 	public static ADProfile_Basic matchADWithMongoData(ADProfile_Advanced userData) throws InvalidAttributeValueException{
 		if(userData!=null){
 			//Establish a connection with the DB
-//			if(dbConnection==null)
-//				dbConnection=getMongoDBConnection();
 			//Search for a user GUID
 			//Retrieve Employee with the given GUID
 			if(!userData.getGUID().equals("")){
@@ -735,8 +674,6 @@ public class EmployeeDAO {
 	public static boolean linkFeedbackReqReplyToUserGroupFBReq(String requester, String fbReqID, Feedback data) throws InvalidAttributeValueException, NamingException{
 		if(data!=null && data.isFeedbackValid()){
 			//Establish a connection with the DB
-//			if(dbConnection==null)
-//				dbConnection=getMongoDBConnection();
 
 			UpdateResults updateResult1 = null, updateResult2=null;
 			//Get the userData from the DB/AD as well as updating the user profile if needed
@@ -801,9 +738,6 @@ public class EmployeeDAO {
 		public static String removeFeedbackReqFromUser(String reqID, long empID) throws InvalidAttributeValueException{
 			if(reqID.length()<0 || empID<0)
 				throw new InvalidAttributeValueException(Constants.INVALID_FBREQ_OR_EMPLOYEEID);
-			//Establish a connection with the DB
-//			if(dbConnection==null)
-//				dbConnection=getMongoDBConnection();
 			//Get the user from the DB
 			Employee querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", empID).get();
 			if(querySearch!=null){
@@ -820,40 +754,6 @@ public class EmployeeDAO {
 				throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
 			}
 		}
-
-//	private static Datastore getMongoDBConnection() throws MongoException{
-//		if(dbConnection==null){
-//			//This currently doesn't fully work. the waitTime is not taken by the DB
-//			MongoClientOptions options=MongoClientOptions.builder()
-//					.maxWaitTime(10000)
-//					//.maxConnectionIdleTime(1000)
-//					.connectTimeout(10000)
-//					//.socketKeepAlive(true)
-//					//.cursorFinalizerEnabled(true)
-//					//.socketTimeout(100)
-//					//.readConcern(ReadConcern.MAJORITY)
-//					//.writeConcern(WriteConcern.ACKNOWLEDGED)
-//					.build();
-//			//Server details
-//			List<ServerAddress> serverList=new ArrayList<>();
-//			//UAT DB1, UAT DB2, UAT
-//			serverList.add(new ServerAddress(Constants.MONGODB_HOST1, Constants.MONGODB_PORT1));
-//			serverList.add(new ServerAddress(Constants.MONGODB_HOST2, Constants.MONGODB_PORT2));
-//			serverList.add(new ServerAddress(Constants.MONGODB_HOST3, Constants.MONGODB_PORT3));
-//			//Setup the credentials
-//			MongoCredential credentials= MongoCredential.createCredential(Constants.MONGODB_USERNAME, Constants.MONGODB_DB_NAME, Constants.MONGODB_PASSWORD.toCharArray());
-//			List<MongoCredential> credentialList=new ArrayList<>();
-//			credentialList.add(credentials);
-//			//Instantiate mongo client and Morphia
-//			MongoClient client = new MongoClient(serverList, credentialList, options);
-//			final Morphia morphia =new Morphia();
-//			//Add packages to Morphia and open the connection
-//			morphia.mapPackage("dataStructure.Employee");
-//			dbConnection=morphia.createDatastore(client, Constants.MONGODB_DB_NAME);
-//			dbConnection.ensureIndexes();
-//		}
-//		return dbConnection;
-//	}
 	
 //	private static MongoDatabase getMongoDBConnection() throws MongoException{
 //		if(dbConnection==null){
