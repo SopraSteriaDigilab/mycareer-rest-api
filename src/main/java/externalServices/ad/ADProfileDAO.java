@@ -5,6 +5,7 @@ import javax.management.InvalidAttributeValueException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
@@ -55,12 +56,21 @@ public class ADProfileDAO {
 		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_SOPRA_TREE, searchFilter, searchCtls);
 
 		//Check the results retrieved
-		if(answer.hasMoreElements()){
+		if (answer.hasMoreElements()) {
 			SearchResult sr = (SearchResult)answer.next();
 			Attributes attrs = sr.getAttributes();
 			ADProfile_Advanced adObj=new ADProfile_Advanced();
+			
+			Attribute extensionAttribute7 = attrs.get("extensionAttribute7");
+			Object extensionAttribute7Object = extensionAttribute7.get();
+			String extensionAttribute7String = extensionAttribute7Object.toString();
+			String extensionAttribute7Substring = extensionAttribute7String.substring(1);
+			Long extensionAttribute7Long = Long.parseLong(extensionAttribute7Substring);
+			adObj.setEmployeeID(extensionAttribute7Long);
+			
 			//Extract the information from the AD and add it to our object
-			adObj.setEmployeeID(Long.parseLong(attrs.get("extensionAttribute7").get().toString().substring(1)));
+//			adObj.setEmployeeID(Long.parseLong(attrs.get("extensionAttribute7").get().toString().substring(1)));
+			
 			//Extract the GUID which is a hexadecimal number and must be converted before using it
 			UUID uid=UUID.nameUUIDFromBytes((byte[])attrs.get("objectGUID").get());
 			adObj.setGUID(uid.toString());
@@ -72,18 +82,19 @@ public class ADProfileDAO {
 			adObj.setTeam((String) attrs.get("department").get());
 
 			//Try to extract the reportees of a user by calling a static method inside the ADReporteedDAO which deals with the connection with the STERIA AD
-			try{
+			try {
 				adObj=ADReporteesDAO.findManagerReportees(adObj.getUsername(), adObj);
-			}catch(Exception e){
+			} catch(Exception e) {
 				//TO BE COMPLETED!!!
 				System.err.println(e.getMessage());
 			}
+			
 			//Close the connection with the AD
 			ldapContext.close();
 			ldapContext=null;
+			
 			return EmployeeDAO.matchADWithMongoData(adObj);
-			//There is no a matching user in the Active Directory
-		}else{
+		} else { //There is no a matching user in the Active Directory
 			//Close the connection with the AD
 			ldapContext.close();
 			ldapContext=null;
