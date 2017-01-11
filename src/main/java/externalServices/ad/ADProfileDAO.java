@@ -1,6 +1,10 @@
 package externalServices.ad;
 
+import static dataStructure.Constants.*;
+
 import java.util.Hashtable;
+import java.util.NoSuchElementException;
+
 import javax.management.InvalidAttributeValueException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -13,7 +17,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
-import dataStructure.Constants;
 import externalServices.mongoDB.EmployeeDAO;
 
 import java.util.UUID;
@@ -35,15 +38,14 @@ public class ADProfileDAO {
 	public static ADProfile_Basic authenticateUserProfile(String usernameEmail) throws NamingException, InvalidAttributeValueException {
 		//Verify the given string
 		if(usernameEmail==null || usernameEmail.equals("") || usernameEmail.length()<1)
-			throw new InvalidAttributeValueException(Constants.INVALID_EMAILORUSERNAME_AD);
+			throw new InvalidAttributeValueException(INVALID_EMAILORUSERNAME_AD);
 		//Instantiate the connection
 		if(ldapContext==null)
 			ldapContext = getADConnection();
-
 		// Create the search controls         
 		SearchControls searchCtls = new SearchControls();
 		//Specify the attributes to return
-		searchCtls.setReturningAttributes(Constants.AD_SOPRA_ATTRIBUTES);
+		searchCtls.setReturningAttributes(AD_SOPRA_ATTRIBUTES);
 		//Specify the search scope
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
@@ -53,27 +55,24 @@ public class ADProfileDAO {
 		else
 			searchFilter = "(sAMAccountName=" + usernameEmail + ")";
 		// Search for objects using the filter
-		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_SOPRA_TREE, searchFilter, searchCtls);
+		NamingEnumeration<SearchResult> answer = ldapContext.search(AD_SOPRA_TREE, searchFilter, searchCtls);
+		ADProfile_Advanced adObj=new ADProfile_Advanced();
 
 		//Check the results retrieved
-		if (answer.hasMoreElements()) {
+		try {
 			SearchResult sr = (SearchResult) answer.next();
 			Attributes attrs = sr.getAttributes();
-			ADProfile_Advanced adObj=new ADProfile_Advanced();
 			
+			// Get the employee ID from extensionAttribute7.
+			// If this field doesn't exist then this email address cannot be handled
 			Attribute extensionAttribute7 = attrs.get("extensionAttribute7");
-			Object extensionAttribute7Object = extensionAttribute7.get();
-			String extensionAttribute7String = extensionAttribute7Object.toString();
-			String extensionAttribute7Substring = extensionAttribute7String.substring(1);
-			Long extensionAttribute7Long = Long.parseLong(extensionAttribute7Substring);
-			adObj.setEmployeeID(extensionAttribute7Long);
-			
-			//Extract the information from the AD and add it to our object
-//			adObj.setEmployeeID(Long.parseLong(attrs.get("extensionAttribute7").get().toString().substring(1)));
+			Long employeeId = Long.parseLong(extensionAttribute7.get().toString().substring(1));
+			adObj.setEmployeeID(employeeId);
 			
 			//Extract the GUID which is a hexadecimal number and must be converted before using it
 			UUID uid=UUID.nameUUIDFromBytes((byte[])attrs.get("objectGUID").get());
 			adObj.setGUID(uid.toString());
+			
 			adObj.setSurname((String)attrs.get("sn").get());
 			adObj.setForename((String)attrs.get("givenName").get());
 			adObj.setEmailAddress((String)attrs.get("mail").get());
@@ -88,24 +87,21 @@ public class ADProfileDAO {
 				//TO BE COMPLETED!!!
 				System.err.println(e.getMessage());
 			}
-			
+		} catch (NoSuchElementException | NullPointerException e) { //There is no matching user in the Active Directory
+			throw new InvalidAttributeValueException(NOTFOUND_EMAILORUSERNAME_AD + usernameEmail);
+		} finally {
 			//Close the connection with the AD
 			ldapContext.close();
 			ldapContext=null;
-			
-			return EmployeeDAO.matchADWithMongoData(adObj);
-		} else { //There is no a matching user in the Active Directory
-			//Close the connection with the AD
-			ldapContext.close();
-			ldapContext=null;
-			throw new InvalidAttributeValueException(Constants.NOTFOUND_EMAILORUSERNAME_AD + usernameEmail);
 		}
+		
+		return EmployeeDAO.matchADWithMongoData(adObj);
 	}
 
 	public static ADProfile_Basic verifyIfUserExists(long employeeID) throws NamingException, InvalidAttributeValueException{
 		//Verify the long
 		if(employeeID<1)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		//Instantiate the connection
 		if(ldapContext==null)
 			ldapContext = getADConnection();
@@ -114,13 +110,13 @@ public class ADProfileDAO {
 		// Create the search controls         
 		SearchControls searchCtls = new SearchControls();
 		//Specify the attributes to return
-		searchCtls.setReturningAttributes(Constants.AD_SOPRA_ATTRIBUTES);
+		searchCtls.setReturningAttributes(AD_SOPRA_ATTRIBUTES);
 		//Specify the search scope
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
 		String searchFilter="(extensionAttribute7=s" + employeeID + ")";
 		// Search for objects using the filter
-		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_SOPRA_TREE, searchFilter, searchCtls);
+		NamingEnumeration<SearchResult> answer = ldapContext.search(AD_SOPRA_TREE, searchFilter, searchCtls);
 
 		//Check the results retrieved
 		if(answer.hasMoreElements()){
@@ -131,13 +127,13 @@ public class ADProfileDAO {
 			if(!userName.equals(""))
 				return ADProfileDAO.authenticateUserProfile(userName);
 		}
-		throw new InvalidAttributeValueException(Constants.INVALID_IDMATCHUSERNAME+employeeID);
+		throw new InvalidAttributeValueException(INVALID_IDMATCHUSERNAME+employeeID);
 	}
 
 	public static String findEmployeeFullNameFromEmailAddress(String email) throws NamingException, InvalidAttributeValueException{
 		//Verify the given email address
 		if(email==null || email.length()<1)
-			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_MAIL);
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_MAIL);
 		//Instantiate the connection
 		if(ldapContext==null)
 			ldapContext = getADConnection();
@@ -145,7 +141,7 @@ public class ADProfileDAO {
 		// Create the search controls         
 		SearchControls searchCtls = new SearchControls();
 		//Specify the attributes to return
-		searchCtls.setReturningAttributes(Constants.AD_SOPRA_ATTRIBUTES);
+		searchCtls.setReturningAttributes(AD_SOPRA_ATTRIBUTES);
 		//Specify the search scope
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
@@ -153,7 +149,7 @@ public class ADProfileDAO {
 		String searchFilter = "(mail=" + email + ")";
 		
 		// Search for objects using the filter
-		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_SOPRA_TREE, searchFilter, searchCtls);
+		NamingEnumeration<SearchResult> answer = ldapContext.search(AD_SOPRA_TREE, searchFilter, searchCtls);
 
 		//Check the results retrieved
 		if(answer.hasMoreElements()){
@@ -170,13 +166,13 @@ public class ADProfileDAO {
 		//Close the connection with the AD
 		ldapContext.close();
 		ldapContext=null;
-		throw new InvalidAttributeValueException(Constants.INVALID_EMAIL_AD + email);
+		throw new InvalidAttributeValueException(INVALID_EMAIL_AD + email);
 	}
 	
 	public static String findEmployeeFullNameFromID(String id)throws InvalidAttributeValueException, NamingException{
 		//Verify the given ID
 		if(id==null || id.length()<1)
-			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
 		//Instantiate the connection
 		if(ldapContext==null)
 			ldapContext = getADConnection();
@@ -184,14 +180,14 @@ public class ADProfileDAO {
 		// Create the search controls         
 		SearchControls searchCtls = new SearchControls();
 		//Specify the attributes to return
-		searchCtls.setReturningAttributes(Constants.AD_SOPRA_ATTRIBUTES);
+		searchCtls.setReturningAttributes(AD_SOPRA_ATTRIBUTES);
 		//Specify the search scope
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
 		String searchFilter = "(extensionAttribute7=s" + id + ")";
 		
 		// Search for objects using the filter
-		NamingEnumeration<SearchResult> answer = ldapContext.search(Constants.AD_SOPRA_TREE, searchFilter, searchCtls);
+		NamingEnumeration<SearchResult> answer = ldapContext.search(AD_SOPRA_TREE, searchFilter, searchCtls);
 
 		//Check the results retrieved
 		if(answer.hasMoreElements()){
@@ -208,22 +204,22 @@ public class ADProfileDAO {
 		//Close the connection with the AD
 		ldapContext.close();
 		ldapContext=null;
-		throw new InvalidAttributeValueException(Constants.INVALID_IDMATCHUSERNAME + id);
+		throw new InvalidAttributeValueException(INVALID_IDMATCHUSERNAME + id);
 	}
 
 	private static DirContext getADConnection() throws NamingException{
 
 		Hashtable<String, String> ldapEnvironmentSettings = new Hashtable<String, String>();
 		ldapEnvironmentSettings.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		ldapEnvironmentSettings.put(Context.PROVIDER_URL,  Constants.AD_SOPRA_HOST+":"+Constants.AD_PORT);
-		ldapEnvironmentSettings.put(Context.SECURITY_AUTHENTICATION, Constants.AD_AUTHENTICATION);
+		ldapEnvironmentSettings.put(Context.PROVIDER_URL,  AD_SOPRA_HOST+":"+AD_PORT);
+		ldapEnvironmentSettings.put(Context.SECURITY_AUTHENTICATION, AD_AUTHENTICATION);
 
 		//This is essential in order to retrieve the user GUID later on in the process
 		ldapEnvironmentSettings.put("java.naming.ldap.attributes.binary", "objectGUID");
 
-		ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, Constants.AD_SOPRA_USERNAME);
+		ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, AD_SOPRA_USERNAME);
 		//ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, "cn="+Constants.AD_USERNAME+","+Constants.AD_TREE);
-		ldapEnvironmentSettings.put(Context.SECURITY_CREDENTIALS, Constants.AD_SOPRA_PASSWORD);
+		ldapEnvironmentSettings.put(Context.SECURITY_CREDENTIALS, AD_SOPRA_PASSWORD);
 		return new InitialDirContext(ldapEnvironmentSettings);
 	}
 }
