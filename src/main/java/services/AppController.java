@@ -285,6 +285,26 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
+	
+	@RequestMapping(value="/editObjectiveProgress/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> addNewVersionObjectiveToAUser(
+			@PathVariable("employeeID") long employeeID,
+			@RequestParam(value="objectiveID") int objectiveID,
+			@RequestParam(value="progress") int progress){
+		try{
+			boolean inserted=EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, progress);
+			if(inserted)
+				return ResponseEntity.ok("Objective modified correctly");
+			else
+				return ResponseEntity.badRequest().body("Error while editing the objective");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
 	/**
 	 * 
