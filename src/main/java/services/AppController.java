@@ -1,6 +1,9 @@
 package services;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 import javax.management.InvalidAttributeValueException;
@@ -630,7 +633,7 @@ public class AppController {
 
 			//check date is not in the past
 			YearMonth temp=YearMonth.parse(completedBy,Constants.YEAR_MONTH_FORMAT);
-			if(temp.isBefore(YearMonth.now())){
+			if(temp.isBefore(YearMonth.now(ZoneId.of(UK_TIMEZONE)))){
 				throw new InvalidAttributeValueException("Date can not be in the past");
 			}
 

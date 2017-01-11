@@ -1,5 +1,7 @@
 package dataStructure;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+
 import java.io.Serializable;
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -158,7 +160,7 @@ public class Note implements Serializable{
 	 */
 	private void setTimeStamp() {
 		if (timeStamp == null) {
-			timeStamp = LocalDateTime.now(ZoneId.of("Europe/London")).toString();			
+			timeStamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();			
 		}
 	}
 	

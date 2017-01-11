@@ -1,5 +1,7 @@
 package dataStructure;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -201,7 +203,7 @@ public class Objective implements Serializable{
 	private void setTimeStamp(){
 		//Check if the timeStamp has already a value assigned
 		if(timeStamp==null)
-			this.timeStamp=LocalDateTime.now(ZoneId.of("Europe/London")).toString();
+			this.timeStamp=LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
 	}
 
 	public String getTimeStamp(){
@@ -219,7 +221,7 @@ public class Objective implements Serializable{
 		}
 		
 		YearMonth temp=YearMonth.parse(date, Constants.YEAR_MONTH_FORMAT);
-		YearMonth now = YearMonth.now(ZoneId.of("Europe/London"));
+		YearMonth now = YearMonth.now(ZoneId.of(UK_TIMEZONE));
 		boolean pastDate = temp.isBefore(now);
 		
 		if (pastDate) {

@@ -13,6 +13,8 @@ import java.time.format.DateTimeFormatter;
  *
  */
 public final class Constants {
+	
+	public static final String UK_TIMEZONE = "Europe/London";
 
 	//Constants for the DataStructure package
 	public static final  int INVALID_INT=-1;
