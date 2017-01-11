@@ -57,7 +57,7 @@ public class ADProfileDAO {
 
 		//Check the results retrieved
 		if (answer.hasMoreElements()) {
-			SearchResult sr = (SearchResult)answer.next();
+			SearchResult sr = (SearchResult) answer.next();
 			Attributes attrs = sr.getAttributes();
 			ADProfile_Advanced adObj=new ADProfile_Advanced();
 			

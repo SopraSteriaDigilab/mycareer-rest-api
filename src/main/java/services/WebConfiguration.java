@@ -1,7 +1,5 @@
 package services;
 
-import static dataStructure.Constants.*;
-
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -13,7 +11,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import net.sourceforge.spnego.SpnegoHttpFilter;
@@ -21,6 +18,9 @@ import net.sourceforge.spnego.SpnegoHttpFilter;
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
 public class WebConfiguration extends OncePerRequestFilter {
+	
+	private static final String SPNEGO_USERNAME="mycareersvc";
+	private static final String SPNEGO_PASSWORD="Czam2mc2!";
 	
 	@Autowired
 	private Environment env;

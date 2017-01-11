@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
@@ -201,7 +202,7 @@ public class Objective implements Serializable{
 	private void setTimeStamp(){
 		//Check if the timeStamp has already a value assigned
 		if(timeStamp==null)
-			this.timeStamp=LocalDateTime.now().toString();
+			this.timeStamp=LocalDateTime.now(ZoneId.of("Europe/London")).toString();
 	}
 
 	public String getTimeStamp(){

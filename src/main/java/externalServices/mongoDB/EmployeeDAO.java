@@ -348,7 +348,7 @@ public class EmployeeDAO {
 			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
 	}
 
-	public static boolean addNewVersionObjective(long employeeID, int objectiveID, Object data) throws InvalidAttributeValueException{
+	public static boolean addNewVersionObjective(long employeeID, int objectiveID, Object data) throws InvalidAttributeValueException {
 		//Check EmployeeID and ObjectiveID
 		if(employeeID>0 && objectiveID>0){
 			if(data!=null && data instanceof Objective){
@@ -391,6 +391,7 @@ public class EmployeeDAO {
 		}
 		else
 			throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE_OR_EMPLOYEEID);
+		
 		return false;
 	}
 
@@ -662,7 +663,7 @@ public class EmployeeDAO {
 					dbConnection.save(employeeNewData);
 				}
 				//Return a smaller version of the current object to the user
-				return new ADProfile_Basic(userData.getEmployeeID(),userData.getSurname(), userData.getForename(), userData.getIsManager(), userData.getUsername());
+				return new ADProfile_Basic(userData.getEmployeeID(),userData.getSurname(), userData.getForename(), userData.getIsManager(), userData.getUsername(), userData.getEmailAddress());
 			}
 			else
 				throw new InvalidAttributeValueException(Constants.INVALID_USERGUID_NOTFOUND);
