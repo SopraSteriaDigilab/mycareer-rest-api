@@ -370,6 +370,7 @@ public class EmployeeDAO {
 		} else if (progress < -1 || progress > 2) {
 			throw new InvalidAttributeValueException(INVALID_CONTEXT_PROGRESS);
 		}
+		
 		boolean updated = false;
 		final Query<Employee> querySearch = getEmployeeQuery(employeeID);
 		final Employee employee = querySearch.get();
@@ -384,7 +385,7 @@ public class EmployeeDAO {
 				UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives", employee.getObjectiveList());
 				dbConnection.update(querySearch, ops);
 				updated = true;
-			}		
+			}
 		}
 		
 		return updated;

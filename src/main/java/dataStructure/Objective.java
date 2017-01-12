@@ -209,6 +209,13 @@ public class Objective implements Serializable{
 	public String getTimeStamp(){
 		return this.timeStamp;
 	}
+	
+	public boolean updateArchiveStatus(boolean isArchived) {
+		timeStamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+		this.isArchived = isArchived;
+		
+		return this.isArchived;
+	}
 
 	/**
 	 * 
@@ -220,11 +227,11 @@ public class Objective implements Serializable{
 			throw new InvalidAttributeValueException(Constants.INVALID_DATEFORMAT);
 		}
 		
-		YearMonth temp=YearMonth.parse(date, Constants.YEAR_MONTH_FORMAT);
+		YearMonth temp = YearMonth.parse(date, Constants.YEAR_MONTH_FORMAT);
 		YearMonth now = YearMonth.now(ZoneId.of(UK_TIMEZONE));
 		boolean pastDate = temp.isBefore(now);
 		
-		if (pastDate) {
+		if (!pastDate) {
 			timeToCompleteBy = date;
 		} else {
 			throw new InvalidAttributeValueException(Constants.INVALID_PASTDATE);
