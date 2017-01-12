@@ -541,6 +541,34 @@ public class EmployeeDAO {
 		else
 			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
 	}
+	
+	
+	public static boolean updateProgressDevelopmentNeed(long employeeID, int devNeedID, int progress) throws InvalidAttributeValueException {
+		if (employeeID < 1 || devNeedID < 1) {
+			throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
+		} else if (progress < -1 || progress > 2) {
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_PROGRESS);
+		}
+		
+		boolean updated = false;
+		final Query<Employee> querySearch = getEmployeeQuery(employeeID);
+		final Employee employee = querySearch.get();
+		final DevelopmentNeed devNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(devNeedID);
+		
+		if (devNeed.getProgress() == progress) {
+			updated = true;
+		} else {
+			devNeed.setProgress(progress);
+			
+			if (employee.editDevelopmentNeed(devNeed)) {
+				UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds", employee.getDevelopmentNeedsList());
+				dbConnection.update(querySearch, ops);
+				updated = true;
+			}
+		}
+		
+		return updated;
+	}
 
 	public static boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, Object data) throws InvalidAttributeValueException{
 		//Check EmployeeID and noteID

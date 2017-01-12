@@ -490,6 +490,27 @@ public class AppController {
 		}
 	}
 
+	
+	@RequestMapping(value="/editDevelopmentNeedProgress/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
+			@PathVariable("employeeID") long employeeID,
+			@RequestParam(value="devNeedID") int devNeedID,
+			@RequestParam(value="progress") int progress){
+		try{
+			boolean inserted=EmployeeDAO.updateProgressDevelopmentNeed(employeeID, devNeedID, progress);
+			if(inserted)
+				return ResponseEntity.ok("DevelopmentNeed modified correctly");
+			else
+				return ResponseEntity.badRequest().body("Error while editing the developmentNeed");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
 	/**
 	 * 
 	 * @param employeeID the employee ID (>0)
