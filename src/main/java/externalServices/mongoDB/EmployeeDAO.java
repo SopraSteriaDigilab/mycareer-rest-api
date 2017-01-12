@@ -1,5 +1,7 @@
 package externalServices.mongoDB;
 
+import static dataStructure.Constants.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,32 +47,46 @@ public class EmployeeDAO {
 	public EmployeeDAO(Datastore dbConnection) {
 		EmployeeDAO.dbConnection = dbConnection;
 	}
+	
+	private static Employee getEmployee(long employeeID) throws InvalidAttributeValueException {
+		final Employee employee = getEmployeeQuery(employeeID).get();
+	
+		if (employee == null) {
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+		}
+		
+		return employee;
+	}
+	
+	private static Query<Employee> getEmployeeQuery(long employeeID) {
+		return dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+	}
 
 	public static String getFullNameUser(long employeeID) throws InvalidAttributeValueException {
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		return queryRes.getFullName();
 	}
 
 	public static List<Objective> getObjectivesForUser(long employeeID) throws InvalidAttributeValueException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		return queryRes.getLatestVersionObjectives();
 	}
 
 	public static Objective getSpecificObjectiveForUser(long employeeID, int objectiveID) throws InvalidAttributeValueException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		return queryRes.getLatestVersionOfSpecificObjective(objectiveID);
 	}
 
 	public static List<Feedback> getFeedbackForUser(long employeeID) throws InvalidAttributeValueException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		List<Feedback> feedbackList = queryRes.getAllFeedback();
 		Collections.reverse(feedbackList);
 		return feedbackList;
@@ -95,7 +111,7 @@ public class EmployeeDAO {
 		//			//int num=aggregate.next();
 		//		}
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		List<Feedback> feedbackList = queryRes.getAllFeedback();
 		Feedback latest=feedbackList.get(feedbackList.size()-1);
 		return latest.getID();
@@ -104,14 +120,14 @@ public class EmployeeDAO {
 	public static List<Note> getNotesForUser(long employeeID) throws InvalidAttributeValueException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		return queryRes.getLatestVersionNotes();
 	}
 
 	public static List<DevelopmentNeed> getDevelopmentNeedsForUser(long employeeID) throws InvalidAttributeValueException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		
 		return queryRes.getLatestVersionDevelopmentNeeds();
 	}
@@ -119,7 +135,7 @@ public class EmployeeDAO {
 	public static List<GroupFeedbackRequest> getGroupFeedbackRequestsForUser(long employeeID) throws InvalidAttributeValueException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		List<GroupFeedbackRequest> requested=queryRes.getGroupFeedbackRequestsList();
 
 		//Each Feedback contained within the groupFeedbackRequest->feedbackRequest->feedback is not completed. 
@@ -145,7 +161,7 @@ public class EmployeeDAO {
 	public static Map<String, Map<Integer, String>> getIDTitlePairsDataStructure(long employeeID) throws InvalidAttributeValueException{
 		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 		if(query.get()==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		//Get the whole employee object
 		Employee e = query.get();
 		//Get the latest version of all the user objectives
@@ -213,28 +229,28 @@ public class EmployeeDAO {
 	public static String getUserFullNameFromUserID(long employeeID) throws InvalidAttributeValueException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		return queryRes.getFullName();
 	}
 
 	public static long getUserIDFromEmailAddress(String email) throws InvalidAttributeValueException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("emailAddress =", email).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_USEREMAIL);
+			throw new InvalidAttributeValueException(INVALID_USEREMAIL);
 		return queryRes.getEmployeeID();
 	}
 
 	public static String getUserEmailAddressFromID(long employeeID) throws InvalidAttributeValueException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		return queryRes.getEmailAddress();
 	}
 
 	public static String getAllUserDataFromID(long employeeID) throws InvalidAttributeValueException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		return queryRes.toString();
 	}
 
@@ -242,7 +258,7 @@ public class EmployeeDAO {
 	public static List<Competency> getCompetenciesForUser(long employeeID) throws InvalidAttributeValueException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		return queryRes.getLatestVersionCompetencies();
 	}
 
@@ -250,7 +266,7 @@ public class EmployeeDAO {
 	public static List<ADProfile_Basic> getReporteesForUser(long employeeID) throws InvalidAttributeValueException, NamingException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 
 		List<ADProfile_Basic> reporteeList = new ArrayList<>();
 
@@ -293,16 +309,16 @@ public class EmployeeDAO {
 						return true;
 					}
 					else
-						throw new InvalidAttributeValueException(Constants.OBJECTIVE_NOTADDED_ERROR);
+						throw new InvalidAttributeValueException(OBJECTIVE_NOTADDED_ERROR);
 				}
 				else
-					throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 			}
 			else
-				throw new InvalidAttributeValueException(Constants.NULL_OBJECTIVE);
+				throw new InvalidAttributeValueException(NULL_OBJECTIVE);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
 	}
 
 	public static boolean insertNewGeneralFeedback(long employeeID, Object data)throws InvalidAttributeValueException, MongoException{
@@ -318,7 +334,7 @@ public class EmployeeDAO {
 					//Verify if the feedback is already within the user DB to avoid adding duplicated feedback
 					for(Feedback f:dataFromDB){
 						if(f.compare((Feedback)data))
-							throw new InvalidAttributeValueException(Constants.DUPLICATE_FEEDBACK);
+							throw new InvalidAttributeValueException(DUPLICATE_FEEDBACK);
 					}
 					Feedback temp=(Feedback)data;
 					try{
@@ -336,19 +352,46 @@ public class EmployeeDAO {
 						return true;
 					}
 					else
-						throw new InvalidAttributeValueException(Constants.FEEDBACK_NOTADDED_ERROR);
+						throw new InvalidAttributeValueException(FEEDBACK_NOTADDED_ERROR);
 				}
 				else
-					throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 			}
 			else
-				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
+				throw new InvalidAttributeValueException(INVALID_FEEDBACK);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
+	}
+	
+	public static boolean updateProgressObjective(long employeeID, int objectiveID, int progress) throws InvalidAttributeValueException {
+		if (employeeID < 1 || objectiveID < 1) {
+			throw new InvalidAttributeValueException(INVALID_OBJECTIVE_OR_EMPLOYEEID);
+		} else if (progress < -1 || progress > 2) {
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_PROGRESS);
+		}
+		
+		boolean updated = false;
+		final Query<Employee> querySearch = getEmployeeQuery(employeeID);
+		final Employee employee = querySearch.get();
+		final Objective objective = employee.getLatestVersionOfSpecificObjective(objectiveID);
+		
+		if (objective.getProgress() == progress) {
+			updated = true;
+		} else {
+			objective.setProgress(progress);
+			
+			if (employee.editObjective(objective)) {
+				UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives", employee.getObjectiveList());
+				dbConnection.update(querySearch, ops);
+				updated = true;
+			}
+		}
+		
+		return updated;
 	}
 
-	public static boolean addNewVersionObjective(long employeeID, int objectiveID, Object data) throws InvalidAttributeValueException{
+	public static boolean addNewVersionObjective(long employeeID, int objectiveID, Object data) throws InvalidAttributeValueException {
 		//Check EmployeeID and ObjectiveID
 		if(employeeID>0 && objectiveID>0){
 			if(data!=null && data instanceof Objective){
@@ -381,16 +424,17 @@ public class EmployeeDAO {
 					}
 					//if the index hasn't changed its value it means that there is no objective with such ID, therefore throw and exception
 					else
-						throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVEID);
+						throw new InvalidAttributeValueException(INVALID_OBJECTIVEID);
 				}
 				else
-					throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 			}
 			else
-				throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE);
+				throw new InvalidAttributeValueException(INVALID_OBJECTIVE);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE_OR_EMPLOYEEID);
+			throw new InvalidAttributeValueException(INVALID_OBJECTIVE_OR_EMPLOYEEID);
+		
 		return false;
 	}
 
@@ -411,16 +455,16 @@ public class EmployeeDAO {
 						return true;
 					}
 					else
-						throw new InvalidAttributeValueException(Constants.NOTE_NOTADDED_ERROR);
+						throw new InvalidAttributeValueException(NOTE_NOTADDED_ERROR);
 				}
 				else
-					throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 			}
 			else
-				throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
+				throw new InvalidAttributeValueException(INVALID_NOTE);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
 	}
 
 	public static boolean addNewVersionNote(long employeeID, int noteID, Object data) throws InvalidAttributeValueException{
@@ -456,16 +500,16 @@ public class EmployeeDAO {
 					}
 					//if the index hasn't changed its value it means that there is no note with such ID, therefore throw and exception
 					else
-						throw new InvalidAttributeValueException(Constants.INVALID_NOTEID);
+						throw new InvalidAttributeValueException(INVALID_NOTEID);
 				}
 				else
-					throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 			}
 			else
-				throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
+				throw new InvalidAttributeValueException(INVALID_NOTE);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_NOTE_OR_EMPLOYEEID);
+			throw new InvalidAttributeValueException(INVALID_NOTE_OR_EMPLOYEEID);
 		return false;
 	}
 
@@ -486,16 +530,16 @@ public class EmployeeDAO {
 						return true;
 					}
 					else
-						throw new InvalidAttributeValueException(Constants.DEVELOPMENTNEED_NOTADDED_ERROR);
+						throw new InvalidAttributeValueException(DEVELOPMENTNEED_NOTADDED_ERROR);
 				}
 				else
-					throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 			}
 			else
-				throw new InvalidAttributeValueException(Constants.INVALID_DEVNEED_CONTEXT);
+				throw new InvalidAttributeValueException(INVALID_DEVNEED_CONTEXT);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
 	}
 
 	public static boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, Object data) throws InvalidAttributeValueException{
@@ -531,16 +575,16 @@ public class EmployeeDAO {
 					}
 					//if the index hasn't changed its value it means that there is no development need with such ID, therefore throw and exception
 					else
-						throw new InvalidAttributeValueException(Constants.INVALID_DEVNEEDID_CONTEXT);
+						throw new InvalidAttributeValueException(INVALID_DEVNEEDID_CONTEXT);
 				}
 				else
-					throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 			}
 			else
-				throw new InvalidAttributeValueException(Constants.INVALID_DEVNEED_CONTEXT);
+				throw new InvalidAttributeValueException(INVALID_DEVNEED_CONTEXT);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_DEVNEED_OR_EMPLOYEEID);
+			throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
 		return false;
 	}
 
@@ -561,16 +605,16 @@ public class EmployeeDAO {
 						return true;
 					}
 					else
-						throw new InvalidAttributeValueException(Constants.GROUPFBREQ_NOTADDED_ERROR);
+						throw new InvalidAttributeValueException(GROUPFBREQ_NOTADDED_ERROR);
 				}
 				else
-					throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 			}
 			else
-				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_CONTEXT);
+				throw new InvalidAttributeValueException(INVALID_FEEDBACKREQ_CONTEXT);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
 	}
 
 	public static boolean validateGroupFeedbackRequestID(long employeeID, String id) throws InvalidAttributeValueException{
@@ -589,11 +633,11 @@ public class EmployeeDAO {
 				return true;
 			}
 			else{
-				throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+				throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 			}
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_FBREQ_OR_EMPLOYEEID);
+			throw new InvalidAttributeValueException(INVALID_FBREQ_OR_EMPLOYEEID);
 	}
 
 	/**
@@ -623,13 +667,13 @@ public class EmployeeDAO {
 					}
 				}
 				else
-					throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 			}
 			else
-				throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCY_CONTEXT);
+				throw new InvalidAttributeValueException(INVALID_COMPETENCY_CONTEXT);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCY_OR_EMPLOYEEID);
+			throw new InvalidAttributeValueException(INVALID_COMPETENCY_OR_EMPLOYEEID);
 		return false;
 	}
 
@@ -662,13 +706,13 @@ public class EmployeeDAO {
 					dbConnection.save(employeeNewData);
 				}
 				//Return a smaller version of the current object to the user
-				return new ADProfile_Basic(userData.getEmployeeID(),userData.getSurname(), userData.getForename(), userData.getIsManager(), userData.getUsername());
+				return new ADProfile_Basic(userData.getEmployeeID(),userData.getSurname(), userData.getForename(), userData.getIsManager(), userData.getUsername(), userData.getEmailAddress());
 			}
 			else
-				throw new InvalidAttributeValueException(Constants.INVALID_USERGUID_NOTFOUND);
+				throw new InvalidAttributeValueException(INVALID_USERGUID_NOTFOUND);
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.NULL_USER_DATA);
+			throw new InvalidAttributeValueException(NULL_USER_DATA);
 	}
 
 	public static boolean linkFeedbackReqReplyToUserGroupFBReq(String requester, String fbReqID, Feedback data) throws InvalidAttributeValueException, NamingException{
@@ -706,7 +750,7 @@ public class EmployeeDAO {
 					boolean res3=e.updateGroupFeedbackRequest(groupFBReq);
 					//Verify if the operations have been completed successfully
 					if(!res1 || !res2 || !res3)
-						throw new InvalidAttributeValueException(Constants.ERROR_LINKING_FBTOUSER+basicProfile.getEmployeeID());
+						throw new InvalidAttributeValueException(ERROR_LINKING_FBTOUSER+basicProfile.getEmployeeID());
 					//Update the data in the DB
 					UpdateOperations<Employee> ops2 = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", e.getGroupFeedbackRequestsList());
 					//Commit the changes to the DB
@@ -731,13 +775,13 @@ public class EmployeeDAO {
 			//else{}
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
+			throw new InvalidAttributeValueException(INVALID_FEEDBACK);
 		return false;
 	}
 
 		public static String removeFeedbackReqFromUser(String reqID, long empID) throws InvalidAttributeValueException{
 			if(reqID.length()<0 || empID<0)
-				throw new InvalidAttributeValueException(Constants.INVALID_FBREQ_OR_EMPLOYEEID);
+				throw new InvalidAttributeValueException(INVALID_FBREQ_OR_EMPLOYEEID);
 			//Get the user from the DB
 			Employee querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", empID).get();
 			if(querySearch!=null){
@@ -748,10 +792,10 @@ public class EmployeeDAO {
 					dbConnection.update(querySearch, ops1);
 					return emailRes;
 				}
-				throw new InvalidAttributeValueException(Constants.NOTDELETED_FBREQ);
+				throw new InvalidAttributeValueException(NOTDELETED_FBREQ);
 			}
 			else{
-				throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+				throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 			}
 		}
 	
@@ -769,11 +813,11 @@ public class EmployeeDAO {
 //					//.writeConcern(WriteConcern.ACKNOWLEDGED)
 //					.build();
 //			//Server details
-//			ServerAddress srvAddr = new ServerAddress(Constants.MONGODB_HOST, Constants.MONGODB_PORT);
+//			ServerAddress srvAddr = new ServerAddress(MONGODB_HOST, MONGODB_PORT);
 //			List<ServerAddress> serverList=new ArrayList<>();
 //			serverList.add(srvAddr);
 //			//Setup the credentials
-//			MongoCredential credentials= MongoCredential.createCredential(Constants.MONGODB_USERNAME, Constants.MONGODB_DB_NAME, Constants.MONGODB_PASSWORD.toCharArray());
+//			MongoCredential credentials= MongoCredential.createCredential(MONGODB_USERNAME, MONGODB_DB_NAME, MONGODB_PASSWORD.toCharArray());
 //			List<MongoCredential> credentialList=new ArrayList<>();
 //			credentialList.add(credentials);
 //			//Instantiate mongo client and Morphia
@@ -781,9 +825,9 @@ public class EmployeeDAO {
 //			//final Morphia morphia =new Morphia();
 //			//Add packages to Morphia and open the connection
 //			//morphia.mapPackage("dataStructure.Employee");
-//			//dbConnection=morphia.createDatastore(client, Constants.MONGODB_DB_NAME);
+//			//dbConnection=morphia.createDatastore(client, MONGODB_DB_NAME);
 //			//dbConnection.ensureIndexes();
-//			MongoDatabase db=client.getDatabase(Constants.MONGODB_DB_NAME);
+//			MongoDatabase db=client.getDatabase(MONGODB_DB_NAME);
 //			//dbConnection=db.getCollection("employeeDataDev");
 //		}
 //		return dbConnection;
@@ -809,13 +853,13 @@ public class EmployeeDAO {
 //		
 //		
 //		//coll.find().filter("employeeID =", employeeID).get();
-//		//DBCollection coll=dbConnection.getCollection(Constants.MONGODB_DB_NAME);
+//		//DBCollection coll=dbConnection.getCollection(MONGODB_DB_NAME);
 //		//FindIterable<Document> doc=coll.find(new Document("",new Document("",""))).projection(new Document("surname",1)).projection(new Document("forename",1))
 //		
 //		//dbConnection.find(Filters.eq("employeeID", 676783), "{surname: 1, forename: 1, _id: 0}");
 //		//Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 ////		if(queryRes==null)
-////			throw new InvalidAttributeValueException(Constants.INVALID_IDNOTFOND);
+////			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 ////		return queryRes.getFullName();
 //		
 //		return "";

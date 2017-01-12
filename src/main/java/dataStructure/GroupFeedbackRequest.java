@@ -1,7 +1,10 @@
 package dataStructure;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
@@ -32,7 +35,7 @@ public class GroupFeedbackRequest implements Serializable{//, Iterable<FeedbackR
 	}
 	
 	private void setID(long id){
-		LocalDateTime date=LocalDateTime.now();
+		LocalDateTime date=LocalDateTime.now(ZoneId.of(UK_TIMEZONE));
 		//Remove all the symbols that we don't need
 		String dateS=date.toString().replace("-", "").replace("T", "").replace(":", "").replace(".", "");
 		this.id=id+"_"+dateS;

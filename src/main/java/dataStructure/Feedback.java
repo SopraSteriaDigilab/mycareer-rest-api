@@ -1,7 +1,11 @@
 package dataStructure;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.annotations.Embedded;
 import com.google.gson.Gson;
@@ -173,7 +177,7 @@ public class Feedback implements Serializable{
 	 */
 	private void setTimeStamp(){
 		if(this.timeStamp==null)
-			this.timeStamp=LocalDateTime.now().toString();
+			this.timeStamp=LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
 	}
 
 	public String getTimeStamp(){
