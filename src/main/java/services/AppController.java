@@ -6,6 +6,10 @@ import java.util.Set;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,14 +43,13 @@ import externalServices.mongoDB.EmployeeDAO;
 @CrossOrigin
 @RestController
 public class AppController {
-
+	
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public ResponseEntity<?> welcomePage(){
 		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
 	}
 	
 	@RequestMapping(value="/logMeIn", produces={"text/html"}, method=RequestMethod.GET)
-//	@RequestMapping(value="/logMeIn", method=RequestMethod.GET)
 	public @ResponseBody String index(HttpServletRequest request) {
 		return request.getRemoteUser();
 	}
