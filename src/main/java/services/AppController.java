@@ -1,6 +1,9 @@
 package services;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 import javax.management.InvalidAttributeValueException;
@@ -285,6 +288,26 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
+	
+	@RequestMapping(value="/editObjectiveProgress/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> addNewVersionObjectiveToAUser(
+			@PathVariable("employeeID") long employeeID,
+			@RequestParam(value="objectiveID") int objectiveID,
+			@RequestParam(value="progress") int progress){
+		try{
+			boolean inserted=EmployeeDAO.updateProgressObjective(employeeID, objectiveID, progress);
+			if(inserted)
+				return ResponseEntity.ok("Objective modified correctly");
+			else
+				return ResponseEntity.badRequest().body("Error while editing the objective");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
 	/**
 	 * 
@@ -303,21 +326,26 @@ public class AppController {
 		try{
 			//Retrieve the object with the given ID from the DB data
 			Objective obj=EmployeeDAO.getSpecificObjectiveForUser(employeeID, objectiveID);
-			if(obj.getIsArchived()==isArchived)
+			if(obj.getIsArchived()==isArchived) {
 				return ResponseEntity.ok("The status of the objective has not changed");
-			//Create a new object which stores the data from the retrieved element but sets a new timestamp to it
-			Objective newObjUpdated=new Objective(obj);			
-			newObjUpdated.setIsArchived(isArchived); 
-			//Store the new version to the system
-			boolean inserted=EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, newObjUpdated);
-			if(inserted){
-				if(isArchived)
-					return ResponseEntity.ok("The objective has been archived");
-				else
-					return ResponseEntity.ok("The objective has been restored");
 			}
-			else
+//			//Create a new object which stores the data from the retrieved element but sets a new timestamp to it
+//			Objective newObjUpdated=new Objective(obj);
+//			newObjUpdated.setIsArchived(isArchived);
+			
+			boolean updatedArchiveStatus = obj.updateArchiveStatus(isArchived);
+			
+			//Store the new version to the system
+			boolean inserted = EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj);
+			if(inserted) {
+				if(updatedArchiveStatus) {
+					return ResponseEntity.ok("The objective has been archived");
+				} else {
+					return ResponseEntity.ok("The objective has been restored");
+				}
+			} else {
 				return ResponseEntity.badRequest().body("Error while editing the objective");
+			}
 		}
 		catch(MongoException me){
 			return ResponseEntity.badRequest().body("DataBase Connection Error");
@@ -610,7 +638,7 @@ public class AppController {
 
 			//check date is not in the past
 			YearMonth temp=YearMonth.parse(completedBy,Constants.YEAR_MONTH_FORMAT);
-			if(temp.isBefore(YearMonth.now())){
+			if(temp.isBefore(YearMonth.now(ZoneId.of(UK_TIMEZONE)))){
 				throw new InvalidAttributeValueException("Date can not be in the past");
 			}
 

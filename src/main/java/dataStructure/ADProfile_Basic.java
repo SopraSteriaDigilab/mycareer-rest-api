@@ -21,6 +21,7 @@ public class ADProfile_Basic implements Serializable{
 	//Global Variables
 	private long employeeID;
 	private String surname, forename, username;
+	private String emailAddress;
 	private boolean isManager;
 	
 	//Empty Constructor
@@ -29,18 +30,36 @@ public class ADProfile_Basic implements Serializable{
 		this.forename=Constants.INVALID_STRING;
 		this.employeeID=Constants.INVALID_INT;
 		this.username=Constants.INVALID_STRING;
+		this.emailAddress=Constants.INVALID_STRING;
 		this.isManager=false;
 	}
 	
 	//Constructor with parameters
-	public ADProfile_Basic(long employeeID, String surname, String forename, boolean manager, String username) throws InvalidAttributeValueException{
+	public ADProfile_Basic(long employeeID, String surname, String forename, boolean manager, String username, String emailAddress) throws InvalidAttributeValueException{
 		this.setSurname(surname);
 		this.setForename(forename);
 		this.setEmployeeID(employeeID);
 		this.setUsername(username);
+		this.setEmailAddress(emailAddress);
 		this.isManager=manager;
 	}
-	
+
+	/**
+	 * 
+	 * @param email The user email address
+	 * @throws InvalidAttributeValueException
+	 */
+	public void setEmailAddress(String email) throws InvalidAttributeValueException{
+		if(email!=null && email.length()>0 && email.contains("@"))
+			this.emailAddress=email;
+		else
+			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_GUID);
+	}
+
+	public String getEmailAddress(){
+		return this.emailAddress;
+	}
+
 	public void setEmployeeID(long id) throws InvalidAttributeValueException{
 		if(id>0)
 			this.employeeID=id;

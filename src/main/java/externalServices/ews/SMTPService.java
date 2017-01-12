@@ -1,5 +1,7 @@
 package externalServices.ews;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -7,6 +9,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import javax.management.InvalidAttributeValueException;
@@ -52,7 +55,7 @@ public final class SMTPService {
 	
 	public static synchronized boolean tryToSendFeedbackRequest (int counter, long employeeID, String notes, String... mailTo) throws Exception{
 		try{
-			System.out.println("\t"+LocalTime.now()+" - Sending Feedback Request/s. Attempt "+ counter +"/2");
+			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Sending Feedback Request/s. Attempt "+ counter +"/2");
 			return createFeedbackRequest(employeeID, notes, mailTo);
 		}
 		catch (InvalidAttributeValueException e) {
@@ -60,11 +63,11 @@ public final class SMTPService {
 		}
 		catch(ServiceRequestException reqFailed){
 			if(counter<2){
-				System.out.println("\t"+LocalTime.now()+" - The Request Failed by the Exchange Server, The system is trying to recovering from this error. Attempt "+ counter++ +"/2");
+				System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - The Request Failed by the Exchange Server, The system is trying to recovering from this error. Attempt "+ counter++ +"/2");
 				tryToSendFeedbackRequest(counter, employeeID, notes, mailTo);
 			}
 			else{
-				System.out.println("\t"+LocalTime.now()+" - Maximum number of attempts reached.");
+				System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Maximum number of attempts reached.");
 				//Fill the email with the error details and contact the administrator
 				String subject="Email Service Error";
 				String body="There has been a problem with the email service.\n\n"+reqFailed.toString()+"\n\nRegards,\nMyCareer Team\n\n";
@@ -87,7 +90,7 @@ public final class SMTPService {
 
 
 			//Open a connection with the Email Server
-			System.out.println("\t"+LocalTime.now()+" - Establishing a connection with the Mail Server");
+			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Establishing a connection with the Mail Server");
 			initiateSMTPConnection();
 
 
@@ -123,13 +126,13 @@ public final class SMTPService {
 
 
 			//Create a GroupFeedbackRequest object with an unique ID to the employee
-			System.out.println("\t"+LocalTime.now()+" - Creating a Feedback Request");
+			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Creating a Feedback Request");
 			GroupFeedbackRequest groupRequest=new GroupFeedbackRequest(employeeID);
 
 			//PART 5
 
 
-			System.out.println("\t"+LocalTime.now()+" - Sending the Request/s");
+			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Sending the Request/s");
 			//Send a feedback requests, now that the incorrect email addresses have been removed
 			List<String> tempEmailAddressSendingList=new ArrayList<>();
 			String tempEmailAddressSending="";
@@ -160,12 +163,12 @@ public final class SMTPService {
 				String body="There has been a problem while loading the template for a feedback request.\n\n"+invalidE+"\n\nRegards,\nMyCareer Team\n\n";
 				contactAdministrator(subject, body);
 				
-				System.out.println("\t"+LocalTime.now()+" - Error Loading the Template, Admin has been contacted");
+				System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Error Loading the Template, Admin has been contacted");
 				throw new InvalidAttributeValueException("Error while loading the template, Operation Interrupted.\nThe Administrator has been contacted");
 			}
 			//Catch all the error regarding the email service and send an email to the system administrator when such error happens
 			catch(ServiceRequestException serviceE){
-				System.out.println("\t"+LocalTime.now()+" - Email Service Error, Admin has been contacted");
+				System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Email Service Error, Admin has been contacted");
 				throw new ServiceRequestException("Email Service Error: "+serviceE.getMessage());
 			}
 			catch(NullPointerException ne){
@@ -174,7 +177,7 @@ public final class SMTPService {
 			catch(Exception e){
 				//If an exception happens, the email address is incorrect, move it to the invalid list
 				tempEmailAddressSendingList.add(tempEmailAddressSending);
-				System.out.println("\t"+LocalTime.now()+" - Error: "+e.getMessage());
+				System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Error: "+e.getMessage());
 			}
 
 			//PART 6
@@ -193,13 +196,13 @@ public final class SMTPService {
 
 			//Link the group feedback request to the requester
 			if(!EmployeeDAO.insertNewGroupFeedbackRequest(employeeID, groupRequest))
-				System.out.println("\t"+LocalTime.now()+" - A Group Feedback request has been sent, however it could not be saved onto the permanent storage!"+groupRequest.toString());
+				System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - A Group Feedback request has been sent, however it could not be saved onto the permanent storage!"+groupRequest.toString());
 
 			
 			//PART 8
 
 
-			System.out.println("\t"+LocalTime.now()+" - Sending a confirmation email");
+			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Sending a confirmation email");
 			//Send confirmation email to feedback requester
 			EmailMessage msg= new EmailMessage(emailService);
 			msg.setSubject("Feedback Request Sent");
@@ -225,7 +228,7 @@ public final class SMTPService {
 			//PART 9
 
 
-			System.out.println("\t"+LocalTime.now()+" - Task completed");
+			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Task completed");
 			return true;
 		}
 		catch(ServiceRequestException se){
@@ -258,22 +261,27 @@ public final class SMTPService {
 		MessageBody mb=new MessageBody();
 		String body="";
 		//Read in the content from the template file stored in the externalData package
-		try{
-			@SuppressWarnings("resource")
-//			BufferedReader inputFile=new BufferedReader(new FileReader("src/main/java/emailServices/FeedbackRequestBody_Template.txt"));
-			BufferedReader inputFile=new BufferedReader(new FileReader("/home/mycareer/mycareer/dev/web-api/FeedbackRequestBody_Template.txt"));
+		try (final BufferedReader inputFile =
+				new BufferedReader(
+				new FileReader("/home/mycareer/mycareer/dev/web-api/FeedbackRequestBody_Template.txt"));) {			
+			
 			String line="";
-			while((line=inputFile.readLine())!=null){
+			
+			while ((line=inputFile.readLine()) != null) {
+			
 				if(line.contains("[FeedbackRequester_name]")){
 					line=line.replace("[FeedbackRequester_name]", requester);
 				}
-				if(line.contains("[FeedbackRequest_Comments]")){
-					if(!notes.trim().equals(""))
+				
+				if (line.contains("[FeedbackRequest_Comments]")) {
+					if (!notes.trim().equals("")) {
 						line=line.replace("[FeedbackRequest_Comments]", notes);
-					else
+					} else {
 						line="No Comment Added";
+					}
 				}
-				body+=line+"\n";
+				
+				body += line + "\n";
 			}
 			//Add the request ID at last
 			body+=reqID;
