@@ -1,7 +1,13 @@
 package dataStructure;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+
 import java.io.Serializable;
+import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.annotations.Embedded;
 import com.google.gson.Gson;
@@ -152,12 +158,13 @@ public class Note implements Serializable{
 	 * This method saves the current DateTime inside the timeStamp object only if the object does not
 	 * contain anything yet
 	 */
-	private void setTimeStamp(){
-		if(this.timeStamp==null)
-			this.timeStamp=LocalDateTime.now().toString();
+	private void setTimeStamp() {
+		if (timeStamp == null) {
+			timeStamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();			
+		}
 	}
 	
-	public String getTimeStamp(){
+	public String getTimeStamp() {
 		return this.timeStamp;
 	}
 	

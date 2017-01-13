@@ -1,9 +1,13 @@
 package dataStructure;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
+
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.annotations.Embedded;
 import com.google.gson.Gson;
@@ -150,7 +154,7 @@ public class DevelopmentNeed implements Serializable{
 	private void setTimeStamp(){
 		//Check if the timeStamp has already a value assigned
 		if(timeStamp==null)
-			this.timeStamp=LocalDateTime.now().toString();
+			this.timeStamp=LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
 	}
 
 	public String getTimeStamp(){
@@ -168,8 +172,8 @@ public class DevelopmentNeed implements Serializable{
 			YearMonth temp=YearMonth.parse(date,Constants.YEAR_MONTH_FORMAT);
 			//Verify that the month and year inserted are greater than the current month and year
 			//Every year has 12 months, so if the values are 2017 and 2016 the difference will be 1 which is 12 months
-			int yearDifference=(temp.getYear()-LocalDate.now().getYear())*12;
-			int monthDifference=temp.getMonthValue()-LocalDate.now().getMonthValue();
+			int yearDifference=(temp.getYear()-LocalDate.now(ZoneId.of(UK_TIMEZONE)).getYear())*12;
+			int monthDifference=temp.getMonthValue()-LocalDate.now(ZoneId.of(UK_TIMEZONE)).getMonthValue();
 			//Sum these 2 values up and if the result is <0, the date is in the past which is invalid
 			int totalMonthsApart=yearDifference+monthDifference;
 			if(totalMonthsApart>=0)

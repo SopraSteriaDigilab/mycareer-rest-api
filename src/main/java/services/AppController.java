@@ -1,11 +1,16 @@
 package services;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.mongodb.MongoException;
 
 import dataStructure.ADProfile_Basic;
@@ -39,14 +45,13 @@ import externalServices.mongoDB.EmployeeDAO;
 @CrossOrigin
 @RestController
 public class AppController {
-
+	
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public ResponseEntity<?> welcomePage(){
 		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
 	}
 	
 	@RequestMapping(value="/logMeIn", produces={"text/html"}, method=RequestMethod.GET)
-//	@RequestMapping(value="/logMeIn", method=RequestMethod.GET)
 	public @ResponseBody String index(HttpServletRequest request) {
 		return request.getRemoteUser();
 	}
@@ -282,6 +287,26 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
+	
+	@RequestMapping(value="/editObjectiveProgress/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> addNewVersionObjectiveToAUser(
+			@PathVariable("employeeID") long employeeID,
+			@RequestParam(value="objectiveID") int objectiveID,
+			@RequestParam(value="progress") int progress){
+		try{
+			boolean inserted=EmployeeDAO.updateProgressObjective(employeeID, objectiveID, progress);
+			if(inserted)
+				return ResponseEntity.ok("Objective modified correctly");
+			else
+				return ResponseEntity.badRequest().body("Error while editing the objective");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
 	/**
 	 * 
@@ -300,21 +325,26 @@ public class AppController {
 		try{
 			//Retrieve the object with the given ID from the DB data
 			Objective obj=EmployeeDAO.getSpecificObjectiveForUser(employeeID, objectiveID);
-			if(obj.getIsArchived()==isArchived)
+			if(obj.getIsArchived()==isArchived) {
 				return ResponseEntity.ok("The status of the objective has not changed");
-			//Create a new object which stores the data from the retrieved element but sets a new timestamp to it
-			Objective newObjUpdated=new Objective(obj);			
-			newObjUpdated.setIsArchived(isArchived); 
-			//Store the new version to the system
-			boolean inserted=EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, newObjUpdated);
-			if(inserted){
-				if(isArchived)
-					return ResponseEntity.ok("The objective has been archived");
-				else
-					return ResponseEntity.ok("The objective has been restored");
 			}
-			else
+//			//Create a new object which stores the data from the retrieved element but sets a new timestamp to it
+//			Objective newObjUpdated=new Objective(obj);
+//			newObjUpdated.setIsArchived(isArchived);
+			
+			boolean updatedArchiveStatus = obj.updateArchiveStatus(isArchived);
+			
+			//Store the new version to the system
+			boolean inserted = EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj);
+			if(inserted) {
+				if(updatedArchiveStatus) {
+					return ResponseEntity.ok("The objective has been archived");
+				} else {
+					return ResponseEntity.ok("The objective has been restored");
+				}
+			} else {
 				return ResponseEntity.badRequest().body("Error while editing the objective");
+			}
 		}
 		catch(MongoException me){
 			return ResponseEntity.badRequest().body("DataBase Connection Error");
@@ -459,6 +489,27 @@ public class AppController {
 		}
 	}
 
+	
+	@RequestMapping(value="/editDevelopmentNeedProgress/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
+			@PathVariable("employeeID") long employeeID,
+			@RequestParam(value="devNeedID") int devNeedID,
+			@RequestParam(value="progress") int progress){
+		try{
+			boolean inserted=EmployeeDAO.updateProgressDevelopmentNeed(employeeID, devNeedID, progress);
+			if(inserted)
+				return ResponseEntity.ok("DevelopmentNeed modified correctly");
+			else
+				return ResponseEntity.badRequest().body("Error while editing the developmentNeed");
+		}
+		catch(MongoException me){
+			return ResponseEntity.badRequest().body("DataBase Connection Error");
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
 	/**
 	 * 
 	 * @param employeeID the employee ID (>0)
@@ -482,7 +533,7 @@ public class AppController {
 			int attemptsCounter=1;
 			boolean done=SMTPService.tryToSendFeedbackRequest(attemptsCounter, employeeID, notes, emailAddressesToField);
 			if(done)
-				return ResponseEntity.ok("Feedback request sent. A Confirmation Email is on its way");
+				return ResponseEntity.ok("Your feedback request has been processed.");
 			else
 				return ResponseEntity.badRequest().body("Error while creating a feedback request");
 		}
@@ -607,7 +658,7 @@ public class AppController {
 
 			//check date is not in the past
 			YearMonth temp=YearMonth.parse(completedBy,Constants.YEAR_MONTH_FORMAT);
-			if(temp.isBefore(YearMonth.now())){
+			if(temp.isBefore(YearMonth.now(ZoneId.of(UK_TIMEZONE)))){
 				throw new InvalidAttributeValueException("Date can not be in the past");
 			}
 
