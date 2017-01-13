@@ -209,27 +209,27 @@ public final class SMTPService {
 			//PART 8
 
 
-			logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Sending a confirmation email");
-			//Send confirmation email to feedback requester
-			EmailMessage msg= new EmailMessage(emailService);
-			msg.setSubject("Feedback Request Sent");
-			//Fill the email with the error details
-			String bodyMsg="Hi, "+fullNameEmployeeRequester+"\n\nThank you for using MyCareer to request feedback.\n\n";
-			if(validEmailAddressesList.size()>0){
-				bodyMsg+="A feedback request has been successfully sent to the following addresses:\n";
-				bodyMsg+=getStringFromListEmails(validEmailAddressesList)+"\n";
-			}
-			if(invalidEmailAddressesList.size()>0){
-				bodyMsg+="The following email addresses are invalid, therefore no feedback request has been sent to:\n"+getStringFromListEmails(invalidEmailAddressesList);
-			}
-			bodyMsg+="\nKind Regards,\nMyCareer Team\n\n";
-			MessageBody mexB=new MessageBody();
-			mexB.setText(bodyMsg);
-			//msg.setFrom(new EmailAddress(Constants.MAILBOX_ADDRESS));
-			mexB.setBodyType(BodyType.Text);
-			msg.setBody(mexB);
-			msg.getToRecipients().add(emailAddresEmployeeRequester);
-			msg.sendAndSaveCopy();
+//			logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Sending a confirmation email");
+//			//Send confirmation email to feedback requester
+//			EmailMessage msg= new EmailMessage(emailService);
+//			msg.setSubject("Feedback Request Sent");
+//			//Fill the email with the error details
+//			String bodyMsg="Hi, "+fullNameEmployeeRequester+"\n\nThank you for using MyCareer to request feedback.\n\n";
+//			if(validEmailAddressesList.size()>0){
+//				bodyMsg+="A feedback request has been proccess to the following addresses:\n";
+//				bodyMsg+=getStringFromListEmails(validEmailAddressesList)+"\n";
+//			}
+//			if(invalidEmailAddressesList.size()>0){
+//				bodyMsg+="The following email addresses are invalid, therefore no feedback request has been sent to:\n"+getStringFromListEmails(invalidEmailAddressesList);
+//			}
+//			bodyMsg+="\nKind Regards,\nMyCareer Team\n\n";
+//			MessageBody mexB=new MessageBody();
+//			mexB.setText(bodyMsg);
+//			//msg.setFrom(new EmailAddress(Constants.MAILBOX_ADDRESS));
+//			mexB.setBodyType(BodyType.Text);
+//			msg.setBody(mexB);
+//			msg.getToRecipients().add(emailAddresEmployeeRequester);
+//			msg.sendAndSaveCopy();
 
 
 			//PART 9
