@@ -13,6 +13,8 @@ import java.time.format.DateTimeFormatter;
  *
  */
 public final class Constants {
+	
+	public static final String UK_TIMEZONE = "Europe/London";
 
 	//Constants for the DataStructure package
 	public static final  int INVALID_INT=-1;
@@ -64,7 +66,6 @@ public final class Constants {
 	public static final String NULL_OBJECTIVELIST="The given list of Objectives is null";
 	public static final String NULL_NOTE="The given Note is null";
 	public static final String NULL_NOTELIST="The given list of Notes is null";
-
 
 	public static final String INVALID_NULLDEVNEEDSLIST_CONTEXT="The given list of Development Needs is null";
 	public static final String INVALID_DEVNEEDSLIST_CONTEXT="Not all Development Needs were added due to their incorrect format/status";
@@ -125,57 +126,21 @@ public final class Constants {
 	public static final String NOTFOUND_USERNAME_AD="The given 'username' didn't match any valid employee: ";
 	public static final String NOTDELETED_FBREQ="The given Feedback Request could not be removed from the system";
 
-
 	//Constants for the Functionalities package
 	
-	//MongoDB Credentials
-
-	//Development Environment
-	//public static final String MONGODB_USERNAME="myCareerAPI";
-	//public static final String MONGODB_PASSWORD="qcybdjer";
-	//UAT Environment
-	public static final String MONGODB_USERNAME="myCareerUATAPI";
-	public static final String MONGODB_PASSWORD="qcybdjerapi";
-	//Live Environment
-	//public static final String MONGODB_USERNAME="myCareerAPI";
-	//public static final String MONGODB_PASSWORD="3QKdgLH3zePxeXp8";
-
-	//Mongo Servers
-	
-	//Development Environment
-	//public static final String MONGODB_HOST1="127.0.0.1";
-	//public static final String MONGODB_HOST2="127.0.0.1";
-	//public static final String MONGODB_HOST3="127.0.0.1";
-	//public static final int MONGODB_PORT_UATDB1=27017;
-	//public static final int MONGODB_PORT_UATDB2=27018;
-	//public static final int MONGODB_PORT_UAT=27019;
-	//UAT Environment
-	public static final String MONGODB_HOST1="172.25.112.149";
-	public static final String MONGODB_HOST2="172.25.112.149";
-	public static final String MONGODB_HOST3="172.25.112.148";
-	public static final int MONGODB_PORT1=27017;
-	public static final int MONGODB_PORT2=27018;
-	public static final int MONGODB_PORT3=27017;
-	//Live Environment
-	//public static final String MONGODB_HOST1="172.25.112.149";
-	//public static final String MONGODB_HOST2="172.25.113.43";
-	//public static final String MONGODB_HOST3="172.25.113.42";
-	//public static final int MONGODB_PORT_UATDB1=27019;
-	//public static final int MONGODB_PORT_UATDB2=27017;
-	//public static final int MONGODB_PORT_UAT=27017;
-
-
-	public static final String MONGODB_DB_NAME="Development";
 	//AD Details
-	//Common Ones
+	
+	//Common
 	public static final int AD_PORT=389;
 	public static final String AD_AUTHENTICATION="simple";
+	
 	//Sopra AD Details
 	public static final String AD_SOPRA_HOST="ldap://duns.ldap-ad.dmsi.corp.sopra";
 	public static final String AD_SOPRA_USERNAME="svc_mycareer@emea.msad.sopra";
 	public static final String AD_SOPRA_PASSWORD="N9T$SiPSZ";
 	public static final String AD_SOPRA_TREE="ou=usersemea,DC=emea,DC=msad,DC=sopra";
 	public static final String[] AD_SOPRA_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "extensionAttribute7", "objectGUID", "mail", "department"};
+	
 	//Steria AD Details
 	public static final String AD_STERIA_HOST="ldap://one.steria.dom";
 	public static final String AD_STERIA_USERNAME="UK-SVC-CAREER";
@@ -200,22 +165,22 @@ public final class Constants {
 	
 	//Domain Dev Server
 	//public static final String CORS_IP_DOMAIN_DEV="172.25.112.189";
-	//public static final String CORS_SRV_DOMAIN_DEV="http://ldunsmycareerdev01.duns.uk.sopra";
+	public static final String CORS_DOMAIN_DEV = "http://ldunsmycareerdev01.duns.uk.sopra";
 	//Domain UAT Server
 	//public static final String CORS_IP_DOMAIN_UAT="172.25.112.148";
 	public static final String CORS_DOMAIN_UAT="http://mycareer-uat.duns.uk.sopra";
-	//public static final String CORS_SRV_DOMAIN_UAT="http://ldunsmycareeruat01.duns.uk.sopra";
 	
 	//Domain Live Server
 	//public static final String CORS_IP_DOMAIN_LIVE="172.25.113.42";
 	public static final String CORS_DOMAIN_LIVE="http://mycareer.uk.corp.sopra";
-	//public static final String CORS_SRV_DOMAIN_LIVE="http://ldunsmycareer01.duns.uk.sopra";
+	
+	// Server names
+	public static final String DEV_SERVER_NAME="ldunsmycareerdev01";
+	public static final String UAT_SERVER_NAME = "ldunsmycareeruat01";
+	public static final String LIVE_SERVER_NAME = "ldunsmycareer01";
 	
 	
 	//Constants for the SPNEGO-KERBEROS setup
-	
-	public static final String SPNEGO_USERNAME="mycareersvc";
-	public static final String SPNEGO_PASSWORD="Czam2mc2!";
 	
 	
 	//Arrays Containing all Competences including both Names and Descriptions

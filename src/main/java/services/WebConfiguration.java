@@ -1,6 +1,5 @@
 package services;
 
-
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -8,23 +7,28 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import dataStructure.Constants;
 import net.sourceforge.spnego.SpnegoHttpFilter;
 
 @Configuration
+@PropertySource("${ENVIRONMENT}.properties")
 public class WebConfiguration extends OncePerRequestFilter {
+	
+	private static final String SPNEGO_USERNAME="mycareersvc";
+	private static final String SPNEGO_PASSWORD="Czam2mc2!";
+	
+	@Autowired
+	private Environment env;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		
-		//UAT 
-		response.setHeader("Access-Control-Allow-Origin", Constants.CORS_DOMAIN_UAT);
-		//Live
-		//response.setHeader("Access-Control-Allow-Origin", Constants.CORS_DOMAIN_LIVE);
-		
+		response.setHeader("Access-Control-Allow-Origin", env.getProperty("domain.url.full"));
 		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 		response.setHeader("Access-Control-Max-Age", "3600");
 		response.setHeader("Access-Control-Allow-Headers", "authorization, xsrf-token, Content-Type, Accept");
@@ -49,8 +53,8 @@ public class WebConfiguration extends OncePerRequestFilter {
 		registration.addInitParameter("spnego.login.client.module", "spnego-client");
 		registration.addInitParameter("spnego.krb5.conf", "krb5.conf");
 		registration.addInitParameter("spnego.login.conf", "login.conf");
-		registration.addInitParameter("spnego.preauth.username", Constants.SPNEGO_USERNAME);
-		registration.addInitParameter("spnego.preauth.password", Constants.SPNEGO_PASSWORD);
+		registration.addInitParameter("spnego.preauth.username", SPNEGO_USERNAME);
+		registration.addInitParameter("spnego.preauth.password", SPNEGO_PASSWORD);
 		registration.addInitParameter("spnego.login.server.module", "spnego-server");
 		registration.addInitParameter("spnego.prompt.ntlm", "true");
 		registration.addInitParameter("spnego.logger.level", "1");

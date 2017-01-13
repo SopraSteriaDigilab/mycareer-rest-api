@@ -21,7 +21,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	//Global Constant
 	private static final long serialVersionUID = -5982675570485578676L;
 	//Global Variables
-	private String GUID, emailAddress, company, team ; 
+	private String GUID, company, team ; 
 	private List<String> reporteeCNs;
 
 	//Empty Constructor
@@ -29,7 +29,6 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 		super();
 		this.company=Constants.INVALID_STRING;
 		this.team=Constants.INVALID_STRING;
-		this.emailAddress=Constants.INVALID_STRING;
 		this.GUID=Constants.INVALID_STRING;
 		this.reporteeCNs=new ArrayList<String>();
 	}
@@ -40,34 +39,17 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 			String guid,
 			String name, 
 			String surname, 
-			String email,
+			String emailAddress,
 			String username,
 			String company,
 			String team,
 			boolean isManager,
 			List<String> reps) throws InvalidAttributeValueException{
-		super(employeeID, surname, name, isManager, username);
+		super(employeeID, surname, name, isManager, username, emailAddress);
 		this.setGUID(guid);
-		this.setEmailAddress(email);
 		this.setCompany(company);
 		this.setTeam(team);
 		this.setReporteeCNs(reps);
-	}
-
-	/**
-	 * 
-	 * @param email The user email address
-	 * @throws InvalidAttributeValueException
-	 */
-	public void setEmailAddress(String email) throws InvalidAttributeValueException{
-		if(email!=null && email.length()>0 && email.contains("@"))
-			this.emailAddress=email;
-		else
-			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_GUID);
-	}
-
-	public String getEmailAddress(){
-		return this.emailAddress;
 	}
 
 	/**
