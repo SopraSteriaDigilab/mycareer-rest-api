@@ -254,11 +254,11 @@ public final class IMAPService {
 						successfullyAdded.add(toElem.getAddress());
 
 						//Notice employee/s regarding the new feedback received
-						{
-							String bodyEmailMsg="Hi,\nGood news for you.\nThe user "+fromFieldEmail.toString()+" has given you a new feedback.\n"
-									+ "Login into MyCareer website to find out how you did.\n\nRegards,\nTeam MyCareer";
-							contactUserViaEmail(toElem.getAddress(), "New Feedback Received", bodyEmailMsg);
-						}
+//						{
+//							String bodyEmailMsg="Hi,\nGood news for you.\nThe user "+fromFieldEmail.toString()+" has given you a new feedback.\n"
+//									+ "Login into MyCareer website to find out how you did.\n\nRegards,\nTeam MyCareer";
+//							contactUserViaEmail(toElem.getAddress(), "New Feedback Received", bodyEmailMsg);
+//						}
 					}
 					else{
 						logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - The General Feedback couldn't be added to user "+userFound.getEmployeeID());
@@ -404,8 +404,8 @@ public final class IMAPService {
 			//praiseFeedbackProvider(fromFieldEmail, sentTo, null);
 
 			//Notify user about the new feedback added
-			String bodyErrorEmail="Hi,\nGood news for you.\nThe user "+fromFieldEmail.toString()+" had sent you a feedback.\n"
-					+ "Login into MyCareer website to find out how you did.\n\nRegards,\nTeam MyCareer";
+			String bodyErrorEmail="Hi,\n\nThe user "+fromFieldEmail.toString()+" had sent you a feedback.\n\n"
+					+ "Login into MyCareer website to view the feedback.\n\nRegards,\nTeam MyCareer";
 			contactUserViaEmail(emailEmployee, "New Feedback Received", bodyErrorEmail);
 		}
 		else{
