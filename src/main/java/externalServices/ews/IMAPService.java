@@ -14,6 +14,8 @@ import javax.management.InvalidAttributeValueException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dataStructure.ADProfile_Basic;
 import dataStructure.Constants;
@@ -39,6 +41,7 @@ import microsoft.exchange.webservices.data.property.complex.MessageBody;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import microsoft.exchange.webservices.data.search.filter.SearchFilter;
+import services.Application;
 
 /**
  * 
@@ -50,6 +53,8 @@ import microsoft.exchange.webservices.data.search.filter.SearchFilter;
  *
  */
 public final class IMAPService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
 	//Global Variables
 	private static ExchangeService emailService;
@@ -73,16 +78,16 @@ public final class IMAPService {
 				try {
 					//Create a connection with the server;
 					initiateIMAPConnection();
-					System.out.println(LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Checking for new Emails");
+					logger.info(LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Checking for new Emails");
 					//Check for new emails and then close the connection with the email server
 					retrieveNewEmails();
 					closeIMAPConnection();
 				} catch (Exception e) {
-					System.err.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Email Service Error:"
+					logger.error("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Email Service Error:"
 							+ "\n\tIMAPSErvice.Java --> "+e.toString());
 				}
 				finally{
-					System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Task Completed\n");
+					logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Task Completed\n");
 				}
 			}
 		}, 0, Constants.MAIL_REFRESH_TIME);
@@ -104,7 +109,7 @@ public final class IMAPService {
 
 		//Verify if there are unread mails
 		if(unreadCounter>0){
-			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Processing unread emails...");
+			logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Processing unread emails...");
 			//Retrieve list of unread mails
 			//Create a filter to use while retrieving the data
 			SearchFilter unreadEmailsFilter = new SearchFilter.SearchFilterCollection(LogicalOperator.And, new SearchFilter.IsEqualTo(EmailMessageSchema.IsRead, false));
@@ -120,7 +125,7 @@ public final class IMAPService {
 				psPropset.setRequestedBodyType(BodyType.Text);
 				//Retrieve only the properties previously set for the message with the given ID
 				EmailMessage openNotReadEmail = EmailMessage.bind(emailService, tempMail.getId(),psPropset);
-				System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Loading Element ("+counter++ +"/"+unreadCounter+")...");
+				logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Loading Element ("+counter++ +"/"+unreadCounter+")...");
 				//Load the message
 				openNotReadEmail.load();
 
@@ -152,7 +157,7 @@ public final class IMAPService {
 						undeliverableEmailFound(openNotReadEmail);
 						continue;
 					}
-					System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Irrelevant Email,  Moved to DRAFTS");
+					logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Irrelevant Email,  Moved to DRAFTS");
 					openNotReadEmail.move(WellKnownFolderName.Drafts);
 					continue;
 				}				
@@ -176,7 +181,7 @@ public final class IMAPService {
 			}
 		}
 		else{
-			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - No new Emails Found");
+			logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - No new Emails Found");
 		}
 	}
 
@@ -192,8 +197,8 @@ public final class IMAPService {
 
 		if(toElements.size()<1){
 			//No user in the TO field, impossible to find employee/s
-			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - No user can be linked to this feedback");						
-			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Irrelevant Email found, Moved to DRAFTS");
+			logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - No user can be linked to this feedback");						
+			logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Irrelevant Email found, Moved to DRAFTS");
 			//It is an irrelevant email to the system, move it to another folder so that
 			//the system admin can manage them separately
 			message.move(WellKnownFolderName.Drafts);
@@ -204,7 +209,7 @@ public final class IMAPService {
 
 
 		else{
-			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - General Feedback found...");
+			logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - General Feedback found...");
 			//If the email enters this portion of code, this is a unrequested feedback
 
 			//The email is internal the company if the email address contains @soprasteria.com
@@ -217,7 +222,7 @@ public final class IMAPService {
 					fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(fromFieldEmail.getAddress().toString());
 				}
 				catch(Exception e){
-					System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" IMAPSErvice.Java --> Error while finding the full name of the feedback provider\n"+e.getMessage());
+					logger.error("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" IMAPSErvice.Java --> Error while finding the full name of the feedback provider\n"+e.getMessage());
 				}
 			}
 			else
@@ -225,7 +230,7 @@ public final class IMAPService {
 
 			String cleanBodyEmail=cleanEmailBody(message.getBody().toString()).trim();
 			if(cleanBodyEmail.length()<3){
-				System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Irrelevant Email found, empty body,  Moved to DRAFTS");
+				logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Irrelevant Email found, empty body,  Moved to DRAFTS");
 				message.move(WellKnownFolderName.Drafts);
 				return;
 			}
@@ -245,7 +250,7 @@ public final class IMAPService {
 					Feedback feedbackObj=new Feedback(fromFieldEmail.getAddress(),type,"Email",false,fullNameFeedbackProvider,message.getBody().toString());
 					//Attach the feedback to the User on the Database
 					if(EmployeeDAO.insertNewGeneralFeedback(userFound.getEmployeeID(), feedbackObj)) {
-						System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - General Feedback added correctly to user "+userFound.getEmployeeID());
+						logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - General Feedback added correctly to user "+userFound.getEmployeeID());
 						successfullyAdded.add(toElem.getAddress());
 
 						//Notice employee/s regarding the new feedback received
@@ -256,19 +261,19 @@ public final class IMAPService {
 						}
 					}
 					else{
-						System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - The General Feedback couldn't be added to user "+userFound.getEmployeeID());
+						logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - The General Feedback couldn't be added to user "+userFound.getEmployeeID());
 						unsuccessfullyAdded.add(toElem.getAddress());
 					}
 				}
 				catch(Exception e){
-					System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - "+e.getMessage());
+					logger.error("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - "+e.getMessage());
 					//User not found in the AD, add it to the list of invalid addresses
 					if (e.getMessage().contains(Constants.NOTFOUND_EMAILORUSERNAME_AD))
 						unsuccessfullyAdded.add(toElem.getAddress());
 					else{
 						message.setIsRead(false);
 						message.move(WellKnownFolderName.Drafts);
-						System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - General Error: "+e.getMessage());
+						logger.error("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - General Error: "+e.getMessage());
 						errorFlag=true;
 						break;
 					}
@@ -287,7 +292,7 @@ public final class IMAPService {
 	}
 
 	private static void undeliverableEmailFound(EmailMessage message) throws Exception{
-		System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Undeliverable Email found...");
+		logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Undeliverable Email found...");
 		//Find the Request ID, the employeeID and remove this data from the DB as well as
 		//sending an error message to the feedback requester
 		String reqID_Undelivered=retrieveRequestID(message);
@@ -302,7 +307,7 @@ public final class IMAPService {
 				try{
 					String incorrectEmailAddress=EmployeeDAO.removeFeedbackReqFromUser(reqID_Undelivered, reqID_EmpID);
 					if(!incorrectEmailAddress.equals("")){
-						System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" Undeliverable Feedback Request Removed Successfully from employee: "+reqID_EmpID);
+						logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" Undeliverable Feedback Request Removed Successfully from employee: "+reqID_EmpID);
 						//Update email
 						message.setIsRead(true);
 						message.update(ConflictResolutionMode.AutoResolve);
@@ -315,16 +320,16 @@ public final class IMAPService {
 							return;
 						}
 						message.move(WellKnownFolderName.Drafts);
-						System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" Invalid Email address found! Email moved to DRAFTS");
+						logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" Invalid Email address found! Email moved to DRAFTS");
 					}
 				}
 				catch(InvalidAttributeValueException er){
-					System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" Error - "+er.getMessage());
+					logger.error("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" Error - "+er.getMessage());
 					message.move(WellKnownFolderName.Drafts);
 				}
 			} catch (Exception e) {
 				//If an error occurs while retriving the employeeID, move the mail to the Draft folder
-				System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - The system is unable to retrieve a valid employeeID from the email subject, Email moved to DRAFTS");
+				logger.error("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - The system is unable to retrieve a valid employeeID from the email subject, Email moved to DRAFTS");
 				message.move(WellKnownFolderName.Drafts);
 			}
 			//Process the next email
@@ -333,7 +338,7 @@ public final class IMAPService {
 	}
 
 	private static void linkToAFeedbackRequestFound(EmailMessage message, String requestID) throws Exception{
-		System.out.println("\t"+LocalTime.now()+" - Response to a Feedback Request found...");
+		logger.info("\t"+LocalTime.now()+" - Response to a Feedback Request found...");
 		//Retrieve the FROM field
 		EmailAddress fromFieldEmail=message.getFrom();
 		//The email is internal the company if the email address contains @soprasteria.com
@@ -347,7 +352,7 @@ public final class IMAPService {
 				fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(fromFieldEmail.getAddress().toString());
 			}
 			catch(Exception e){
-				System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" IMAPSErvice.Java --> Error while finding the full name of the feedback provider\n"+e.getMessage());
+				logger.error("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" IMAPSErvice.Java --> Error while finding the full name of the feedback provider\n"+e.getMessage());
 			}
 		}
 		else
@@ -357,7 +362,7 @@ public final class IMAPService {
 		String bodyEmail=extractReplyToFeedbackRequest(message).trim();
 		bodyEmail=cleanEmailBody(bodyEmail).trim();
 		if(bodyEmail.length()<3){
-			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Irrelevant Email found, empty body,  Moved to DRAFTS");
+			logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Irrelevant Email found, empty body,  Moved to DRAFTS");
 			message.move(WellKnownFolderName.Drafts);
 			return;
 		}
@@ -365,7 +370,7 @@ public final class IMAPService {
 		//Find email address of employee to link feedback to
 		String emailEmployee=findEmployeeEmailFromSubject(message);
 		if(emailEmployee.equals("")){
-			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Invalid Employee, A feedback cannot be created (Mail moved to the DRAFTS folder)");
+			logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Invalid Employee, A feedback cannot be created (Mail moved to the DRAFTS folder)");
 			//Interrupt the program, ID Invalid/not found, the feedback provider has change the ID
 			//Move the current email to a folder the system admin will deal with it
 			message.setIsRead(false);
@@ -390,7 +395,7 @@ public final class IMAPService {
 		if(res){
 			message.setIsRead(true);
 			message.update(ConflictResolutionMode.AutoResolve);
-			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Reply to a Feedback Request linked correctly");
+			logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Reply to a Feedback Request linked correctly");
 
 			//Praise Feedback provider
 			//Commented out because Pav wants to reduce the amount of emails sent to a feedback provider
@@ -404,7 +409,7 @@ public final class IMAPService {
 			contactUserViaEmail(emailEmployee, "New Feedback Received", bodyErrorEmail);
 		}
 		else{
-			System.out.println("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Error while linking the feedback request response");
+			logger.info("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" - Error while linking the feedback request response");
 			message.move(WellKnownFolderName.Drafts);
 			contactUserViaEmail(Constants.MAILBOX_ADDRESS,"Adding feedback error", "Error while linking the feedback request response: \n\n"+feedbackObj.toString());
 		}
