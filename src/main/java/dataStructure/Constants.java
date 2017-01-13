@@ -153,7 +153,7 @@ public final class Constants {
 	public static final String MAILBOX_ADDRESS="feedback.uk@soprasteria.com";
 	public static final String MAIL_USERNAME="FbackUK";
 	public static final String MAIL_PASSWORD="Auto_Map_$459$";
-	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
+	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra:444/";
 	//public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
 	//public static final String MAIL_PASSWORD="";
 	//public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";

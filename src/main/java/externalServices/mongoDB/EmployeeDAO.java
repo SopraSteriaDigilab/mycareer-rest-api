@@ -1,14 +1,44 @@
 package externalServices.mongoDB;
 
-import static dataStructure.Constants.*;
+import static dataStructure.Constants.DEVELOPMENTNEED_NOTADDED_ERROR;
+import static dataStructure.Constants.DUPLICATE_FEEDBACK;
+import static dataStructure.Constants.ERROR_LINKING_FBTOUSER;
+import static dataStructure.Constants.FEEDBACK_NOTADDED_ERROR;
+import static dataStructure.Constants.GROUPFBREQ_NOTADDED_ERROR;
+import static dataStructure.Constants.INVALID_COMPETENCY_CONTEXT;
+import static dataStructure.Constants.INVALID_COMPETENCY_OR_EMPLOYEEID;
+import static dataStructure.Constants.INVALID_CONTEXT_PROGRESS;
+import static dataStructure.Constants.INVALID_CONTEXT_USERID;
+import static dataStructure.Constants.INVALID_DEVNEEDID_CONTEXT;
+import static dataStructure.Constants.INVALID_DEVNEED_CONTEXT;
+import static dataStructure.Constants.INVALID_DEVNEED_OR_EMPLOYEEID;
+import static dataStructure.Constants.INVALID_FBREQ_OR_EMPLOYEEID;
+import static dataStructure.Constants.INVALID_FEEDBACK;
+import static dataStructure.Constants.INVALID_FEEDBACKREQ_CONTEXT;
+import static dataStructure.Constants.INVALID_IDNOTFOND;
+import static dataStructure.Constants.INVALID_NOTE;
+import static dataStructure.Constants.INVALID_NOTEID;
+import static dataStructure.Constants.INVALID_NOTE_OR_EMPLOYEEID;
+import static dataStructure.Constants.INVALID_OBJECTIVE;
+import static dataStructure.Constants.INVALID_OBJECTIVEID;
+import static dataStructure.Constants.INVALID_OBJECTIVE_OR_EMPLOYEEID;
+import static dataStructure.Constants.INVALID_USEREMAIL;
+import static dataStructure.Constants.INVALID_USERGUID_NOTFOUND;
+import static dataStructure.Constants.NOTDELETED_FBREQ;
+import static dataStructure.Constants.NOTE_NOTADDED_ERROR;
+import static dataStructure.Constants.NULL_OBJECTIVE;
+import static dataStructure.Constants.NULL_USER_DATA;
+import static dataStructure.Constants.OBJECTIVE_NOTADDED_ERROR;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
+
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
@@ -19,7 +49,6 @@ import com.mongodb.MongoException;
 import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
-import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
 import dataStructure.Feedback;
@@ -41,6 +70,8 @@ import externalServices.ad.ADProfileDAO;
  */
 public class EmployeeDAO {
 
+//	private final static Logger logger = Logger.getLogger(EmployeeDAO.class.getName());
+	
 	//There is only 1 instance of the Datastore in the whole system
 	private static Datastore dbConnection;
 	
@@ -93,23 +124,7 @@ public class EmployeeDAO {
 	}
 
 	public static int getLatestFeedbackIDForUser(long employeeID) throws InvalidAttributeValueException{
-		//db.employeeDataDev.aggregate([{$project:{employeeID:1,"feedback.id":1, _id:0}},{$match:{employeeID:675599}}, {$unwind:"feedback"},{$sort:{feedback:-1}},{$limit:1},{$project:{latestFeedbackID:"$feedback.id"}}])
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
-		//		Iterator<String> aggregate=dbConnection
-		//				.createAggregation(Employee.class)
-		//				.project(Projection.projection("employeeID"), Projection.projection("feedback.id"))
-		//				.match(dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID))
-		//				.unwind("feedback")
-		//				.sort(Sort.descending("feedback"))
-		//				.limit(1)
-		//				.project(Projection.projection("feedback.id", "latestFeedbackID"))
-		//				.aggregate(String.class);
-		//		
-		//		if(aggregate!=null){
-		//			String s=aggregate.next();
-		//			System.out.print(Integer.valueOf(s));
-		//			//int num=aggregate.next();
-		//		}
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		List<Feedback> feedbackList = queryRes.getAllFeedback();
@@ -272,11 +287,10 @@ public class EmployeeDAO {
 
 		for(String str : queryRes.getReporteeCNs()){
 			long temp =  Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
-			//System.out.println("Extract Emp ID Rep: "+temp);
 			try{
 				reporteeList.add(ADProfileDAO.verifyIfUserExists(temp));
 			}catch(Exception e){
-				System.err.println(e.getMessage());
+				throw new InvalidAttributeValueException("Sorry there were some connectiviy errors. Please try again later.");
 			}
 			
 		}
