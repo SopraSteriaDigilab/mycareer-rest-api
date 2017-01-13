@@ -533,7 +533,7 @@ public class AppController {
 			int attemptsCounter=1;
 			boolean done=SMTPService.tryToSendFeedbackRequest(attemptsCounter, employeeID, notes, emailAddressesToField);
 			if(done)
-				return ResponseEntity.ok("Your feedback request has been sent.");
+				return ResponseEntity.ok("Your feedback request has been processed.");
 			else
 				return ResponseEntity.badRequest().body("Error while creating a feedback request");
 		}
