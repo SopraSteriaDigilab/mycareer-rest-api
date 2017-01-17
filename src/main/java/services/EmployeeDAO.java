@@ -1,4 +1,4 @@
-package externalServices.mongoDB;
+package services;
 
 import static dataStructure.Constants.DEVELOPMENTNEED_NOTADDED_ERROR;
 import static dataStructure.Constants.DUPLICATE_FEEDBACK;
@@ -56,7 +56,7 @@ import dataStructure.FeedbackRequest;
 import dataStructure.GroupFeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
-import externalServices.ad.ADProfileDAO;
+import services.ad.ADProfileDAO;
 
 /**
  * 
@@ -79,16 +79,15 @@ public class EmployeeDAO {
 		EmployeeDAO.dbConnection = dbConnection;
 	}
 	
-	private static Employee getEmployee(long employeeID) throws InvalidAttributeValueException {
-		final Employee employee = getEmployeeQuery(employeeID).get();
-	
+	public static Employee getEmployee(long employeeID) throws InvalidAttributeValueException {
+		Employee employee = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if (employee == null) {
 			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		}
-		
 		return employee;
 	}
 	
+	//To be removed. Use the getEmployee method.
 	private static Query<Employee> getEmployeeQuery(long employeeID) {
 		return dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 	}

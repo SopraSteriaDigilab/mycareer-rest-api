@@ -1,4 +1,4 @@
-package services;
+package application;
 
 import static dataStructure.Constants.DEV_SERVER_NAME;
 import static dataStructure.Constants.LIVE_SERVER_NAME;
@@ -14,7 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 
-import externalServices.ews.IMAPService;
+//import externalServices.ews.IMAPService;
 
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 public class Application {
@@ -30,7 +30,7 @@ public class Application {
 			SpringApplication.run(Application.class, args);
 			//Start the EmailService that checks for new emails and add the feedback to a user
 			logger.info("Starting the Email Service");
-			IMAPService.initiateIMAPService();
+//			IMAPService.initiateIMAPService();
 		} catch (Exception e) {
 			logger.error("Application Error: " + e.getMessage());
 		}

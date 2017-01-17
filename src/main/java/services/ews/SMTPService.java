@@ -1,4 +1,4 @@
-package externalServices.ews;
+package services.ews;
 
 import static dataStructure.Constants.UK_TIMEZONE;
 
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import dataStructure.Constants;
 import dataStructure.FeedbackRequest;
 import dataStructure.GroupFeedbackRequest;
-import externalServices.mongoDB.EmployeeDAO;
+import services.EmployeeDAO;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.property.BodyType;
@@ -29,7 +29,7 @@ import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
-import services.Application;
+import application.Application;
 
 /**
  * 
@@ -270,7 +270,7 @@ public final class SMTPService {
 		//Read in the content from the template file stored in the externalData package
 		try (final BufferedReader inputFile =
 				new BufferedReader(
-				new FileReader("/home/mycareer/mycareer/dev/web-api/FeedbackRequestBody_Template.txt"));) {			
+				new FileReader("D:/Home/redhwan/Dev/Workspaces/Workspace-Eclipse-MyCareer/mycareer-web/mycareer-rest-api/src/main/java/externalServices/ews/FeedbackRequestBody_Template.txt"));) {			
 			
 			String line="";
 			
@@ -314,6 +314,11 @@ public final class SMTPService {
 		msg.getToRecipients().add(Constants.MAILBOX_ADDRESS);
 		msg.sendAndSaveCopy();
 	}
+	
+
+	
+	
+	
 
 	/**
 	 * 

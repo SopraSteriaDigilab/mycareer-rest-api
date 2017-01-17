@@ -1,4 +1,4 @@
-package externalServices.ad;
+package services.ad;
 
 import static dataStructure.Constants.*;
 
@@ -17,7 +17,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
-import externalServices.mongoDB.EmployeeDAO;
+import services.EmployeeDAO;
 
 import java.util.UUID;
 

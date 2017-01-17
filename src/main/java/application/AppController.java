@@ -1,4 +1,4 @@
-package services;
+package application;
 
 import static dataStructure.Constants.UK_TIMEZONE;
 
@@ -28,9 +28,12 @@ import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
-import externalServices.ad.ADProfileDAO;
-import externalServices.ews.SMTPService;
-import externalServices.mongoDB.EmployeeDAO;
+import services.ad.ADProfileDAO;
+import services.ews.SMTPService;
+import services.validate.Validate;
+import services.EmployeeDAO;
+import static services.validate.ValidateAppController.*;
+import services.ews.Outgoing;
 
 /**
  * 
@@ -45,6 +48,12 @@ import externalServices.mongoDB.EmployeeDAO;
 @CrossOrigin
 @RestController
 public class AppController {
+	
+	@RequestMapping(value="/sendEmailTest", method=RequestMethod.GET)
+	public void sendEmailTest(){
+		Outgoing.test();
+	}
+	
 	
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public ResponseEntity<?> welcomePage(){
@@ -541,6 +550,23 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
+	
+	@RequestMapping(value="/generateFeedbackRequestTEST/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<String> createFeedbackRequestTEST(
+			@PathVariable("employeeID") long employeeID,
+			@RequestParam(value="emailsTo") String toFields,
+			@RequestParam(value="notes") String notes){
+		try {
+			isValidCreateFeedbackRequest(employeeID, toFields, notes);
+			Outgoing.processFeedbackRequest(employeeID, toFields, notes);
+			return ResponseEntity.ok("Your feedback has been processed.");
+		} catch (InvalidAttributeValueException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
 
 	/**
 	 * 
@@ -642,7 +668,7 @@ public class AppController {
 		try {
 
 			//Check that input variables are not empty
-			areInputValuesEmpty(title, description, completedBy);
+			Validate.areStringsEmptyorNull(title, description, completedBy);
 
 			//Get email addresses and check they are not empty and limit to 20
 			String[] emailAddresses=emails.split(",");
@@ -722,16 +748,6 @@ public class AppController {
 		}
 		else
 			return ResponseEntity.badRequest().body("The given ID is invalid");
-	}
-
-
-
-	private void areInputValuesEmpty(String... args) throws InvalidAttributeValueException{
-		for(String str : args){
-			if(str.length() < 1 || str.isEmpty()){
-				throw new InvalidAttributeValueException("One or more of the values are empty.");
-			}
-		}
 	}
 
 }
