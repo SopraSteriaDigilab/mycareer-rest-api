@@ -26,28 +26,34 @@ public class FeedbackRequest implements Serializable{//, Iterable<Feedback> {
 	private static final long serialVersionUID = 47606158926933500L;
 	//Global Variables
 	private String feedbackID, timeStamp, recipient;
-	@Embedded
-	private List<Feedback> replies;
+//	@Embedded
+//	private List<Feedback> replies;
 
 	public FeedbackRequest(){
 		this.feedbackID="";
 		this.timeStamp=null;
 		this.recipient="";
-		replies=new ArrayList<Feedback>();
+//		replies=new ArrayList<Feedback>();
 	}
 
 	public FeedbackRequest(long id){
 		this.setTimeStamp();
 		this.generateID(id);
 		this.recipient="";
-		replies=new ArrayList<Feedback>();
+//		replies=new ArrayList<Feedback>();
 	}
-
+	
+	public FeedbackRequest(long id, String recipient) throws InvalidAttributeValueException{
+		this.setTimeStamp();
+		this.generateID(id);
+		this.setRecipient(recipient);
+	}
+	
 	public FeedbackRequest(FeedbackRequest req){
 		this.feedbackID=req.getID();
 		this.timeStamp=req.getTimeStamp();
 		this.recipient=req.getRecipient();
-		this.replies=req.getReplies();
+//		this.replies=req.getReplies();
 	}
 
 	private void generateID(long id){
@@ -86,43 +92,43 @@ public class FeedbackRequest implements Serializable{//, Iterable<Feedback> {
 		return this.recipient;
 	}
 
-	public void setReplies(List<Feedback> data) throws InvalidAttributeValueException{
-		if(data!=null)
-			this.replies=data;
-		else
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACKREQ_REPLIES_CONTEXT);
-	}
+//	public void setReplies(List<Feedback> data) throws InvalidAttributeValueException{
+//		if(data!=null)
+//			this.replies=data;
+//		else
+//			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACKREQ_REPLIES_CONTEXT);
+//	}
 
-	public List<Feedback> getReplies(){
-		return this.replies;
-	}
+//	public List<Feedback> getReplies(){
+//		return this.replies;
+//	}
 
-	public boolean addReply(Feedback reply) throws InvalidAttributeValueException{
-		if(this.replies==null)
-			this.replies=new ArrayList<Feedback>();
-		//Validate the feedback
-		if(reply!=null && reply.isFeedbackValidForFeedbackRequest()){
-			//Check if the element already exists within the user data
-			for(Feedback rep: replies){
-				if(rep.getEmailBody().equalsIgnoreCase(reply.getEmailBody()))
-					return false;
-			}
-			return replies.add(new Feedback(reply.getID()));
-		}
-		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
-	}
+//	public boolean addReply(Feedback reply) throws InvalidAttributeValueException{
+//		if(this.replies==null)
+//			this.replies=new ArrayList<Feedback>();
+//		//Validate the feedback
+//		if(reply!=null && reply.isFeedbackValidForFeedbackRequest()){
+//			//Check if the element already exists within the user data
+//			for(Feedback rep: replies){
+//				if(rep.getEmailBody().equalsIgnoreCase(reply.getEmailBody()))
+//					return false;
+//			}
+//			return replies.add(new Feedback(reply.getID()));
+//		}
+//		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
+//	}
 
-	public boolean removeReply(Feedback reply) throws InvalidAttributeValueException{
-		if(reply!=null && reply.isFeedbackValidForFeedbackRequest() && this.replies!=null){
-			for(Feedback t: replies){
-				if(t.getID()==reply.getID())
-					return replies.remove(t);
-			}
-			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKNOTFOUND_CONTEXT);
-		}
-		else
-			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
-	}
+//	public boolean removeReply(Feedback reply) throws InvalidAttributeValueException{
+//		if(reply!=null && reply.isFeedbackValidForFeedbackRequest() && this.replies!=null){
+//			for(Feedback t: replies){
+//				if(t.getID()==reply.getID())
+//					return replies.remove(t);
+//			}
+//			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKNOTFOUND_CONTEXT);
+//		}
+//		else
+//			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
+//	}
 	
 	public boolean isValid(){
 		return this.feedbackID!=null && !this.feedbackID.equals("") && this.recipient!=null && !this.recipient.equals("");
@@ -140,9 +146,9 @@ public class FeedbackRequest implements Serializable{//, Iterable<Feedback> {
 				+ "TimeStamp "+this.timeStamp+"\n"
 				+ "Recipient:"+this.getRecipient()+"\n";
 		s+="Replies:\n";
-		for(Feedback temp: this.replies){
-			s+=temp.toString();
-		}
+//		for(Feedback temp: this.replies){
+//			s+=temp.toString();
+//		}
 		return s;
 	}
 	

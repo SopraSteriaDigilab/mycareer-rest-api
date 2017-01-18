@@ -14,9 +14,20 @@ public class Validate {
 			throw new InvalidAttributeValueException("No values have been given, please try again with values.");
 		
 		for(String string : strings){
-			if (string == null || string.isEmpty()){
-				throw new InvalidAttributeValueException("One or more of the values are empty. Please fill in all the required fields.");
-			}
+			if (string == null || string.isEmpty())
+				throw new InvalidAttributeValueException("One or more of the values are empty. Please try again.");
+		}
+		
+		return false;
+	}
+	
+	public static boolean isNull(Object... objects) throws InvalidAttributeValueException{
+		if(objects.length < 1)
+			throw new InvalidAttributeValueException("No values have been given, please try again with values.");
+		
+		for(Object object : objects){
+			if(object == null)
+				throw new InvalidAttributeValueException("One or more of the values are null. Please try again.");
 		}
 		
 		return false;

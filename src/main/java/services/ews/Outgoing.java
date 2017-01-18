@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import dataStructure.Constants;
 import dataStructure.Employee;
+import dataStructure.FeedbackRequest;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.property.BodyType;
@@ -34,18 +35,24 @@ public class Outgoing {
 		
 		for(String recipient : recipientList){
 			sendEmail(requester.getEmailAddress(), recipient, "Subject", notes);
+			
+			EmployeeDAO.addFeedbackRequest(requester, new FeedbackRequest(employeeID, recipient));
+			
 		}
-
 	}
 	
+	
+	
 	private static void sendEmail(String from, String to, String subject, String body) {
+		
+	
 		logger.info("Email sent from: " + from + " to: " + to + ". ");
 		
 	}
 
-	public static void test(){
+	public static void sendEmail(){
 		try {
-			initiateSMTPConnection();
+			initiateEWSConnection(20000);
 			EmailMessage message = new EmailMessage(emailService);
 			message.setSubject("Test Subject");
 			MessageBody body = new MessageBody(BodyType.Text, "Test Body");
@@ -64,14 +71,14 @@ public class Outgoing {
 	}
 
 	
-	private static void initiateSMTPConnection() throws URISyntaxException{
+	private static void initiateEWSConnection(int timeout) throws URISyntaxException{
 		if(emailService==null){
 			emailService = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
 			emailService.setMaximumPoolingConnections(1);
 			credentials = new WebCredentials(Constants.MAIL_USERNAME, Constants.MAIL_PASSWORD);
 			emailService.setCredentials(credentials);
 			emailService.setUrl(new URI(Constants.MAIL_EXCHANGE_URI));
-			emailService.setTimeout(20000);
+			emailService.setTimeout(timeout);
 		}
 	}
 

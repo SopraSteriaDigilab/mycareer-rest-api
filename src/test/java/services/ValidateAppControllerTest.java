@@ -42,7 +42,7 @@ public class ValidateAppControllerTest {
     	StringBuilder invalidNotes = new StringBuilder(validString);
     	for(int i = 0; i < 201; i++)
     		invalidNotes.append(validString);
-		ValidateAppController.isValidCreateFeedbackRequest(validID, validEmail1, invalidNotes.toString()); // invalidToFields
+		ValidateAppController.isValidCreateFeedbackRequest(validID, validEmail1, invalidNotes.toString()); // invalidNotes
     }
 
 }

@@ -57,6 +57,7 @@ import dataStructure.GroupFeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 import services.ad.ADProfileDAO;
+import services.validate.Validate;
 
 /**
  * 
@@ -146,31 +147,31 @@ public class EmployeeDAO {
 		return queryRes.getLatestVersionDevelopmentNeeds();
 	}
 
-	public static List<GroupFeedbackRequest> getGroupFeedbackRequestsForUser(long employeeID) throws InvalidAttributeValueException{
-		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
-		if(queryRes==null)
-			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-		List<GroupFeedbackRequest> requested=queryRes.getGroupFeedbackRequestsList();
-
-		//Each Feedback contained within the groupFeedbackRequest->feedbackRequest->feedback is not completed. 
-		//For each of them we need to get the full feedback object from the feedback list, stored separately within the user data
-		for(GroupFeedbackRequest groupReq: requested){
-			List<FeedbackRequest> feedReqListTemp=groupReq.getRequestList();
-			for(FeedbackRequest req: feedReqListTemp){
-				//Get all the feedback included within the feedbackRequest object
-				List<Feedback> listF=req.getReplies();
-
-				//The feedback will be retrieved from the user data
-				List<Feedback> filledList=new ArrayList<>();
-				for(int i=0; i<listF.size(); i++){
-					filledList.add(queryRes.getSpecificFeedback(listF.get(i).getID()));
-				}
-				//Substitute the list of feedback
-				req.setReplies(filledList);
-			}
-		}
-		return requested;
-	}
+//	public static List<GroupFeedbackRequest> getGroupFeedbackRequestsForUser(long employeeID) throws InvalidAttributeValueException{
+//		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
+//		if(queryRes==null)
+//			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+//		List<GroupFeedbackRequest> requested=queryRes.getGroupFeedbackRequestsList();
+//
+//		//Each Feedback contained within the groupFeedbackRequest->feedbackRequest->feedback is not completed. 
+//		//For each of them we need to get the full feedback object from the feedback list, stored separately within the user data
+//		for(GroupFeedbackRequest groupReq: requested){
+//			List<FeedbackRequest> feedReqListTemp=groupReq.getRequestList();
+//			for(FeedbackRequest req: feedReqListTemp){
+//				//Get all the feedback included within the feedbackRequest object
+//				List<Feedback> listF=req.getReplies();
+//
+//				//The feedback will be retrieved from the user data
+//				List<Feedback> filledList=new ArrayList<>();
+//				for(int i=0; i<listF.size(); i++){
+//					filledList.add(queryRes.getSpecificFeedback(listF.get(i).getID()));
+//				}
+//				//Substitute the list of feedback
+//				req.setReplies(filledList);
+//			}
+//		}
+//		return requested;
+//	}
 
 	public static Map<String, Map<Integer, String>> getIDTitlePairsDataStructure(long employeeID) throws InvalidAttributeValueException{
 		Query<Employee> query = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
@@ -628,58 +629,71 @@ public class EmployeeDAO {
 			throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
 		return false;
 	}
-
-	public static boolean insertNewGroupFeedbackRequest(long employeeID, Object data) throws InvalidAttributeValueException{
-		//Check the employeeID
-		if(employeeID>0){
-			if(data!=null && data instanceof GroupFeedbackRequest){
-				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-				if(querySearch.get()!=null){
-					Employee e = querySearch.get();
-					//Add the new FeedbackRequest to the list
-					if(e.addGroupFeedbackRequest((GroupFeedbackRequest)data)){
-						//Update the List<FeedbackRequest> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", e.getGroupFeedbackRequestsList());
-						//Commit the changes to the DB
-						dbConnection.update(querySearch, ops);
-						return true;
-					}
-					else
-						throw new InvalidAttributeValueException(GROUPFBREQ_NOTADDED_ERROR);
-				}
-				else
-					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-			}
-			else
-				throw new InvalidAttributeValueException(INVALID_FEEDBACKREQ_CONTEXT);
-		}
-		else
-			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
+	
+	public static boolean addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest) throws InvalidAttributeValueException{
+		Validate.isNull(employee, feedbackRequest);
+		
+		employee.addFeedbackRequest(feedbackRequest);
+		
+		UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", employee.getFeedbackRequestsList());
+		//Commit the changes to the DB
+		dbConnection.update(employee, ops);
+		
+		return true;
 	}
+	
 
-	public static boolean validateGroupFeedbackRequestID(long employeeID, String id) throws InvalidAttributeValueException{
-		if(employeeID>0 && !id.equals("")){
-			//Retrieve Employee with the given ID
-			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-			if(querySearch.get()!=null){
-				Employee e = querySearch.get();
-				//Extract its List of notes
-				List<GroupFeedbackRequest> requests=e.getGroupFeedbackRequestsList();
-				//Check if the feedbackID is already contained within the system
-				for(GroupFeedbackRequest f: requests){
-					if(f.getID().equals(id))
-						return false;
-				}
-				return true;
-			}
-			else{
-				throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-			}
-		}
-		else
-			throw new InvalidAttributeValueException(INVALID_FBREQ_OR_EMPLOYEEID);
-	}
+//	public static boolean insertNewGroupFeedbackRequest(long employeeID, Object data) throws InvalidAttributeValueException{
+//		//Check the employeeID
+//		if(employeeID>0){
+//			if(data!=null && data instanceof GroupFeedbackRequest){
+//				//Retrieve Employee with the given ID
+//				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+//				if(querySearch.get()!=null){
+//					Employee e = querySearch.get();
+//					//Add the new FeedbackRequest to the list
+//					if(e.addGroupFeedbackRequest((GroupFeedbackRequest)data)){
+//						//Update the List<FeedbackRequest> in the DB passing the new list
+//						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", e.getGroupFeedbackRequestsList());
+//						//Commit the changes to the DB
+//						dbConnection.update(querySearch, ops);
+//						return true;
+//					}
+//					else
+//						throw new InvalidAttributeValueException(GROUPFBREQ_NOTADDED_ERROR);
+//				}
+//				else
+//					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+//			}
+//			else
+//				throw new InvalidAttributeValueException(INVALID_FEEDBACKREQ_CONTEXT);
+//		}
+//		else
+//			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
+//	}
+
+//	public static boolean validateGroupFeedbackRequestID(long employeeID, String id) throws InvalidAttributeValueException{
+//		if(employeeID>0 && !id.equals("")){
+//			//Retrieve Employee with the given ID
+//			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+//			if(querySearch.get()!=null){
+//				Employee e = querySearch.get();
+//				//Extract its List of notes
+//				List<GroupFeedbackRequest> requests=e.getGroupFeedbackRequestsList();
+//				//Check if the feedbackID is already contained within the system
+//				for(GroupFeedbackRequest f: requests){
+//					if(f.getID().equals(id))
+//						return false;
+//				}
+//				return true;
+//			}
+//			else{
+//				throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+//			}
+//		}
+//		else
+//			throw new InvalidAttributeValueException(INVALID_FBREQ_OR_EMPLOYEEID);
+//	}
 
 	/**
 	 * 
@@ -756,89 +770,89 @@ public class EmployeeDAO {
 			throw new InvalidAttributeValueException(NULL_USER_DATA);
 	}
 
-	public static boolean linkFeedbackReqReplyToUserGroupFBReq(String requester, String fbReqID, Feedback data) throws InvalidAttributeValueException, NamingException{
-		if(data!=null && data.isFeedbackValid()){
-			//Establish a connection with the DB
+//	public static boolean linkFeedbackReqReplyToUserGroupFBReq(String requester, String fbReqID, Feedback data) throws InvalidAttributeValueException, NamingException{
+//		if(data!=null && data.isFeedbackValid()){
+//			//Establish a connection with the DB
+//
+//			UpdateResults updateResult1 = null, updateResult2=null;
+//			//Get the userData from the DB/AD as well as updating the user profile if needed
+//			ADProfile_Basic basicProfile=ADProfileDAO.authenticateUserProfile(requester);
+//			//Search for the feedbackReqID inside the user data (using the employeeID inside the basicProfile
+//			//Get the user from the DB
+//			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", basicProfile.getEmployeeID());
+//			if(querySearch.get()!=null){
+//				Employee e = querySearch.get();
+//				//Retrieve specific GRoupFeedbackRequest object from user data
+//				GroupFeedbackRequest groupFBReq=e.getSpecificGroupFeedbackRequest(fbReqID.trim());
+//
+//				boolean flag=false;
+//				try{
+//					data.setID(getLatestFeedbackIDForUser(basicProfile.getEmployeeID())+1);
+//				}
+//				catch(Exception error){
+//					data.setID(1);
+//				}
+//				//Verify that something has been returned, if so, we have the feedback request object, let's add the feedback to it
+//				if(groupFBReq!=null){
+//					flag=true;
+//					FeedbackRequest feedbackReqUpdated=e.getSpecificFeedbackRequestFromGroupFBRequests(fbReqID.trim());
+//					//Add the feedback to the current feedback request object 
+//					//Add the general feedback to the user
+//					e.addGenericFeedback(data);
+//					boolean res1=feedbackReqUpdated.addReply(data);
+//					//Update the feedback request object inside the group feedback request object
+//					boolean res2=groupFBReq.updateFeedbackRequest(feedbackReqUpdated);
+//					boolean res3=e.updateGroupFeedbackRequest(groupFBReq);
+//					//Verify if the operations have been completed successfully
+//					if(!res1 || !res2 || !res3)
+//						throw new InvalidAttributeValueException(ERROR_LINKING_FBTOUSER+basicProfile.getEmployeeID());
+//					//Update the data in the DB
+//					UpdateOperations<Employee> ops2 = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", e.getGroupFeedbackRequestsList());
+//					//Commit the changes to the DB
+//					updateResult1=dbConnection.update(querySearch, ops2);
+//				}
+//
+//				if(!flag){
+//					data.setIsRequested(false);
+//					//Add the general feedback to the user
+//					e.addGenericFeedback(data);
+//				}
+//				//Update the user data in the DB
+//				UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getAllFeedback());
+//				updateResult2=dbConnection.update(querySearch, ops1);
+//				if(updateResult2!=null && updateResult2.getUpdatedCount()>0)
+//					return true;
+//				else
+//					return false;
+//				
+//			}
+//			//Since we use the authenticateUSerProfile method, the system will never go in the else statement
+//			//else{}
+//		}
+//		else
+//			throw new InvalidAttributeValueException(INVALID_FEEDBACK);
+//		return false;
+//	}
 
-			UpdateResults updateResult1 = null, updateResult2=null;
-			//Get the userData from the DB/AD as well as updating the user profile if needed
-			ADProfile_Basic basicProfile=ADProfileDAO.authenticateUserProfile(requester);
-			//Search for the feedbackReqID inside the user data (using the employeeID inside the basicProfile
-			//Get the user from the DB
-			Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", basicProfile.getEmployeeID());
-			if(querySearch.get()!=null){
-				Employee e = querySearch.get();
-				//Retrieve specific GRoupFeedbackRequest object from user data
-				GroupFeedbackRequest groupFBReq=e.getSpecificGroupFeedbackRequest(fbReqID.trim());
-
-				boolean flag=false;
-				try{
-					data.setID(getLatestFeedbackIDForUser(basicProfile.getEmployeeID())+1);
-				}
-				catch(Exception error){
-					data.setID(1);
-				}
-				//Verify that something has been returned, if so, we have the feedback request object, let's add the feedback to it
-				if(groupFBReq!=null){
-					flag=true;
-					FeedbackRequest feedbackReqUpdated=e.getSpecificFeedbackRequestFromGroupFBRequests(fbReqID.trim());
-					//Add the feedback to the current feedback request object 
-					//Add the general feedback to the user
-					e.addGenericFeedback(data);
-					boolean res1=feedbackReqUpdated.addReply(data);
-					//Update the feedback request object inside the group feedback request object
-					boolean res2=groupFBReq.updateFeedbackRequest(feedbackReqUpdated);
-					boolean res3=e.updateGroupFeedbackRequest(groupFBReq);
-					//Verify if the operations have been completed successfully
-					if(!res1 || !res2 || !res3)
-						throw new InvalidAttributeValueException(ERROR_LINKING_FBTOUSER+basicProfile.getEmployeeID());
-					//Update the data in the DB
-					UpdateOperations<Employee> ops2 = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", e.getGroupFeedbackRequestsList());
-					//Commit the changes to the DB
-					updateResult1=dbConnection.update(querySearch, ops2);
-				}
-
-				if(!flag){
-					data.setIsRequested(false);
-					//Add the general feedback to the user
-					e.addGenericFeedback(data);
-				}
-				//Update the user data in the DB
-				UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getAllFeedback());
-				updateResult2=dbConnection.update(querySearch, ops1);
-				if(updateResult2!=null && updateResult2.getUpdatedCount()>0)
-					return true;
-				else
-					return false;
-				
-			}
-			//Since we use the authenticateUSerProfile method, the system will never go in the else statement
-			//else{}
-		}
-		else
-			throw new InvalidAttributeValueException(INVALID_FEEDBACK);
-		return false;
-	}
-
-		public static String removeFeedbackReqFromUser(String reqID, long empID) throws InvalidAttributeValueException{
-			if(reqID.length()<0 || empID<0)
-				throw new InvalidAttributeValueException(INVALID_FBREQ_OR_EMPLOYEEID);
-			//Get the user from the DB
-			Employee querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", empID).get();
-			if(querySearch!=null){
-				String emailRes=querySearch.removeSpecificFeedbackRequest(reqID);
-				if(!emailRes.equals("")){
-					//Update the user data in the DB
-					UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", querySearch.getGroupFeedbackRequestsList());
-					dbConnection.update(querySearch, ops1);
-					return emailRes;
-				}
-				throw new InvalidAttributeValueException(NOTDELETED_FBREQ);
-			}
-			else{
-				throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-			}
-		}
+//		public static String removeFeedbackReqFromUser(String reqID, long empID) throws InvalidAttributeValueException{
+//			if(reqID.length()<0 || empID<0)
+//				throw new InvalidAttributeValueException(INVALID_FBREQ_OR_EMPLOYEEID);
+//			//Get the user from the DB
+//			Employee querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", empID).get();
+//			if(querySearch!=null){
+//				String emailRes=querySearch.removeSpecificFeedbackRequest(reqID);
+//				if(!emailRes.equals("")){
+//					//Update the user data in the DB
+//					UpdateOperations<Employee> ops1 = dbConnection.createUpdateOperations(Employee.class).set("groupFeedbackRequests", querySearch.getGroupFeedbackRequestsList());
+//					dbConnection.update(querySearch, ops1);
+//					return emailRes;
+//				}
+//				throw new InvalidAttributeValueException(NOTDELETED_FBREQ);
+//			}
+//			else{
+//				throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+//			}
+//		}
 	
 //	private static MongoDatabase getMongoDBConnection() throws MongoException{
 //		if(dbConnection==null){

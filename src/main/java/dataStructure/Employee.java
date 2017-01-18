@@ -6,12 +6,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.bson.types.ObjectId;
 import com.google.gson.Gson;
+
+import services.validate.Validate;
 
 /**
  * 
@@ -39,7 +42,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	@Embedded
 	private List<List<DevelopmentNeed>> developmentNeeds;
 	@Embedded
-	private List<GroupFeedbackRequest> groupFeedbackRequests;
+	private List<FeedbackRequest> feedbackRequests;
 	@Embedded
 	private List<List<Competency>> competencies;
 
@@ -50,7 +53,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		this.objectives=new ArrayList<List<Objective>>();
 		this.notes=new ArrayList<List<Note>>();
 		this.developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
-		this.groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
+		this.feedbackRequests=new ArrayList<FeedbackRequest>();
 		this.competencies=new ArrayList<List<Competency>>();
 	}
 
@@ -69,7 +72,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			List<List<Objective>> objectives,
 			List<List<Note>> notes,
 			List<List<DevelopmentNeed>> needs,
-			List<GroupFeedbackRequest> requests,
+			List<FeedbackRequest> requests,
 			List<List<Competency>> competencies,
 			List<String> reportees) throws InvalidAttributeValueException{
 		super(employeeID, guid, name, surname,email,username,company,team,isManager,reportees);
@@ -77,7 +80,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		this.setObjectiveList(objectives);
 		this.setNoteList(notes);
 		this.setDevelopmentNeedsList(needs);
-		this.setGroupFeedbackRequestsList(requests);
+		this.setFeedbackRequestsList(requests);
 		this.setCompetenciesList(competencies);
 	}
 
@@ -96,7 +99,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		this.objectives=new ArrayList<List<Objective>>();
 		this.notes=new ArrayList<List<Note>>();
 		this.developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
-		this.groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
+		this.feedbackRequests=new ArrayList<FeedbackRequest>();
 		this.competencies=new ArrayList<List<Competency>>();
 	}
 
@@ -410,26 +413,20 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * @param data the list of feedback request object
 	 * @throws InvalidAttributeValueException
 	 */
-	public void setGroupFeedbackRequestsList(List<GroupFeedbackRequest> data) throws InvalidAttributeValueException{
-		if(data!=null){
-			//Counter that keeps tracks of the error while adding elements
-			int errorCounter=0;
-			this.groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
-			//Verify if each development need is valid
-			for(int i=0; i<data.size(); i++){
-				//Add a new List to the list of developmentNeeds
-				if(data.get(i)!=null){
-					if(!groupFeedbackRequests.add(data.get(i)))
-						errorCounter++;
-				}
-			}
-			//Verify if there were errors during the import of development needs
-			if(errorCounter!=0)
-				throw new InvalidAttributeValueException(Constants.INVALID_GROUPFEEDBACKREQUESTLIST_CONTEXT);
+	public void setFeedbackRequestsList(List<FeedbackRequest> feedbackRequestList) throws InvalidAttributeValueException {
+		
+		if(feedbackRequestList == null || feedbackRequestList.isEmpty())
+			throw new InvalidAttributeValueException("The list is invalid. Please try again with a valid list.");
+		
+		for(FeedbackRequest feedbackRequest : feedbackRequestList){
+			if(feedbackRequest == null)
+				throw new InvalidAttributeValueException("One or more items in this list is invalid. Please try again with a valid list.");
 		}
-		else
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUESTLIST_CONTEXT);
+		
+		this.feedbackRequests = new ArrayList<>(feedbackRequestList);
+		
 	}
+	
 
 	/**
 	 * 
@@ -437,8 +434,18 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @return
 	 */
-	public List<GroupFeedbackRequest> getGroupFeedbackRequestsList(){
-		return this.groupFeedbackRequests;
+	public List<FeedbackRequest> getFeedbackRequestsList(){
+		return this.feedbackRequests;
+	}
+	
+	public FeedbackRequest getFeedbackRequest(String id) throws InvalidAttributeValueException{
+		Validate.areStringsEmptyorNull(id);
+		
+		for(FeedbackRequest feedbackRequest : this.feedbackRequests){
+			if(feedbackRequest.getID().equals(id))
+				return feedbackRequest;
+		}	
+		return null;
 	}
 
 	/**
@@ -449,48 +456,28 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * @return
 	 * @throws InvalidAttributeValueException 
 	 */
-	public FeedbackRequest getSpecificFeedbackRequestFromGroupFBRequests(String id) throws InvalidAttributeValueException{
-		if(id!=null && !id.equals("")){
-			//			return feedbackRequests.stream()
-			//			.filter(t -> t.getID().equals(id))
-			//			.findFirst().get();
-			for(int i=0; i<groupFeedbackRequests.size(); i++){
-				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(id) != null)
-					return groupFeedbackRequests.get(i).searchFeedbackRequestID(id);
-			}
-		}
-		return null;
-	}
+
+
 	
-	public GroupFeedbackRequest getSpecificGroupFeedbackRequest(String id) throws InvalidAttributeValueException{
-		if(id!=null && !id.equals("")){
-			for(int i=0; i<groupFeedbackRequests.size(); i++){
-				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(id) != null)
-					return groupFeedbackRequests.get(i);
-			}
-		}
-		return null;
-	}
-	
-	public String removeSpecificFeedbackRequest(String fbID) throws InvalidAttributeValueException{
-		if(fbID!=null && !fbID.equals("")){
-			for(int i=0; i<groupFeedbackRequests.size(); i++){
-				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID)!=null){
-					//Remove the full group Request Feedback if it contains only 1 feedback request
-					String emailRecipient=groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID).getRecipient();
-					if(groupFeedbackRequests.get(i).getRequestList().size()==1)
-						groupFeedbackRequests.remove(i);
-					//Alternatively, remove the given feedback request
-					else
-						groupFeedbackRequests.get(i).removeFeedbackRequest(fbID);
-					//Return the email address found
-					return emailRecipient;
-				}
-			}
-			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_NOTFOUND_CONTEXT);
-		}
-		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_ID_CONTEXT);
-	}
+//	public String removeSpecificFeedbackRequest(String fbID) throws InvalidAttributeValueException{
+//		if(fbID!=null && !fbID.equals("")){
+//			for(int i=0; i<groupFeedbackRequests.size(); i++){
+//				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID)!=null){
+//					//Remove the full group Request Feedback if it contains only 1 feedback request
+//					String emailRecipient=groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID).getRecipient();
+//					if(groupFeedbackRequests.get(i).getRequestList().size()==1)
+//						groupFeedbackRequests.remove(i);
+//					//Alternatively, remove the given feedback request
+//					else
+//						groupFeedbackRequests.get(i).removeFeedbackRequest(fbID);
+//					//Return the email address found
+//					return emailRecipient;
+//				}
+//			}
+//			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_NOTFOUND_CONTEXT);
+//		}
+//		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_ID_CONTEXT);
+//	}
 
 	/**
 	 * 
@@ -824,6 +811,13 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		}
 		throw new InvalidAttributeValueException(Constants.INVALID_DEVNEED_CONTEXT);
 	}
+	
+	public boolean addFeedbackRequest(FeedbackRequest feedbackRequest) throws InvalidAttributeValueException{
+		if(feedbackRequest == null)
+			throw new InvalidAttributeValueException("This object is invalid.");
+		
+		return this.feedbackRequests.add(feedbackRequest);
+	}
 
 	/**
 	 * 
@@ -833,15 +827,15 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * @return true if it completes correctly, false otherwise
 	 * @throws InvalidAttributeValueException 
 	 */
-	public boolean addGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
-		if(groupFeedbackRequests==null)
-			groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
-		//Verify that the object is not null
-		if(obj==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
-		//The object has now been validated and can be added to the list for this user
-		return groupFeedbackRequests.add(obj);
-	}
+//	public boolean addGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
+//		if(groupFeedbackRequests==null)
+//			groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
+//		//Verify that the object is not null
+//		if(obj==null)
+//			throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
+//		//The object has now been validated and can be added to the list for this user
+//		return groupFeedbackRequests.add(obj);
+//	}
 
 	/**
 	 * 
@@ -851,16 +845,16 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * @return true if it completes correctly, false otherwise
 	 * @throws InvalidAttributeValueException 
 	 */
-	public boolean updateGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
-		if(obj!=null){
-			for(int i=0; i<groupFeedbackRequests.size(); i++){
-				if(groupFeedbackRequests.get(i).getID().equals(obj.getID()))
-					//Remove the obsolete object and add the new one
-					return (groupFeedbackRequests.remove(groupFeedbackRequests.get(i))) && (groupFeedbackRequests.add(obj));
-			}
-		}
-		throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
-	}
+//	public boolean updateGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
+//		if(obj!=null){
+//			for(int i=0; i<groupFeedbackRequests.size(); i++){
+//				if(groupFeedbackRequests.get(i).getID().equals(obj.getID()))
+//					//Remove the obsolete object and add the new one
+//					return (groupFeedbackRequests.remove(groupFeedbackRequests.get(i))) && (groupFeedbackRequests.add(obj));
+//			}
+//		}
+//		throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
+//	}
 
 	/**
 	 * 
@@ -869,13 +863,13 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * @param req the feedback request object
 	 * @return true if it completes correctly, false otherwise
 	 */
-	public boolean isGroupFeedbackRequestUniqueToEmployee(GroupFeedbackRequest req){
-		for(GroupFeedbackRequest t:groupFeedbackRequests){
-			if(t.getID().equals(req.getID()))
-				return false;
-		}
-		return true;
-	}
+//	public boolean isGroupFeedbackRequestUniqueToEmployee(GroupFeedbackRequest req){
+//		for(GroupFeedbackRequest t:groupFeedbackRequests){
+//			if(t.getID().equals(req.getID()))
+//				return false;
+//		}
+//		return true;
+//	}
 
 	/**
 	 * 
@@ -1051,13 +1045,13 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				s+="Version "+version++ +"\n"+obj.toString()+"\n";
 			}
 		}
-		//Add the Feedback requests
-		s+="Group Feedback Requests:\n";
-		counter=1;
-		for(GroupFeedbackRequest t:groupFeedbackRequests){
-			s+="Request "+counter++ +"\n";
-			s+=t.toString();
-		}
+//		//Add the Feedback requests
+//		s+="Group Feedback Requests:\n";
+//		counter=1;
+//		for(FeedbackRequest t:feedbackRequests){
+//			s+="Request "+counter++ +"\n";
+//			s+=t.toString();
+//		}
 		//Add the Competencies
 		s+="Competencies: ";
 		//Retrieve all the sublists

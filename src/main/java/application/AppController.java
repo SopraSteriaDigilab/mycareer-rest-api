@@ -29,7 +29,7 @@ import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
 import services.ad.ADProfileDAO;
-import services.ews.SMTPService;
+//import services.ews.SMTPService;
 import services.validate.Validate;
 import services.EmployeeDAO;
 import static services.validate.ValidateAppController.*;
@@ -47,13 +47,7 @@ import services.ews.Outgoing;
  */
 @CrossOrigin
 @RestController
-public class AppController {
-	
-	@RequestMapping(value="/sendEmailTest", method=RequestMethod.GET)
-	public void sendEmailTest(){
-		Outgoing.test();
-	}
-	
+public class AppController {	
 	
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public ResponseEntity<?> welcomePage(){
@@ -526,33 +520,33 @@ public class AppController {
 	 * @param notes a string of max 1000 characters containing any additional notes to add to the feedback request email
 	 * @return a message explaining whether the feedback request has been sent or if there was an error while completing the task
 	 */
-	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method=RequestMethod.POST)
-	public ResponseEntity<?> createFeedbackRequest(
-			@PathVariable("employeeID") long employeeID,
-			@RequestParam(value="emailsTo") String toFields,
-			@RequestParam(value="notes") String notes){
-		try{
-			//Split the email addresses from the toField into single elements
-			String[] emailAddressesToField=toFields.split(",");
-			for(int i=0; i<emailAddressesToField.length; i++){
-				emailAddressesToField[i]=emailAddressesToField[i].trim();
-			}
-			if(emailAddressesToField[0].length()<1)
-				return ResponseEntity.badRequest().body("No recipients inserted");
-			int attemptsCounter=1;
-			boolean done=SMTPService.tryToSendFeedbackRequest(attemptsCounter, employeeID, notes, emailAddressesToField);
-			if(done)
-				return ResponseEntity.ok("Your feedback request has been processed.");
-			else
-				return ResponseEntity.badRequest().body("Error while creating a feedback request");
-		}
-		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+//	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method=RequestMethod.POST)
+//	public ResponseEntity<?> createFeedbackRequest(
+//			@PathVariable("employeeID") long employeeID,
+//			@RequestParam(value="emailsTo") String toFields,
+//			@RequestParam(value="notes") String notes){
+//		try{
+//			//Split the email addresses from the toField into single elements
+//			String[] emailAddressesToField=toFields.split(",");
+//			for(int i=0; i<emailAddressesToField.length; i++){
+//				emailAddressesToField[i]=emailAddressesToField[i].trim();
+//			}
+//			if(emailAddressesToField[0].length()<1)
+//				return ResponseEntity.badRequest().body("No recipients inserted");
+//			int attemptsCounter=1;
+//			boolean done=SMTPService.tryToSendFeedbackRequest(attemptsCounter, employeeID, notes, emailAddressesToField);
+//			if(done)
+//				return ResponseEntity.ok("Your feedback request has been processed.");
+//			else
+//				return ResponseEntity.badRequest().body("Error while creating a feedback request");
+//		}
+//		catch(Exception e){
+//			return ResponseEntity.badRequest().body(e.getMessage());
+//		}
+//	}
 	
-	@RequestMapping(value="/generateFeedbackRequestTEST/{employeeID}", method=RequestMethod.POST)
-	public ResponseEntity<String> createFeedbackRequestTEST(
+	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<String> createFeedbackRequest(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="emailsTo") String toFields,
 			@RequestParam(value="notes") String notes){
@@ -573,19 +567,19 @@ public class AppController {
 	 * @param employeeID the employee ID
 	 * @return all the feedback requests created by the given user
 	 */
-	@RequestMapping(value="/getRequestedFeedback/{employeeID}", method=RequestMethod.GET)
-	public ResponseEntity<?> getGroupFeedbackRequests(
-			@PathVariable("employeeID") long employeeID){
-		try{
-			return ResponseEntity.ok(EmployeeDAO.getGroupFeedbackRequestsForUser(employeeID));
-		}
-		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
-		}
-		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+//	@RequestMapping(value="/getRequestedFeedback/{employeeID}", method=RequestMethod.GET)
+//	public ResponseEntity<?> getGroupFeedbackRequests(
+//			@PathVariable("employeeID") long employeeID){
+//		try{
+//			return ResponseEntity.ok(EmployeeDAO.getGroupFeedbackRequestsForUser(employeeID));
+//		}
+//		catch(MongoException me){
+//			return ResponseEntity.badRequest().body("DataBase Connection Error");
+//		}
+//		catch(Exception e){
+//			return ResponseEntity.badRequest().body(e.getMessage());
+//		}
+//	}
 
 	/**
 	 * 

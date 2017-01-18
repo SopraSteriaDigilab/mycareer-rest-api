@@ -150,7 +150,7 @@ public final class Constants {
 	public static final String[] AD_STERIA_ATTRIBUTES={"directReports"};
 
 	//Constants for the emailServices package	
-	public static final String MAILBOX_ADDRESS="feedback.uk@soprasteria.com";
+	public static final String MAILBOX_ADDRESS="ridhwan.nacef@soprasteria.com";
 //	public static final String MAIL_USERNAME="FbackUK";
 //	public static final String MAIL_PASSWORD="Auto_Map_$459$";
 //	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";

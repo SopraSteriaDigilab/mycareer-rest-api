@@ -47,6 +47,21 @@ public class ValidateTest {
     	Validate.areStringsEmptyorNull(); // no input
     }
     
+    @Test
+    public void testIsNullWithValid() throws InvalidAttributeValueException {
+    	assertFalse("should return 'false'", Validate.isNull(validString, validString)); // valid
+    }
+    
+    @Test(expected=InvalidAttributeValueException.class)
+    public void testIsNullWithNulls() throws InvalidAttributeValueException {
+    	Validate.areStringsEmptyorNull(nullString, nullString); // nulls
+    }
+    
+    @Test(expected=InvalidAttributeValueException.class)
+    public void testIsNullWithNotInput() throws InvalidAttributeValueException {
+    	Validate.areStringsEmptyorNull(); // no input
+    }
+    
    
 
 
