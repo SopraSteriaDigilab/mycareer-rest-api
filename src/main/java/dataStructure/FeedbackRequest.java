@@ -26,6 +26,7 @@ public class FeedbackRequest implements Serializable{//, Iterable<Feedback> {
 	private static final long serialVersionUID = 47606158926933500L;
 	//Global Variables
 	private String feedbackID, timeStamp, recipient;
+	private boolean repliedTo;
 //	@Embedded
 //	private List<Feedback> replies;
 
@@ -33,6 +34,7 @@ public class FeedbackRequest implements Serializable{//, Iterable<Feedback> {
 		this.feedbackID="";
 		this.timeStamp=null;
 		this.recipient="";
+		this.setRepliedTo(false);
 //		replies=new ArrayList<Feedback>();
 	}
 
@@ -40,23 +42,33 @@ public class FeedbackRequest implements Serializable{//, Iterable<Feedback> {
 		this.setTimeStamp();
 		this.generateID(id);
 		this.recipient="";
+		this.setRepliedTo(false);
 //		replies=new ArrayList<Feedback>();
+	}
+	
+	public FeedbackRequest(String feedbackID, String recipient){
+		this.feedbackID = feedbackID;
+		this.recipient = recipient;
+		this.setTimeStamp();
+		this.setRepliedTo(false);
 	}
 	
 	public FeedbackRequest(long id, String recipient) throws InvalidAttributeValueException{
 		this.setTimeStamp();
 		this.generateID(id);
 		this.setRecipient(recipient);
+		this.setRepliedTo(false);
 	}
 	
 	public FeedbackRequest(FeedbackRequest req){
 		this.feedbackID=req.getID();
 		this.timeStamp=req.getTimeStamp();
 		this.recipient=req.getRecipient();
+		this.repliedTo=req.isRepliedTo();
 //		this.replies=req.getReplies();
 	}
 
-	private void generateID(long id){
+	public void generateID(long id){
 		LocalDateTime date=LocalDateTime.now(ZoneId.of(UK_TIMEZONE));
 		//Remove all the symbols that we don't need
 		String dateS=date.toString().replace("-", "").replace("T", "").replace(":", "").replace(".", "");
@@ -90,6 +102,14 @@ public class FeedbackRequest implements Serializable{//, Iterable<Feedback> {
 
 	public String getRecipient(){
 		return this.recipient;
+	}
+	
+	public boolean isRepliedTo() {
+		return this.repliedTo;
+	}
+
+	public void setRepliedTo(boolean repliedTo) {
+		this.repliedTo = repliedTo;
 	}
 
 //	public void setReplies(List<Feedback> data) throws InvalidAttributeValueException{

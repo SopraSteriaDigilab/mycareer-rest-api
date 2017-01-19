@@ -47,7 +47,7 @@ import services.ews.Outgoing;
  */
 @CrossOrigin
 @RestController
-public class AppController {	
+public class AppController {
 	
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public ResponseEntity<?> welcomePage(){
@@ -553,7 +553,7 @@ public class AppController {
 		try {
 			isValidCreateFeedbackRequest(employeeID, toFields, notes);
 			Outgoing.processFeedbackRequest(employeeID, toFields, notes);
-			return ResponseEntity.ok("Your feedback has been processed.");
+			return ResponseEntity.ok("Your feedback request has been processed.");
 		} catch (InvalidAttributeValueException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		} catch (Exception e) {

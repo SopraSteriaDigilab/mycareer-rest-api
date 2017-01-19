@@ -533,6 +533,7 @@ public class EmployeeDAO {
 			if(data!=null && data instanceof DevelopmentNeed){
 				//Retrieve Employee with the given ID
 				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+				
 				if(querySearch.get()!=null){
 					Employee e = querySearch.get();
 					//Add the new development need to the list
@@ -629,6 +630,8 @@ public class EmployeeDAO {
 			throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
 		return false;
 	}
+	
+	
 	
 	public static boolean addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest) throws InvalidAttributeValueException{
 		Validate.isNull(employee, feedbackRequest);

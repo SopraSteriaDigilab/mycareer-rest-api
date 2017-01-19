@@ -1,4 +1,4 @@
-package services;
+package services.validate;
 
 import static org.junit.Assert.assertFalse;
 
@@ -61,11 +61,6 @@ public class ValidateTest {
     public void testIsNullWithNotInput() throws InvalidAttributeValueException {
     	Validate.areStringsEmptyorNull(); // no input
     }
-    
-   
-
-
-
-    
+       
 
 }

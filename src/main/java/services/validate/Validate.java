@@ -33,21 +33,8 @@ public class Validate {
 		return false;
 	}
 	
-	public static Set<String> stringEmailsToHashSet(String emailsString) throws InvalidAttributeValueException{
-		Set<String> emailSet = new HashSet<>();
-		String[] emailArray = emailsString.split(",");
-		
-		for(String email : emailArray){
-			if(email.isEmpty() || !isValidEmailSyntax(email.trim())){
-				throw new InvalidAttributeValueException("One or more of the emails are invalid");
-			}
-			emailSet.add(email.trim());
-		}	
-		
-		return emailSet;
-	}
 	
-	private static boolean isValidEmailSyntax(String email) {
+	public static boolean isValidEmailSyntax(String email) {
 		Pattern pattern = Pattern.compile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$");
 		return pattern.matcher(email).matches();
 	}
