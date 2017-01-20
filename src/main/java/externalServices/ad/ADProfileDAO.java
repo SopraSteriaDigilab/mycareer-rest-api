@@ -36,27 +36,79 @@ public class ADProfileDAO {
 	private static DirContext ldapContext;
 	private static DirContext ldapSteriaContext;
 
-	public static ADProfile_Basic authenticateUserProfile(String usernameEmail) throws NamingException, InvalidAttributeValueException {
-		//Verify the given string
-		if(usernameEmail==null || usernameEmail.equals("") || usernameEmail.length()<1)
+	public static ADProfile_Basic authenticateUserProfile(String usernameEmail)
+			throws NamingException, InvalidAttributeValueException {
+		// Verify the given string
+		if (usernameEmail == null || usernameEmail.equals("") || usernameEmail.length() < 1)
 			throw new InvalidAttributeValueException(INVALID_EMAILORUSERNAME_AD);
-		ADProfile_Advanced adObj=new ADProfile_Advanced();
-		//specify the LDAP search filter
+		ADProfile_Advanced adObj = new ADProfile_Advanced();
+		// specify the LDAP search filter
 		if (usernameEmail.contains("@")) {
 			if (usernameEmail.toString().contains("@soprasteria.com")) {
 				adObj = authenticateSSEmailUserName(usernameEmail);
 			} else {
 				adObj = authenticateJVEmail(usernameEmail);
 			}
-			// searchFilter = "(mail=" + usernameEmail + ")";
 		} else {
 			adObj = authenticateSSEmailUserName(usernameEmail);
 		}
-		
-		
-		
+
 		return EmployeeDAO.matchADWithMongoData(adObj);
 	}
+	
+	private static ADProfile_Advanced getProfileFromSopraAD(String email)throws NamingException, InvalidAttributeValueException {
+		
+		if(ldapContext==null)
+			ldapContext = getADConnection();
+		// Create the search controls         
+		SearchControls searchCtls = new SearchControls();
+		//Specify the attributes to return
+		searchCtls.setReturningAttributes(AD_SOPRA_ATTRIBUTES);
+		//Specify the search scope
+		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		//specify the LDAP search filter
+		String searchFilter="";
+		if(email.contains("@"))
+			searchFilter = "(mail=" + email + ")";
+		else
+			searchFilter = "(sAMAccountName=" + email + ")";
+		// Search for objects using the filter
+		NamingEnumeration<SearchResult> answer = ldapContext.search(AD_SOPRA_TREE, searchFilter, searchCtls);
+		ADProfile_Advanced adObj=new ADProfile_Advanced();
+
+		//Check the results retrieved
+		try {
+			SearchResult sr = (SearchResult) answer.next();
+			Attributes attrs = sr.getAttributes();
+			
+			// Get the employee ID from extensionAttribute7.
+			// If this field doesn't exist then this email address cannot be handled
+			Attribute extensionAttribute7 = attrs.get("extensionAttribute7");
+			Long employeeId = Long.parseLong(extensionAttribute7.get().toString().substring(1));
+			adObj.setEmployeeID(employeeId);
+			
+			//Extract the GUID which is a hexadecimal number and must be converted before using it
+			UUID uid=UUID.nameUUIDFromBytes((byte[])attrs.get("objectGUID").get());
+			adObj.setGUID(uid.toString());
+			
+			adObj.setSurname((String)attrs.get("sn").get());
+			adObj.setForename((String)attrs.get("givenName").get());
+			adObj.setEmailAddress((String)attrs.get("mail").get());
+			adObj.setUsername((String)attrs.get("sAMAccountName").get());
+			adObj.setCompany((String) attrs.get("company").get());
+			adObj.setTeam((String) attrs.get("department").get());
+		} catch (NoSuchElementException | NullPointerException e) { // There is no  matching user in the Active Directory.
+			throw new InvalidAttributeValueException(NOTFOUND_EMAILORUSERNAME_AD + email);
+		} finally {
+			// Close the connection with the AD
+			ldapContext.close();
+			ldapContext = null;			
+		}
+
+		return adObj;
+	}
+			
+	
 
 	private static ADProfile_Advanced authenticateJVEmail(String email) throws NamingException, InvalidAttributeValueException {
 		ADProfile_Advanced adObj = new ADProfile_Advanced();
@@ -82,25 +134,8 @@ public class ADProfileDAO {
 		try {
 			if(answer.hasMoreElements()){
 			SearchResult sr = (SearchResult) answer.next();
-			Attributes attrs = sr.getAttributes();
-
-			// Get the employee ID from extensionAttribute7.
-			// If this field doesn't exist then this email address cannot be
-			// handled
-			Long employeeId = EmployeeDAO.getUserIDFromEmailAddress((String) attrs.get("mail").get());
-			adObj.setEmployeeID(employeeId);
-
-			// Extract the GUID which is a hexadecimal number and must be
-			// converted before using it
-		//	UUID uid = UUID.nameUUIDFromBytes((byte[]) attrs.get("objectGUID").get());
-			//adObj.setGUID(uid.toString());
-
-			adObj.setSurname((String) attrs.get("sn").get());
-			adObj.setForename((String) attrs.get("givenName").get());
-			adObj.setEmailAddress((String) attrs.get("mail").get());
-			adObj.setUsername((String) attrs.get("sAMAccountName").get());
-			adObj.setCompany((String) attrs.get("company").get());
-			adObj.setTeam((String) attrs.get("department").get());
+			Attributes attrs = sr.getAttributes();			
+			adObj = getProfileFromSopraAD((String) attrs.get("sAMAccountName").get());
 			} else {
 				throw new InvalidAttributeValueException(NOTFOUND_EMAILORUSERNAME_AD + email);
 			}
@@ -126,51 +161,9 @@ public class ADProfileDAO {
 
 	private static ADProfile_Advanced authenticateSSEmailUserName(String usernameEmail) throws NamingException, InvalidAttributeValueException {
 		ADProfile_Advanced adObj = new ADProfile_Advanced();
-		if(ldapContext==null)
-			ldapContext = getADConnection();
-
-		// Create the search controls         
-		SearchControls searchCtls = new SearchControls();
-		//Specify the attributes to return
-		searchCtls.setReturningAttributes(AD_SOPRA_ATTRIBUTES);
-		//Specify the search scope
-		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		//specify the LDAP search filter
-		
-		String searchFilter="";
-		if(usernameEmail.contains("@"))
-			searchFilter = "(mail=" + usernameEmail + ")";
-		else
-			searchFilter = "(sAMAccountName=" + usernameEmail + ")";
-		
-		// Search for objects using the filter
-		NamingEnumeration<SearchResult> answer = ldapContext.search(AD_SOPRA_TREE, searchFilter, searchCtls);
-		// Check the results retrieved
+			// Check the results retrieved
 		try {			
-			SearchResult sr = (SearchResult) answer.next();
-			Attributes attrs = sr.getAttributes();
-
-			// Get the employee ID from extensionAttribute7.
-			// If this field doesn't exist then this email address cannot be
-			// handled
-			Attribute extensionAttribute7 = attrs.get("extensionAttribute7");
-			Long employeeId = Long.parseLong(extensionAttribute7.get().toString().substring(1));
-			adObj.setEmployeeID(employeeId);
-
-			// Extract the GUID which is a hexadecimal number and must be
-			// converted before using it
-			UUID uid = UUID.nameUUIDFromBytes((byte[]) attrs.get("objectGUID").get());
-			adObj.setGUID(uid.toString());
-
-			adObj.setSurname((String) attrs.get("sn").get());
-			adObj.setForename((String) attrs.get("givenName").get());
-			adObj.setEmailAddress((String) attrs.get("mail").get());
-			adObj.setUsername((String) attrs.get("sAMAccountName").get());
-			adObj.setCompany((String) attrs.get("company").get());
-			adObj.setTeam((String) attrs.get("department").get());
-			
-			// Try to extract the reportees of a user by calling a static method
-			// inside the ADReporteedDAO which deals with the connection with
+			adObj = getProfileFromSopraAD(usernameEmail);
 			// the STERIA AD
 			try {
 				adObj = ADReporteesDAO.findManagerReportees(adObj.getUsername(), adObj);
@@ -180,10 +173,6 @@ public class ADProfileDAO {
 			}
 		} catch (NoSuchElementException | NullPointerException e) { // There is no  matching user in the Active Directory.
 			throw new InvalidAttributeValueException(NOTFOUND_EMAILORUSERNAME_AD + usernameEmail);
-		} finally {
-			// Close the connection with the AD
-			ldapContext.close();
-			ldapContext = null;
 		}
 
 		return adObj;
