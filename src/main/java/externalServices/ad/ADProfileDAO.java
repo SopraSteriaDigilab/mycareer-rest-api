@@ -134,7 +134,11 @@ public class ADProfileDAO {
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		//specify the LDAP search filter
 		
-		String searchFilter = "(mail=" + usernameEmail + ")";
+		String searchFilter="";
+		if(usernameEmail.contains("@"))
+			searchFilter = "(mail=" + usernameEmail + ")";
+		else
+			searchFilter = "(sAMAccountName=" + usernameEmail + ")";
 		
 		// Search for objects using the filter
 		NamingEnumeration<SearchResult> answer = ldapContext.search(AD_SOPRA_TREE, searchFilter, searchCtls);

@@ -552,28 +552,16 @@ public class AppController {
 		try{
 			String type = "";
 			ADProfile_Basic adObj=new ADProfile_Basic();
-			if(toFields.toString().contains("@soprasteria.com")){
-				type="Internal";
-				//Find the full name of the employee providing the feedback from the AD
+						//Find the full name of the employee providing the feedback from the AD
 				try{
 					adObj=ADProfileDAO.authenticateUserProfile(toFields);
 				}
 				catch(Exception e){
 					return ResponseEntity.badRequest().body(" Error while finding the full name of the feedback provider");
 				}
-			}
-			else {
-				try{
-					adObj=ADProfileDAO.authenticateUserProfile(toFields);
-					type="JV";
-				}
-				catch(Exception e){
-					return ResponseEntity.badRequest().body(" Error while finding the full name of the feedback provider");
-				}
-				
-			}
+		
 			
-				return ResponseEntity.ok("Full Name: " + adObj.getFullName() + " " + "EmailType: " +  type);
+				return ResponseEntity.ok("Full Name: " + adObj.getFullName());
 		}
 		catch(Exception e){
 			return ResponseEntity.badRequest().body(e.getMessage());
