@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
+import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
@@ -550,12 +551,12 @@ public class AppController {
 			@RequestParam(value="emailsTo") String toFields){
 		try{
 			String type = "";
-			String fullNameFeedbackProvider = "";
+			ADProfile_Basic adObj=new ADProfile_Basic();
 			if(toFields.toString().contains("@soprasteria.com")){
 				type="Internal";
 				//Find the full name of the employee providing the feedback from the AD
 				try{
-					fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(toFields);
+					adObj=ADProfileDAO.authenticateUserProfile(toFields);
 				}
 				catch(Exception e){
 					return ResponseEntity.badRequest().body(" Error while finding the full name of the feedback provider");
@@ -563,12 +564,8 @@ public class AppController {
 			}
 			else {
 				try{
-					fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddressJV(toFields);
-					if(fullNameFeedbackProvider.isEmpty()){
-						type="External";
-					}else{
-						type="JV";
-					}
+					adObj=ADProfileDAO.authenticateUserProfile(toFields);
+					type="JV";
 				}
 				catch(Exception e){
 					return ResponseEntity.badRequest().body(" Error while finding the full name of the feedback provider");
@@ -576,7 +573,7 @@ public class AppController {
 				
 			}
 			
-				return ResponseEntity.ok("Full Name: " + fullNameFeedbackProvider + " " + "EmailType: " +  type);
+				return ResponseEntity.ok("Full Name: " + adObj.getFullName() + " " + "EmailType: " +  type);
 		}
 		catch(Exception e){
 			return ResponseEntity.badRequest().body(e.getMessage());

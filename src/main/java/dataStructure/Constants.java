@@ -147,7 +147,7 @@ public final class Constants {
 	public static final String AD_STERIA_PASSWORD="3I=AkSiGRr";
 	public static final String AD_STERIA_SEARCH_TREE="DC=one,DC=steria,DC=dom";
 	public static final String AD_STERIA_LOGIN_TREE="OU=Service Accounts,OU=UKCentral,OU=UK,OU=Resources,DC=one,DC=steria,DC=dom";
-	public static final String[] AD_STERIA_ATTRIBUTES={"directReports", "sn","givenName", "mail", "targetAddress"};
+	public static final String[] AD_STERIA_ATTRIBUTES={"directReports", "sn","givenName", "mail", "targetAddress","company", "sAMAccountName","department"};
 
 	//Constants for the emailServices package	
 	public static final String MAILBOX_ADDRESS="feedback.uk@soprasteria.com";
