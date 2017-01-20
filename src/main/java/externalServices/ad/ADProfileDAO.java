@@ -34,6 +34,7 @@ import java.util.UUID;
 public class ADProfileDAO {
 
 	private static DirContext ldapContext;
+	private static DirContext ldapSteriaContext;
 
 	public static ADProfile_Basic authenticateUserProfile(String usernameEmail) throws NamingException, InvalidAttributeValueException {
 		//Verify the given string
@@ -130,6 +131,7 @@ public class ADProfileDAO {
 		throw new InvalidAttributeValueException(INVALID_IDMATCHUSERNAME+employeeID);
 	}
 
+	//find full name using sopra steria email
 	public static String findEmployeeFullNameFromEmailAddress(String email) throws NamingException, InvalidAttributeValueException{
 		//Verify the given email address
 		if(email==null || email.length()<1)
@@ -167,6 +169,48 @@ public class ADProfileDAO {
 		ldapContext.close();
 		ldapContext=null;
 		throw new InvalidAttributeValueException(INVALID_EMAIL_AD + email);
+	}
+	
+	//find full name using targetAddress email
+	public static String findEmployeeFullNameFromEmailAddressJV(String email) throws NamingException, InvalidAttributeValueException{
+		String fullName = ""; 
+		//Verify the given email address
+		if(email==null || email.length()<1)
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_MAIL);
+		//Instantiate the connection
+		if(ldapSteriaContext==null)
+			ldapSteriaContext = getADSteriaConnectionJV();
+
+		// Create the search controls         
+		SearchControls searchCtls = new SearchControls();
+		//Specify the attributes to return
+		searchCtls.setReturningAttributes(AD_STERIA_ATTRIBUTES);
+		//Specify the search scope
+		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		//specify the LDAP search filter
+		
+		String searchFilter = "(targetAddress=" + email + ")";
+		
+		// Search for objects using the filter
+		NamingEnumeration<SearchResult> answer = ldapSteriaContext.search(AD_STERIA_SEARCH_TREE, searchFilter, searchCtls);
+
+		//Check the results retrieved
+		if(answer.hasMoreElements()){
+			SearchResult sr = (SearchResult)answer.next();
+			Attributes attrs = sr.getAttributes();
+			
+			//Find and return the full name
+			String surname=(String)attrs.get("sn").get();
+			//Convert the upper case surname into a lower case string with only the 1st char uppercase
+			surname=surname.substring(0,1).toUpperCase()+surname.substring(1).toLowerCase();
+			String forename=(String)attrs.get("givenName").get();
+			fullName = forename+" "+surname;
+			return fullName;
+		}
+		//Close the connection with the AD
+		ldapSteriaContext.close();
+		ldapSteriaContext=null;
+		return fullName;
 	}
 	
 	public static String findEmployeeFullNameFromID(String id)throws InvalidAttributeValueException, NamingException{
@@ -208,7 +252,7 @@ public class ADProfileDAO {
 	}
 
 	private static DirContext getADConnection() throws NamingException{
-
+		// get AD Sopra connection JV from 
 		Hashtable<String, String> ldapEnvironmentSettings = new Hashtable<String, String>();
 		ldapEnvironmentSettings.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 		ldapEnvironmentSettings.put(Context.PROVIDER_URL,  AD_SOPRA_HOST+":"+AD_PORT);
@@ -220,6 +264,22 @@ public class ADProfileDAO {
 		ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, AD_SOPRA_USERNAME);
 		//ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, "cn="+Constants.AD_USERNAME+","+Constants.AD_TREE);
 		ldapEnvironmentSettings.put(Context.SECURITY_CREDENTIALS, AD_SOPRA_PASSWORD);
+		return new InitialDirContext(ldapEnvironmentSettings);
+	}
+	
+	// get AD Steria connection JV from 
+	private static DirContext getADSteriaConnectionJV() throws NamingException{
+
+		Hashtable<String, String> ldapEnvironmentSettings = new Hashtable<String, String>();
+		ldapEnvironmentSettings.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+		ldapEnvironmentSettings.put(Context.PROVIDER_URL,  AD_STERIA_HOST+":"+AD_PORT);
+		ldapEnvironmentSettings.put(Context.SECURITY_AUTHENTICATION, AD_AUTHENTICATION);
+
+		//This is essential in order to retrieve the user GUID later on in the process
+		//ldapEnvironmentSettings.put("java.naming.ldap.attributes.binary", "objectGUID");
+
+		ldapEnvironmentSettings.put(Context.SECURITY_PRINCIPAL, "cn="+AD_STERIA_USERNAME+","+AD_STERIA_LOGIN_TREE);
+		ldapEnvironmentSettings.put(Context.SECURITY_CREDENTIALS, AD_STERIA_PASSWORD);
 		return new InitialDirContext(ldapEnvironmentSettings);
 	}
 }

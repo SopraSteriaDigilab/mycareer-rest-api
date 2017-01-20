@@ -2,6 +2,7 @@ package services;
 
 import static dataStructure.Constants.UK_TIMEZONE;
 
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.HashSet;
@@ -541,6 +542,47 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
+	
+	
+	@RequestMapping(value="/fullNameFeedbackPV/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> retrieveNames(
+			@PathVariable("employeeID") long employeeID,
+			@RequestParam(value="emailsTo") String toFields){
+		try{
+			String type = "";
+			String fullNameFeedbackProvider = "";
+			if(toFields.toString().contains("@soprasteria.com")){
+				type="Internal";
+				//Find the full name of the employee providing the feedback from the AD
+				try{
+					fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddress(toFields);
+				}
+				catch(Exception e){
+					return ResponseEntity.badRequest().body(" Error while finding the full name of the feedback provider");
+				}
+			}
+			else {
+				try{
+					fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddressJV(toFields);
+					if(fullNameFeedbackProvider.isEmpty()){
+						type="External";
+					}else{
+						type="JV";
+					}
+				}
+				catch(Exception e){
+					return ResponseEntity.badRequest().body(" Error while finding the full name of the feedback provider");
+				}
+				
+			}
+			
+				return ResponseEntity.ok("Full Name: " + fullNameFeedbackProvider + " " + "EmailType: " +  type);
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
 
 	/**
 	 * 

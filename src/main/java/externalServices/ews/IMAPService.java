@@ -225,8 +225,20 @@ public final class IMAPService {
 					logger.error("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" IMAPSErvice.Java --> Error while finding the full name of the feedback provider\n"+e.getMessage());
 				}
 			}
-			else
-				type="External";
+			else {
+				try{
+					fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddressJV(fromFieldEmail.getAddress().toString());
+					if(fullNameFeedbackProvider.isEmpty()){
+						type="External";
+					}else{
+						type="JV";
+					}
+				}
+				catch(Exception e){
+					logger.error("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" IMAPSErvice.Java --> Error while finding the full name of the feedback provider\n"+e.getMessage());
+				}
+				
+			}
 
 			String cleanBodyEmail=cleanEmailBody(message.getBody().toString()).trim();
 			if(cleanBodyEmail.length()<3){
@@ -355,8 +367,20 @@ public final class IMAPService {
 				logger.error("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" IMAPSErvice.Java --> Error while finding the full name of the feedback provider\n"+e.getMessage());
 			}
 		}
-		else
-			type="External";
+		else {
+			try{
+				fullNameFeedbackProvider=ADProfileDAO.findEmployeeFullNameFromEmailAddressJV(fromFieldEmail.getAddress().toString());
+				if(fullNameFeedbackProvider.isEmpty()){
+					type="External";
+				}else{
+					type="JV";
+				}
+			}
+			catch(Exception e){
+				logger.error("\t"+LocalTime.now(ZoneId.of(UK_TIMEZONE))+" IMAPSErvice.Java --> Error while finding the full name of the feedback provider\n"+e.getMessage());
+			}
+			
+		}
 
 		//Get the body of the email extracting only the necessary parts
 		String bodyEmail=extractReplyToFeedbackRequest(message).trim();

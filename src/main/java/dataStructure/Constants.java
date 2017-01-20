@@ -139,7 +139,7 @@ public final class Constants {
 	public static final String AD_SOPRA_USERNAME="svc_mycareer@emea.msad.sopra";
 	public static final String AD_SOPRA_PASSWORD="N9T$SiPSZ";
 	public static final String AD_SOPRA_TREE="ou=usersemea,DC=emea,DC=msad,DC=sopra";
-	public static final String[] AD_SOPRA_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "extensionAttribute7", "objectGUID", "mail", "department"};
+	public static final String[] AD_SOPRA_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "extensionAttribute7", "objectGUID", "mail", "department", "targetAddress"};
 	
 	//Steria AD Details
 	public static final String AD_STERIA_HOST="ldap://one.steria.dom";
@@ -147,7 +147,7 @@ public final class Constants {
 	public static final String AD_STERIA_PASSWORD="3I=AkSiGRr";
 	public static final String AD_STERIA_SEARCH_TREE="DC=one,DC=steria,DC=dom";
 	public static final String AD_STERIA_LOGIN_TREE="OU=Service Accounts,OU=UKCentral,OU=UK,OU=Resources,DC=one,DC=steria,DC=dom";
-	public static final String[] AD_STERIA_ATTRIBUTES={"directReports"};
+	public static final String[] AD_STERIA_ATTRIBUTES={"directReports", "sn","givenName", "mail", "targetAddress"};
 
 	//Constants for the emailServices package	
 	public static final String MAILBOX_ADDRESS="feedback.uk@soprasteria.com";
