@@ -2,6 +2,7 @@ package services;
 
 import static dataStructure.Constants.UK_TIMEZONE;
 
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.HashSet;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
+import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
@@ -541,6 +543,31 @@ public class AppController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
+	
+	
+	@RequestMapping(value="/fullNameFeedbackPV/{employeeID}", method=RequestMethod.POST)
+	public ResponseEntity<?> retrieveNames(
+			@PathVariable("employeeID") long employeeID,
+			@RequestParam(value="emailsTo") String toFields){
+		try{
+			String type = "";
+			ADProfile_Basic adObj=new ADProfile_Basic();
+						//Find the full name of the employee providing the feedback from the AD
+				try{
+					adObj=ADProfileDAO.authenticateUserProfile(toFields);
+				}
+				catch(Exception e){
+					return ResponseEntity.badRequest().body(" Error while finding the full name of the feedback provider");
+				}
+		
+			
+				return ResponseEntity.ok("Full Name: " + adObj.getFullName());
+		}
+		catch(Exception e){
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
 
 	/**
 	 * 
