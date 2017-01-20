@@ -80,6 +80,7 @@ public class ADProfileDAO {
 
 		// Check the results retrieved
 		try {
+			if(answer.hasMoreElements()){
 			SearchResult sr = (SearchResult) answer.next();
 			Attributes attrs = sr.getAttributes();
 
@@ -100,7 +101,9 @@ public class ADProfileDAO {
 			adObj.setUsername((String) attrs.get("sAMAccountName").get());
 			adObj.setCompany((String) attrs.get("company").get());
 			adObj.setTeam((String) attrs.get("department").get());
-
+			} else {
+				throw new InvalidAttributeValueException(NOTFOUND_EMAILORUSERNAME_AD + email);
+			}
 			// Try to extract the reportees of a user by calling a static method
 			// inside the ADReporteedDAO which deals with the connection with
 			// the STERIA AD
@@ -115,7 +118,7 @@ public class ADProfileDAO {
 		} finally {
 			// Close the connection with the AD
 			ldapSteriaContext.close();
-			ldapSteriaContext = null;
+			ldapSteriaContext = null;			
 		}
 
 		return adObj;
@@ -143,7 +146,7 @@ public class ADProfileDAO {
 		// Search for objects using the filter
 		NamingEnumeration<SearchResult> answer = ldapContext.search(AD_SOPRA_TREE, searchFilter, searchCtls);
 		// Check the results retrieved
-		try {
+		try {			
 			SearchResult sr = (SearchResult) answer.next();
 			Attributes attrs = sr.getAttributes();
 
@@ -165,7 +168,7 @@ public class ADProfileDAO {
 			adObj.setUsername((String) attrs.get("sAMAccountName").get());
 			adObj.setCompany((String) attrs.get("company").get());
 			adObj.setTeam((String) attrs.get("department").get());
-
+			
 			// Try to extract the reportees of a user by calling a static method
 			// inside the ADReporteedDAO which deals with the connection with
 			// the STERIA AD
