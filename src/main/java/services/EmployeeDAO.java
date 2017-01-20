@@ -2,9 +2,7 @@ package services;
 
 import static dataStructure.Constants.DEVELOPMENTNEED_NOTADDED_ERROR;
 import static dataStructure.Constants.DUPLICATE_FEEDBACK;
-import static dataStructure.Constants.ERROR_LINKING_FBTOUSER;
 import static dataStructure.Constants.FEEDBACK_NOTADDED_ERROR;
-import static dataStructure.Constants.GROUPFBREQ_NOTADDED_ERROR;
 import static dataStructure.Constants.INVALID_COMPETENCY_CONTEXT;
 import static dataStructure.Constants.INVALID_COMPETENCY_OR_EMPLOYEEID;
 import static dataStructure.Constants.INVALID_CONTEXT_PROGRESS;
@@ -12,9 +10,7 @@ import static dataStructure.Constants.INVALID_CONTEXT_USERID;
 import static dataStructure.Constants.INVALID_DEVNEEDID_CONTEXT;
 import static dataStructure.Constants.INVALID_DEVNEED_CONTEXT;
 import static dataStructure.Constants.INVALID_DEVNEED_OR_EMPLOYEEID;
-import static dataStructure.Constants.INVALID_FBREQ_OR_EMPLOYEEID;
 import static dataStructure.Constants.INVALID_FEEDBACK;
-import static dataStructure.Constants.INVALID_FEEDBACKREQ_CONTEXT;
 import static dataStructure.Constants.INVALID_IDNOTFOND;
 import static dataStructure.Constants.INVALID_NOTE;
 import static dataStructure.Constants.INVALID_NOTEID;
@@ -24,7 +20,6 @@ import static dataStructure.Constants.INVALID_OBJECTIVEID;
 import static dataStructure.Constants.INVALID_OBJECTIVE_OR_EMPLOYEEID;
 import static dataStructure.Constants.INVALID_USEREMAIL;
 import static dataStructure.Constants.INVALID_USERGUID_NOTFOUND;
-import static dataStructure.Constants.NOTDELETED_FBREQ;
 import static dataStructure.Constants.NOTE_NOTADDED_ERROR;
 import static dataStructure.Constants.NULL_OBJECTIVE;
 import static dataStructure.Constants.NULL_USER_DATA;
@@ -35,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
@@ -42,7 +38,8 @@ import javax.naming.NamingException;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
-import org.mongodb.morphia.query.UpdateResults;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mongodb.MongoException;
 
@@ -53,10 +50,10 @@ import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
-import dataStructure.GroupFeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 import services.ad.ADProfileDAO;
+import services.ews.EmailService;
 import services.validate.Validate;
 
 /**
@@ -71,7 +68,7 @@ import services.validate.Validate;
  */
 public class EmployeeDAO {
 
-//	private final static Logger logger = Logger.getLogger(EmployeeDAO.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(EmployeeDAO.class);
 	
 	//There is only 1 instance of the Datastore in the whole system
 	private static Datastore dbConnection;
@@ -631,6 +628,29 @@ public class EmployeeDAO {
 		return false;
 	}
 	
+	
+	public static void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception {
+		Employee requester = EmployeeDAO.getEmployee(employeeID);
+		Set<String> recipientList = Helper.stringEmailsToHashSet(emailsString);
+		List<String> errorRecipientList = new ArrayList<String>();
+		
+		for(String recipient : recipientList){
+			String tempID = Helper.generateID(employeeID);
+			String body = notes + " \n\n Feedback_Request_" + tempID;
+			try {
+				EmailService.sendEmail(requester.getEmailAddress(), recipient, "Feedback Request", body);
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+				errorRecipientList.add(recipient);
+				continue;
+			}
+			EmployeeDAO.addFeedbackRequest(requester, new FeedbackRequest(tempID, recipient));
+		}
+		
+		if(!errorRecipientList.isEmpty()){
+			throw new Exception("There were issues sending requests to the following addresses: \n" + errorRecipientList.toString());
+		}
+	}
 	
 	
 	public static boolean addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest) throws InvalidAttributeValueException{

@@ -33,7 +33,6 @@ import services.ad.ADProfileDAO;
 import services.validate.Validate;
 import services.EmployeeDAO;
 import static services.validate.ValidateAppController.*;
-import services.ews.Outgoing;
 
 /**
  * 
@@ -552,7 +551,7 @@ public class AppController {
 			@RequestParam(value="notes") String notes){
 		try {
 			isValidCreateFeedbackRequest(employeeID, toFields, notes);
-			Outgoing.processFeedbackRequest(employeeID, toFields, notes);
+			EmployeeDAO.processFeedbackRequest(employeeID, toFields, notes);
 			return ResponseEntity.ok("Your feedback request has been processed.");
 		} catch (InvalidAttributeValueException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
