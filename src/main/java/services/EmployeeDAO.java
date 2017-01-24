@@ -71,12 +71,13 @@ public class EmployeeDAO {
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeDAO.class);
 	
 	//There is only 1 instance of the Datastore in the whole system
-	private static Datastore dbConnection;
+    static Datastore dbConnection;
 	
 	public EmployeeDAO(Datastore dbConnection) {
 		EmployeeDAO.dbConnection = dbConnection;
 	}
 	
+
 	public static Employee getEmployee(long employeeID) throws InvalidAttributeValueException {
 		Employee employee = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if (employee == null) {
