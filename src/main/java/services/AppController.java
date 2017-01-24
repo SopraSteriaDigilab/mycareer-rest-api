@@ -1,8 +1,9 @@
 package services;
 
 import static dataStructure.Constants.UK_TIMEZONE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.HashSet;
@@ -16,14 +17,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
-import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
@@ -33,6 +31,7 @@ import dataStructure.Objective;
 import externalServices.ad.ADProfileDAO;
 import externalServices.ews.SMTPService;
 import externalServices.mongoDB.EmployeeDAO;
+import externalServices.mongoDB.HrDataDAO;
 
 /**
  * 
@@ -48,15 +47,48 @@ import externalServices.mongoDB.EmployeeDAO;
 @RestController
 public class AppController {
 	
-	@RequestMapping(value="/", method=RequestMethod.GET)
+	@RequestMapping(value="/", method = GET)
 	public ResponseEntity<?> welcomePage(){
 		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
 	}
 	
-	@RequestMapping(value="/logMeIn", produces={"text/html"}, method=RequestMethod.GET)
-	public @ResponseBody String index(HttpServletRequest request) {
-		return request.getRemoteUser();
+	@RequestMapping(value="/logMeIn", method = GET)
+	public ResponseEntity<?> index(HttpServletRequest request) {
+		String username = request.getRemoteUser();
+		return authenticateUserProfile(username);
 	}
+	
+	//HR data methods
+	/**
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database
+	 * 
+	 */
+	@RequestMapping(value="/getTotalAccounts", method=RequestMethod.GET)
+	public ResponseEntity<Long> getTotalAccounts(){
+		return ResponseEntity.ok(HrDataDAO.getTotalNumberOfUsers());
+	}//RequestMapping getTotalAccounts
+	
+	/**
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one objective created.
+	 * 
+	 */
+	@RequestMapping(value="/getTotalAccountsWithObjectives", method=RequestMethod.GET)
+	public ResponseEntity<Long> getTotalAccountsWithObjectives(){
+		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithObjectives());
+	}//RequestMapping getTotalAccounts
+	
+	/**
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one development need created.
+	 * 
+	 */
+	@RequestMapping(value="/getTotalAccountsWithDevelopmentNeeds", method=RequestMethod.GET)
+	public ResponseEntity<Long> getTotalAccountsWithDevelopmentNeeds(){
+		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithDevelopmentNeeds());
+	}//RequestMapping getTotalAccounts
+	
+	
+	
+	
 
 	/**
 	 * 
@@ -65,7 +97,7 @@ public class AppController {
 	 * @param employeeID the employee ID (>0)
 	 * @return the list of objectives (only the latest version of them)
 	 */
-	@RequestMapping(value="/getObjectives/{employeeID}", method=RequestMethod.GET)
+	@RequestMapping(value="/getObjectives/{employeeID}", method = GET)
 	public ResponseEntity<?> getObjectives(@PathVariable long employeeID){
 		if(employeeID>0)
 			try {
@@ -89,7 +121,7 @@ public class AppController {
 	 * @param employeeID the employee ID (>0)
 	 * @return list of feedback (only the latest version of them)
 	 */
-	@RequestMapping(value="/getFeedback/{employeeID}", method=RequestMethod.GET)
+	@RequestMapping(value="/getFeedback/{employeeID}", method = GET)
 	public ResponseEntity<?> getFeedback(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
@@ -112,7 +144,7 @@ public class AppController {
 	 * @param employeeID the ID of an employee
 	 * @return list of notes (only the latest version for each of them)
 	 */
-	@RequestMapping(value="/getNotes/{employeeID}", method=RequestMethod.GET)
+	@RequestMapping(value="/getNotes/{employeeID}", method = GET)
 	public ResponseEntity<?> getNotes(@PathVariable long employeeID){
 		if(employeeID>0){
 			try{
@@ -136,7 +168,7 @@ public class AppController {
 	 * @param employeeID the ID of an employee
 	 * @return list of development needs (only latest version for each one of them)
 	 */
-	@RequestMapping(value="/getDevelopmentNeeds/{employeeID}", method=RequestMethod.GET)
+	@RequestMapping(value="/getDevelopmentNeeds/{employeeID}", method = GET)
 	public ResponseEntity<?> getDevelomentNeeds(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
@@ -159,7 +191,7 @@ public class AppController {
 	 * @param employeeID the ID of an employee
 	 * @return list of competencies (only latest version for each one of them)
 	 */
-	@RequestMapping(value="/getCompetencies/{employeeID}", method=RequestMethod.GET)
+	@RequestMapping(value="/getCompetencies/{employeeID}", method = GET)
 	public ResponseEntity<?> getCompetencies(
 			@PathVariable("employeeID") long employeeID){
 		try{
@@ -180,7 +212,7 @@ public class AppController {
 	 * @param employeeID the ID of an employee
 	 * @return list of ADProfileBasics
 	 */
-	@RequestMapping(value="/getReportees/{employeeID}", method=RequestMethod.GET)
+	@RequestMapping(value="/getReportees/{employeeID}", method = GET)
 	public ResponseEntity<?> getReportees(@PathVariable long employeeID){
 		try{
 			return ResponseEntity.ok(EmployeeDAO.getReporteesForUser(employeeID));
@@ -193,7 +225,7 @@ public class AppController {
 		}
 	}
 
-	@RequestMapping(value="/management/retrieveAllUser_Data/employee/{employeeID}", method=RequestMethod.GET)
+	@RequestMapping(value="/management/retrieveAllUser_Data/employee/{employeeID}", method = GET)
 	public ResponseEntity<?> getAllUserData(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
@@ -224,7 +256,7 @@ public class AppController {
 	 *  2 => Done
 	 * @return a message explaining if the objective has been inserted or if there was an error while completing the task
 	 */
-	@RequestMapping(value="/addObjective/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/addObjective/{employeeID}", method = POST)
 	public ResponseEntity<?> addObjectiveToAUser(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="title") String title,
@@ -264,7 +296,7 @@ public class AppController {
 	 *  2 => Done
 	 * @return a message explaining if the objective has been updated or if there was an error while completing the task
 	 */
-	@RequestMapping(value="/editObjective/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/editObjective/{employeeID}", method = POST)
 	public ResponseEntity<?> addNewVersionObjectiveToAUser(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="objectiveID") int objectiveID,
@@ -290,7 +322,7 @@ public class AppController {
 		}
 	}
 	
-	@RequestMapping(value="/editObjectiveProgress/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/editObjectiveProgress/{employeeID}", method = POST)
 	public ResponseEntity<?> addNewVersionObjectiveToAUser(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="objectiveID") int objectiveID,
@@ -319,7 +351,7 @@ public class AppController {
 	 * @param isArchived boolean value (true=archive, false=unarchive)
 	 * @return a message explaining if the objective has been updated or if there was an error while completing the task
 	 */
-	@RequestMapping(value="/changeStatusObjective/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/changeStatusObjective/{employeeID}", method = POST)
 	public ResponseEntity<?> updateStatusUserObjective(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="objectiveID") int objectiveID,
@@ -365,7 +397,7 @@ public class AppController {
 	 * @param body the content of the note (<1000)
 	 * @return a message explaining if the note has been added or if there was an error while completing the task
 	 */
-	@RequestMapping(value="/addNote/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/addNote/{employeeID}", method = POST)
 	public ResponseEntity<?> addNoteToAUser(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="noteType") int noteType,
@@ -398,7 +430,7 @@ public class AppController {
 	 * @param body the content of the note (<1000)
 	 * @return a message explaining if the note has been added or if there was an error while completing the task
 	 */
-	@RequestMapping(value="/editNote/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/editNote/{employeeID}", method = POST)
 	public ResponseEntity<?> addNewVersionNoteToAUser(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="noteID") int noteID,
@@ -432,7 +464,7 @@ public class AppController {
 	 * @param timeToCompleteBy String containing a date with format yyyy-MM or empty ""
 	 * @return a message explaining if the development need has been added or if there was an error while completing the task
 	 */
-	@RequestMapping(value="/addDevelopmentNeed/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/addDevelopmentNeed/{employeeID}", method = POST)
 	public ResponseEntity<?> addDevelopmentNeedToAUser(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="category") int cat,
@@ -466,7 +498,7 @@ public class AppController {
 	 * @param timeToCompleteBy String containing a date with format yyyy-MM or empty ""
 	 * @return a message explaining if the development need has been added or if there was an error while completing the task
 	 */
-	@RequestMapping(value="/editDevelopmentNeed/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/editDevelopmentNeed/{employeeID}", method = POST)
 	public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="category") int cat,
@@ -492,7 +524,7 @@ public class AppController {
 	}
 
 	
-	@RequestMapping(value="/editDevelopmentNeedProgress/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/editDevelopmentNeedProgress/{employeeID}", method = POST)
 	public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="devNeedID") int devNeedID,
@@ -519,7 +551,7 @@ public class AppController {
 	 * @param notes a string of max 1000 characters containing any additional notes to add to the feedback request email
 	 * @return a message explaining whether the feedback request has been sent or if there was an error while completing the task
 	 */
-	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method = POST)
 	public ResponseEntity<?> createFeedbackRequest(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="emailsTo") String toFields,
@@ -545,28 +577,28 @@ public class AppController {
 	}
 	
 	
-	@RequestMapping(value="/fullNameFeedbackPV/{employeeID}", method=RequestMethod.POST)
-	public ResponseEntity<?> retrieveNames(
-			@PathVariable("employeeID") long employeeID,
-			@RequestParam(value="emailsTo") String toFields){
-		try{
-			String type = "";
-			ADProfile_Basic adObj=new ADProfile_Basic();
-						//Find the full name of the employee providing the feedback from the AD
-				try{
-					adObj=ADProfileDAO.authenticateUserProfile(toFields);
-				}
-				catch(Exception e){
-					return ResponseEntity.badRequest().body(" Error while finding the full name of the feedback provider");
-				}
-		
-			
-				return ResponseEntity.ok("Full Name: " + adObj.getFullName());
-		}
-		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+//	@RequestMapping(value="/fullNameFeedbackPV/{employeeID}", method = POST)
+//	public ResponseEntity<?> retrieveNames(
+//			@PathVariable("employeeID") long employeeID,
+//			@RequestParam(value="emailsTo") String toFields){
+//		try{
+//			String type = "";
+//			ADProfile_Basic adObj=new ADProfile_Basic();
+//						//Find the full name of the employee providing the feedback from the AD
+//				try{
+//					adObj=ADProfileDAO.authenticateUserProfile(toFields);
+//				}
+//				catch(Exception e){
+//					return ResponseEntity.badRequest().body(" Error while finding the full name of the feedback provider");
+//				}
+//		
+//			
+//				return ResponseEntity.ok("Full Name: " + adObj.getFullName());
+//		}
+//		catch(Exception e){
+//			return ResponseEntity.badRequest().body(e.getMessage());
+//		}
+//	}
 	
 
 	/**
@@ -574,7 +606,7 @@ public class AppController {
 	 * @param employeeID the employee ID
 	 * @return all the feedback requests created by the given user
 	 */
-	@RequestMapping(value="/getRequestedFeedback/{employeeID}", method=RequestMethod.GET)
+	@RequestMapping(value="/getRequestedFeedback/{employeeID}", method = GET)
 	public ResponseEntity<?> getGroupFeedbackRequests(
 			@PathVariable("employeeID") long employeeID){
 		try{
@@ -596,7 +628,7 @@ public class AppController {
 	 * @param title title of the competency (<200)
 	 * @return a message explaining if the competency has been updated or if there was an error while completing the task
 	 */
-	@RequestMapping(value="/updateCompetency/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/updateCompetency/{employeeID}", method = POST)
 	public ResponseEntity<?> addCompetenciesToAUser(
 			@PathVariable("employeeID") long employeeID,
 			@RequestParam(value="title") String title,
@@ -622,7 +654,7 @@ public class AppController {
 		}
 	}
 
-	@RequestMapping(value="/authenticateUserProfile", method=RequestMethod.GET)
+	@RequestMapping(value="/authenticateUserProfile", method = GET)
 	public ResponseEntity<?> authenticateUserProfile(@RequestParam(value="userName_Email") String userName){
 		try {
 			if(userName!=null && !userName.equals("") && userName.length()<300 ){
@@ -654,7 +686,7 @@ public class AppController {
 	 *  2 => Done
 	 * @return a message explaining if the objective has been inserted or if there was an error while completing the task
 	 */
-	@RequestMapping(value="/addProposedObjective/{employeeID}", method=RequestMethod.POST)
+	@RequestMapping(value="/addProposedObjective/{employeeID}", method = POST)
 	public ResponseEntity<?> addProposedObjectiveToAUser(
 			@PathVariable(value="employeeID") long employeeID,
 			@RequestParam(value="title") String title,
@@ -734,7 +766,7 @@ public class AppController {
 	 * 
 	 * @param employeeID
 	 */
-	@RequestMapping(value="/getIDTitlePairs/{employeeID}", method=RequestMethod.GET)
+	@RequestMapping(value="/getIDTitlePairs/{employeeID}", method = GET)
 	public ResponseEntity<?> getIDTitlePairs(@PathVariable long employeeID){
 		if(employeeID>0)
 			try {

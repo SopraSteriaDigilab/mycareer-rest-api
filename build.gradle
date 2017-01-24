@@ -24,7 +24,7 @@ apply plugin: 'org.springframework.boot'
 //Define the name of the JAR file created when the project is built as an executable archive
 jar {
     baseName = 'myCareer_BE'
-    version =  '1.0'
+    version =  '1.0.1'
 }
 
 //This defines the repositories where the dependencies can be found and downloaded
