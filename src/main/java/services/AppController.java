@@ -31,6 +31,7 @@ import dataStructure.Objective;
 import externalServices.ad.ADProfileDAO;
 import externalServices.ews.SMTPService;
 import externalServices.mongoDB.EmployeeDAO;
+import externalServices.mongoDB.HrDataDAO;
 
 /**
  * 
@@ -56,6 +57,38 @@ public class AppController {
 		String username = request.getRemoteUser();
 		return authenticateUserProfile(username);
 	}
+	
+	//HR data methods
+	/**
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database
+	 * 
+	 */
+	@RequestMapping(value="/getTotalAccounts", method=RequestMethod.GET)
+	public ResponseEntity<Long> getTotalAccounts(){
+		return ResponseEntity.ok(HrDataDAO.getTotalNumberOfUsers());
+	}//RequestMapping getTotalAccounts
+	
+	/**
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one objective created.
+	 * 
+	 */
+	@RequestMapping(value="/getTotalAccountsWithObjectives", method=RequestMethod.GET)
+	public ResponseEntity<Long> getTotalAccountsWithObjectives(){
+		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithObjectives());
+	}//RequestMapping getTotalAccounts
+	
+	/**
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one development need created.
+	 * 
+	 */
+	@RequestMapping(value="/getTotalAccountsWithDevelopmentNeeds", method=RequestMethod.GET)
+	public ResponseEntity<Long> getTotalAccountsWithDevelopmentNeeds(){
+		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithDevelopmentNeeds());
+	}//RequestMapping getTotalAccounts
+	
+	
+	
+	
 
 	/**
 	 * 
