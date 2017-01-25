@@ -15,7 +15,6 @@ public class ValidateTest {
 	private String emptyString = "";
 	private String nullString = null;
 	
-	//	Testing areStringsEmpytOrNull Method
     @Test
     public void testAreStringsEmptyorNullWithValid() throws InvalidAttributeValueException {
     	assertFalse("should return 'false'", Validate.areStringsEmptyorNull(validString)); // one valid
@@ -54,12 +53,12 @@ public class ValidateTest {
     
     @Test(expected=InvalidAttributeValueException.class)
     public void testIsNullWithNulls() throws InvalidAttributeValueException {
-    	Validate.areStringsEmptyorNull(nullString, nullString); // nulls
+    	Validate.isNull(nullString, nullString); // nulls
     }
     
     @Test(expected=InvalidAttributeValueException.class)
     public void testIsNullWithNotInput() throws InvalidAttributeValueException {
-    	Validate.areStringsEmptyorNull(); // no input
+    	Validate.isNull(); // no input
     }
        
 

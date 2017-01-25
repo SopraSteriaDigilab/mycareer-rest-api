@@ -28,7 +28,6 @@ public class Application {
 		try {
 			setEnvironmentProperty();
 			SpringApplication.run(Application.class, args);
-//			IMAPService.initiateIMAPService();
 			} catch (UnknownHostException e) {
 				logger.error("Application Error: " + e.getMessage());
 			}
