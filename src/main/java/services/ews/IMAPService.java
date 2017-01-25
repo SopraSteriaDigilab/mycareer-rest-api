@@ -20,8 +20,8 @@
 //import dataStructure.ADProfile_Basic;
 //import dataStructure.Constants;
 //import dataStructure.Feedback;
-//import externalServices.ad.ADProfileDAO;
-//import externalServices.mongoDB.EmployeeDAO;
+//import services.ad.ADProfileDAO;
+//import services.EmployeeDAO;
 //import microsoft.exchange.webservices.data.core.ExchangeService;
 //import microsoft.exchange.webservices.data.core.PropertySet;
 //import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
@@ -41,7 +41,6 @@
 //import microsoft.exchange.webservices.data.search.FindItemsResults;
 //import microsoft.exchange.webservices.data.search.ItemView;
 //import microsoft.exchange.webservices.data.search.filter.SearchFilter;
-//import services.Application;
 //
 ///**
 // * 
@@ -54,7 +53,7 @@
 // */
 //public final class IMAPService {
 //	
-//	private static final Logger logger = LoggerFactory.getLogger(Application.class);
+//	private static final Logger logger = LoggerFactory.getLogger(IMAPService.class);
 //
 //	//Global Variables
 //	private static ExchangeService emailService;

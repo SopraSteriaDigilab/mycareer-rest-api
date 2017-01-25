@@ -5,10 +5,11 @@ import static dataStructure.Constants.UK_TIMEZONE;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.management.InvalidAttributeValueException;
+
 import org.mongodb.morphia.annotations.Embedded;
+
 import com.google.gson.Gson;
 
 /**

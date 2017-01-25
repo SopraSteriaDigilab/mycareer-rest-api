@@ -13,31 +13,27 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
-//import services.ews.IMAPService;
-
-//import externalServices.ews.IMAPService;
 
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
+@ComponentScan(basePackages = {"application","services"})
+@EnableScheduling
 public class Application {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Application.class);
 	
-    public static void main(String[] args) {   	
-		try {	
-			logger.info("Setting the Environment");
+    public static void main(String[] args) {
+		try {
 			setEnvironmentProperty();
-			//Start the Restful WebService
-			logger.info("Starting the Spring Application");
 			SpringApplication.run(Application.class, args);
-			//Start the EmailService that checks for new emails and add the feedback to a user
-			logger.info("Starting the Email Service");
 //			IMAPService.initiateIMAPService();
-		} catch (Exception e) {
-			logger.error("Application Error: " + e.getMessage());
+			} catch (UnknownHostException e) {
+				logger.error("Application Error: " + e.getMessage());
+			}
 		}
-		logger.info("MyCareer is running successfully on post 8080");
-    }
+
     
     private static void setEnvironmentProperty() throws UnknownHostException {
 		String environment;
