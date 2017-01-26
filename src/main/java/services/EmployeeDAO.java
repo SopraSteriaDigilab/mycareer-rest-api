@@ -1,8 +1,6 @@
 package services;
 
 import static dataStructure.Constants.DEVELOPMENTNEED_NOTADDED_ERROR;
-import static dataStructure.Constants.DUPLICATE_FEEDBACK;
-import static dataStructure.Constants.FEEDBACK_NOTADDED_ERROR;
 import static dataStructure.Constants.INVALID_COMPETENCY_CONTEXT;
 import static dataStructure.Constants.INVALID_COMPETENCY_OR_EMPLOYEEID;
 import static dataStructure.Constants.INVALID_CONTEXT_PROGRESS;
@@ -10,7 +8,6 @@ import static dataStructure.Constants.INVALID_CONTEXT_USERID;
 import static dataStructure.Constants.INVALID_DEVNEEDID_CONTEXT;
 import static dataStructure.Constants.INVALID_DEVNEED_CONTEXT;
 import static dataStructure.Constants.INVALID_DEVNEED_OR_EMPLOYEEID;
-import static dataStructure.Constants.INVALID_FEEDBACK;
 import static dataStructure.Constants.INVALID_IDNOTFOND;
 import static dataStructure.Constants.INVALID_NOTE;
 import static dataStructure.Constants.INVALID_NOTEID;
@@ -121,14 +118,14 @@ public class EmployeeDAO {
 		return feedbackList;
 	}
 
-	public static int getLatestFeedbackIDForUser(long employeeID) throws InvalidAttributeValueException{
-		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
-		if(queryRes==null)
-			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-		List<Feedback> feedbackList = queryRes.getAllFeedback();
-		Feedback latest=feedbackList.get(feedbackList.size()-1);
-		return latest.getID();
-	}
+//	public static int getLatestFeedbackIDForUser(long employeeID) throws InvalidAttributeValueException{
+//		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
+//		if(queryRes==null)
+//			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+//		List<Feedback> feedbackList = queryRes.getAllFeedback();
+//		Feedback latest=feedbackList.get(feedbackList.size()-1);
+//		return latest.getID();
+//	}
 
 	public static List<Note> getNotesForUser(long employeeID) throws InvalidAttributeValueException{
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
@@ -229,7 +226,7 @@ public class EmployeeDAO {
 				}
 				else if (temp instanceof Feedback){
 					Feedback dataConv=(Feedback)temp;
-					mapConverted.put(dataConv.getID(), dataConv.getFromWho());
+					mapConverted.put(dataConv.getId(), dataConv.getProviderName());
 				}
 				else
 					throw new InvalidAttributeValueException("Invalid Data type");
@@ -333,48 +330,48 @@ public class EmployeeDAO {
 			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
 	}
 
-	public static boolean insertNewGeneralFeedback(long employeeID, Object data)throws InvalidAttributeValueException, MongoException{
-		//Check the employeeID
-		if(employeeID>0){
-			if(data!=null && data instanceof Feedback){
-				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-				if(querySearch.get()!=null){
-					Employee e = querySearch.get();
-					//Extract its List of Objectives
-					List<Feedback> dataFromDB=e.getAllFeedback();
-					//Verify if the feedback is already within the user DB to avoid adding duplicated feedback
-					for(Feedback f:dataFromDB){
-						if(f.compare((Feedback)data))
-							throw new InvalidAttributeValueException(DUPLICATE_FEEDBACK);
-					}
-					Feedback temp=(Feedback)data;
-					try{
-						temp.setID(getLatestFeedbackIDForUser(employeeID)+1);
-					}
-					catch(Exception error){
-						temp.setID(1);
-					}
-					//Add the new objective to the list
-					if(e.addGenericFeedback((Feedback)data)){
-						//Update the List<List<objective>> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getAllFeedback());
-						//Commit the changes to the DB
-						dbConnection.update(querySearch, ops);
-						return true;
-					}
-					else
-						throw new InvalidAttributeValueException(FEEDBACK_NOTADDED_ERROR);
-				}
-				else
-					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-			}
-			else
-				throw new InvalidAttributeValueException(INVALID_FEEDBACK);
-		}
-		else
-			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
-	}
+//	public static boolean insertNewGeneralFeedback(long employeeID, Object data)throws InvalidAttributeValueException, MongoException {
+//		//Check the employeeID
+//		if(employeeID>0){
+//			if(data!=null && data instanceof Feedback){
+//				//Retrieve Employee with the given ID
+//				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+//				if(querySearch.get()!=null){
+//					Employee e = querySearch.get();
+//					//Extract its List of Objectives
+//					List<Feedback> dataFromDB=e.getAllFeedback();
+//					//Verify if the feedback is already within the user DB to avoid adding duplicated feedback
+//					for(Feedback f:dataFromDB){
+//						if(f.compare((Feedback)data))
+//							throw new InvalidAttributeValueException(DUPLICATE_FEEDBACK);
+//					}
+//					Feedback temp=(Feedback)data;
+//					try{
+//						temp.setID(getLatestFeedbackIDForUser(employeeID)+1);
+//					}
+//					catch(Exception error){
+//						temp.setID(1);
+//					}
+//					//Add the new objective to the list
+//					if(e.addGenericFeedback((Feedback)data)){
+//						//Update the List<List<objective>> in the DB passing the new list
+//						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback", e.getAllFeedback());
+//						//Commit the changes to the DB
+//						dbConnection.update(querySearch, ops);
+//						return true;
+//					}
+//					else
+//						throw new InvalidAttributeValueException(FEEDBACK_NOTADDED_ERROR);
+//				}
+//				else
+//					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+//			}
+//			else
+//				throw new InvalidAttributeValueException(INVALID_FEEDBACK);
+//		}
+//		else
+//			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
+//	}
 	
 	public static boolean updateProgressObjective(long employeeID, int objectiveID, int progress) throws InvalidAttributeValueException {
 		if (employeeID < 1 || objectiveID < 1) {
@@ -629,9 +626,15 @@ public class EmployeeDAO {
 		return false;
 	}
 	
-	
+	/**
+	 * Sends Emails to the recipients and updates the database.
+	 * 
+	 * @param employeeID
+	 * @param emailsString
+	 * @param notes
+	 * @throws Exception
+	 */
 	public static void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception {
-		Employee requester = EmployeeDAO.getEmployee(employeeID);
 		Set<String> recipientList = Helper.stringEmailsToHashSet(emailsString);
 		List<String> errorRecipientList = new ArrayList<String>();
 		
@@ -645,6 +648,7 @@ public class EmployeeDAO {
 				errorRecipientList.add(recipient);
 				continue;
 			}
+			Employee requester = EmployeeDAO.getEmployee(employeeID);
 			EmployeeDAO.addFeedbackRequest(requester, new FeedbackRequest(tempID, recipient));
 		}
 		
@@ -654,18 +658,28 @@ public class EmployeeDAO {
 	}
 	
 	
-	public static boolean addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest) throws InvalidAttributeValueException{
+	/**
+	 * Add a feedbackRequest to an employee.
+	 * 
+	 * @param employee
+	 * @param feedbackRequest
+	 * @return
+	 * @throws InvalidAttributeValueException
+	 */
+	public static void addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest) throws InvalidAttributeValueException {
 		Validate.isNull(employee, feedbackRequest);
 		
 		employee.addFeedbackRequest(feedbackRequest);
-		
 		UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", employee.getFeedbackRequestsList());
-		//Commit the changes to the DB
 		dbConnection.update(employee, ops);
-		
-		return true;
 	}
 	
+	/**
+	 * Add a feedback to an employee
+	 */
+	public static void addFeedback(){
+		
+	}
 
 //	public static boolean insertNewGroupFeedbackRequest(long employeeID, Object data) throws InvalidAttributeValueException{
 //		//Check the employeeID

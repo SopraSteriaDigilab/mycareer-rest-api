@@ -76,7 +76,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			List<List<Competency>> competencies,
 			List<String> reportees) throws InvalidAttributeValueException{
 		super(employeeID, guid, name, surname,email,username,company,team,isManager,reportees);
-		this.setFeedbackList(feeds);
+		this.setFeedback(feeds);
 		this.setObjectiveList(objectives);
 		this.setNoteList(notes);
 		this.setDevelopmentNeedsList(needs);
@@ -111,40 +111,46 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		return id;
 	}
 
-	/**
-	 * 
-	 * @param feeds the list of feedback to assign to an employee
-	 * @throws InvalidClassException
-	 * @throws InvalidAttributeValueException
-	 */
-	public void setFeedbackList(List<Feedback> feeds) throws InvalidAttributeValueException{
-		if(feeds!=null){
-			//Create a counter that keeps count of the error produced
-			int errorCounter=0;
-			this.feedback=new ArrayList<Feedback>();
-			//Check if the feedback objects inside the list are valid
-			for(Feedback temp:feeds){
-				if(temp.isFeedbackValid())
-					this.feedback.add(temp);
-				else
-					errorCounter++;
-			}
-			//Verify if there has been any error
-			if(errorCounter!=0)
-				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST);
-		}
-		else
-			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACKLIST);
-	}
+//	/**
+//	 * 
+//	 * @param feeds the list of feedback to assign to an employee
+//	 * @throws InvalidClassException
+//	 * @throws InvalidAttributeValueException
+//	 */
+//	public void setFeedbackList(List<Feedback> feeds) throws InvalidAttributeValueException{
+//		if(feeds!=null){
+//			//Create a counter that keeps count of the error produced
+//			int errorCounter=0;
+//			this.feedback=new ArrayList<Feedback>();
+////			Check if the feedback objects inside the list are valid
+//			for(Feedback temp:feeds){
+//				if(temp.isFeedbackValid())
+//					this.feedback.add(temp);
+//				else
+//					errorCounter++;
+//			}
+//			//Verify if there has been any error
+//			if(errorCounter!=0)
+//				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST);
+//		}
+//		else
+//			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACKLIST);
+//	}
+	
+	
 
 	public List<Feedback> getAllFeedback(){
 		return this.feedback;
 	}
 	
+	public void setFeedback(List<Feedback> feedback) {
+		this.feedback = feedback;
+	}
+
 	public Feedback getSpecificFeedback(int id) throws InvalidAttributeValueException {
 		if(id>0){
 			return feedback.stream()
-					.filter(f->f.getID()==id)
+					.filter(f->f.getId()==id)
 					.findFirst()
 					.get();
 		}
@@ -607,53 +613,57 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCYTID_CONTEXT);
 	}
 
-	/**
-	 * 
-	 * @param obj This method adds a Generic feedback to the employee feedback list
-	 * @return It returns true when a feedback has been successfully added to the list, false otherwise
-	 * @throws InvalidAttributeValueException 
-	 */
-	public boolean addGenericFeedback(Feedback obj) throws InvalidAttributeValueException{
-		if(feedback==null)
-			feedback=new ArrayList<Feedback>();
-		//Verify that the object is not null
-		if(obj==null)
-			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACK);
-		//At this point the Feedback hasn't got an ID, let's create it
-		obj.setID((feedback.size()+1));
-		if(obj.isFeedbackValid())
-			return feedback.add(obj);
-		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
+//	/**
+//	 * @deprecated Since January 2016. Use {@linkplain #addFeedback(Feedback)}
+//	 * @param obj This method adds a Generic feedback to the employee feedback list
+//	 * @return It returns true when a feedback has been successfully added to the list, false otherwise
+//	 * @throws InvalidAttributeValueException 
+//	 */
+//	public boolean addGenericFeedback(Feedback obj) throws InvalidAttributeValueException{
+//		if(feedback==null)
+//			feedback=new ArrayList<Feedback>();
+//		//Verify that the object is not null
+//		if(obj==null)
+//			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACK);
+//		//At this point the Feedback hasn't got an ID, let's create it
+//		obj.setID((feedback.size()+1));
+//		if(obj.isFeedbackValid())
+//			return feedback.add(obj);
+//		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
+//	}
+	
+	public boolean addFeedback(){
+		return true;
 	}
 
-	/**
-	 * 
-	 * @param objectiveID
-	 * @param obj objective data
-	 * @return true if the objective has been added correctly
-	 * @throws InvalidAttributeValueException
-	 */
-	public boolean addFeedbackToObjective(int objectiveID, Feedback obj) throws InvalidAttributeValueException{
-		//Verify the data is valid
-		if(objectiveID<0 && obj==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACK_OBJECTIVEID_CONTEXT);
-		//Search for the objective ID within the list of objectives
-		//add the objective if the ID is found
-		for(int i=0; i<this.objectives.size(); i++){
-			//If the appropriate objective is found, add the feedback to its list
-			if(this.objectives.get(i).get(0).getID()==objectiveID){
-				//Now that the related objective is found, create an ID for this feedback
-				obj.setID(this.objectives.get(i).size()+1);
-				//Validate the data
-				if(obj.isFeedbackValid())
-					//Try to add the new feedback
-					return this.objectives.get(i).get(this.objectives.get(i).size()-1).addFeedback(obj);
-				else
-					throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
-			}
-		}
-		return false;
-	}
+//	/**
+//	 * 
+//	 * @param objectiveID
+//	 * @param obj objective data
+//	 * @return true if the objective has been added correctly
+//	 * @throws InvalidAttributeValueException
+//	 */
+//	public boolean addFeedbackToObjective(int objectiveID, Feedback obj) throws InvalidAttributeValueException{
+//		//Verify the data is valid
+//		if(objectiveID<0 && obj==null)
+//			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACK_OBJECTIVEID_CONTEXT);
+//		//Search for the objective ID within the list of objectives
+//		//add the objective if the ID is found
+//		for(int i=0; i<this.objectives.size(); i++){
+//			//If the appropriate objective is found, add the feedback to its list
+//			if(this.objectives.get(i).get(0).getID()==objectiveID){
+//				//Now that the related objective is found, create an ID for this feedback
+//				obj.setID(this.objectives.get(i).size()+1);
+//				//Validate the data
+//				if(obj.isFeedbackValid())
+//					//Try to add the new feedback
+//					return this.objectives.get(i).get(this.objectives.get(i).size()-1).addFeedback(obj);
+//				else
+//					throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
+//			}
+//		}
+//		return false;
+//	}
 
 	/**
 	 * 
@@ -812,6 +822,12 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		throw new InvalidAttributeValueException(Constants.INVALID_DEVNEED_CONTEXT);
 	}
 	
+	/**
+	 * Add feedback request to employee
+	 * @param feedbackRequest
+	 * @return true if it was added, false otherwise
+	 * @throws InvalidAttributeValueException if feedbackRequest is null
+	 */
 	public boolean addFeedbackRequest(FeedbackRequest feedbackRequest) throws InvalidAttributeValueException{
 		if(feedbackRequest == null)
 			throw new InvalidAttributeValueException("This object is invalid.");
@@ -819,14 +835,14 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		return this.feedbackRequests.add(feedbackRequest);
 	}
 
-	/**
-	 * 
-	 * This method add a feedback request to a given user ID
-	 * 
-	 * @param obj the feedback request object to insert
-	 * @return true if it completes correctly, false otherwise
-	 * @throws InvalidAttributeValueException 
-	 */
+//	/**
+//	 * 
+//	 * This method add a feedback request to a given user ID
+//	 * 
+//	 * @param obj the feedback request object to insert
+//	 * @return true if it completes correctly, false otherwise
+//	 * @throws InvalidAttributeValueException 
+//	 */
 //	public boolean addGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
 //		if(groupFeedbackRequests==null)
 //			groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
@@ -837,14 +853,14 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 //		return groupFeedbackRequests.add(obj);
 //	}
 
-	/**
-	 * 
-	 * This method updates the content of a feedback request
-	 * 
-	 * @param obj the new feedback request object containing the right ID
-	 * @return true if it completes correctly, false otherwise
-	 * @throws InvalidAttributeValueException 
-	 */
+//	/**
+//	 * 
+//	 * This method updates the content of a feedback request
+//	 * 
+//	 * @param obj the new feedback request object containing the right ID
+//	 * @return true if it completes correctly, false otherwise
+//	 * @throws InvalidAttributeValueException 
+//	 */
 //	public boolean updateGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
 //		if(obj!=null){
 //			for(int i=0; i<groupFeedbackRequests.size(); i++){
@@ -856,13 +872,13 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 //		throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
 //	}
 
-	/**
-	 * 
-	 * This method verifies if the ID for the feedback request is unique to the user
-	 * 
-	 * @param req the feedback request object
-	 * @return true if it completes correctly, false otherwise
-	 */
+//	/**
+//	 * 
+//	 * This method verifies if the ID for the feedback request is unique to the user
+//	 * 
+//	 * @param req the feedback request object
+//	 * @return true if it completes correctly, false otherwise
+//	 */
 //	public boolean isGroupFeedbackRequestUniqueToEmployee(GroupFeedbackRequest req){
 //		for(GroupFeedbackRequest t:groupFeedbackRequests){
 //			if(t.getID().equals(req.getID()))

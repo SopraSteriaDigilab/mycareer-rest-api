@@ -29,8 +29,8 @@ public class Objective implements Serializable{
 	private int id, progress, performance;
 	private boolean isArchived;
 	private String title, description, timeStamp, timeToCompleteBy, proposedBy;
-	@Embedded
-	private List<Feedback> feedback;
+//	@Embedded
+//	private List<Feedback> feedback;
 
 	//Empty Constructor
 	public Objective() {
@@ -43,7 +43,7 @@ public class Objective implements Serializable{
 		this.proposedBy="";
 		this.timeStamp=null;
 		this.timeToCompleteBy=null;
-		feedback=new ArrayList<Feedback>();
+//		feedback=new ArrayList<Feedback>();
 	}
 
 	//Constructor with Parameters
@@ -63,7 +63,7 @@ public class Objective implements Serializable{
 		this.timeStamp=null;
 		this.setTimeStamp();
 		this.setTimeToCompleteBy(dateToCompleteBy);
-		this.feedback=new ArrayList<Feedback>();
+//		this.feedback=new ArrayList<Feedback>();
 		this.proposedBy="";
 	}
 	
@@ -78,7 +78,7 @@ public class Objective implements Serializable{
 		this.timeStamp=null;
 		this.setTimeStamp();
 		this.setTimeToCompleteBy(o.getTimeToCompleteBy());
-		this.feedback=o.getFeedback();
+//		this.feedback=o.getFeedback();
 		this.proposedBy=o.getProposedBy();
 	}
 
@@ -96,7 +96,7 @@ public class Objective implements Serializable{
 		this.timeStamp=null;
 		this.setTimeStamp();
 		this.setTimeToCompleteBy(dateToCompleteBy);
-		feedback=new ArrayList<Feedback>();
+//		feedback=new ArrayList<Feedback>();
 		this.proposedBy="";
 	}
 
@@ -247,57 +247,57 @@ public class Objective implements Serializable{
 		return YearMonth.parse(this.timeToCompleteBy,Constants.YEAR_MONTH_FORMAT);
 	}
 
-	/**
-	 * 
-	 * @param listData the list of feedback that is going to be assigned to this objective
-	 * @throws InvalidClassException
-	 * @throws InvalidAttributeValueException
-	 */
-	public void setFeedback(List<Feedback> listData) throws InvalidAttributeValueException{
-		if(listData!=null){
-			//Create a counter that keeps count of the error produced
-			int errorCounter=0;
-			this.feedback=new ArrayList<Feedback>();
-			//Check if the feedback objects inside the list are valid
-			for(Feedback temp:listData){
-				if(temp.isFeedbackValid())
-					this.feedback.add(temp);
-				else
-					errorCounter++;
-			}
-			//Verify if there has been any error
-			if(errorCounter!=0)
-				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST);
-		}
-		else
-			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACKLIST);
-	}
+//	/**
+//	 * 
+//	 * @param listData the list of feedback that is going to be assigned to this objective
+//	 * @throws InvalidClassException
+//	 * @throws InvalidAttributeValueException
+//	 */
+//	public void setFeedback(List<Feedback> listData) throws InvalidAttributeValueException{
+//		if(listData!=null){
+//			//Create a counter that keeps count of the error produced
+//			int errorCounter=0;
+//			this.feedback=new ArrayList<Feedback>();
+//			//Check if the feedback objects inside the list are valid
+//			for(Feedback temp:listData){
+//				if(temp.isFeedbackValid())
+//					this.feedback.add(temp);
+//				else
+//					errorCounter++;
+//			}
+//			//Verify if there has been any error
+//			if(errorCounter!=0)
+//				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST);
+//		}
+//		else
+//			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACKLIST);
+//	}
 
-	public List<Feedback> getFeedback(){
-		List<Feedback> data=new ArrayList<Feedback>();
-		for(Feedback temp: this.feedback){
-			data.add(temp);
-		}
-		return data;
-	}
+//	public List<Feedback> getFeedback(){
+//		List<Feedback> data=new ArrayList<Feedback>();
+//		for(Feedback temp: this.feedback){
+//			data.add(temp);
+//		}
+//		return data;
+//	}
 
-	/**
-	 * This method adds a feedback to this objective
-	 * 
-	 * @param obj feedback data
-	 * @return
-	 * @throws InvalidAttributeValueException 
-	 */
-	public boolean addFeedback(Feedback obj) throws InvalidAttributeValueException{
-		if(feedback==null)
-			feedback=new ArrayList<Feedback>();
-		//Validate the feedback
-		if(obj==null)
-			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACK);
-		if(obj.isFeedbackValid())
-			return feedback.add(obj);
-		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
-	}
+//	/**
+//	 * This method adds a feedback to this objective
+//	 * 
+//	 * @param obj feedback data
+//	 * @return
+//	 * @throws InvalidAttributeValueException 
+//	 */
+//	public boolean addFeedback(Feedback obj) throws InvalidAttributeValueException{
+//		if(feedback==null)
+//			feedback=new ArrayList<Feedback>();
+//		//Validate the feedback
+//		if(obj==null)
+//			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACK);
+//		if(obj.isFeedbackValid())
+//			return feedback.add(obj);
+//		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
+//	}
 
 	public boolean isObjectiveValid(){
 		return (this.getID()>0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid") && this.getTimeStamp()!=null && this.getTimeToCompleteBy()!=null);
@@ -324,9 +324,9 @@ public class Objective implements Serializable{
 				+ "TimeStamp "+this.getTimeStamp()+"\n"
 				+ "TimeToCompleteBy "+this.getTimeToCompleteBy()+"\n"
 				+ "ProposedBy "+this.getProposedBy()+"\n";
-		for(Feedback temp: this.feedback){
-			s+=temp.toString();
-		}
+//		for(Feedback temp: this.feedback){
+//			s+=temp.toString();
+//		}
 		return s;
 	}
 	

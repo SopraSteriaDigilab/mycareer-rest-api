@@ -7,6 +7,7 @@ import static microsoft.exchange.webservices.data.core.service.schema.EmailMessa
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import microsoft.exchange.webservices.data.core.service.folder.Folder;
 import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.core.service.item.Item;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
+import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
@@ -116,7 +118,7 @@ public class EmailService {
 	    emailService.loadPropertiesForItems(findResults, propertySet);
 	    
 	    logger.info("Total number of items found {} ", findResults.getTotalCount());
-	    for(Item item : findResults){
+	    for(Item item : findResults) {
 	    	analyseAndSortEmail((EmailMessage)item);
 	    }
 	    
@@ -132,11 +134,13 @@ public class EmailService {
 	 * @throws Exception
 	 */
 	private static void analyseAndSortEmail(EmailMessage email) throws Exception {
-    	logger.info("From: {}", email.getFrom());
-    	logger.info("To: {}", email.getToRecipients().getItems());
-    	logger.info("CC: {}", email.getCcRecipients().getItems());
-    	logger.info("Subject: {}", email.getSubject());
-    	logger.info("body {}", email.getBody().toString().trim());
+		String from = email.getFrom().toString();
+    	List<EmailAddress> recipients = email.getToRecipients().getItems();
+    	List<EmailAddress> ccRecipients = email.getCcRecipients().getItems();
+    	String subject = email.getSubject();
+    	String body = email.getBody().toString().trim();
+    	
+    	
     	email.setIsRead(true);
     	email.update(ConflictResolutionMode.AutoResolve);
 	}
