@@ -4,6 +4,9 @@ import static dataStructure.Constants.UK_TIMEZONE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.HashSet;
@@ -12,7 +15,10 @@ import java.util.Set;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,9 +53,27 @@ import externalServices.mongoDB.HrDataDAO;
 @RestController
 public class AppController {
 	
+	private static final Logger logger = LoggerFactory.getLogger(AppController.class);
+	
 	@RequestMapping(value="/", method = GET)
 	public ResponseEntity<?> welcomePage(){
 		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
+	}
+	
+	@RequestMapping(value="/portal", method = GET)
+	public void portal(HttpServletRequest request, HttpServletResponse response){
+		String currentURL = request.getRequestURL().toString();
+		String newUrl = "";
+		if(currentURL.contains(":8080/portal")){
+			newUrl = currentURL.replace(":8080/portal", "/myobjectives");
+		}
+		
+		try {
+			response.sendRedirect(newUrl);
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
+		
 	}
 	
 	@RequestMapping(value="/logMeIn", method = GET)
@@ -63,7 +87,8 @@ public class AppController {
 	 * This method allows the front-end to retrieve the number of Employees who exist within the database
 	 * 
 	 */
-	@RequestMapping(value="/getTotalAccounts", method=RequestMethod.GET)
+
+	@RequestMapping(value="/getTotalAccounts", method= GET)
 	public ResponseEntity<Long> getTotalAccounts(){
 		return ResponseEntity.ok(HrDataDAO.getTotalNumberOfUsers());
 	}//RequestMapping getTotalAccounts
@@ -72,7 +97,7 @@ public class AppController {
 	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one objective created.
 	 * 
 	 */
-	@RequestMapping(value="/getTotalAccountsWithObjectives", method=RequestMethod.GET)
+	@RequestMapping(value="/getTotalAccountsWithObjectives", method= GET)
 	public ResponseEntity<Long> getTotalAccountsWithObjectives(){
 		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithObjectives());
 	}//RequestMapping getTotalAccounts
@@ -81,13 +106,23 @@ public class AppController {
 	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one development need created.
 	 * 
 	 */
-	@RequestMapping(value="/getTotalAccountsWithDevelopmentNeeds", method=RequestMethod.GET)
+	@RequestMapping(value="/getTotalAccountsWithDevelopmentNeeds", method= GET)
 	public ResponseEntity<Long> getTotalAccountsWithDevelopmentNeeds(){
 		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithDevelopmentNeeds());
 	}//RequestMapping getTotalAccounts
 	
+	/**
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one note created.
+	 * 
+	 */
+	@RequestMapping(value="/getTotalAccountsWithNotes", method= GET)
+	public ResponseEntity<Long> getTotalAccountsWithNotes(){
+		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithNotes());
+	}//RequestMapping getTotalAccounts
+
 	
 	
+	//End of HR data methods
 	
 
 	/**
