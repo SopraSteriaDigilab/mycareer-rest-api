@@ -639,7 +639,7 @@ public class EmployeeDAO {
 			String tempID = Helper.generateID(employeeID);
 			String body = notes + " \n\n Feedback_Request_" + tempID;
 			try {
-				EmailService.sendEmail(requester.getEmailAddress(), recipient, "Feedback Request", body);
+				EmailService.sendEmail(recipient, "Feedback Request", body);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				errorRecipientList.add(recipient);
