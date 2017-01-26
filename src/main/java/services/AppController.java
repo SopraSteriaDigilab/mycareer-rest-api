@@ -63,7 +63,7 @@ public class AppController {
 	 * This method allows the front-end to retrieve the number of Employees who exist within the database
 	 * 
 	 */
-	@RequestMapping(value="/getTotalAccounts", method=RequestMethod.GET)
+	@RequestMapping(value="/getTotalAccounts", method= GET)
 	public ResponseEntity<Long> getTotalAccounts(){
 		return ResponseEntity.ok(HrDataDAO.getTotalNumberOfUsers());
 	}//RequestMapping getTotalAccounts
@@ -72,7 +72,7 @@ public class AppController {
 	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one objective created.
 	 * 
 	 */
-	@RequestMapping(value="/getTotalAccountsWithObjectives", method=RequestMethod.GET)
+	@RequestMapping(value="/getTotalAccountsWithObjectives", method= GET)
 	public ResponseEntity<Long> getTotalAccountsWithObjectives(){
 		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithObjectives());
 	}//RequestMapping getTotalAccounts
@@ -81,13 +81,22 @@ public class AppController {
 	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one development need created.
 	 * 
 	 */
-	@RequestMapping(value="/getTotalAccountsWithDevelopmentNeeds", method=RequestMethod.GET)
+	@RequestMapping(value="/getTotalAccountsWithDevelopmentNeeds", method= GET)
 	public ResponseEntity<Long> getTotalAccountsWithDevelopmentNeeds(){
 		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithDevelopmentNeeds());
 	}//RequestMapping getTotalAccounts
 	
+	/**
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one note created.
+	 * 
+	 */
+	@RequestMapping(value="/getTotalAccountsWithNotes", method= GET)
+	public ResponseEntity<Long> getTotalAccountsWithNotes(){
+		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithNotes());
+	}//RequestMapping getTotalAccounts
 	
 	
+	//End of HR data methods
 	
 
 	/**

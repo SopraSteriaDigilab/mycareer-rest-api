@@ -99,6 +99,14 @@ public class HrDataDAO {
 			
 		}//getTotalUsersWithDevelopmentNeeds
 		
+		public static long getTotalUsersWithNotes() {
+			
+			long totalUsersWithNotes = EmployeeDAO.dbConnection.find(Employee.class).field("notes").exists().countAll();
+			return totalUsersWithNotes;
+		
+		}
+		
+		
 		
 		
 
