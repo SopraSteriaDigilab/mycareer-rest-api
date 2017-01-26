@@ -73,7 +73,7 @@ public class EmployeeDAO {
 //	private final static Logger logger = Logger.getLogger(EmployeeDAO.class.getName());
 	
 	//There is only 1 instance of the Datastore in the whole system
-    static Datastore dbConnection;
+    public static Datastore dbConnection;
 	
 	public EmployeeDAO(Datastore dbConnection) {
 		EmployeeDAO.dbConnection = dbConnection;
