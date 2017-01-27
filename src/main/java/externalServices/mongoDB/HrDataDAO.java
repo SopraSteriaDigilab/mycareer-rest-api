@@ -105,12 +105,31 @@ public class HrDataDAO {
 			long totalUsersWithNotes = EmployeeDAO.dbConnection.find(Employee.class).field("notes").exists().countAll();
 			return totalUsersWithNotes;
 		
-		}
+		}//getTotalUsersWithNotes
 		
+		public static long getTotalUsersWithCompetencies() {
+			
+			long totalUsersWithCompetencies = EmployeeDAO.dbConnection.find(Employee.class).field("competencies").exists().countAll();
+			return totalUsersWithCompetencies ;
+			
+		}//getTotalUsersWithCompetencys
 		
+		public static long getTotalUsersWithSubmittedFeedback() {
+			
+			long totalUsersWithSubmittedFeedback = EmployeeDAO.dbConnection.find(Employee.class).field("groupFeedbackRequests").exists().countAll();
+			return totalUsersWithSubmittedFeedback;
+			
+		}//getTotalUsersWithSubmittedFeedback
+		
+		public static long getTotalUsersWithFeedback() {
+			
+			long totalUsersWithSubmittedFeedback = EmployeeDAO.dbConnection.find(Employee.class).field("feedback").exists().countAll();
+			return totalUsersWithSubmittedFeedback;
+			
+		}//getTotalUsersWithFeedback()
 		
 		
 
-}
+}//HrDataDAO
 
 
