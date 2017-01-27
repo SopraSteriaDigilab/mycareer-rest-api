@@ -94,32 +94,63 @@ public class AppController {
 	}//RequestMapping getTotalAccounts
 	
 	/**
-	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one objective created.
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database that have at least one objective created.
 	 * 
 	 */
 	@RequestMapping(value="/getTotalAccountsWithObjectives", method= GET)
 	public ResponseEntity<Long> getTotalAccountsWithObjectives(){
 		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithObjectives());
-	}//RequestMapping getTotalAccounts
+	}//RequestMapping getTotalAccountsWithObjectives
 	
 	/**
-	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one development need created.
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database that have at least one development need created.
 	 * 
 	 */
 	@RequestMapping(value="/getTotalAccountsWithDevelopmentNeeds", method= GET)
 	public ResponseEntity<Long> getTotalAccountsWithDevelopmentNeeds(){
 		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithDevelopmentNeeds());
-	}//RequestMapping getTotalAccounts
+	}//RequestMapping getTotalAccountsWithDevelopmentNeeds
 	
 	/**
-	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one note created.
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database that have at least one note created.
 	 * 
 	 */
 	@RequestMapping(value="/getTotalAccountsWithNotes", method= GET)
 	public ResponseEntity<Long> getTotalAccountsWithNotes(){
 		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithNotes());
-	}//RequestMapping getTotalAccounts
-
+	}//RequestMapping getTotalAccountsWithNotes
+	
+	
+	/**
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database that have at least one competency created.
+	 * 
+	 */
+	@RequestMapping(value="/getTotalAccountsWithCompetencies", method= GET)
+	public ResponseEntity<Long> getTotalAccountsWithCompetencies(){
+		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithCompetencies());
+	}//RequestMapping getTotalAccountsWithCompetencies
+	
+	
+	/**
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have submitted feedback requests.
+	 * 
+	 */
+	@RequestMapping(value="/getTotalAccountsWithSubmittedFeedback", method= GET)
+	public ResponseEntity<Long> getTotalAccountsWithSubmittedFeedback() {
+		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithSubmittedFeedback());
+	}//RequestMapping getTotalAccountsWithSumittedFeedback
+	
+	/**
+	 * This method allows the front-end to retrieve the number of Employees who exist within the database that have received feedback.
+	 * 
+	 */
+	@RequestMapping(value="/getTotalAccountsWithFeedback", method = GET)
+	public ResponseEntity<Long>getTotalAccountsWithFeedback() {
+		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithFeedback());
+	}//RequestMapping getTotalAccountsWithFeedback
+	
+	
+	
 	
 	
 	//End of HR data methods
