@@ -5,11 +5,10 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -32,6 +31,8 @@ import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
+import dataStructure.HRData;
+import dataStructure.HRObjectiveData;
 import dataStructure.Note;
 import dataStructure.Objective;
 import externalServices.ad.ADProfileDAO;
@@ -150,8 +151,20 @@ public class AppController {
 	}//RequestMapping getTotalAccountsWithFeedback
 	
 	
+	/**
+	 * This method allows the front-end to retrieve a summary of a user's details and un-archived objectives.
+	 * 
+	 */
+	@RequestMapping(value="/getHRObjectiveData", method=GET)
+	public ResponseEntity<List<HRObjectiveData>> getHRObjectiveData(){
+		return ResponseEntity.ok(HrDataDAO.getHRObjectiveData());	
+	}	
 	
 	
+	@RequestMapping(value="/getHRData", method=GET)
+	public ResponseEntity<HRData> getHRData(){
+		return ResponseEntity.ok(HrDataDAO.getHRData());
+	}
 	
 	//End of HR data methods
 	
