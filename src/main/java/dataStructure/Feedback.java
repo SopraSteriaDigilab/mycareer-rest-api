@@ -22,7 +22,7 @@ public class Feedback implements Serializable {
 	
 	private static final long serialVersionUID = -1220037164373122395L;
 
-	/** Unique identifier */
+	/** Unique ID for the object. */
 	private int id;
 	
 	/** Email address of feedback provider */
@@ -35,49 +35,57 @@ public class Feedback implements Serializable {
 	private String feedbackDescription;
 	
 	/** Time stamp of feedback */
-	private String timeStamp;
+	private String timestamp;
 	
 	/** Empty Constructor */
 	public Feedback(){}
 
-	/** Constructor with params */
-	public Feedback(int id, String providerEmail, String providerName, String feedback, String timeStamp) {
+	/**
+	 * @param id
+	 * @param providerEmail
+	 * @param feedbackDescription
+	 */
+	public Feedback(int id, String providerEmail, String feedbackDescription) {
 		super();
 		this.id = id;
 		this.providerEmail = providerEmail;
-		this.providerName = providerName;
 		this.feedbackDescription = feedbackDescription;
-		this.timeStamp = timeStamp;
+		this.providerName = "";
+		setTimestamp();
 	}
-
+	
 	/**
-	 * Gets the feedback id
-	 * @return returns the id of the feedback
+	 * @param id
+	 * @param providerEmail
+	 * @param providerName
+	 * @param feedbackDescription
 	 */
+	public Feedback(int id, String providerEmail, String providerName, String feedbackDescription) {
+		super();
+		this.id = id;
+		this.providerEmail = providerEmail;
+		this.feedbackDescription = feedbackDescription;
+		this.providerName = providerName;
+		setTimestamp();
+	}
+	
+	/** @return the id */
 	public int getId() {
 		return id;
 	}
 
-	/**
-	 * Sets the feedback id 
-	 * @param id
-	 */
+	/** @param id the id to set */
 	public void setId(int id) {
 		this.id = id;
 	}
 
-	
-	/**
-	 * Gets the feedback providers email
-	 * @return the email of the feedback provider
-	 */
+	/** @return the providerEmail */
 	public String getProviderEmail() {
 		return providerEmail;
 	}
 
 	/**
-	 * Sets the feedback providers email
-	 * @param providerEmail
+	 * @param providerEmail the providerEmail to set
 	 * @throws InvalidAttributeValueException 
 	 */
 	public void setProviderEmail(String providerEmail) throws InvalidAttributeValueException {
@@ -86,52 +94,34 @@ public class Feedback implements Serializable {
 		throw new InvalidAttributeValueException("This email address is not valid syntax."); 
 	}
 
-	/**
-	 * Gets the feedback providers name
-	 * @return the name of the feedback provider
-	 */
+	/**  @return the providerName */
 	public String getProviderName() {
 		return providerName;
 	}
 
-	/**
-	 * Sets the providers name
-	 * @param providerName
-	 */
+	/** @param providerName the providerName to set */
 	public void setProviderName(String providerName) {
 		this.providerName = providerName;
 	}
 
-	/**
-	 * Gets the feedback description
-	 * @return Returns the description of the feedback
-	 */
+	/** @return the feedbackDescription */
 	public String getFeedbackDescription() {
 		return feedbackDescription;
 	}
 
-	/**
-	 * Sets the feedback description
-	 * @param feedbackDescription
-	 */
+	/** @param feedbackDescription the feedbackDescription to set */
 	public void setFeedbackDescription(String feedbackDescription) {
 		this.feedbackDescription = feedbackDescription;
 	}
 
-	/**
-	 * Gets the feedback time stamp
-	 * @return the time stamp of the feedback
-	 */
+	/** @return the timestamp */
 	public String getTimeStamp() {
-		return timeStamp;
+		return timestamp;
 	}
 
-	/**
-	 * Sets the feedback times tamp
-	 * @param timeStamp
-	 */
-	public void setTimeStamp(String timeStamp) {
-		this.timeStamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+	/** Set timestamp to current time */
+	public void setTimestamp() {
+		this.timestamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
 	}
 
 }

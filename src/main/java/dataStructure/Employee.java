@@ -26,6 +26,10 @@ import services.validate.Validate;
  * This class contains the definition of the Employee object
  *
  */
+/**
+ * @author rnacef
+ *
+ */
 @Entity("employeeDataDev")
 public class Employee extends ADProfile_Advanced implements Serializable{
 
@@ -139,7 +143,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	
 	
 
-	public List<Feedback> getAllFeedback(){
+	public List<Feedback> getFeedback(){
 		return this.feedback;
 	}
 	
@@ -205,7 +209,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		else{
 			//If the list if not empty, retrieve all the elements and add them to the list
 			//that is going to be returned
-			for(List<Objective> subList:objectives){
+			for(List<Objective> subList:objectives){ 
 				//The last element contains the latest version for the objective
 				organisedList.add(subList.get(subList.size()-1));
 			}
@@ -412,10 +416,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		return null;
 	}
 
-	/**
-	 * 
-	 * This method copies the data from an already exciting list to the one for the current user
-	 * 
+	/** 
 	 * @param data the list of feedback request object
 	 * @throws InvalidAttributeValueException
 	 */
@@ -444,27 +445,28 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		return this.feedbackRequests;
 	}
 	
-	public FeedbackRequest getFeedbackRequest(String id) throws InvalidAttributeValueException{
-		Validate.areStringsEmptyorNull(id);
-		
+	
+	/**
+	 * @param id
+	 * @return
+	 * @throws InvalidAttributeValueException
+	 */
+	public FeedbackRequest getFeedbackRequest(String id) {
 		for(FeedbackRequest feedbackRequest : this.feedbackRequests){
-			if(feedbackRequest.getID().equals(id))
+			if(feedbackRequest.getId().equals(id))
 				return feedbackRequest;
 		}	
 		return null;
 	}
 
-	/**
-	 * 
-	 * This method retrieves a specific feedback request based 
-	 * 
-	 * @param id
-	 * @return
-	 * @throws InvalidAttributeValueException 
-	 */
-
-
-	
+//	/**
+//	 * 
+//	 * This method retrieves a specific feedback request based 
+//	 * 
+//	 * @param id
+//	 * @return
+//	 * @throws InvalidAttributeValueException 
+//	 */
 //	public String removeSpecificFeedbackRequest(String fbID) throws InvalidAttributeValueException{
 //		if(fbID!=null && !fbID.equals("")){
 //			for(int i=0; i<groupFeedbackRequests.size(); i++){
@@ -632,8 +634,9 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 //		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
 //	}
 	
-	public boolean addFeedback(){
-		return true;
+	public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException {
+		Validate.isNull(feedback);
+		return this.feedback.add(feedback);
 	}
 
 //	/**
@@ -1083,6 +1086,10 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}catch(Exception r){}
 		}
 		return s;
+	}
+
+	public int nextFeedbackID() {
+		return this.feedback.size()+1;
 	}
 
 }

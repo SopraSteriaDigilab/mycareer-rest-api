@@ -6,194 +6,84 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-import javax.management.InvalidAttributeValueException;
-
-import org.mongodb.morphia.annotations.Embedded;
-
-import com.google.gson.Gson;
-
 /**
- * 
- * @author Michael Piccoli
- * @version 1.0
- * @since 24th October 2016
- * 
- * This class contains the definition of the FeedbackRequest object
+ * FeedbackRequest object for MyCareer.
  *
+ * @author Ridhwan Nacef
+ * @version 1.0
+ * @since January 2016
+ * 
  */
-@Embedded
-public class FeedbackRequest implements Serializable{//, Iterable<Feedback> {
+public class FeedbackRequest implements Serializable {
 
-	private static final long serialVersionUID = 47606158926933500L;
-	//Global Variables
-	private String feedbackID, timeStamp, recipient;
-	private boolean repliedTo;
-//	@Embedded
-//	private List<Feedback> replies;
-
-	public FeedbackRequest(){
-		this.feedbackID="";
-		this.timeStamp=null;
-		this.recipient="";
-		this.setRepliedTo(false);
-//		replies=new ArrayList<Feedback>();
-	}
-
-	public FeedbackRequest(long id){
-		this.setTimeStamp();
-		this.generateID(id);
-		this.recipient="";
-		this.setRepliedTo(false);
-//		replies=new ArrayList<Feedback>();
-	}
+	private static final long serialVersionUID = 5904650249033682895L;
 	
-	public FeedbackRequest(String feedbackID, String recipient){
-		this.feedbackID = feedbackID;
-		this.recipient = recipient;
-		this.setTimeStamp();
-		this.setRepliedTo(false);
-	}
+	/** Unique ID for the object. */
+	private String id;
 	
-	public FeedbackRequest(long id, String recipient) throws InvalidAttributeValueException{
-		this.setTimeStamp();
-		this.generateID(id);
-		this.setRecipient(recipient);
-		this.setRepliedTo(false);
-	}
+	/** Email of recipient */
+	private String recipient;
 	
-	public FeedbackRequest(FeedbackRequest req){
-		this.feedbackID=req.getID();
-		this.timeStamp=req.getTimeStamp();
-		this.recipient=req.getRecipient();
-		this.repliedTo=req.isRepliedTo();
-//		this.replies=req.getReplies();
-	}
+	/**	State of whether feedback has been given */
+	private boolean replyReceived;
+	
+	/** Time stamp of feedback request */
+	private String timestamp;
 
-	public void generateID(long id){
-		LocalDateTime date=LocalDateTime.now(ZoneId.of(UK_TIMEZONE));
-		//Remove all the symbols that we don't need
-		String dateS=date.toString().replace("-", "").replace("T", "").replace(":", "").replace(".", "");
-		this.feedbackID=id+"_"+dateS;
-	}
-
-	public String getID(){
-		return this.feedbackID;
-	}
+	/** Empty Constructor */
+	public FeedbackRequest(){}
 
 	/**
-	 * 
-	 * This method saves the current DateTime inside the timeStamp object only if the object does not
-	 * contain anything yet
+	 * @param id
+	 * @param recipient
 	 */
-	private void setTimeStamp(){
-		if(this.timeStamp==null)
-			this.timeStamp=LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+	public FeedbackRequest(String id, String recipient) {
+		super();
+		this.id = id;
+		this.recipient = recipient;
+		setReplyReceived(false);
+		setTimestamp();
 	}
 
-	public String getTimeStamp(){
-		return this.timeStamp;
+	/** @return the id */
+	public String getId() {
+		return id;
 	}
 
-	public void setRecipient(String toField) throws InvalidAttributeValueException{
-		if(toField!=null && !toField.equals(""))
-			this.recipient=toField;
-		else
-			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_RECIPIENT_CONTEXT);
+	/** @param id the id to set */
+	public void setId(String id) {
+		this.id = id;
 	}
 
-	public String getRecipient(){
-		return this.recipient;
-	}
-	
-	public boolean isRepliedTo() {
-		return this.repliedTo;
+	/** @return the recipient */
+	public String getRecipient() {
+		return recipient;
 	}
 
-	public void setRepliedTo(boolean repliedTo) {
-		this.repliedTo = repliedTo;
+	/** @param recipient the recipient to set */
+	public void setRecipient(String recipient) {
+		this.recipient = recipient;
 	}
 
-//	public void setReplies(List<Feedback> data) throws InvalidAttributeValueException{
-//		if(data!=null)
-//			this.replies=data;
-//		else
-//			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACKREQ_REPLIES_CONTEXT);
-//	}
-
-//	public List<Feedback> getReplies(){
-//		return this.replies;
-//	}
-
-//	public boolean addReply(Feedback reply) throws InvalidAttributeValueException{
-//		if(this.replies==null)
-//			this.replies=new ArrayList<Feedback>();
-//		//Validate the feedback
-//		if(reply!=null && reply.isFeedbackValidForFeedbackRequest()){
-//			//Check if the element already exists within the user data
-//			for(Feedback rep: replies){
-//				if(rep.getEmailBody().equalsIgnoreCase(reply.getEmailBody()))
-//					return false;
-//			}
-//			return replies.add(new Feedback(reply.getID()));
-//		}
-//		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
-//	}
-
-//	public boolean removeReply(Feedback reply) throws InvalidAttributeValueException{
-//		if(reply!=null && reply.isFeedbackValidForFeedbackRequest() && this.replies!=null){
-//			for(Feedback t: replies){
-//				if(t.getID()==reply.getID())
-//					return replies.remove(t);
-//			}
-//			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKNOTFOUND_CONTEXT);
-//		}
-//		else
-//			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
-//	}
-	
-	public boolean isValid(){
-		return this.feedbackID!=null && !this.feedbackID.equals("") && this.recipient!=null && !this.recipient.equals("");
+	/** @return the replyReceived */
+	public boolean isReplyReceived() {
+		return replyReceived;
 	}
 
-	public String toGson(){
-		Gson gsonData=new Gson();
-		return gsonData.toJson(this);
+	/** @param replyReceived the replyReceived to set */
+	public void setReplyReceived(boolean replyReceived) {
+		this.replyReceived = replyReceived;
 	}
 
-	@Override
-	public String toString(){
-		String s="";
-		s+="ID "+this.feedbackID+"\n"
-				+ "TimeStamp "+this.timeStamp+"\n"
-				+ "Recipient:"+this.getRecipient()+"\n";
-		s+="Replies:\n";
-//		for(Feedback temp: this.replies){
-//			s+=temp.toString();
-//		}
-		return s;
+	/** @return the timestamp */
+	public String getTimestamp() {
+		return timestamp;
+	}
+
+	/** Set timestamp to current time */
+	public void setTimestamp() {
+		this.timestamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
 	}
 	
-	/*
-	 * Adapted from Source: http://stackoverflow.com/questions/5849154/can-we-write-our-own-iterator-in-java
-	 */
-//	@Override
-//	public Iterator<Feedback> iterator() {
-//		Iterator<Feedback> iterator=new Iterator<Feedback>(){
-//
-//			private int currentIndex=0;
-//			
-//			@Override
-//			public boolean hasNext() {
-//				return currentIndex < replies.size() && replies.get(currentIndex)!=null;
-//			}
-//
-//			@Override
-//			public Feedback next() {
-//				return replies.get(currentIndex++);
-//			}
-//			
-//		};
-//		return iterator;
-//	}
-
 }
+

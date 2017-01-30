@@ -15,7 +15,7 @@ import com.google.gson.Gson;
  * @author Michael Piccoli
  * @version 1.0
  * @since 10th October 2016
- * @deprecated as of January 2016. Use {@link dataStructure.Feedback Feedback}
+ * @deprecated as of January 2016. Use {@linkplain dataStructure.Feedback Feedback}
  * 
  * This class contains the definition of the Feedback object
  *

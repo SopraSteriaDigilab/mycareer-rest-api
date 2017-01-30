@@ -83,6 +83,7 @@ public class EmployeeDAO {
 		return employee;
 	}
 	
+	
 	//To be removed. Use the getEmployee method.
 	private static Query<Employee> getEmployeeQuery(long employeeID) {
 		return dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
@@ -113,7 +114,7 @@ public class EmployeeDAO {
 		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-		List<Feedback> feedbackList = queryRes.getAllFeedback();
+		List<Feedback> feedbackList = queryRes.getFeedback();
 		Collections.reverse(feedbackList);
 		return feedbackList;
 	}
@@ -181,7 +182,7 @@ public class EmployeeDAO {
 		//Get all the development needs
 		List<DevelopmentNeed> developmentNeeds=e.getLatestVersionDevelopmentNeeds();
 		//Get Feedback (generic and requested)
-		List<Feedback> allFeedback=e.getAllFeedback();
+		List<Feedback> allFeedback=e.getFeedback();
 
 		List<String> reportees=new ArrayList<>();
 		if(e.getIsManager()){
@@ -676,9 +677,19 @@ public class EmployeeDAO {
 	
 	/**
 	 * Add a feedback to an employee
+	 * @throws NamingException 
+	 * @throws InvalidAttributeValueException 
 	 */
-	public static void addFeedback(){
+	public static void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription) throws InvalidAttributeValueException, NamingException{
+		Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
 		
+		long employeeID = ADProfileDAO.authenticateUserProfile(recipientEmail).getEmployeeID();
+		Employee employee = getEmployee(employeeID);
+
+		employee.addFeedback(new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription));
+		
+		UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback", employee.getFeedback());
+		dbConnection.update(employee, ops);
 	}
 
 //	public static boolean insertNewGroupFeedbackRequest(long employeeID, Object data) throws InvalidAttributeValueException{
