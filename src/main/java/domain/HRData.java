@@ -1,4 +1,4 @@
-package dataStructure;
+package domain;
 
 import java.util.List;
 
@@ -23,16 +23,14 @@ public class HRData {
 	private List<HRObjectiveData> hrObjectiveData;
 	private List<HRDevNeedsData> hrDevNeedsData;
 
-	public HRData(long totalAccounts, long totalUsersWithObjectives, long totalUsersWithDevelopmentNeeds,
-			long totalUsersWithNotes, long totalUsersWithCompetencies, long totalUsersWithSubmittedFeedback,
-			long totalUsersWithFeedback,List<HRObjectiveData> hrObjectiveData, List<HRDevNeedsData> hrDevNeedsData) {
-		this.totalAccounts=totalAccounts;
-		this.totalUsersWithObjectives=totalUsersWithObjectives;
-		this.totalUsersWithDevelopmentNeeds=totalUsersWithDevelopmentNeeds;
-		this.totalUsersWithNotes=totalUsersWithNotes;
-		this.totalUsersWithCompetencies=totalUsersWithCompetencies;
-		this.totalUsersWithSubmittedFeedback=totalUsersWithSubmittedFeedback;
-		this.totalUsersWithFeedback=totalUsersWithFeedback;	
+	public HRData(HRTotals hrTotals,List<HRObjectiveData> hrObjectiveData, List<HRDevNeedsData> hrDevNeedsData) {
+		this.totalAccounts=hrTotals.getTotalAccounts();
+		this.totalUsersWithObjectives=hrTotals.getTotalUsersWithObjectives();
+		this.totalUsersWithDevelopmentNeeds=hrTotals.getTotalUsersWithDevelopmentNeeds();
+		this.totalUsersWithNotes=hrTotals.getTotalUsersWithNotes();
+		this.totalUsersWithCompetencies=hrTotals.getTotalUsersWithCompetencies();
+		this.totalUsersWithSubmittedFeedback=hrTotals.getTotalUsersWithSubmittedFeedback();
+		this.totalUsersWithFeedback=hrTotals.getTotalUsersWithFeedback();	
 		this.hrObjectiveData=hrObjectiveData;
 		this.hrDevNeedsData=hrDevNeedsData;
 	}

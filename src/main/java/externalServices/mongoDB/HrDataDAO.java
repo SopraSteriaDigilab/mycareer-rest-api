@@ -7,9 +7,10 @@ import java.util.List;
 import org.mongodb.morphia.Datastore;
 
 import dataStructure.Employee;
-import dataStructure.HRData;
-import dataStructure.HRDevNeedsData;
-import dataStructure.HRObjectiveData;
+import domain.HRData;
+import domain.HRDevNeedsData;
+import domain.HRObjectiveData;
+import domain.HRTotals;
 
 /**
  * 
@@ -83,12 +84,28 @@ public class HrDataDAO {
 
 	}// getTotalUsersWithFeedback()
 
+	public static HRTotals getHRTotals() {
+
+		long totalAccounts = getTotalNumberOfUsers();
+		long totalUsersWithObjectives = getTotalUsersWithObjectives();
+		long totalUsersWithDevelopmentNeeds = getTotalUsersWithDevelopmentNeeds();
+		long totalUsersWithNotes = getTotalUsersWithNotes();
+		long totalUsersWithCompetencies = getTotalUsersWithCompetencies();
+		long totalUsersWithSubmittedFeedback = getTotalUsersWithSubmittedFeedback();
+		long totalUsersWithFeedback = getTotalUsersWithFeedback();
+
+		return new HRTotals(totalAccounts, totalUsersWithObjectives, totalUsersWithDevelopmentNeeds,
+				totalUsersWithNotes, totalUsersWithCompetencies, totalUsersWithSubmittedFeedback,
+				totalUsersWithFeedback);
+
+	}
+
 	public static List<HRObjectiveData> getHRObjectiveData() {
-		
+
 		List<HRObjectiveData> hrDataList = new ArrayList<>();
 
-		List<Employee> query = EmployeeDAO.dbConnection.createQuery(Employee.class).field("objectives").exists().retrievedFields(true, "forename","surname","employeeID","objectives")
-				.asList();
+		List<Employee> query = EmployeeDAO.dbConnection.createQuery(Employee.class).field("objectives").exists()
+				.retrievedFields(true, "forename", "surname", "employeeID", "objectives").asList();
 
 		if (!query.isEmpty()) {
 			for (Employee employee : query) {
@@ -100,13 +117,13 @@ public class HrDataDAO {
 		return hrDataList;
 
 	}
-	
+
 	public static List<HRDevNeedsData> getHRDevNeedsData() {
-		
+
 		List<HRDevNeedsData> hrDevNeedsList = new ArrayList<>();
 
-		List<Employee> query = EmployeeDAO.dbConnection.createQuery(Employee.class).field("developmentNeeds").exists().retrievedFields(true, "forename","surname","employeeID","developmentNeeds")
-				.asList();
+		List<Employee> query = EmployeeDAO.dbConnection.createQuery(Employee.class).field("developmentNeeds").exists()
+				.retrievedFields(true, "forename", "surname", "employeeID", "developmentNeeds").asList();
 
 		if (!query.isEmpty()) {
 			for (Employee employee : query) {
@@ -118,23 +135,18 @@ public class HrDataDAO {
 		return hrDevNeedsList;
 
 	}
-	
-	public static HRData getHRData(){
-		long totalAccounts = getTotalNumberOfUsers();
-		long totalUsersWithObjectives = getTotalUsersWithObjectives();
-		long totalUsersWithDevelopmentNeeds = getTotalUsersWithDevelopmentNeeds();
-		long totalUsersWithNotes = getTotalUsersWithNotes();
-		long totalUsersWithCompetencies = getTotalUsersWithCompetencies();
-		long totalUsersWithSubmittedFeedback = getTotalUsersWithSubmittedFeedback();
-		long totalUsersWithFeedback = getTotalUsersWithFeedback();
-		
+
+	public static HRData getHRData() {
+
+		HRTotals hrTotals = getHRTotals();
+
 		List<HRObjectiveData> hrObjectiveData = getHRObjectiveData();
-		List<HRDevNeedsData> hrDevNeedsData = getHRDevNeedsData();		
-		
-		HRData hrData= new HRData(totalAccounts,totalUsersWithObjectives,totalUsersWithDevelopmentNeeds,totalUsersWithNotes,totalUsersWithCompetencies,totalUsersWithSubmittedFeedback,totalUsersWithFeedback,hrObjectiveData,hrDevNeedsData);
+		List<HRDevNeedsData> hrDevNeedsData = getHRDevNeedsData();
+
+		HRData hrData = new HRData(hrTotals, hrObjectiveData, hrDevNeedsData);
 
 		return hrData;
-		
+
 	}
 
 }// HrDataDAO
