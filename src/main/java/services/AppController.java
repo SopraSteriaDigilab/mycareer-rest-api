@@ -31,6 +31,7 @@ import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
+import dataStructure.HRData;
 import dataStructure.HRObjectiveData;
 import dataStructure.Note;
 import dataStructure.Objective;
@@ -157,7 +158,13 @@ public class AppController {
 	@RequestMapping(value="/getHRObjectiveData", method=GET)
 	public ResponseEntity<List<HRObjectiveData>> getHRObjectiveData(){
 		return ResponseEntity.ok(HrDataDAO.getHRObjectiveData());	
-	}		
+	}	
+	
+	
+	@RequestMapping(value="/getHRData", method=GET)
+	public ResponseEntity<HRData> getHRData(){
+		return ResponseEntity.ok(HrDataDAO.getHRData());
+	}
 	
 	//End of HR data methods
 	

@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * 
  * @author Michael Piccoli
@@ -13,6 +15,7 @@ import java.util.List;
  * This class contains the definition of the HRData object, providing  
  *
  */
+@JsonIgnoreProperties({"objectives"})
 public class HRObjectiveData implements Serializable {
 
 	private static final long serialVersionUID = -4920780991827924267L;

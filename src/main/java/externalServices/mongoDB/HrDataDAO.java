@@ -7,6 +7,7 @@ import java.util.List;
 import org.mongodb.morphia.Datastore;
 
 import dataStructure.Employee;
+import dataStructure.HRData;
 import dataStructure.HRObjectiveData;
 
 /**
@@ -75,9 +76,9 @@ public class HrDataDAO {
 
 	public static long getTotalUsersWithFeedback() {
 
-		long totalUsersWithSubmittedFeedback = EmployeeDAO.dbConnection.find(Employee.class).field("feedback").exists()
+		long totalUsersWithFeedback = EmployeeDAO.dbConnection.find(Employee.class).field("feedback").exists()
 				.countAll();
-		return totalUsersWithSubmittedFeedback;
+		return totalUsersWithFeedback;
 
 	}// getTotalUsersWithFeedback()
 
@@ -97,6 +98,38 @@ public class HrDataDAO {
 
 		return hrDataList;
 
+	}
+	
+	public static HRData getHRData(){
+		long totalAccounts = EmployeeDAO.dbConnection.find(Employee.class).countAll();
+		long totalUsersWithObjectives = EmployeeDAO.dbConnection.find(Employee.class).field("objectives").exists()
+				.countAll();
+		long totalUsersWithDevelopmentNeeds = EmployeeDAO.dbConnection.find(Employee.class).field("developmentNeeds")
+				.exists().countAll();
+		long totalUsersWithNotes = EmployeeDAO.dbConnection.find(Employee.class).field("notes").exists().countAll();
+		long totalUsersWithCompetencies = EmployeeDAO.dbConnection.find(Employee.class).field("competencies").exists()
+				.countAll();
+		long totalUsersWithSubmittedFeedback = EmployeeDAO.dbConnection.find(Employee.class).field("feedback").exists()
+				.countAll();
+		long totalUsersWithFeedback = EmployeeDAO.dbConnection.find(Employee.class).field("feedback").exists()
+				.countAll();
+		
+		List<HRObjectiveData> hrObjectiveData = new ArrayList<>();
+
+		List<Employee> query = EmployeeDAO.dbConnection.createQuery(Employee.class).field("objectives").exists().retrievedFields(true, "forename","surname","employeeID","objectives")
+				.asList();
+
+		if (!query.isEmpty()) {
+			for (Employee employee : query) {
+				hrObjectiveData.add(new HRObjectiveData(employee.getEmployeeID(), employee.getFullName(),
+						employee.getLatestVersionObjectives()));
+			}
+		}
+		
+		HRData hrData= new HRData(totalAccounts,totalUsersWithObjectives,totalUsersWithDevelopmentNeeds,totalUsersWithNotes,totalUsersWithCompetencies,totalUsersWithSubmittedFeedback,totalUsersWithFeedback,hrObjectiveData);
+
+		return hrData;
+		
 	}
 
 }// HrDataDAO
