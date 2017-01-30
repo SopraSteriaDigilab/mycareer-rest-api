@@ -8,11 +8,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * 
- * @author Michael Piccoli
+ * @author Steven Hamilton
  * @version 1.0
- * @since 10th October 2016
+ * @since 30th January 2017
  * 
- * This class contains the definition of the HRData object, providing  
+ * This class contains the definition of the HRObjectiveData object, providing totals and progress status of un-archived Objectives.
  *
  */
 @JsonIgnoreProperties({"objectives"})

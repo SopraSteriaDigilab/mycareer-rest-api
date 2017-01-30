@@ -8,6 +8,7 @@ import org.mongodb.morphia.Datastore;
 
 import dataStructure.Employee;
 import dataStructure.HRData;
+import dataStructure.HRDevNeedsData;
 import dataStructure.HRObjectiveData;
 
 /**
@@ -100,33 +101,37 @@ public class HrDataDAO {
 
 	}
 	
-	public static HRData getHRData(){
-		long totalAccounts = EmployeeDAO.dbConnection.find(Employee.class).countAll();
-		long totalUsersWithObjectives = EmployeeDAO.dbConnection.find(Employee.class).field("objectives").exists()
-				.countAll();
-		long totalUsersWithDevelopmentNeeds = EmployeeDAO.dbConnection.find(Employee.class).field("developmentNeeds")
-				.exists().countAll();
-		long totalUsersWithNotes = EmployeeDAO.dbConnection.find(Employee.class).field("notes").exists().countAll();
-		long totalUsersWithCompetencies = EmployeeDAO.dbConnection.find(Employee.class).field("competencies").exists()
-				.countAll();
-		long totalUsersWithSubmittedFeedback = EmployeeDAO.dbConnection.find(Employee.class).field("feedback").exists()
-				.countAll();
-		long totalUsersWithFeedback = EmployeeDAO.dbConnection.find(Employee.class).field("feedback").exists()
-				.countAll();
+	public static List<HRDevNeedsData> getHRDevNeedsData() {
 		
-		List<HRObjectiveData> hrObjectiveData = new ArrayList<>();
+		List<HRDevNeedsData> hrDevNeedsList = new ArrayList<>();
 
-		List<Employee> query = EmployeeDAO.dbConnection.createQuery(Employee.class).field("objectives").exists().retrievedFields(true, "forename","surname","employeeID","objectives")
+		List<Employee> query = EmployeeDAO.dbConnection.createQuery(Employee.class).field("developmentNeeds").exists().retrievedFields(true, "forename","surname","employeeID","developmentNeeds")
 				.asList();
 
 		if (!query.isEmpty()) {
 			for (Employee employee : query) {
-				hrObjectiveData.add(new HRObjectiveData(employee.getEmployeeID(), employee.getFullName(),
-						employee.getLatestVersionObjectives()));
+				hrDevNeedsList.add(new HRDevNeedsData(employee.getEmployeeID(), employee.getFullName(),
+						employee.getLatestVersionDevelopmentNeeds()));
 			}
 		}
+
+		return hrDevNeedsList;
+
+	}
+	
+	public static HRData getHRData(){
+		long totalAccounts = getTotalNumberOfUsers();
+		long totalUsersWithObjectives = getTotalUsersWithObjectives();
+		long totalUsersWithDevelopmentNeeds = getTotalUsersWithDevelopmentNeeds();
+		long totalUsersWithNotes = getTotalUsersWithNotes();
+		long totalUsersWithCompetencies = getTotalUsersWithCompetencies();
+		long totalUsersWithSubmittedFeedback = getTotalUsersWithSubmittedFeedback();
+		long totalUsersWithFeedback = getTotalUsersWithFeedback();
 		
-		HRData hrData= new HRData(totalAccounts,totalUsersWithObjectives,totalUsersWithDevelopmentNeeds,totalUsersWithNotes,totalUsersWithCompetencies,totalUsersWithSubmittedFeedback,totalUsersWithFeedback,hrObjectiveData);
+		List<HRObjectiveData> hrObjectiveData = getHRObjectiveData();
+		List<HRDevNeedsData> hrDevNeedsData = getHRDevNeedsData();		
+		
+		HRData hrData= new HRData(totalAccounts,totalUsersWithObjectives,totalUsersWithDevelopmentNeeds,totalUsersWithNotes,totalUsersWithCompetencies,totalUsersWithSubmittedFeedback,totalUsersWithFeedback,hrObjectiveData,hrDevNeedsData);
 
 		return hrData;
 		
