@@ -160,7 +160,10 @@ public class AppController {
 		return ResponseEntity.ok(HrDataDAO.getHRObjectiveData());	
 	}	
 	
-	
+	/**
+	 * This method allows the front-end to retrieve a totals, objective counts, and development need counts in a single API call.
+	 * 
+	 */
 	@RequestMapping(value="/getHRData", method=GET)
 	public ResponseEntity<HRData> getHRData(){
 		return ResponseEntity.ok(HrDataDAO.getHRData());
