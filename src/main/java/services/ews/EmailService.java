@@ -7,9 +7,7 @@ import static microsoft.exchange.webservices.data.core.service.schema.EmailMessa
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -37,6 +35,7 @@ import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import microsoft.exchange.webservices.data.search.filter.SearchFilter;
 import services.EmployeeDAO;
+import services.Helper;
 
 /**
  * 
@@ -56,15 +55,7 @@ import services.EmployeeDAO;
 @Component
 @PropertySource("${ENVIRONMENT}.properties")
 public class EmailService {
-	
-	/** Defines the types of feedback that can be found. */
-	private enum FeedbackType {
-		GENERIC,
-		REQUEST,
-		ERROR
-	}
-	
-	
+		
 	/**
 	 * Logger for printing.
 	 */
@@ -79,8 +70,7 @@ public class EmailService {
 	/**
 	 * The service used to connect to the mailbox
 	 */
-	private static ExchangeService emailService;
-	
+	private static ExchangeService emailService;	
 	
 	/**
 	 * Autowired constructor to inject the environment
@@ -157,19 +147,45 @@ public class EmailService {
 	 * @throws Exception
 	 */
 	private static void analyseAndSortEmail(EmailMessage email) throws Exception {
-		String from = email.getFrom().toString();
+		String from = email.getFrom().getAddress();
     	Set<EmailAddress> recipients = new HashSet<>(email.getToRecipients().getItems());
-    	Set<EmailAddress> ccRecipients = new HashSet<>(email.getCcRecipients().getItems());
-    	String subject = email.getSubject();
+//    	Set<EmailAddress> ccRecipients = new HashSet<>(email.getCcRecipients().getItems());
+    	String subject = email.getSubject().toLowerCase();
     	String body = email.getBody().toString().trim();
     	
-    	if(subject.toLowerCase().contains("test")) //Just for testing generic feedback
-    		genericFeedbackFound(from, recipients, body);    	
+    	if(subject.contains("feedback request")) {
+    		requestedFeedbackFound(from, recipients, body);
+    	}else{
+    		if(subject.contains("Undelivered"))
+    			undeliveredFeedbackFound();
+    			
+    		genericFeedbackFound(from, recipients, body);
+    	}
     	
     	email.setIsRead(true);
     	email.update(ConflictResolutionMode.AutoResolve);
 	}
-	
+
+
+	/**
+	 * @param from
+	 * @param recipients
+	 * @param body
+	 * @throws NamingException 
+	 * @throws InvalidAttributeValueException 
+	 */
+	private static void requestedFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws InvalidAttributeValueException, NamingException {
+		logger.info("Request Feedback found");
+		String requestID = Helper.findFeedbackRequestIDFromString(body);
+		if(requestID.isEmpty()) {
+			genericFeedbackFound(from, recipients, body);
+			return;
+		}
+		EmployeeDAO.addRequestedFeedback(from, requestID, body);
+		logger.info("Requested Feedback processed");
+		
+	}
+
 	/**
 	 * @param from
 	 * @param recipients
@@ -179,12 +195,22 @@ public class EmailService {
 	 */
 	private static void genericFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws InvalidAttributeValueException, NamingException {	
 		logger.info("Generic Feedback found");
-		
-		for(EmailAddress recipient : recipients)
+		for(EmailAddress recipient : recipients) {
+			if(recipient.getAddress().equals(env.getProperty("mail.address")))
+				continue;
+			
 			EmployeeDAO.addFeedback(from, recipient.getAddress(), body);
-		
+		}
 		logger.info("Generic Feedback processed");
 	}
+	
+	/**
+	 * 
+	 */
+	private static void undeliveredFeedbackFound() {
+		// TODO This method..
+	}
+
 	
 	/**
 	 * Opens connection with the mailbox with specified timeout.

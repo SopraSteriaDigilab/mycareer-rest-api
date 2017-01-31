@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import javax.management.InvalidAttributeValueException;
 import org.mongodb.morphia.annotations.Embedded;
@@ -14,7 +15,7 @@ import org.mongodb.morphia.annotations.Id;
 import org.bson.types.ObjectId;
 import com.google.gson.Gson;
 
-import services.validate.Validate;
+import static services.validate.Validate.*;
 
 /**
  * 
@@ -431,7 +432,6 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		}
 		
 		this.feedbackRequests = new ArrayList<>(feedbackRequestList);
-		
 	}
 	
 
@@ -448,8 +448,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	
 	/**
 	 * @param id
-	 * @return
-	 * @throws InvalidAttributeValueException
+	 * @return Returns the feedback request with the given id.
 	 */
 	public FeedbackRequest getFeedbackRequest(String id) {
 		for(FeedbackRequest feedbackRequest : this.feedbackRequests){
@@ -635,7 +634,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 //	}
 	
 	public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException {
-		Validate.isNull(feedback);
+		isNull(feedback);
 		return this.feedback.add(feedback);
 	}
 

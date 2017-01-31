@@ -640,8 +640,9 @@ public class EmployeeDAO {
 		List<String> errorRecipientList = new ArrayList<String>();
 		
 		for(String recipient : recipientList){
-			String tempID = Helper.generateID(employeeID);
-			String body = notes + " \n\n Feedback_Request_" + tempID;
+			String tempID = Helper.generateFeedbackRequestID(employeeID);
+			String body = notes + " \n\n Feedback_Request: " + tempID;
+			// TODO Replace above with template.
 			try {
 				EmailService.sendEmail(recipient, "Feedback Request", body);
 			} catch (Exception e) {
@@ -690,6 +691,21 @@ public class EmployeeDAO {
 		
 		UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback", employee.getFeedback());
 		dbConnection.update(employee, ops);
+	}
+	
+
+	public static void addRequestedFeedback(String providerEmail, String feedbackRequestID, String feedbackDescription) throws InvalidAttributeValueException, NamingException {
+		Validate.areStringsEmptyorNull(providerEmail, feedbackRequestID, feedbackDescription);
+		
+		long employeeID = Helper.getEmployeeIDFromRequestID(feedbackRequestID);
+		Employee employee = getEmployee(employeeID);
+		
+		employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
+		
+		UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests", employee.getFeedbackRequestsList());
+		dbConnection.update(employee, ops);
+		
+		addFeedback(providerEmail, employee.getEmailAddress(), feedbackDescription);
 	}
 
 //	public static boolean insertNewGroupFeedbackRequest(long employeeID, Object data) throws InvalidAttributeValueException{
@@ -818,6 +834,8 @@ public class EmployeeDAO {
 		else
 			throw new InvalidAttributeValueException(NULL_USER_DATA);
 	}
+
+
 
 //	public static boolean linkFeedbackReqReplyToUserGroupFBReq(String requester, String fbReqID, Feedback data) throws InvalidAttributeValueException, NamingException{
 //		if(data!=null && data.isFeedbackValid()){
