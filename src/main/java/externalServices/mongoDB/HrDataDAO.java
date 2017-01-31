@@ -7,8 +7,10 @@ import java.util.List;
 import org.mongodb.morphia.Datastore;
 
 import dataStructure.Employee;
-import dataStructure.HRData;
-import dataStructure.HRObjectiveData;
+import domain.HRData;
+import domain.HRDevNeedsData;
+import domain.HRObjectiveData;
+import domain.HRTotals;
 
 /**
  * 
@@ -82,12 +84,28 @@ public class HrDataDAO {
 
 	}// getTotalUsersWithFeedback()
 
+	public static HRTotals getHRTotals() {
+
+		long totalAccounts = getTotalNumberOfUsers();
+		long totalUsersWithObjectives = getTotalUsersWithObjectives();
+		long totalUsersWithDevelopmentNeeds = getTotalUsersWithDevelopmentNeeds();
+		long totalUsersWithNotes = getTotalUsersWithNotes();
+		long totalUsersWithCompetencies = getTotalUsersWithCompetencies();
+		long totalUsersWithSubmittedFeedback = getTotalUsersWithSubmittedFeedback();
+		long totalUsersWithFeedback = getTotalUsersWithFeedback();
+
+		return new HRTotals(totalAccounts, totalUsersWithObjectives, totalUsersWithDevelopmentNeeds,
+				totalUsersWithNotes, totalUsersWithCompetencies, totalUsersWithSubmittedFeedback,
+				totalUsersWithFeedback);
+
+	}
+
 	public static List<HRObjectiveData> getHRObjectiveData() {
-		
+
 		List<HRObjectiveData> hrDataList = new ArrayList<>();
 
-		List<Employee> query = EmployeeDAO.dbConnection.createQuery(Employee.class).field("objectives").exists().retrievedFields(true, "forename","surname","employeeID","objectives")
-				.asList();
+		List<Employee> query = EmployeeDAO.dbConnection.createQuery(Employee.class).field("objectives").exists()
+				.retrievedFields(true, "forename", "surname", "employeeID", "objectives").asList();
 
 		if (!query.isEmpty()) {
 			for (Employee employee : query) {
@@ -99,37 +117,36 @@ public class HrDataDAO {
 		return hrDataList;
 
 	}
-	
-	public static HRData getHRData(){
-		long totalAccounts = EmployeeDAO.dbConnection.find(Employee.class).countAll();
-		long totalUsersWithObjectives = EmployeeDAO.dbConnection.find(Employee.class).field("objectives").exists()
-				.countAll();
-		long totalUsersWithDevelopmentNeeds = EmployeeDAO.dbConnection.find(Employee.class).field("developmentNeeds")
-				.exists().countAll();
-		long totalUsersWithNotes = EmployeeDAO.dbConnection.find(Employee.class).field("notes").exists().countAll();
-		long totalUsersWithCompetencies = EmployeeDAO.dbConnection.find(Employee.class).field("competencies").exists()
-				.countAll();
-		long totalUsersWithSubmittedFeedback = EmployeeDAO.dbConnection.find(Employee.class).field("feedback").exists()
-				.countAll();
-		long totalUsersWithFeedback = EmployeeDAO.dbConnection.find(Employee.class).field("feedback").exists()
-				.countAll();
-		
-		List<HRObjectiveData> hrObjectiveData = new ArrayList<>();
 
-		List<Employee> query = EmployeeDAO.dbConnection.createQuery(Employee.class).field("objectives").exists().retrievedFields(true, "forename","surname","employeeID","objectives")
-				.asList();
+	public static List<HRDevNeedsData> getHRDevNeedsData() {
+
+		List<HRDevNeedsData> hrDevNeedsList = new ArrayList<>();
+
+		List<Employee> query = EmployeeDAO.dbConnection.createQuery(Employee.class).field("developmentNeeds").exists()
+				.retrievedFields(true, "forename", "surname", "employeeID", "developmentNeeds").asList();
 
 		if (!query.isEmpty()) {
 			for (Employee employee : query) {
-				hrObjectiveData.add(new HRObjectiveData(employee.getEmployeeID(), employee.getFullName(),
-						employee.getLatestVersionObjectives()));
+				hrDevNeedsList.add(new HRDevNeedsData(employee.getEmployeeID(), employee.getFullName(),
+						employee.getLatestVersionDevelopmentNeeds()));
 			}
 		}
-		
-		HRData hrData= new HRData(totalAccounts,totalUsersWithObjectives,totalUsersWithDevelopmentNeeds,totalUsersWithNotes,totalUsersWithCompetencies,totalUsersWithSubmittedFeedback,totalUsersWithFeedback,hrObjectiveData);
+
+		return hrDevNeedsList;
+
+	}
+
+	public static HRData getHRData() {
+
+		HRTotals hrTotals = getHRTotals();
+
+		List<HRObjectiveData> hrObjectiveData = getHRObjectiveData();
+		List<HRDevNeedsData> hrDevNeedsData = getHRDevNeedsData();
+
+		HRData hrData = new HRData(hrTotals, hrObjectiveData, hrDevNeedsData);
 
 		return hrData;
-		
+
 	}
 
 }// HrDataDAO

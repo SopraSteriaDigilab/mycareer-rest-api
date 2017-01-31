@@ -1,7 +1,16 @@
-package dataStructure;
+package domain;
 
 import java.util.List;
 
+/**
+ * 
+ * @author Steven Hamilton
+ * @version 1.0
+ * @since 30th January 2017
+ * 
+ * This class contains the definition of the HRData object, containing all details for the HR Dashboard.
+ *
+ */
 public class HRData {
 	
 	private long totalAccounts;
@@ -12,18 +21,18 @@ public class HRData {
 	private long totalUsersWithSubmittedFeedback;
 	private long totalUsersWithFeedback;
 	private List<HRObjectiveData> hrObjectiveData;
+	private List<HRDevNeedsData> hrDevNeedsData;
 
-	public HRData(long totalAccounts, long totalUsersWithObjectives, long totalUsersWithDevelopmentNeeds,
-			long totalUsersWithNotes, long totalUsersWithCompetencies, long totalUsersWithSubmittedFeedback,
-			long totalUsersWithFeedback,List<HRObjectiveData> hrObjectiveData) {
-		this.totalAccounts=totalAccounts;
-		this.totalUsersWithObjectives=totalUsersWithObjectives;
-		this.totalUsersWithDevelopmentNeeds=totalUsersWithDevelopmentNeeds;
-		this.totalUsersWithNotes=totalUsersWithNotes;
-		this.totalUsersWithCompetencies=totalUsersWithCompetencies;
-		this.totalUsersWithSubmittedFeedback=totalUsersWithSubmittedFeedback;
-		this.totalUsersWithFeedback=totalUsersWithFeedback;	
+	public HRData(HRTotals hrTotals,List<HRObjectiveData> hrObjectiveData, List<HRDevNeedsData> hrDevNeedsData) {
+		this.totalAccounts=hrTotals.getTotalAccounts();
+		this.totalUsersWithObjectives=hrTotals.getTotalUsersWithObjectives();
+		this.totalUsersWithDevelopmentNeeds=hrTotals.getTotalUsersWithDevelopmentNeeds();
+		this.totalUsersWithNotes=hrTotals.getTotalUsersWithNotes();
+		this.totalUsersWithCompetencies=hrTotals.getTotalUsersWithCompetencies();
+		this.totalUsersWithSubmittedFeedback=hrTotals.getTotalUsersWithSubmittedFeedback();
+		this.totalUsersWithFeedback=hrTotals.getTotalUsersWithFeedback();	
 		this.hrObjectiveData=hrObjectiveData;
+		this.hrDevNeedsData=hrDevNeedsData;
 	}
 
 	public long getTotalAccounts() {
@@ -89,6 +98,16 @@ public class HRData {
 	public void setHrObjectiveData(List<HRObjectiveData> hrObjectiveData) {
 		this.hrObjectiveData = hrObjectiveData;
 	}
+
+	public List<HRDevNeedsData> getHrDevNeedsData() {
+		return hrDevNeedsData;
+	}
+
+	public void setHrDevNeedsData(List<HRDevNeedsData> hrDevNeedsData) {
+		this.hrDevNeedsData = hrDevNeedsData;
+	}
+	
+	
 	
 	
 	
