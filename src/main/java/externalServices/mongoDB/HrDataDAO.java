@@ -83,6 +83,19 @@ public class HrDataDAO {
 		return totalUsersWithFeedback;
 
 	}// getTotalUsersWithFeedback()
+	
+	public static HRData getHRData() {
+
+		HRTotals hrTotals = getHRTotals();
+
+		List<HRObjectiveData> hrObjectiveData = getHRObjectiveData();
+		List<HRDevNeedsData> hrDevNeedsData = getHRDevNeedsData();
+
+		HRData hrData = new HRData(hrTotals, hrObjectiveData, hrDevNeedsData);
+
+		return hrData;
+		
+	}
 
 	public static HRTotals getHRTotals() {
 
@@ -102,19 +115,19 @@ public class HrDataDAO {
 
 	public static List<HRObjectiveData> getHRObjectiveData() {
 
-		List<HRObjectiveData> hrDataList = new ArrayList<>();
+		List<HRObjectiveData> hrObjectiveList = new ArrayList<>();
 
 		List<Employee> query = EmployeeDAO.dbConnection.createQuery(Employee.class).field("objectives").exists()
 				.retrievedFields(true, "forename", "surname", "employeeID", "objectives").asList();
 
 		if (!query.isEmpty()) {
 			for (Employee employee : query) {
-				hrDataList.add(new HRObjectiveData(employee.getEmployeeID(), employee.getFullName(),
+				hrObjectiveList.add(new HRObjectiveData(employee.getEmployeeID(), employee.getFullName(),
 						employee.getLatestVersionObjectives()));
 			}
 		}
 
-		return hrDataList;
+		return hrObjectiveList;
 
 	}
 
@@ -136,17 +149,6 @@ public class HrDataDAO {
 
 	}
 
-	public static HRData getHRData() {
 
-		HRTotals hrTotals = getHRTotals();
-
-		List<HRObjectiveData> hrObjectiveData = getHRObjectiveData();
-		List<HRDevNeedsData> hrDevNeedsData = getHRDevNeedsData();
-
-		HRData hrData = new HRData(hrTotals, hrObjectiveData, hrDevNeedsData);
-
-		return hrData;
-
-	}
 
 }// HrDataDAO
