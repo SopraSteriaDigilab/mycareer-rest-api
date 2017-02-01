@@ -21,6 +21,8 @@ import static services.validate.Validate.*;
  * 
  * @author Michael Piccoli
  * @author Christopher Kai
+ * @author Ridhwan Nacef
+ * @author Mehmet Mehmet
  * @version 1.0
  * @since 10th October 2016
  * 
@@ -449,13 +451,14 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	/**
 	 * @param id
 	 * @return Returns the feedback request with the given id.
+	 * @throws InvalidAttributeValueException 
 	 */
-	public FeedbackRequest getFeedbackRequest(String id) {
+	public FeedbackRequest getFeedbackRequest(String id) throws InvalidAttributeValueException {
 		for(FeedbackRequest feedbackRequest : this.feedbackRequests){
 			if(feedbackRequest.getId().equals(id))
 				return feedbackRequest;
-		}	
-		return null;
+		}
+		throw new InvalidAttributeValueException("Feedback Request does not exist.");
 	}
 
 //	/**

@@ -57,6 +57,8 @@ import services.validate.Validate;
  * 
  * @author Michael Piccoli
  * @author Christopher Kai
+ * @author Ridhwan Nacef
+ * @author Mehmet Mehmet
  * @version 1.0
  * @since 10th October 2016
  * 

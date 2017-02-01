@@ -25,6 +25,7 @@ import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.PropertySet;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.service.ConflictResolutionMode;
+import microsoft.exchange.webservices.data.core.exception.service.local.ServiceLocalException;
 import microsoft.exchange.webservices.data.core.service.folder.Folder;
 import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.core.service.item.Item;
@@ -46,11 +47,6 @@ import services.Helper;
  * @version 1.0
  * @since January 2017
  * @see <a href="https://github.com/OfficeDev/ews-java-api">EWS Java API</a>
- */
-
-/**
- * @author rnacef
- *
  */
 @Component
 @PropertySource("${ENVIRONMENT}.properties")
@@ -106,8 +102,8 @@ public class EmailService {
 	 * 
 	 * @throws Exception
 	 */
-	@Scheduled(fixedRate = 15000)
-	private void findEmails()  {
+	@Scheduled(fixedRate = 30000)
+	private void findEmails() {
 		try {
 			initiateEWSConnection(120000);
 			
@@ -141,29 +137,34 @@ public class EmailService {
 	
 	/**
 	 * Analyses an Email and sorts between generic feedback, 
-	 * feedback request or invalid Email.
+	 * feedback request or undelivered Email.
 	 * 
 	 * @param email
+	 * @throws ServiceLocalException 
 	 * @throws Exception
 	 */
-	private static void analyseAndSortEmail(EmailMessage email) throws Exception {
-		String from = email.getFrom().getAddress();
-    	Set<EmailAddress> recipients = new HashSet<>(email.getToRecipients().getItems());
-//    	Set<EmailAddress> ccRecipients = new HashSet<>(email.getCcRecipients().getItems());
-    	String subject = email.getSubject().toLowerCase();
-    	String body = email.getBody().toString().trim();
-    	
-    	if(subject.contains("feedback request")) {
-    		requestedFeedbackFound(from, recipients, body);
-    	}else{
-    		if(subject.contains("Undelivered"))
-    			undeliveredFeedbackFound();
-    			
-    		genericFeedbackFound(from, recipients, body);
-    	}
-    	
-    	email.setIsRead(true);
-    	email.update(ConflictResolutionMode.AutoResolve);
+	private static void analyseAndSortEmail(EmailMessage email) {
+		try {
+			String from = email.getFrom().getAddress();
+	    	Set<EmailAddress> recipients = new HashSet<>(email.getToRecipients().getItems());
+	//    	Set<EmailAddress> ccRecipients = new HashSet<>(email.getCcRecipients().getItems());
+	    	String subject = email.getSubject().toLowerCase();
+	    	String body = email.getBody().toString().trim();
+	    	
+	    	if(subject.contains("feedback request")) {
+	    		requestedFeedbackFound(from, recipients, body);
+	    	}else{
+	    		if(subject.contains("Undelivered"))
+	    			undeliveredFeedbackFound();
+	    			
+	    		genericFeedbackFound(from, recipients, body);
+	    	}
+	    	
+	    	email.setIsRead(true);
+	    	email.update(ConflictResolutionMode.AutoResolve);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
 	}
 
 
@@ -174,14 +175,20 @@ public class EmailService {
 	 * @throws NamingException 
 	 * @throws InvalidAttributeValueException 
 	 */
-	private static void requestedFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws InvalidAttributeValueException, NamingException {
+	private static void requestedFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws InvalidAttributeValueException {
 		logger.info("Request Feedback found");
 		String requestID = Helper.findFeedbackRequestIDFromString(body);
 		if(requestID.isEmpty()) {
 			genericFeedbackFound(from, recipients, body);
 			return;
 		}
-		EmployeeDAO.addRequestedFeedback(from, requestID, body);
+		try {
+			EmployeeDAO.addRequestedFeedback(from, requestID, body);
+		} catch (InvalidAttributeValueException | NamingException e) {
+			logger.error(e.getMessage());
+			// TODO Send email to 'from' with error
+			
+		}
 		logger.info("Requested Feedback processed");
 		
 	}
@@ -193,14 +200,20 @@ public class EmailService {
 	 * @throws NamingException 
 	 * @throws InvalidAttributeValueException 
 	 */
-	private static void genericFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws InvalidAttributeValueException, NamingException {	
+	private static void genericFeedbackFound(String from, Set<EmailAddress> recipients, String body) {	
 		logger.info("Generic Feedback found");
 		for(EmailAddress recipient : recipients) {
 			if(recipient.getAddress().equals(env.getProperty("mail.address")))
 				continue;
 			
-			EmployeeDAO.addFeedback(from, recipient.getAddress(), body);
+			try {
+				EmployeeDAO.addFeedback(from, recipient.getAddress(), body);
+			} catch (InvalidAttributeValueException | NamingException e) {
+				logger.error(e.getMessage());
+				// TODO add recipient to error list then send email to 'from' with the failed scenarios.
+			}
 		}
+		// TODO Check error list then send email to 'from' with the failed recipients.
 		logger.info("Generic Feedback processed");
 	}
 	
@@ -219,7 +232,7 @@ public class EmailService {
 	 * @throws URISyntaxException
 	 */
 	private static void initiateEWSConnection(int timeout) throws URISyntaxException{
-		if(emailService==null){
+		if(emailService == null) {
 			emailService = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
 			emailService.setMaximumPoolingConnections(1);
 			emailService.setCredentials(new WebCredentials(env.getProperty("mail.username"), env.getProperty("mail.password")));
