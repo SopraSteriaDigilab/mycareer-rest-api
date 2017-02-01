@@ -5,11 +5,10 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -34,6 +33,8 @@ import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
+import domain.HRData;
+import domain.HRObjectiveData;
 import externalServices.ad.ADProfileDAO;
 import externalServices.ews.SMTPService;
 import externalServices.mongoDB.EmployeeDAO;
@@ -150,8 +151,23 @@ public class AppController {
 	}//RequestMapping getTotalAccountsWithFeedback
 	
 	
+	/**
+	 * This method allows the front-end to retrieve a summary of a user's details and un-archived objectives.
+	 * 
+	 */
+	@RequestMapping(value="/getHRObjectiveData", method=GET)
+	public ResponseEntity<List<HRObjectiveData>> getHRObjectiveData(){
+		return ResponseEntity.ok(HrDataDAO.getHRObjectiveData());	
+	}	
 	
-	
+	/**
+	 * This method allows the front-end to retrieve a totals, objective counts, and development need counts in a single API call.
+	 * 
+	 */
+	@RequestMapping(value="/getHRData", method=GET)
+	public ResponseEntity<HRData> getHRData(){
+		return ResponseEntity.ok(HrDataDAO.getHRData());
+	}
 	
 	//End of HR data methods
 	
