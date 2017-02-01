@@ -51,8 +51,8 @@ import services.validate.Validate;
 public class AppController {
 	
 	@RequestMapping(value="/", method = GET)
-	public ResponseEntity<?> welcomePage(){
-		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
+	public ResponseEntity<String> welcomePage() {
+		return ResponseEntity.ok("Welcome to the MyCareer Project");
 	}
 	
 	@RequestMapping(value="/logMeIn", method = GET)

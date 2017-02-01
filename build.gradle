@@ -63,6 +63,8 @@ dependencies {
     testCompile("junit:junit")
     //testCompile("org.springframework.boot:spring-boot-starter-test")
     
+    compile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
+    
     //SSO with SPNEGO (Internal libraries)
     compile files('libs/spnego-r7.jar')
 	compile files('libs/local_policy.jar')

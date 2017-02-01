@@ -75,7 +75,6 @@ public class EmployeeDAO {
 	public EmployeeDAO(Datastore dbConnection) {
 		EmployeeDAO.dbConnection = dbConnection;
 	}
-	
 
 	public static Employee getEmployee(long employeeID) throws InvalidAttributeValueException {
 		Employee employee = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
