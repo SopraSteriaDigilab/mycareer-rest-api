@@ -30,7 +30,7 @@ import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
 import services.EmployeeDAO;
-import services.HrDataDAO;
+//import services.HrDataDAO;
 import services.ad.ADProfileDAO;
 import services.validate.Validate;
 
@@ -66,28 +66,28 @@ public class AppController {
 	 * This method allows the front-end to retrieve the number of Employees who exist within the database
 	 * 
 	 */
-	@RequestMapping(value="/getTotalAccounts", method = GET)
-	public ResponseEntity<Long> getTotalAccounts(){
-		return ResponseEntity.ok(HrDataDAO.getTotalNumberOfUsers());
-	}//RequestMapping getTotalAccounts
-	
-	/**
-	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one objective created.
-	 * 
-	 */
-	@RequestMapping(value="/getTotalAccountsWithObjectives", method = GET)
-	public ResponseEntity<Long> getTotalAccountsWithObjectives(){
-		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithObjectives());
-	}//RequestMapping getTotalAccounts
-	
-	/**
-	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one development need created.
-	 * 
-	 */
-	@RequestMapping(value="/getTotalAccountsWithDevelopmentNeeds", method = GET)
-	public ResponseEntity<Long> getTotalAccountsWithDevelopmentNeeds(){
-		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithDevelopmentNeeds());
-	}//RequestMapping getTotalAccounts
+//	@RequestMapping(value="/getTotalAccounts", method = GET)
+//	public ResponseEntity<Long> getTotalAccounts(){
+//		return ResponseEntity.ok(HrDataDAO.getTotalNumberOfUsers());
+//	}//RequestMapping getTotalAccounts
+//	
+//	/**
+//	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one objective created.
+//	 * 
+//	 */
+//	@RequestMapping(value="/getTotalAccountsWithObjectives", method = GET)
+//	public ResponseEntity<Long> getTotalAccountsWithObjectives(){
+//		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithObjectives());
+//	}//RequestMapping getTotalAccounts
+//	
+//	/**
+//	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one development need created.
+//	 * 
+//	 */
+//	@RequestMapping(value="/getTotalAccountsWithDevelopmentNeeds", method = GET)
+//	public ResponseEntity<Long> getTotalAccountsWithDevelopmentNeeds(){
+//		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithDevelopmentNeeds());
+//	}//RequestMapping getTotalAccounts
 	
 	/**
 	 * 

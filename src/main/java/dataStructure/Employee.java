@@ -29,10 +29,6 @@ import static services.validate.Validate.*;
  * This class contains the definition of the Employee object
  *
  */
-/**
- * @author rnacef
- *
- */
 @Entity("employeeDataDev")
 public class Employee extends ADProfile_Advanced implements Serializable{
 
@@ -425,7 +421,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 */
 	public void setFeedbackRequestsList(List<FeedbackRequest> feedbackRequestList) throws InvalidAttributeValueException {
 		
-		if(feedbackRequestList == null || feedbackRequestList.isEmpty())
+		if(feedbackRequestList == null /*|| feedbackRequestList.isEmpty()*/)
 			throw new InvalidAttributeValueException("The list is invalid. Please try again with a valid list.");
 		
 		for(FeedbackRequest feedbackRequest : feedbackRequestList){

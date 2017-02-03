@@ -70,22 +70,40 @@ public class EmployeeDAO {
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeDAO.class);
 	
 	//There is only 1 instance of the Datastore in the whole system
-    static Datastore dbConnection;
+  static Datastore dbConnection;
 	
+  /** Parameterless Constructor */
+  public EmployeeDAO(){}
+  
 	public EmployeeDAO(Datastore dbConnection) {
 		EmployeeDAO.dbConnection = dbConnection;
 	}
 
-	public static Employee getEmployee(long employeeID) throws InvalidAttributeValueException {
-		Employee employee = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
-		if (employee == null) {
-			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-		}
-		return employee;
-	}
+	/**
+	 * 
+	 * Gets Employee from database with the specified id
+	 *
+	 * @param employeeID ID of the employee
+	 * @return the employee if exists
+	 * @throws InvalidAttributeValueException if employee is not found or is null.
+	 */
+  public static Employee getEmployee(long employeeID) throws InvalidAttributeValueException
+  {
+    Employee employee = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
+    if (employee == null)
+    {
+      throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+    }
+    return employee;
+  }
 	
-	
-	//To be removed. Use the getEmployee method.
+	/**
+	 * 
+	 * @deprecated Use the {@linkplain #getEmployee(long) getEmployee(long)} method instead.
+	 *
+	 * @param employeeID
+	 * @return
+	 */
 	private static Query<Employee> getEmployeeQuery(long employeeID) {
 		return dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
 	}
@@ -98,7 +116,7 @@ public class EmployeeDAO {
 	}
 
 	public static List<Objective> getObjectivesForUser(long employeeID) throws InvalidAttributeValueException{
-		Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
+	  Employee queryRes = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
 		if(queryRes==null)
 			throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
 		return queryRes.getLatestVersionObjectives();
