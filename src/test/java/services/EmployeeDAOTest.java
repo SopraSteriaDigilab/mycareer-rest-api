@@ -1,9 +1,7 @@
-package application;
+package services;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.ResponseEntity.ok;
 
 import java.util.List;
 
@@ -21,14 +19,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 
+import application.AppController;
+import application.AppControllerTest;
 import dataStructure.Employee;
 import dataStructure.Objective;
-import services.EmployeeDAO;
 
 /**
- * Unit tests for the AppController class.
+ * Unit tests for the EmployeeDAO class.
  */
-public class AppControllerTest
+public class EmployeeDAOTest
 {
   /** Logger Property - Represents an implementation of the Logger interface that may be used here. */
   private static final Logger LOG = LoggerFactory.getLogger(AppControllerTest.class);
@@ -59,7 +58,7 @@ public class AppControllerTest
 
   /** ProcessComponentsImpl Property - Represents the unit under test. */
   @InjectMocks
-  private AppController unitUnderTest;
+  private EmployeeDAO unitUnderTest;
 
   /**
    * Setup method that runs once before each test method.
@@ -68,48 +67,47 @@ public class AppControllerTest
   @Before
   public void setup()
   {
-    LOG.debug("AppControllerTest.setup()", true);
+    // LOG.debug("AppControllerTest.setup()", true);
 
-    unitUnderTest = new AppController();
-    
+    unitUnderTest = new EmployeeDAO();
+
     MockitoAnnotations.initMocks(this);
-    
-    
+
     when(mockDatastore.createQuery(Mockito.any())).thenReturn(mockQuery);
     when(mockQuery.filter(Mockito.anyString(), Mockito.any())).thenReturn(mockQuery);
     when(mockQuery.get()).thenReturn(mockEmployee);
-    
+
     mockEmployeeDao = new EmployeeDAO(mockDatastore);
   }
 
   /**
-   * Unit test for the testWelcome method.
-   */
-  @Test
-  public void testWelcomePageShouldWorkAsExpected()
-  {
-     LOG.debug("AppControllerTest.testWelcomePageShouldWorkAsExpected()");
-    
-    ResponseEntity<String> expected = ok("Welcome to the MyCareer Project");
-    assertEquals(expected, unitUnderTest.welcomePage());
-  }
-
-  /**
-   * Unit test for the testGetObjectives method
+   * Unit test for the getEmployee method.
    * 
    * @throws InvalidAttributeValueException
    */
-  @SuppressWarnings({ "static-access" })
+  @SuppressWarnings("static-access")
   @Test
-  public void testGetObjectivesShouldWorkAsExpected() throws InvalidAttributeValueException
+  public void testGetEmployeeShouldWorkAsExpected() throws InvalidAttributeValueException
   {
-    LOG.debug("AppControllerTest.testGetObjectives()");
+    // LOG.debug("EmployeeDAOTest.testGetEmployeeShouldWorkAsExpected()");
 
-    when(mockEmployeeDao.getObjectivesForUser(VALID_EMPLOYEE_ID)).thenReturn(mockListOfObjectives);
-
-    assertEquals(OK, unitUnderTest.getObjectives(VALID_EMPLOYEE_ID).getStatusCode());
+    assertEquals(mockEmployee, unitUnderTest.getEmployee(VALID_EMPLOYEE_ID));
   }
-  
-  
+
+  /**
+   * Unit test for the getEmployee method.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @SuppressWarnings("static-access")
+  @Test(expected = InvalidAttributeValueException.class)
+  public void testGetEmployeeShouldThrowException() throws InvalidAttributeValueException
+  {
+    // LOG.debug("EmployeeDAOTest.testGetEmployeeShouldWorkAsExpected()");
+
+    when(mockQuery.get()).thenReturn(null);
+
+    unitUnderTest.getEmployee(VALID_EMPLOYEE_ID);
+  }
 
 }
