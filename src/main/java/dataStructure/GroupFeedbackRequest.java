@@ -1,21 +1,25 @@
-//package dataStructure;
-//
+package dataStructure;
+
 //import static dataStructure.Constants.UK_TIMEZONE;
 //
-//import java.io.Serializable;
+import java.io.Serializable;
 //import java.time.LocalDateTime;
 //import java.time.ZoneId;
 //import java.util.ArrayList;
 //import java.util.List;
 //import javax.management.InvalidAttributeValueException;
-//import org.mongodb.morphia.annotations.Embedded;
+import org.mongodb.morphia.annotations.Embedded;
 //import com.google.gson.Gson;
+
+/**
+ * @deprecated
+ *
+ */
+@Embedded
+public class GroupFeedbackRequest implements Serializable{//, Iterable<FeedbackRequest>{
 //
-//@Embedded
-//public class GroupFeedbackRequest implements Serializable{//, Iterable<FeedbackRequest>{
-//
-//	//Global Constant
-//	private static final long serialVersionUID = 6950535901949268747L;
+	//Global Constant
+	private static final long serialVersionUID = 6950535901949268747L;
 //	
 //	//Global Variables
 //	private String id;
@@ -142,4 +146,4 @@
 ////		};
 ////		return iterator;
 ////	}
-//}
+}

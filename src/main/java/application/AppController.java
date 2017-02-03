@@ -1,9 +1,12 @@
 package application;
 
 import static dataStructure.Constants.UK_TIMEZONE;
+import static org.springframework.http.ResponseEntity.badRequest;
+import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static services.validate.ValidateAppController.isValidCreateFeedbackRequest;
+
 
 import java.io.IOException;
 import java.time.YearMonth;
@@ -57,7 +60,7 @@ public class AppController {
 	
 	@RequestMapping(value="/", method = GET)
 	public ResponseEntity<String> welcomePage() {
-		return ResponseEntity.ok("Welcome to the MyCareer Project");
+		return ok("Welcome to the MyCareer Project");
 	}
 	
 	@RequestMapping(value="/portal", method = GET)
@@ -94,16 +97,16 @@ public class AppController {
 		if(employeeID>0)
 			try {
 				//Retrieve and return the objectives from the system
-				return ResponseEntity.ok(EmployeeDAO.getObjectivesForUser(employeeID));
+				return ok(EmployeeDAO.getObjectivesForUser(employeeID));
 			}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
+			return badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -117,16 +120,16 @@ public class AppController {
 	public ResponseEntity<?> getFeedback(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
-				return ResponseEntity.ok(EmployeeDAO.getFeedbackForUser(employeeID));
+				return ok(EmployeeDAO.getFeedbackForUser(employeeID));
 			}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
+			return badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -140,17 +143,17 @@ public class AppController {
 	public ResponseEntity<?> getNotes(@PathVariable long employeeID){
 		if(employeeID>0){
 			try{
-				return ResponseEntity.ok(EmployeeDAO.getNotesForUser(employeeID));
+				return ok(EmployeeDAO.getNotesForUser(employeeID));
 			}
 			catch(MongoException me){
-				return ResponseEntity.badRequest().body("DataBase Connection Error");
+				return badRequest().body("DataBase Connection Error");
 			}
 			catch(Exception e){
-				return ResponseEntity.badRequest().body(e.getMessage());
+				return badRequest().body(e.getMessage());
 			}
 		}
 		else
-			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
+			return badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -164,16 +167,16 @@ public class AppController {
 	public ResponseEntity<?> getDevelomentNeeds(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
-				return ResponseEntity.ok(EmployeeDAO.getDevelopmentNeedsForUser(employeeID));
+				return ok(EmployeeDAO.getDevelopmentNeedsForUser(employeeID));
 			}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
+			return badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -187,13 +190,13 @@ public class AppController {
 	public ResponseEntity<?> getCompetencies(
 			@PathVariable("employeeID") long employeeID){
 		try{
-			return ResponseEntity.ok(EmployeeDAO.getCompetenciesForUser(employeeID));
+			return ok(EmployeeDAO.getCompetenciesForUser(employeeID));
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -207,13 +210,13 @@ public class AppController {
 	@RequestMapping(value="/getReportees/{employeeID}", method = GET)
 	public ResponseEntity<?> getReportees(@PathVariable long employeeID){
 		try{
-			return ResponseEntity.ok(EmployeeDAO.getReporteesForUser(employeeID));
+			return ok(EmployeeDAO.getReporteesForUser(employeeID));
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -221,16 +224,16 @@ public class AppController {
 	public ResponseEntity<?> getAllUserData(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
-				return ResponseEntity.ok(EmployeeDAO.getAllUserDataFromID(employeeID));
+				return ok(EmployeeDAO.getAllUserDataFromID(employeeID));
 			}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
+			return badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -260,15 +263,15 @@ public class AppController {
 			obj.setProposedBy(proposedBy);
 			boolean inserted=EmployeeDAO.insertNewObjective(employeeID,obj);
 			if(inserted)
-				return ResponseEntity.ok("Objective inserted correctly");
+				return ok("Objective inserted correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while adding the objective");
+				return badRequest().body("Error while adding the objective");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -302,15 +305,15 @@ public class AppController {
 			obj.setProposedBy(proposedBy);
 			boolean inserted=EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj);
 			if(inserted)
-				return ResponseEntity.ok("Objective modified correctly");
+				return ok("Objective modified correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while editing the objective");
+				return badRequest().body("Error while editing the objective");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 	
@@ -322,15 +325,15 @@ public class AppController {
 		try{
 			boolean inserted=EmployeeDAO.updateProgressObjective(employeeID, objectiveID, progress);
 			if(inserted)
-				return ResponseEntity.ok("Objective modified correctly");
+				return ok("Objective modified correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while editing the objective");
+				return badRequest().body("Error while editing the objective");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -352,7 +355,7 @@ public class AppController {
 			//Retrieve the object with the given ID from the DB data
 			Objective obj=EmployeeDAO.getSpecificObjectiveForUser(employeeID, objectiveID);
 			if(obj.getIsArchived()==isArchived) {
-				return ResponseEntity.ok("The status of the objective has not changed");
+				return ok("The status of the objective has not changed");
 			}
 //			//Create a new object which stores the data from the retrieved element but sets a new timestamp to it
 //			Objective newObjUpdated=new Objective(obj);
@@ -364,19 +367,19 @@ public class AppController {
 			boolean inserted = EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj);
 			if(inserted) {
 				if(updatedArchiveStatus) {
-					return ResponseEntity.ok("The objective has been archived");
+					return ok("The objective has been archived");
 				} else {
-					return ResponseEntity.ok("The objective has been restored");
+					return ok("The objective has been restored");
 				}
 			} else {
-				return ResponseEntity.badRequest().body("Error while editing the objective");
+				return badRequest().body("Error while editing the objective");
 			}
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -400,15 +403,15 @@ public class AppController {
 			Note obj=new Note(1, noteType, linkID, body,from);
 			boolean inserted=EmployeeDAO.insertNewNote(employeeID,obj);
 			if(inserted)
-				return ResponseEntity.ok("Note inserted correctly");
+				return ok("Note inserted correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while adding the Note");
+				return badRequest().body("Error while adding the Note");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -434,15 +437,15 @@ public class AppController {
 			Note obj=new Note(noteID, noteType, linkID, body,from);
 			boolean inserted=EmployeeDAO.addNewVersionNote(employeeID, noteID, obj);
 			if(inserted)
-				return ResponseEntity.ok("Note modified correctly");
+				return ok("Note modified correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while editing the Note");
+				return badRequest().body("Error while editing the Note");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -467,15 +470,15 @@ public class AppController {
 			DevelopmentNeed obj=new DevelopmentNeed(1,0,cat,title,description,timeToCompleteBy);
 			boolean inserted=EmployeeDAO.insertNewDevelopmentNeed(employeeID,obj);
 			if(inserted)
-				return ResponseEntity.ok("Development need inserted correctly");
+				return ok("Development need inserted correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while adding the Development need");
+				return badRequest().body("Error while adding the Development need");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -503,15 +506,15 @@ public class AppController {
 			DevelopmentNeed obj=new DevelopmentNeed(devNeedID,progress,cat,title,description,timeToCompleteBy);
 			boolean inserted=EmployeeDAO.addNewVersionDevelopmentNeed(employeeID, devNeedID, obj);
 			if(inserted)
-				return ResponseEntity.ok("Development need modified correctly");
+				return ok("Development need modified correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while editing the Development need");
+				return badRequest().body("Error while editing the Development need");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -524,15 +527,15 @@ public class AppController {
 		try{
 			boolean inserted=EmployeeDAO.updateProgressDevelopmentNeed(employeeID, devNeedID, progress);
 			if(inserted)
-				return ResponseEntity.ok("DevelopmentNeed modified correctly");
+				return ok("DevelopmentNeed modified correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while editing the developmentNeed");
+				return badRequest().body("Error while editing the developmentNeed");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 	
@@ -556,16 +559,16 @@ public class AppController {
 //				emailAddressesToField[i]=emailAddressesToField[i].trim();
 //			}
 //			if(emailAddressesToField[0].length()<1)
-//				return ResponseEntity.badRequest().body("No recipients inserted");
+//				return badRequest().body("No recipients inserted");
 //			int attemptsCounter=1;
 //			boolean done=SMTPService.tryToSendFeedbackRequest(attemptsCounter, employeeID, notes, emailAddressesToField);
 //			if(done)
-//				return ResponseEntity.ok("Your feedback request has been processed.");
+//				return ok("Your feedback request has been processed.");
 //			else
-//				return ResponseEntity.badRequest().body("Error while creating a feedback request");
+//				return badRequest().body("Error while creating a feedback request");
 //		}
 //		catch(Exception e){
-//			return ResponseEntity.badRequest().body(e.getMessage());
+//			return badRequest().body(e.getMessage());
 //		}
 //	}
 	
@@ -577,11 +580,11 @@ public class AppController {
 		try {
 			isValidCreateFeedbackRequest(employeeID, toFields, notes);
 			EmployeeDAO.processFeedbackRequest(employeeID, toFields, notes);
-			return ResponseEntity.ok("Your feedback request has been processed.");
+			return ok("Your feedback request has been processed.");
 		} catch (InvalidAttributeValueException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 	
@@ -595,13 +598,13 @@ public class AppController {
 //	public ResponseEntity<?> getGroupFeedbackRequests(
 //			@PathVariable("employeeID") long employeeID){
 //		try{
-//			return ResponseEntity.ok(EmployeeDAO.getGroupFeedbackRequestsForUser(employeeID));
+//			return ok(EmployeeDAO.getGroupFeedbackRequestsForUser(employeeID));
 //		}
 //		catch(MongoException me){
-//			return ResponseEntity.badRequest().body("DataBase Connection Error");
+//			return badRequest().body("DataBase Connection Error");
 //		}
 //		catch(Exception e){
-//			return ResponseEntity.badRequest().body(e.getMessage());
+//			return badRequest().body(e.getMessage());
 //		}
 //	}
 
@@ -620,22 +623,22 @@ public class AppController {
 			@RequestParam(value="status") boolean status){
 		try{
 			if(title==null || title.length()<1 || title.length()>200)
-				return ResponseEntity.badRequest().body("The given title is invalid");
+				return badRequest().body("The given title is invalid");
 			int index=Constants.getCompetencyIDGivenTitle(title);
 			if(index<0)
-				return ResponseEntity.badRequest().body("The given title does not match any valid competency");
+				return badRequest().body("The given title does not match any valid competency");
 			Competency obj=new Competency(index,status);
 			boolean inserted=EmployeeDAO.addNewVersionCompetency(employeeID,obj,title);
 			if(inserted)
-				return ResponseEntity.ok("Competency updated correctly");
+				return ok("Competency updated correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while updating the Competency");
+				return badRequest().body("Error while updating the Competency");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -643,15 +646,15 @@ public class AppController {
 	public ResponseEntity<?> authenticateUserProfile(@RequestParam(value="userName_Email") String userName){
 		try {
 			if(userName!=null && !userName.equals("") && userName.length()<300 ){
-				return ResponseEntity.ok(ADProfileDAO.authenticateUserProfile(userName));
+				return ok(ADProfileDAO.authenticateUserProfile(userName));
 			}else{
-				return ResponseEntity.badRequest().body("The username given is invalid");
+				return badRequest().body("The username given is invalid");
 			}
 		} catch (InvalidAttributeValueException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		} catch (NamingException e){
-			//			return ResponseEntity.badRequest().body("AD Connection Error");
-			return ResponseEntity.badRequest().body(e.toString());
+			//			return badRequest().body("AD Connection Error");
+			return badRequest().body(e.toString());
 		}	
 	}
 
@@ -733,14 +736,14 @@ public class AppController {
 				result += errorResult;
 			}
 
-			return ResponseEntity.ok(result);
+			return ok(result);
 
 		} catch (InvalidAttributeValueException e) {
 			if(!insertAccepted){ result = ""; }
-			return ResponseEntity.badRequest().body(result + e.getMessage()  +", ");
+			return badRequest().body(result + e.getMessage()  +", ");
 		} catch (NamingException e) {
 			if(!insertAccepted){ result = ""; }
-			return ResponseEntity.badRequest().body(result + e.getMessage()  +", ");
+			return badRequest().body(result + e.getMessage()  +", ");
 		} 
 	}
 
@@ -756,16 +759,16 @@ public class AppController {
 		if(employeeID>0)
 			try {
 				//Retrieve and return the ID Title pairs from the system
-				return ResponseEntity.ok(EmployeeDAO.getIDTitlePairsDataStructure(employeeID));
+				return ok(EmployeeDAO.getIDTitlePairsDataStructure(employeeID));
 			}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body("The given ID is invalid");
+			return badRequest().body("The given ID is invalid");
 	}
 
 }

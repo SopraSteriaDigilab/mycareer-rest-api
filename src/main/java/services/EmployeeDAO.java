@@ -52,6 +52,7 @@ import dataStructure.Objective;
 import services.ad.ADProfileDAO;
 import services.ews.EmailService;
 import services.validate.Validate;
+import utils.Utils;
 
 /**
  * 
@@ -655,11 +656,11 @@ public class EmployeeDAO {
 	 * @throws Exception
 	 */
 	public static void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception {
-		Set<String> recipientList = Helper.stringEmailsToHashSet(emailsString);
+		Set<String> recipientList = Utils.stringEmailsToHashSet(emailsString);
 		List<String> errorRecipientList = new ArrayList<String>();
 		
 		for(String recipient : recipientList){
-			String tempID = Helper.generateFeedbackRequestID(employeeID);
+			String tempID = Utils.generateFeedbackRequestID(employeeID);
 			String body = notes + " \n\n Feedback_Request: " + tempID;
 			// TODO Replace above with template.
 			try {
@@ -716,7 +717,7 @@ public class EmployeeDAO {
 	public static void addRequestedFeedback(String providerEmail, String feedbackRequestID, String feedbackDescription) throws InvalidAttributeValueException, NamingException {
 		Validate.areStringsEmptyorNull(providerEmail, feedbackRequestID, feedbackDescription);
 		
-		long employeeID = Helper.getEmployeeIDFromRequestID(feedbackRequestID);
+		long employeeID = Utils.getEmployeeIDFromRequestID(feedbackRequestID);
 		Employee employee = getEmployee(employeeID);
 		
 		employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);

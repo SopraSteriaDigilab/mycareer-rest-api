@@ -1,21 +1,22 @@
 package dataStructure;
 
+import static services.validate.Validate.isNull;
+
 import java.io.Serializable;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import javax.management.InvalidAttributeValueException;
+
+import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
-import org.bson.types.ObjectId;
-import com.google.gson.Gson;
 
-import static services.validate.Validate.*;
+import com.google.gson.Gson;
 
 /**
  * 

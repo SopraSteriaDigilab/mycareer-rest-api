@@ -85,8 +85,8 @@ public class AppControllerTest
   @Test
   public void testWelcomePageShouldWorkAsExpected()
   {
-    // LOG.debug("AppControllerTest.testWelcomePageShouldWorkAsExpected()");
-    //
+     LOG.debug("AppControllerTest.testWelcomePageShouldWorkAsExpected()");
+    
     ResponseEntity<String> expected = ok("Welcome to the MyCareer Project");
     assertEquals(expected, unitUnderTest.welcomePage());
   }
@@ -98,7 +98,7 @@ public class AppControllerTest
    */
   @SuppressWarnings({ "static-access" })
   @Test
-  public void testGetObjectives() throws InvalidAttributeValueException
+  public void testGetObjectivesShouldWorkAsExpected() throws InvalidAttributeValueException
   {
     LOG.debug("AppControllerTest.testGetObjectives()");
 
