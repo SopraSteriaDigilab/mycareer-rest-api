@@ -21,6 +21,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import dataStructure.Employee;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.PropertySet;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
@@ -149,15 +150,20 @@ public class EmailService
       String subject = email.getSubject().toLowerCase();
       String body = email.getBody().toString().trim();
 
-      if (subject.contains("feedback request"))
+      if (subject.contains("Undelivered"))
       {
-        requestedFeedbackFound(from, recipients, body);
+        undeliveredFeedbackFound(subject);
       }
       else
       {
-        if (subject.contains("Undelivered")) undeliveredFeedbackFound();
-
-        genericFeedbackFound(from, recipients, body);
+        if (subject.contains("feedback request"))
+        {
+          requestedFeedbackFound(from, recipients, body);
+        }
+        else
+        {
+          genericFeedbackFound(from, recipients, body);
+        }
       }
 
       email.setIsRead(true);
@@ -182,7 +188,7 @@ public class EmailService
       throws InvalidAttributeValueException
   {
     logger.info("Request Feedback found");
-    String requestID = Utils.findFeedbackRequestIDFromString(body);
+    String requestID = Utils.getFeedbackRequestIDFromEmailBody(body);
     if (requestID.isEmpty())
     {
       genericFeedbackFound(from, recipients, body);
@@ -201,7 +207,7 @@ public class EmailService
   }
 
   /**
-   * Method to handle emial that is thought to be generic. (Does not contain feedback request or undelivered email in
+   * Method to handle email that is thought to be generic. (Does not contain feedback request or undelivered email in
    * the subject).
    * 
    * @param from
@@ -233,10 +239,18 @@ public class EmailService
 
   /**
    * Method to handle undelivered feedback.
-   * 
+   * @param subject 
+   * @throws InvalidAttributeValueException 
    */
-  private static void undeliveredFeedbackFound()
+  private static void undeliveredFeedbackFound(String subject) throws InvalidAttributeValueException
   {
+    logger.debug("Undelivered Email found.");
+    
+    long employeeID = Utils.getEmployeeIDFromFeedbackRequestSubject(subject);
+    Employee employee = EmployeeDAO.getEmployee(employeeID);
+    
+    logger.debug("The original sender was {}", employee.getFullName());
+     
     // TODO This method.. Basically try find out the details then send email notification.
   }
 

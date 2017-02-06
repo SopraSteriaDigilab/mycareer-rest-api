@@ -69,6 +69,9 @@ public class EmployeeDAO {
 	
 	//There is only 1 instance of the Datastore in the whole system
   static Datastore dbConnection;
+  
+  /** String Constant - Represents Feedback Request */
+  public final static String FEEDBACK_REQUEST = "Feedback Request";
 	
   /**
    * EmployeeDAO Constructor - Needed for mongoDB.
@@ -465,17 +468,19 @@ public class EmployeeDAO {
    */
   public static void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception
   {
+    Employee requester = EmployeeDAO.getEmployee(employeeID);
     Set<String> recipientList = Utils.stringEmailsToHashSet(emailsString);
     List<String> errorRecipientList = new ArrayList<String>();
 
     for (String recipient : recipientList)
     {
       String tempID = Utils.generateFeedbackRequestID(employeeID);
-      String body = notes + " \n\n Feedback_Request: " + tempID;
+      String subject = String.format("Feedback Request from %s - %s", requester.getFullName(), employeeID);
+      String body = String.format("%s \n\n Feedback_Request: %s", notes, tempID);
       // TODO Replace above with template.
       try
       {
-        EmailService.sendEmail(recipient, "Feedback Request", body);
+        EmailService.sendEmail(recipient, subject, body);
       }
       catch (Exception e)
       {
@@ -483,7 +488,6 @@ public class EmployeeDAO {
         errorRecipientList.add(recipient);
         continue;
       }
-      Employee requester = EmployeeDAO.getEmployee(employeeID);
       EmployeeDAO.addFeedbackRequest(requester, new FeedbackRequest(tempID, recipient));
     }
 

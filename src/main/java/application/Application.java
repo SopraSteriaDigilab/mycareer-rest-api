@@ -32,7 +32,6 @@ public class Application {
 				logger.error("Application Error: " + e.getMessage());
 			}
 		}
-
     
     private static void setEnvironmentProperty() throws UnknownHostException {
 		String environment;

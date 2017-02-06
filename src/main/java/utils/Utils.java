@@ -57,31 +57,57 @@ public class Utils
   }
 
   /**
-   * Returns a feedbackRequestID found from the given text. Format of id should be dddddd_ddddddddddddddddd. Where 'd'
-   * is a number.
+   * Finds a feedbackRequestID found from the given email body, looks for 'feedback_request: {id}'. Format of id should be
+   * dddddd_ddddddddddddddddd. Where 'd' is a number.
    * 
    * @param text the text that contains the requestID
    * @return The String ID if found, empty string otherwise.
    * @throws InvalidAttributeValueException
    */
-  public static String findFeedbackRequestIDFromString(String text) throws InvalidAttributeValueException
+  public static String getFeedbackRequestIDFromEmailBody(String body) throws InvalidAttributeValueException
   {
-    Validate.areStringsEmptyorNull(text);
+    Validate.areStringsEmptyorNull(body);
     String searchStr = "feedback_request: ";
 
-    int start = text.toLowerCase().indexOf(searchStr);
+    int start = body.toLowerCase().indexOf(searchStr);
 
     if (start == -1) return "";
 
-    int end = (start + searchStr.length());
-    String feedbackRequestID = text.substring(end, end + 24);
+    start += searchStr.length();
+    String feedbackRequestID = body.substring(start, start + 24);
+    
+    if(!Validate.isValidFeedbackRequestID(feedbackRequestID))
+      return "";
 
     return feedbackRequestID;
   }
   
   /**
+   * Finds an EmployeeID from a feedback request subject.
+   *
+   * @param subject
+   * @return The employeeID found, empty string otherwise.
+   * @throws InvalidAttributeValueException 
+   */
+  public static long getEmployeeIDFromFeedbackRequestSubject(String subject) throws InvalidAttributeValueException
+  {
+    Validate.areStringsEmptyorNull(subject);
+    String searchStr = "- ";
+    
+    int start = subject.toLowerCase().indexOf(searchStr);
+    
+    if (start == -1) return -1;
+    
+    start += searchStr.length();
+    long employeeID = Long.parseLong(subject.substring(start, start+6));
+    
+    return employeeID;
+  }
+
+
+  /**
    * 
-   * Gets an exployeeID from a feedbackRequestID. 
+   * Gets an exployeeID from a feedbackRequestID.
    *
    * @param feedbackRequestID
    * @return The employeeID if the feedbackRequestID is in the valid format

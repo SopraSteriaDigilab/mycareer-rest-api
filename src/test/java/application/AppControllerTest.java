@@ -74,7 +74,6 @@ public class AppControllerTest
     
     MockitoAnnotations.initMocks(this);
     
-    
     when(mockDatastore.createQuery(Mockito.any())).thenReturn(mockQuery);
     when(mockQuery.filter(Mockito.anyString(), Mockito.any())).thenReturn(mockQuery);
     when(mockQuery.get()).thenReturn(mockEmployee);
