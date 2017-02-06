@@ -150,9 +150,9 @@ public class EmailService
       String subject = email.getSubject().toLowerCase();
       String body = email.getBody().toString().trim();
 
-      if (subject.contains("Undelivered"))
+      if (subject.contains("undeliverable"))
       {
-        undeliveredFeedbackFound(subject);
+        undeliverableFeedbackFound(subject, body);
       }
       else
       {
@@ -181,13 +181,12 @@ public class EmailService
    * @param from
    * @param recipients
    * @param body
+   * @throws Exception
    * @throws NamingException
-   * @throws InvalidAttributeValueException
    */
-  private static void requestedFeedbackFound(String from, Set<EmailAddress> recipients, String body)
-      throws InvalidAttributeValueException
+  private static void requestedFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws Exception
   {
-    logger.info("Request Feedback found");
+    logger.info("Requested Feedback found");
     String requestID = Utils.getFeedbackRequestIDFromEmailBody(body);
     if (requestID.isEmpty())
     {
@@ -200,8 +199,15 @@ public class EmailService
     }
     catch (InvalidAttributeValueException | NamingException e)
     {
-      logger.error(e.getMessage());
-      // TODO Send email to 'from' with error
+      String errorRecipient = from;
+      String errorSubject = "Error Processing Feedback";
+      String errorBody = "There was an issue processing your feedback, please try reply to the feedback request "
+          + "email and do make sure not to changed any of the details on the email.";
+      // TODO Replace above with template.
+      
+      sendEmail(errorRecipient, errorSubject, errorBody);
+
+      logger.info("Requested Feedback, email sent. Error: {}", e.getMessage());
     }
     logger.info("Requested Feedback processed");
   }
@@ -239,19 +245,29 @@ public class EmailService
 
   /**
    * Method to handle undelivered feedback.
-   * @param subject 
-   * @throws InvalidAttributeValueException 
+   * 
+   * @param subject
+   * @param body
+   * @throws Exception
    */
-  private static void undeliveredFeedbackFound(String subject) throws InvalidAttributeValueException
+  private static void undeliverableFeedbackFound(String subject, String body) throws Exception
   {
-    logger.debug("Undelivered Email found.");
-    
+    logger.info("Undelivered Email found.");
+
     long employeeID = Utils.getEmployeeIDFromFeedbackRequestSubject(subject);
     Employee employee = EmployeeDAO.getEmployee(employeeID);
-    
-    logger.debug("The original sender was {}", employee.getFullName());
-     
-    // TODO This method.. Basically try find out the details then send email notification.
+    String intendedRecipient = Utils.getRecipientFromUndeliverableEmail(body);
+
+    String errorRecipient = employee.getEmailAddress();
+    String errorSubject = "Feedback Request Issue";
+    String errorBody = String.format(
+        "There was an issue proccessing your feedback to %s, please make sure the email address is correct and try again",
+        intendedRecipient);
+    // TODO Replace above with template.
+
+    sendEmail(errorRecipient, errorSubject, errorBody);
+
+    logger.info("Undelivered Email processed, error email sent.");
   }
 
   /**

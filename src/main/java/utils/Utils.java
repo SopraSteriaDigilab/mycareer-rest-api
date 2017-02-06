@@ -57,8 +57,8 @@ public class Utils
   }
 
   /**
-   * Finds a feedbackRequestID found from the given email body, looks for 'feedback_request: {id}'. Format of id should be
-   * dddddd_ddddddddddddddddd. Where 'd' is a number.
+   * Finds a feedbackRequestID found from the given email body, looks for 'feedback_request: {id}'. Format of id should
+   * be dddddd_ddddddddddddddddd. Where 'd' is a number.
    * 
    * @param text the text that contains the requestID
    * @return The String ID if found, empty string otherwise.
@@ -75,35 +75,63 @@ public class Utils
 
     start += searchStr.length();
     String feedbackRequestID = body.substring(start, start + 24);
-    
-    if(!Validate.isValidFeedbackRequestID(feedbackRequestID))
-      return "";
+
+    if (!Validate.isValidFeedbackRequestID(feedbackRequestID)) return "";
 
     return feedbackRequestID;
   }
-  
+
   /**
    * Finds an EmployeeID from a feedback request subject.
    *
    * @param subject
    * @return The employeeID found, empty string otherwise.
-   * @throws InvalidAttributeValueException 
+   * @throws InvalidAttributeValueException
    */
   public static long getEmployeeIDFromFeedbackRequestSubject(String subject) throws InvalidAttributeValueException
   {
     Validate.areStringsEmptyorNull(subject);
     String searchStr = "- ";
-    
+
     int start = subject.toLowerCase().indexOf(searchStr);
-    
+
     if (start == -1) return -1;
-    
+
     start += searchStr.length();
-    long employeeID = Long.parseLong(subject.substring(start, start+6));
-    
+    long employeeID = Long.parseLong(subject.substring(start, start + 6));
+
     return employeeID;
   }
 
+  /**
+   * Gets the intended recipient address in an undeliverable email.
+   *
+   * @param body
+   * @return The intended recipient address
+   * @throws InvalidAttributeValueException
+   */
+  public static String getRecipientFromUndeliverableEmail(String body) throws InvalidAttributeValueException
+  {
+    // TODO There must be a million better ways to do this. This was the quick fix, sorry. 
+    Validate.areStringsEmptyorNull(body);
+    String searchStr = "your message to ";
+
+    String[] lines = body.split("\n");
+
+    if (lines.length < 2 || lines[1].isEmpty()) return "";
+
+    int start = lines[1].toLowerCase().indexOf(searchStr);
+    if (start == -1) return "";
+
+    start += searchStr.length();
+
+    int end = lines[1].toLowerCase().indexOf(" ", start);
+    if (end == -1) return "";
+
+    String recipient = lines[1].substring(start, end);
+
+    return recipient.trim();
+  }
 
   /**
    * 
@@ -117,6 +145,7 @@ public class Utils
   public static long getEmployeeIDFromRequestID(String feedbackRequestID) throws InvalidAttributeValueException
   {
     Validate.areStringsEmptyorNull(feedbackRequestID);
+
     if (!Validate.isValidFeedbackRequestID(feedbackRequestID))
       throw new InvalidAttributeValueException("ID is invalid.");
 

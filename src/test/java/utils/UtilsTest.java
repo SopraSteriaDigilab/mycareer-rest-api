@@ -42,7 +42,7 @@ public class UtilsTest
 
   /** TODO TYPE Property|Constant - Represents|Indicates... */
   private final String REQUEST_FEEDBACK_ID_TEXT_3 = "Random text. Feedback_Request: Invalid_ID. More Random Text.";
-  
+
   /** TODO TYPE Property|Constant - Represents|Indicates... */
   private final String VALID_FEEDBACK_REQUEST_SUBJECT = "Feedback Request from Full Name - 111111";
 
@@ -66,6 +66,12 @@ public class UtilsTest
 
   /** TODO TYPE Property|Constant - Represents|Indicates... */
   private final String INVALID_EMAILS_STRING_2 = "a@test.com, asdsadasd, c@test.com";
+
+  /** TODO TYPE Property|Constant - Represents|Indicates... */
+  private final String VALID_UNDELIVERABLE_EMAIL = "[Office 365 picture] \n Your message to " + EMAIL_STRING_1  + " couldn't be delivered.";
+
+  /** TODO TYPE Property|Constant - Represents|Indicates... */
+  private final String INVALID_UNDELIVERABLE_EMAIL = "[Office 365 picture] \n Some other text.";
 
   /**
    * TODO: Describe this method.
@@ -148,7 +154,7 @@ public class UtilsTest
   {
     assertEquals(REQUEST_FEEDBACK_ID, Utils.getFeedbackRequestIDFromEmailBody(REQUEST_FEEDBACK_ID_TEXT));
     assertEquals(EMPTY_STRING, Utils.getFeedbackRequestIDFromEmailBody(REQUEST_FEEDBACK_ID_TEXT_2));
-    assertEquals(EMPTY_STRING, Utils.getFeedbackRequestIDFromEmailBody(REQUEST_FEEDBACK_ID_TEXT_3));    
+    assertEquals(EMPTY_STRING, Utils.getFeedbackRequestIDFromEmailBody(REQUEST_FEEDBACK_ID_TEXT_3));
   }
 
   /**
@@ -246,4 +252,32 @@ public class UtilsTest
     Utils.getEmployeeIDFromFeedbackRequestSubject(NULL_STRING);
   }
 
+  @Test
+  public void testGetRecipientFromUndeliverableEmail() throws InvalidAttributeValueException
+  {
+    assertEquals(EMAIL_STRING_1, Utils.getRecipientFromUndeliverableEmail(VALID_UNDELIVERABLE_EMAIL));
+    assertEquals("", Utils.getRecipientFromUndeliverableEmail(INVALID_UNDELIVERABLE_EMAIL));
+  }
+
+  /**
+   * TODO: Describe this method.
+   *
+   * @throws InvalidAttributeValueException
+   */
+  @Test(expected = InvalidAttributeValueException.class)
+  public void testGetRecipientFromUndeliverableEmailWithEmpty() throws InvalidAttributeValueException
+  {
+    Utils.getRecipientFromUndeliverableEmail(EMPTY_STRING);
+  }
+
+  /**
+   * TODO: Describe this method.
+   *
+   * @throws InvalidAttributeValueException
+   */
+  @Test(expected = InvalidAttributeValueException.class)
+  public void testGetRecipientFromUndeliverableEmailWithNull() throws InvalidAttributeValueException
+  {
+    Utils.getRecipientFromUndeliverableEmail(NULL_STRING);
+  }
 }
