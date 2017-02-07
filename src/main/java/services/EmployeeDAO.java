@@ -593,13 +593,25 @@ public class EmployeeDAO
    */
   public static void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription)
       throws InvalidAttributeValueException, NamingException
+
   {
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
 
     long employeeID = ADProfileDAO.authenticateUserProfile(recipientEmail).getEmployeeID();
     Employee employee = getEmployee(employeeID);
 
-    employee.addFeedback(new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription));
+    Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
+
+    try
+    {
+      feedback.setProviderName(ADProfileDAO.findEmployeeFullNameFromEmailAddress(providerEmail));
+    }
+    catch (InvalidAttributeValueException | NamingException e)
+    {
+      // TODO Handle this better?
+    }
+
+    employee.addFeedback(feedback);
 
     UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback",
         employee.getFeedback());

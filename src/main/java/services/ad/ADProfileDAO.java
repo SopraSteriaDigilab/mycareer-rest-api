@@ -107,8 +107,6 @@ public class ADProfileDAO {
 
 		return adObj;
 	}
-			
-	
 
 	private static ADProfile_Advanced authenticateJVEmail(String email) throws NamingException, InvalidAttributeValueException {
 		ADProfile_Advanced adObj = new ADProfile_Advanced();
