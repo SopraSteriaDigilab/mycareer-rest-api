@@ -204,7 +204,7 @@ public class EmailService
       String errorBody = "There was an issue processing your feedback, please try reply to the feedback request "
           + "email and do make sure not to changed any of the details on the email.";
       // TODO Replace above with template.
-      
+
       sendEmail(errorRecipient, errorSubject, errorBody);
 
       logger.info("Requested Feedback, email sent. Error: {}", e.getMessage());
@@ -219,12 +219,15 @@ public class EmailService
    * @param from
    * @param recipients
    * @param subject
+   * @throws Exception
    * @throws NamingException
    * @throws InvalidAttributeValueException
    */
-  private static void genericFeedbackFound(String from, Set<EmailAddress> recipients, String body)
+  private static void genericFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws Exception
   {
     logger.info("Generic Feedback found");
+    Set<EmailAddress> errorRecipients = new HashSet<>();
+
     for (EmailAddress recipient : recipients)
     {
       if (recipient.getAddress().equals(env.getProperty("mail.address"))) continue;
@@ -235,11 +238,24 @@ public class EmailService
       }
       catch (InvalidAttributeValueException | NamingException e)
       {
-        logger.error(e.getMessage());
-        // TODO add recipient to error list.
+        errorRecipients.add(recipient);
+
+        logger.error("Error processing feedback from {} to {}, Error:{}", from, recipient, e.getMessage());
       }
     }
-    // TODO Check error list then send email to 'from' with the failed recipients.
+    if (!errorRecipients.isEmpty())
+    {
+      String errorRecipient = from;
+      String errorSubject = "Feedback Issue";
+      String errorBody = String.format(
+          "There was an issue proccessing your feedback to %s, please make sure the email address is correct and try again",
+          errorRecipients.toString());
+
+      sendEmail(errorRecipient, errorSubject, errorBody);
+
+      logger.error("Email sent to {} regarding error feedback to {}", from, errorRecipients.toString());
+    }
+
     logger.info("Generic Feedback processed");
   }
 

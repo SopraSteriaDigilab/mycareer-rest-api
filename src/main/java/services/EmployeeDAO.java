@@ -52,6 +52,7 @@ import services.validate.Validate;
 import utils.Utils;
 
 /**
+ * This class contains the definition of the EmployeeDAO object
  * 
  * @author Michael Piccoli
  * @author Christopher Kai
@@ -59,25 +60,26 @@ import utils.Utils;
  * @author Mehmet Mehmet
  * @version 1.0
  * @since 10th October 2016
- * 
- * This class contains the definition of the EmployeeDAO object
  *
  */
-public class EmployeeDAO {
+public class EmployeeDAO
+{
 
-	private static final Logger logger = LoggerFactory.getLogger(EmployeeDAO.class);
-	
-	//There is only 1 instance of the Datastore in the whole system
+  private static final Logger logger = LoggerFactory.getLogger(EmployeeDAO.class);
+
+  // There is only 1 instance of the Datastore in the whole system
   static Datastore dbConnection;
-  
+
   /** String Constant - Represents Feedback Request */
   public final static String FEEDBACK_REQUEST = "Feedback Request";
-	
+
   /**
    * EmployeeDAO Constructor - Needed for mongoDB.
    *
    */
-  public EmployeeDAO(){}
+  public EmployeeDAO()
+  {
+  }
 
   /**
    * EmployeeDAO Constructor - Responsible for initialising dbConnection.
@@ -89,13 +91,13 @@ public class EmployeeDAO {
     EmployeeDAO.dbConnection = dbConnection;
   }
 
-	/**
-	 * Gets Employee from database with the specified id
-	 *
-	 * @param employeeID ID of the employee
-	 * @return the employee if exists
-	 * @throws InvalidAttributeValueException if employee is not found or is null.
-	 */
+  /**
+   * Gets Employee from database with the specified id
+   *
+   * @param employeeID ID of the employee
+   * @return the employee if exists
+   * @throws InvalidAttributeValueException if employee is not found or is null.
+   */
   public static Employee getEmployee(long employeeID) throws InvalidAttributeValueException
   {
     Employee employee = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
@@ -105,359 +107,423 @@ public class EmployeeDAO {
     }
     return employee;
   }
- 
-	/**
-	 * 
-	 * @deprecated Use the {@linkplain #getEmployee(long) getEmployee(long)} method instead.
-	 *
-	 * @param employeeID
-	 * @return
-	 */
-	private static Query<Employee> getEmployeeQuery(long employeeID) {
-		return dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-	}
 
-	public static String getFullNameUser(long employeeID) throws InvalidAttributeValueException {
-		return getEmployee(employeeID).getFullName();
-	}
+  /**
+   * 
+   * @deprecated Use the {@linkplain #getEmployee(long) getEmployee(long)} method instead.
+   *
+   * @param employeeID
+   * @return
+   */
+  private static Query<Employee> getEmployeeQuery(long employeeID)
+  {
+    return dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+  }
 
-	public static List<Objective> getObjectivesForUser(long employeeID) throws InvalidAttributeValueException{
-		return getEmployee(employeeID).getLatestVersionObjectives();
-	}
+  public static String getFullNameUser(long employeeID) throws InvalidAttributeValueException
+  {
+    return getEmployee(employeeID).getFullName();
+  }
 
-	public static Objective getSpecificObjectiveForUser(long employeeID, int objectiveID) throws InvalidAttributeValueException{
-		return getEmployee(employeeID).getLatestVersionOfSpecificObjective(objectiveID);
-	}
+  public static List<Objective> getObjectivesForUser(long employeeID) throws InvalidAttributeValueException
+  {
+    return getEmployee(employeeID).getLatestVersionObjectives();
+  }
 
-	public static List<Feedback> getFeedbackForUser(long employeeID) throws InvalidAttributeValueException{
-		List<Feedback> feedbackList = getEmployee(employeeID).getFeedback();
-		Collections.reverse(feedbackList);
-		return feedbackList;
-	}
+  public static Objective getSpecificObjectiveForUser(long employeeID, int objectiveID)
+      throws InvalidAttributeValueException
+  {
+    return getEmployee(employeeID).getLatestVersionOfSpecificObjective(objectiveID);
+  }
 
-	public static List<Note> getNotesForUser(long employeeID) throws InvalidAttributeValueException{
-		return getEmployee(employeeID).getLatestVersionNotes();
-	}
+  public static List<Feedback> getFeedbackForUser(long employeeID) throws InvalidAttributeValueException
+  {
+    List<Feedback> feedbackList = getEmployee(employeeID).getFeedback();
+    Collections.reverse(feedbackList);
+    return feedbackList;
+  }
 
-	public static List<DevelopmentNeed> getDevelopmentNeedsForUser(long employeeID) throws InvalidAttributeValueException{
-		return getEmployee(employeeID).getLatestVersionDevelopmentNeeds();
-	}
+  public static List<Note> getNotesForUser(long employeeID) throws InvalidAttributeValueException
+  {
+    return getEmployee(employeeID).getLatestVersionNotes();
+  }
 
-	public static String getAllUserDataFromID(long employeeID) throws InvalidAttributeValueException{
-		return getEmployee(employeeID).toString();
-	}
+  public static List<DevelopmentNeed> getDevelopmentNeedsForUser(long employeeID) throws InvalidAttributeValueException
+  {
+    return getEmployee(employeeID).getLatestVersionDevelopmentNeeds();
+  }
 
-	//Returns list of Competencies for a user
-	public static List<Competency> getCompetenciesForUser(long employeeID) throws InvalidAttributeValueException{
-		return getEmployee(employeeID).getLatestVersionCompetencies();
-	}
+  public static String getAllUserDataFromID(long employeeID) throws InvalidAttributeValueException
+  {
+    return getEmployee(employeeID).toString();
+  }
 
-	//Returns list of reportees for a user
-	public static List<ADProfile_Basic> getReporteesForUser(long employeeID) throws InvalidAttributeValueException, NamingException{
-		Employee employee = getEmployee(employeeID);
+  // Returns list of Competencies for a user
+  public static List<Competency> getCompetenciesForUser(long employeeID) throws InvalidAttributeValueException
+  {
+    return getEmployee(employeeID).getLatestVersionCompetencies();
+  }
 
-		List<ADProfile_Basic> reporteeList = new ArrayList<>();
+  // Returns list of reportees for a user
+  public static List<ADProfile_Basic> getReporteesForUser(long employeeID)
+      throws InvalidAttributeValueException, NamingException
+  {
+    Employee employee = getEmployee(employeeID);
 
-		for(String str : employee.getReporteeCNs()){
-			long temp =  Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
-			try{
-				reporteeList.add(ADProfileDAO.verifyIfUserExists(temp));
-			}catch(Exception e){
-				throw new InvalidAttributeValueException("Sorry there were some connectiviy errors. Please try again later.");
-			}
-		}
-		return reporteeList;
-	}
+    List<ADProfile_Basic> reporteeList = new ArrayList<>();
 
-	/**
-	 * 
-	 * @param employeeID
-	 * @return 
-	 * This method inserts a new objective for a specific employee given their ID
-	 * @throws InvalidAttributeValueException
-	 */
-	public static boolean insertNewObjective(long employeeID, Object data) throws InvalidAttributeValueException, MongoException{
-		//Check the employeeID
-		if(employeeID>0){
-			if(data!=null && data instanceof Objective){
-				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-				if(querySearch.get()!=null){
-					Employee e = querySearch.get();
-					//Add the new objective to the list
-					if(e.addObjective((Objective)data)){
-						//Update the List<List<objective>> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives", e.getObjectiveList());
-						//Commit the changes to the DB
-						dbConnection.update(querySearch, ops);
-						return true;
-					}
-					else
-						throw new InvalidAttributeValueException(OBJECTIVE_NOTADDED_ERROR);
-				}
-				else
-					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-			}
-			else
-				throw new InvalidAttributeValueException(NULL_OBJECTIVE);
-		}
-		else
-			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
-	}
-	
-	public static boolean updateProgressObjective(long employeeID, int objectiveID, int progress) throws InvalidAttributeValueException {
-		if (employeeID < 1 || objectiveID < 1) {
-			throw new InvalidAttributeValueException(INVALID_OBJECTIVE_OR_EMPLOYEEID);
-		} else if (progress < -1 || progress > 2) {
-			throw new InvalidAttributeValueException(INVALID_CONTEXT_PROGRESS);
-		}
-		
-		boolean updated = false;
-		final Query<Employee> querySearch = getEmployeeQuery(employeeID);
-		final Employee employee = querySearch.get();
-		final Objective objective = employee.getLatestVersionOfSpecificObjective(objectiveID);
-		
-		if (objective.getProgress() == progress) {
-			updated = true;
-		} else {
-			objective.setProgress(progress);
-			
-			if (employee.editObjective(objective)) {
-				UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives", employee.getObjectiveList());
-				dbConnection.update(querySearch, ops);
-				updated = true;
-			}
-		}
-		
-		return updated;
-	}
+    for (String str : employee.getReporteeCNs())
+    {
+      long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
+      try
+      {
+        reporteeList.add(ADProfileDAO.verifyIfUserExists(temp));
+      }
+      catch (Exception e)
+      {
+        throw new InvalidAttributeValueException("Sorry there were some connectiviy errors. Please try again later.");
+      }
+    }
+    return reporteeList;
+  }
 
-	public static boolean addNewVersionObjective(long employeeID, int objectiveID, Object data) throws InvalidAttributeValueException {
-		//Check EmployeeID and ObjectiveID
-		if(employeeID>0 && objectiveID>0){
-			if(data!=null && data instanceof Objective){
-				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-				if(querySearch.get()!=null){
-					Employee e = querySearch.get();
-					//Extract its List of Objectives
-					List<List<Objective>> dataFromDB=e.getObjectiveList();
-					//Search for the objective Id within the list of objectives
-					int indexObjectiveList=-1;
-					for(int i=0; i<dataFromDB.size(); i++){
-						//Save the index of the list when the objectiveID is found
-						if(dataFromDB.get(i).get(0).getID()==objectiveID){
-							indexObjectiveList=i;
-							//Exit the for loop once the value has been found
-							break;
-						}
-					}
-					//verify that the index variable has changed its value
-					if(indexObjectiveList!=-1){ 
-						//Add the updated version of the objective
-						if(e.editObjective((Objective)data)){
-							//Update the List<List<objective>> in the DB passing the new list
-							UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives", e.getObjectiveList());
-							//Commit the changes to the DB
-							dbConnection.update(querySearch, ops);
-							return true;
-						}
-					}
-					//if the index hasn't changed its value it means that there is no objective with such ID, therefore throw and exception
-					else
-						throw new InvalidAttributeValueException(INVALID_OBJECTIVEID);
-				}
-				else
-					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-			}
-			else
-				throw new InvalidAttributeValueException(INVALID_OBJECTIVE);
-		}
-		else
-			throw new InvalidAttributeValueException(INVALID_OBJECTIVE_OR_EMPLOYEEID);
-		
-		return false;
-	}
+  /**
+   * 
+   * @param employeeID
+   * @return This method inserts a new objective for a specific employee given their ID
+   * @throws InvalidAttributeValueException
+   */
+  public static boolean insertNewObjective(long employeeID, Object data)
+      throws InvalidAttributeValueException, MongoException
+  {
+    // Check the employeeID
+    if (employeeID > 0)
+    {
+      if (data != null && data instanceof Objective)
+      {
+        // Retrieve Employee with the given ID
+        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        if (querySearch.get() != null)
+        {
+          Employee e = querySearch.get();
+          // Add the new objective to the list
+          if (e.addObjective((Objective) data))
+          {
+            // Update the List<List<objective>> in the DB passing the new list
+            UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives",
+                e.getObjectiveList());
+            // Commit the changes to the DB
+            dbConnection.update(querySearch, ops);
+            return true;
+          }
+          else throw new InvalidAttributeValueException(OBJECTIVE_NOTADDED_ERROR);
+        }
+        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+      }
+      else throw new InvalidAttributeValueException(NULL_OBJECTIVE);
+    }
+    else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
+  }
 
-	public static boolean insertNewNote(long employeeID, Object data) throws InvalidAttributeValueException, MongoException{
-		//Check the employeeID
-		if(employeeID>0){
-			if(data!=null && data instanceof Note){
-				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-				if(querySearch.get()!=null){
-					Employee e = querySearch.get();
-					//Add the new note to the list
-					if(e.addNote((Note)data)){
-						//Update the List<List<Note>> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes", e.getNoteList());
-						//Commit the changes to the DB
-						dbConnection.update(querySearch, ops);
-						return true;
-					}
-					else
-						throw new InvalidAttributeValueException(NOTE_NOTADDED_ERROR);
-				}
-				else
-					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-			}
-			else
-				throw new InvalidAttributeValueException(INVALID_NOTE);
-		}
-		else
-			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
-	}
+  public static boolean updateProgressObjective(long employeeID, int objectiveID, int progress)
+      throws InvalidAttributeValueException
+  {
+    if (employeeID < 1 || objectiveID < 1)
+    {
+      throw new InvalidAttributeValueException(INVALID_OBJECTIVE_OR_EMPLOYEEID);
+    }
+    else if (progress < -1 || progress > 2)
+    {
+      throw new InvalidAttributeValueException(INVALID_CONTEXT_PROGRESS);
+    }
 
-	public static boolean addNewVersionNote(long employeeID, int noteID, Object data) throws InvalidAttributeValueException{
-		//Check EmployeeID and noteID
-		if(employeeID>0 && noteID>0){
-			if(data!=null && data instanceof Note){
-				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-				if(querySearch.get()!=null){
-					Employee e = querySearch.get();
-					//Extract its List of notes
-					List<List<Note>> dataFromDB=e.getNoteList();
-					//Search for the objective Id within the list of notes
-					int indexNoteList=-1;
-					for(int i=0; i<dataFromDB.size(); i++){
-						//Save the index of the list when the noteID is found
-						if(dataFromDB.get(i).get(0).getID()==noteID){
-							indexNoteList=i;
-							//Exit the for loop once the value has been found
-							break;
-						}
-					}
-					//verify that the index variable has changed its value
-					if(indexNoteList!=-1){ 
-						//Add the updated version of the note
-						if(e.editNote((Note)data)){
-							//Update the List<List<Note>> in the DB passing the new list
-							UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes", e.getNoteList());
-							//Commit the changes to the DB
-							dbConnection.update(querySearch, ops);
-							return true;
-						}
-					}
-					//if the index hasn't changed its value it means that there is no note with such ID, therefore throw and exception
-					else
-						throw new InvalidAttributeValueException(INVALID_NOTEID);
-				}
-				else
-					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-			}
-			else
-				throw new InvalidAttributeValueException(INVALID_NOTE);
-		}
-		else
-			throw new InvalidAttributeValueException(INVALID_NOTE_OR_EMPLOYEEID);
-		return false;
-	}
+    boolean updated = false;
+    final Query<Employee> querySearch = getEmployeeQuery(employeeID);
+    final Employee employee = querySearch.get();
+    final Objective objective = employee.getLatestVersionOfSpecificObjective(objectiveID);
 
-	public static boolean insertNewDevelopmentNeed(long employeeID, Object data) throws InvalidAttributeValueException, MongoException{
-		//Check the employeeID
-		if(employeeID>0){
-			if(data!=null && data instanceof DevelopmentNeed){
-				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-				
-				if(querySearch.get()!=null){
-					Employee e = querySearch.get();
-					//Add the new development need to the list
-					if(e.addDevelopmentNeed((DevelopmentNeed)data)){
-						//Update the List<List<developmentNeed>> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds", e.getDevelopmentNeedsList());
-						//Commit the changes to the DB
-						dbConnection.update(querySearch, ops);
-						return true;
-					}
-					else
-						throw new InvalidAttributeValueException(DEVELOPMENTNEED_NOTADDED_ERROR);
-				}
-				else
-					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-			}
-			else
-				throw new InvalidAttributeValueException(INVALID_DEVNEED_CONTEXT);
-		}
-		else
-			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
-	}
-	
-	
-	public static boolean updateProgressDevelopmentNeed(long employeeID, int devNeedID, int progress) throws InvalidAttributeValueException {
-		if (employeeID < 1 || devNeedID < 1) {
-			throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
-		} else if (progress < -1 || progress > 2) {
-			throw new InvalidAttributeValueException(INVALID_CONTEXT_PROGRESS);
-		}
-		
-		boolean updated = false;
-		final Query<Employee> querySearch = getEmployeeQuery(employeeID);
-		final Employee employee = querySearch.get();
-		final DevelopmentNeed devNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(devNeedID);
-		
-		if (devNeed.getProgress() == progress) {
-			updated = true;
-		} else {
-			devNeed.setProgress(progress);
-			
-			if (employee.editDevelopmentNeed(devNeed)) {
-				UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds", employee.getDevelopmentNeedsList());
-				dbConnection.update(querySearch, ops);
-				updated = true;
-			}
-		}
-		
-		return updated;
-	}
+    if (objective.getProgress() == progress)
+    {
+      updated = true;
+    }
+    else
+    {
+      objective.setProgress(progress);
 
-	public static boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, Object data) throws InvalidAttributeValueException{
-		//Check EmployeeID and noteID
-		if(employeeID>0 && devNeedID>0){
-			if(data!=null && data instanceof DevelopmentNeed){
-				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-				if(querySearch.get()!=null){
-					Employee e = querySearch.get();
-					//Extract its List of notes
-					List<List<DevelopmentNeed>> dataFromDB=e.getDevelopmentNeedsList();
-					//Search for the objective Id within the list of development needs
-					int indexDevNeedList=-1;
-					for(int i=0; i<dataFromDB.size(); i++){
-						//Save the index of the list when the devNeedID is found
-						if(dataFromDB.get(i).get(0).getID()==devNeedID){
-							indexDevNeedList=i;
-							//Exit the for loop once the value has been found
-							break;
-						}
-					}
-					//verify that the index variable has changed its value
-					if(indexDevNeedList!=-1){ 
-						//Add the updated version of the DevelopmentNeed
-						if(e.editDevelopmentNeed((DevelopmentNeed)data)){
-							//Update the List<List<DevelopmentNeed>> in the DB passing the new list
-							UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds", e.getDevelopmentNeedsList());
-							//Commit the changes to the DB
-							dbConnection.update(querySearch, ops);
-							return true;
-						}
-					}
-					//if the index hasn't changed its value it means that there is no development need with such ID, therefore throw and exception
-					else
-						throw new InvalidAttributeValueException(INVALID_DEVNEEDID_CONTEXT);
-				}
-				else
-					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-			}
-			else
-				throw new InvalidAttributeValueException(INVALID_DEVNEED_CONTEXT);
-		}
-		else
-			throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
-		return false;
-	}
-	
+      if (employee.editObjective(objective))
+      {
+        UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives",
+            employee.getObjectiveList());
+        dbConnection.update(querySearch, ops);
+        updated = true;
+      }
+    }
+
+    return updated;
+  }
+
+  public static boolean addNewVersionObjective(long employeeID, int objectiveID, Object data)
+      throws InvalidAttributeValueException
+  {
+    // Check EmployeeID and ObjectiveID
+    if (employeeID > 0 && objectiveID > 0)
+    {
+      if (data != null && data instanceof Objective)
+      {
+        // Retrieve Employee with the given ID
+        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        if (querySearch.get() != null)
+        {
+          Employee e = querySearch.get();
+          // Extract its List of Objectives
+          List<List<Objective>> dataFromDB = e.getObjectiveList();
+          // Search for the objective Id within the list of objectives
+          int indexObjectiveList = -1;
+          for (int i = 0; i < dataFromDB.size(); i++)
+          {
+            // Save the index of the list when the objectiveID is found
+            if (dataFromDB.get(i).get(0).getID() == objectiveID)
+            {
+              indexObjectiveList = i;
+              // Exit the for loop once the value has been found
+              break;
+            }
+          }
+          // verify that the index variable has changed its value
+          if (indexObjectiveList != -1)
+          {
+            // Add the updated version of the objective
+            if (e.editObjective((Objective) data))
+            {
+              // Update the List<List<objective>> in the DB passing the new list
+              UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives",
+                  e.getObjectiveList());
+              // Commit the changes to the DB
+              dbConnection.update(querySearch, ops);
+              return true;
+            }
+          }
+          // if the index hasn't changed its value it means that there is no objective with such ID, therefore throw and
+          // exception
+          else throw new InvalidAttributeValueException(INVALID_OBJECTIVEID);
+        }
+        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+      }
+      else throw new InvalidAttributeValueException(INVALID_OBJECTIVE);
+    }
+    else throw new InvalidAttributeValueException(INVALID_OBJECTIVE_OR_EMPLOYEEID);
+
+    return false;
+  }
+
+  public static boolean insertNewNote(long employeeID, Object data)
+      throws InvalidAttributeValueException, MongoException
+  {
+    // Check the employeeID
+    if (employeeID > 0)
+    {
+      if (data != null && data instanceof Note)
+      {
+        // Retrieve Employee with the given ID
+        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        if (querySearch.get() != null)
+        {
+          Employee e = querySearch.get();
+          // Add the new note to the list
+          if (e.addNote((Note) data))
+          {
+            // Update the List<List<Note>> in the DB passing the new list
+            UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes",
+                e.getNoteList());
+            // Commit the changes to the DB
+            dbConnection.update(querySearch, ops);
+            return true;
+          }
+          else throw new InvalidAttributeValueException(NOTE_NOTADDED_ERROR);
+        }
+        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+      }
+      else throw new InvalidAttributeValueException(INVALID_NOTE);
+    }
+    else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
+  }
+
+  public static boolean addNewVersionNote(long employeeID, int noteID, Object data)
+      throws InvalidAttributeValueException
+  {
+    // Check EmployeeID and noteID
+    if (employeeID > 0 && noteID > 0)
+    {
+      if (data != null && data instanceof Note)
+      {
+        // Retrieve Employee with the given ID
+        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        if (querySearch.get() != null)
+        {
+          Employee e = querySearch.get();
+          // Extract its List of notes
+          List<List<Note>> dataFromDB = e.getNoteList();
+          // Search for the objective Id within the list of notes
+          int indexNoteList = -1;
+          for (int i = 0; i < dataFromDB.size(); i++)
+          {
+            // Save the index of the list when the noteID is found
+            if (dataFromDB.get(i).get(0).getID() == noteID)
+            {
+              indexNoteList = i;
+              // Exit the for loop once the value has been found
+              break;
+            }
+          }
+          // verify that the index variable has changed its value
+          if (indexNoteList != -1)
+          {
+            // Add the updated version of the note
+            if (e.editNote((Note) data))
+            {
+              // Update the List<List<Note>> in the DB passing the new list
+              UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes",
+                  e.getNoteList());
+              // Commit the changes to the DB
+              dbConnection.update(querySearch, ops);
+              return true;
+            }
+          }
+          // if the index hasn't changed its value it means that there is no note with such ID, therefore throw and
+          // exception
+          else throw new InvalidAttributeValueException(INVALID_NOTEID);
+        }
+        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+      }
+      else throw new InvalidAttributeValueException(INVALID_NOTE);
+    }
+    else throw new InvalidAttributeValueException(INVALID_NOTE_OR_EMPLOYEEID);
+    return false;
+  }
+
+  public static boolean insertNewDevelopmentNeed(long employeeID, Object data)
+      throws InvalidAttributeValueException, MongoException
+  {
+    // Check the employeeID
+    if (employeeID > 0)
+    {
+      if (data != null && data instanceof DevelopmentNeed)
+      {
+        // Retrieve Employee with the given ID
+        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+
+        if (querySearch.get() != null)
+        {
+          Employee e = querySearch.get();
+          // Add the new development need to the list
+          if (e.addDevelopmentNeed((DevelopmentNeed) data))
+          {
+            // Update the List<List<developmentNeed>> in the DB passing the new list
+            UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds",
+                e.getDevelopmentNeedsList());
+            // Commit the changes to the DB
+            dbConnection.update(querySearch, ops);
+            return true;
+          }
+          else throw new InvalidAttributeValueException(DEVELOPMENTNEED_NOTADDED_ERROR);
+        }
+        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+      }
+      else throw new InvalidAttributeValueException(INVALID_DEVNEED_CONTEXT);
+    }
+    else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
+  }
+
+  public static boolean updateProgressDevelopmentNeed(long employeeID, int devNeedID, int progress)
+      throws InvalidAttributeValueException
+  {
+    if (employeeID < 1 || devNeedID < 1)
+    {
+      throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
+    }
+    else if (progress < -1 || progress > 2)
+    {
+      throw new InvalidAttributeValueException(INVALID_CONTEXT_PROGRESS);
+    }
+
+    boolean updated = false;
+    final Query<Employee> querySearch = getEmployeeQuery(employeeID);
+    final Employee employee = querySearch.get();
+    final DevelopmentNeed devNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(devNeedID);
+
+    if (devNeed.getProgress() == progress)
+    {
+      updated = true;
+    }
+    else
+    {
+      devNeed.setProgress(progress);
+
+      if (employee.editDevelopmentNeed(devNeed))
+      {
+        UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds",
+            employee.getDevelopmentNeedsList());
+        dbConnection.update(querySearch, ops);
+        updated = true;
+      }
+    }
+
+    return updated;
+  }
+
+  public static boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, Object data)
+      throws InvalidAttributeValueException
+  {
+    // Check EmployeeID and noteID
+    if (employeeID > 0 && devNeedID > 0)
+    {
+      if (data != null && data instanceof DevelopmentNeed)
+      {
+        // Retrieve Employee with the given ID
+        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        if (querySearch.get() != null)
+        {
+          Employee e = querySearch.get();
+          // Extract its List of notes
+          List<List<DevelopmentNeed>> dataFromDB = e.getDevelopmentNeedsList();
+          // Search for the objective Id within the list of development needs
+          int indexDevNeedList = -1;
+          for (int i = 0; i < dataFromDB.size(); i++)
+          {
+            // Save the index of the list when the devNeedID is found
+            if (dataFromDB.get(i).get(0).getID() == devNeedID)
+            {
+              indexDevNeedList = i;
+              // Exit the for loop once the value has been found
+              break;
+            }
+          }
+          // verify that the index variable has changed its value
+          if (indexDevNeedList != -1)
+          {
+            // Add the updated version of the DevelopmentNeed
+            if (e.editDevelopmentNeed((DevelopmentNeed) data))
+            {
+              // Update the List<List<DevelopmentNeed>> in the DB passing the new list
+              UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class)
+                  .set("developmentNeeds", e.getDevelopmentNeedsList());
+              // Commit the changes to the DB
+              dbConnection.update(querySearch, ops);
+              return true;
+            }
+          }
+          // if the index hasn't changed its value it means that there is no development need with such ID, therefore
+          // throw and exception
+          else throw new InvalidAttributeValueException(INVALID_DEVNEEDID_CONTEXT);
+        }
+        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+      }
+      else throw new InvalidAttributeValueException(INVALID_DEVNEED_CONTEXT);
+    }
+    else throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
+    return false;
+  }
+
   /**
    * Sends Emails to the recipients and updates the database.
    * 
@@ -497,8 +563,7 @@ public class EmployeeDAO {
           "There were issues sending requests to the following addresses: \n" + errorRecipientList.toString());
     }
   }
-	
-	
+
   /**
    * Add a feedbackRequest to an employee.
    *
@@ -516,7 +581,6 @@ public class EmployeeDAO {
         employee.getFeedbackRequestsList());
     dbConnection.update(employee, ops);
   }
-	
 
   /**
    * Add a feedback to an employee
@@ -541,7 +605,6 @@ public class EmployeeDAO {
         employee.getFeedback());
     dbConnection.update(employee, ops);
   }
-	
 
   /**
    * Method that updates requested feedback to acknowledge feedback has been received then adds the feedback to the
@@ -570,79 +633,88 @@ public class EmployeeDAO {
     addFeedback(providerEmail, employee.getEmailAddress(), feedbackDescription);
   }
 
-	/**
-	 * 
-	 * @param employeeID the employee ID
-	 * @param data the Competency to update
-	 * @param title the title of the competency (max 200 characters)
-	 * @return true or false to establish whether the task has been completed successfully or not
-	 * This method inserts a new version of competencies list 
-	 * @throws InvalidAttributeValueException 
-	 */
-	public static boolean addNewVersionCompetency(long employeeID, Object data, String title) throws InvalidAttributeValueException{
-		//Check EmployeeID and noteID
-		if(employeeID>0 && title!=null && title.length()>0){
-			if(data!=null && data instanceof Competency && title!=null && title.length()>0){
-				//Retrieve Employee with the given ID
-				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-				if(querySearch.get()!=null){
-					Employee e = querySearch.get();
-					//Add the updated version of the note
-					if(e.updateCompetency((Competency)data,title)){
-						//Update the List<List<Competencies>> in the DB passing the new list
-						UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("competencies", e.getCompetenciesList());
-						//Commit the changes to the DB
-						dbConnection.update(querySearch, ops);
-						return true;
-					}
-				}
-				else
-					throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-			}
-			else
-				throw new InvalidAttributeValueException(INVALID_COMPETENCY_CONTEXT);
-		}
-		else
-			throw new InvalidAttributeValueException(INVALID_COMPETENCY_OR_EMPLOYEEID);
-		return false;
-	}
+  /**
+   * 
+   * @param employeeID the employee ID
+   * @param data the Competency to update
+   * @param title the title of the competency (max 200 characters)
+   * @return true or false to establish whether the task has been completed successfully or not This method inserts a
+   *         new version of competencies list
+   * @throws InvalidAttributeValueException
+   */
+  public static boolean addNewVersionCompetency(long employeeID, Object data, String title)
+      throws InvalidAttributeValueException
+  {
+    // Check EmployeeID and noteID
+    if (employeeID > 0 && title != null && title.length() > 0)
+    {
+      if (data != null && data instanceof Competency && title != null && title.length() > 0)
+      {
+        // Retrieve Employee with the given ID
+        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        if (querySearch.get() != null)
+        {
+          Employee e = querySearch.get();
+          // Add the updated version of the note
+          if (e.updateCompetency((Competency) data, title))
+          {
+            // Update the List<List<Competencies>> in the DB passing the new list
+            UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("competencies",
+                e.getCompetenciesList());
+            // Commit the changes to the DB
+            dbConnection.update(querySearch, ops);
+            return true;
+          }
+        }
+        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+      }
+      else throw new InvalidAttributeValueException(INVALID_COMPETENCY_CONTEXT);
+    }
+    else throw new InvalidAttributeValueException(INVALID_COMPETENCY_OR_EMPLOYEEID);
+    return false;
+  }
 
-	public static ADProfile_Basic matchADWithMongoData(ADProfile_Advanced userData) throws InvalidAttributeValueException{
-		if(userData!=null){
-			//Establish a connection with the DB
-			//Search for a user GUID
-			//Retrieve Employee with the given GUID
-			if(!userData.getGUID().equals("")){
-				Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("GUID =", userData.getGUID());
+  public static ADProfile_Basic matchADWithMongoData(ADProfile_Advanced userData) throws InvalidAttributeValueException
+  {
+    if (userData != null)
+    {
+      // Establish a connection with the DB
+      // Search for a user GUID
+      // Retrieve Employee with the given GUID
+      if (!userData.getGUID().equals(""))
+      {
+        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("GUID =", userData.getGUID());
 
-				//If a user exists in our system, verify that his/hers data is up-to-date
-				if(querySearch.get()!=null){
-					Employee e = querySearch.get();
-					boolean resUpdate=e.verifyDataIsUpToDate(userData);
-					//If the method returns true, the data has been updated
-					if(resUpdate){
-						//Reflect the changes to our system, updating the user data in the MongoDB
-						//Remove incorrect document
-						dbConnection.findAndDelete(querySearch);
-						//Commit the changes to the DB
-						dbConnection.save(e);
-					}
-				}
-				//Else, Create the user in our system with the given data
-				else{
-					//Create the Employee Object
-					Employee employeeNewData=new Employee(userData);
-					//Save the new user to the DB
-					dbConnection.save(employeeNewData);
-				}
-				//Return a smaller version of the current object to the user
-				return new ADProfile_Basic(userData.getEmployeeID(),userData.getSurname(), userData.getForename(), userData.getIsManager(), userData.getUsername(), userData.getEmailAddress());
-			}
-			else
-				throw new InvalidAttributeValueException(INVALID_USERGUID_NOTFOUND);
-		}
-		else
-			throw new InvalidAttributeValueException(NULL_USER_DATA);
-	}
-	
+        // If a user exists in our system, verify that his/hers data is up-to-date
+        if (querySearch.get() != null)
+        {
+          Employee e = querySearch.get();
+          boolean resUpdate = e.verifyDataIsUpToDate(userData);
+          // If the method returns true, the data has been updated
+          if (resUpdate)
+          {
+            // Reflect the changes to our system, updating the user data in the MongoDB
+            // Remove incorrect document
+            dbConnection.findAndDelete(querySearch);
+            // Commit the changes to the DB
+            dbConnection.save(e);
+          }
+        }
+        // Else, Create the user in our system with the given data
+        else
+        {
+          // Create the Employee Object
+          Employee employeeNewData = new Employee(userData);
+          // Save the new user to the DB
+          dbConnection.save(employeeNewData);
+        }
+        // Return a smaller version of the current object to the user
+        return new ADProfile_Basic(userData.getEmployeeID(), userData.getSurname(), userData.getForename(),
+            userData.getIsManager(), userData.getUsername(), userData.getEmailAddress());
+      }
+      else throw new InvalidAttributeValueException(INVALID_USERGUID_NOTFOUND);
+    }
+    else throw new InvalidAttributeValueException(NULL_USER_DATA);
+  }
+
 }
