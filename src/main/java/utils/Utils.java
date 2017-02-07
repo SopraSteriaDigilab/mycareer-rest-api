@@ -2,20 +2,50 @@ package utils;
 
 import static dataStructure.Constants.UK_TIMEZONE;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.management.InvalidAttributeValueException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import services.validate.Validate;
 
 /**
  * Helper class that provides various helper methods throughout the application.
  */
+@Component
+@PropertySource("${ENVIRONMENT}.properties")
 public class Utils
 {
+  
+  /** Environment Property - Reference to environment to get property details. */
+  private static Environment env;
+  
+  /**
+   * Autowired constructor to inject the environment
+   * 
+   * @param env The Environment of the project that is set in {@link application.Application Application }
+   */
+  @Autowired
+  private Utils(Environment env)
+  {
+    Utils.env = env;
+  }
 
   /**
    * Generate a feedbackRequestID using an employeeID. Format will be dddddd_ddddddddddddddddd. Where 'd' is a number.
@@ -151,6 +181,58 @@ public class Utils
 
     String employeeID = feedbackRequestID.substring(0, 6);
     return Long.parseLong(employeeID);
+  }
+  
+  public static String populateTemplate(String pathname, String... args) throws FileNotFoundException, IOException{
+    //TODO this method doesnt work yet. Continue working on it.
+    File file = new File(env.getProperty("template.error") + pathname);
+    List<String> lines = Utils.readFile(file);
+    
+    StringBuilder body = new StringBuilder();
+    
+    Pattern pattern = Pattern.compile("^[{}]$");
+    
+    lines.stream().forEach(s -> body.append(s));
+    
+    Matcher matcher = pattern.matcher(body);
+    
+    int counter = 0;
+    int i = 0;
+    
+    StringBuilder output = new StringBuilder();
+    
+    while(matcher.find()) {
+      String replacement = args[counter++];
+      output.append(body.subSequence(i, matcher.start()));
+      
+      output.append(replacement);
+      i = matcher.end(); 
+    }
+    output.append(body.substring(i, body.length()));
+    
+    return output.toString();
+    
+  }
+  
+  /**
+   * 
+   * Reads a file an and outputs each line to a list.
+   *
+   * @param source
+   * @return
+   * @throws FileNotFoundException
+   * @throws IOException
+   */
+  public static List<String> readFile(File source) throws FileNotFoundException, IOException {
+    
+    List<String> data = new ArrayList<>();
+    try(BufferedReader reader = new BufferedReader(new FileReader(source))) {
+      String s;
+      while((s = reader.readLine()) != null){
+        data.add(s);
+      }
+    }
+    return data;
   }
 
 }

@@ -39,11 +39,8 @@ public class ValidateAppControllerTest
   {
     StringBuilder validEmailList = new StringBuilder(validEmail1 + "," + validEmail2);
     
-    // all valid
     assertTrue("should return 'true'",
         ValidateAppController.isValidCreateFeedbackRequest(validID, validEmail1, validString));
-
-    // all valid multiple emails
     assertTrue("should return 'true'",
         ValidateAppController.isValidCreateFeedbackRequest(validID, validEmailList.toString(), validString));
   }

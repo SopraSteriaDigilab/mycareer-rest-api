@@ -5,6 +5,7 @@ import static microsoft.exchange.webservices.data.core.enumeration.property.Body
 import static microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName.Inbox;
 import static microsoft.exchange.webservices.data.core.service.schema.EmailMessageSchema.IsRead;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
@@ -99,6 +100,14 @@ public class EmailService
   @Scheduled(fixedRate = 30000)
   private void findEmails()
   {
+    
+    try {
+      logger.info("--------------------------------------------------------------");
+      logger.info(Utils.populateTemplate("/test.txt", ""));
+    } catch (IOException e){
+      logger.info(e.getMessage());
+    }
+    
     try
     {
       initiateEWSConnection(120000);

@@ -1,5 +1,6 @@
 package services.validate;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import javax.management.InvalidAttributeValueException;
@@ -21,12 +22,10 @@ public class Validate
   {
     if (strings.length < 1)
       throw new InvalidAttributeValueException("No values have been given, please try again with values.");
-
-    for (String string : strings)
-    {
-      if (string == null || string.isEmpty())
-        throw new InvalidAttributeValueException("One or more of the values are empty. Please try again.");
-    }
+    
+    if(Arrays.stream(strings).anyMatch(s -> s == null || s.isEmpty()))
+      throw new InvalidAttributeValueException("One or more of the values are empty. Please try again.");
+    
     return false;
   }
 
@@ -41,12 +40,10 @@ public class Validate
   {
     if (objects.length < 1)
       throw new InvalidAttributeValueException("No values have been given, please try again with values.");
-
-    for (Object object : objects)
-    {
-      if (object == null)
-        throw new InvalidAttributeValueException("One or more of the values are null. Please try again.");
-    }
+    
+    if(Arrays.stream(objects).anyMatch(o -> o == null))
+      throw new InvalidAttributeValueException("One or more of the values are empty. Please try again.");
+    
     return false;
   }
 

@@ -16,9 +16,8 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
-@ComponentScan(basePackages = {"application","services"})
+@ComponentScan(basePackages = {"application","services","utils"})
 @EnableScheduling
 public class Application {
 	

@@ -68,7 +68,7 @@ public class AppControllerTest
   @Before
   public void setup()
   {
-    LOG.debug("AppControllerTest.setup()", true);
+//    LOG.debug("AppControllerTest.setup()", true);
 
     unitUnderTest = new AppController();
     
@@ -87,7 +87,7 @@ public class AppControllerTest
   @Test
   public void testWelcomePageShouldWorkAsExpected()
   {
-     LOG.debug("AppControllerTest.testWelcomePageShouldWorkAsExpected()");
+//     LOG.debug("AppControllerTest.testWelcomePageShouldWorkAsExpected()");
     
     ResponseEntity<String> expected = ok("Welcome to the MyCareer Project");
     assertEquals(expected, unitUnderTest.welcomePage());
@@ -102,7 +102,7 @@ public class AppControllerTest
   @Test
   public void testGetObjectivesShouldWorkAsExpected() throws InvalidAttributeValueException
   {
-    LOG.debug("AppControllerTest.testGetObjectives()");
+//    LOG.debug("AppControllerTest.testGetObjectives()");
 
     when(mockEmployeeDao.getObjectivesForUser(VALID_EMPLOYEE_ID)).thenReturn(mockListOfObjectives);
 

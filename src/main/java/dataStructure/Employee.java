@@ -958,7 +958,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * @return True if the data had to be updated, false if the data didn't need changing
 	 * @throws InvalidAttributeValueException 
 	 */
-	public boolean verifyDataIsUpToDate(ADProfile_Advanced data) throws InvalidAttributeValueException{
+	public boolean verifyDataIsUpToDate(ADProfile_Advanced data) throws InvalidAttributeValueException {
 		int itemsUpdated=0;
 
 		//Start checking the fields
@@ -1002,6 +1002,8 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		int subCounter=0;
 		List<String> repOldSubList=this.getReporteeCNs();
 		List<String> repNewSubList=data.getReporteeCNs();
+    // TODO This doesnt work... Logic doesn't work.
+    // If repNewSubList is 0 (i.e. an employees reportee leaves the company) then this wont even check...
 		for(int i=0; i<repNewSubList.size(); i++){
 			if(!repOldSubList.contains(repNewSubList.get(i))){
 				subCounter++;
