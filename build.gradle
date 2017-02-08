@@ -23,8 +23,8 @@ apply plugin: 'org.springframework.boot'
 
 //Define the name of the JAR file created when the project is built as an executable archive
 jar {
-    baseName = 'myCareer_BE'
-    version =  '1.0.1'
+    baseName = 'mycareer-web-service'
+    version =  '1.1.0-email-redo'
 }
 
 //This defines the repositories where the dependencies can be found and downloaded
@@ -62,6 +62,8 @@ dependencies {
     //Test suits
     testCompile("junit:junit")
     //testCompile("org.springframework.boot:spring-boot-starter-test")
+    
+    compile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
     
     //SSO with SPNEGO (Internal libraries)
     compile files('libs/spnego-r7.jar')
