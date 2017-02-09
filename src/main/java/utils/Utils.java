@@ -72,7 +72,7 @@ public class Utils
   public static String getFeedbackRequestIDFromEmailBody(String body) throws InvalidAttributeValueException
   {
     Validate.areStringsEmptyorNull(body);
-    String searchStr = "feedback_request: ";
+    String searchStr = "request id: ";
 
     int start = body.toLowerCase().indexOf(searchStr);
 

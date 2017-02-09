@@ -720,13 +720,13 @@ public class EmployeeDAO
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
-          boolean resUpdate = e.verifyDataIsUpToDate(userData);
+          boolean updated = e.matchAndUpdated(userData);
           // If the method returns true, the data has been updated
-          if (resUpdate)
+          if (updated)
           {
             // Reflect the changes to our system, updating the user data in the MongoDB
             // Remove incorrect document
-            dbConnection.findAndDelete(querySearch);
+//            dbConnection.findAndDelete(querySearch);
             // Commit the changes to the DB
             dbConnection.save(e);
           }
