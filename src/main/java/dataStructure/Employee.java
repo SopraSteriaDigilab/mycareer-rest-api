@@ -5,6 +5,7 @@ import static services.validate.Validate.isNull;
 import java.io.Serializable;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -962,7 +963,10 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		int itemsUpdated=0;
 
 		//Start checking the fields
-
+		
+		
+		
+		
 		//Check the employeeID
 		if(this.getEmployeeID()!=data.getEmployeeID()){
 			//Update the counter and the user data
@@ -999,21 +1003,28 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		}
 
 		//Check the list of reportees
-		int subCounter=0;
-		List<String> repOldSubList=this.getReporteeCNs();
-		List<String> repNewSubList=data.getReporteeCNs();
+//		int subCounter=0;
+		List<String> currentReporteeList=this.getReporteeCNs();
+		List<String> ADReporteeList=data.getReporteeCNs();
+		
+    if(!currentReporteeList.equals(ADReporteeList)){
+      itemsUpdated++;
+      this.setReporteeCNs(ADReporteeList);
+    }
+    
+		
     // TODO This doesnt work... Logic doesn't work.
     // If repNewSubList is 0 (i.e. an employees reportee leaves the company) then this wont even check...
-		for(int i=0; i<repNewSubList.size(); i++){
-			if(!repOldSubList.contains(repNewSubList.get(i))){
-				subCounter++;
-			}
-		}
-		if(subCounter>0){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setReporteeCNs(repNewSubList);
-		}
+//		for(int i=0; i<repNewSubList.size(); i++){
+//			if(!repOldSubList.contains(repNewSubList.get(i))){
+//				subCounter++;
+//			}
+//		}
+//		if(subCounter>0){
+//			//Update the counter and the user data
+//			itemsUpdated++;
+//			this.setReporteeCNs(ADReporteeList);
+//		}
 
 		//Return a value
 		if(itemsUpdated>0)

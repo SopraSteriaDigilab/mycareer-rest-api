@@ -5,7 +5,6 @@ import static microsoft.exchange.webservices.data.core.enumeration.property.Body
 import static microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName.Inbox;
 import static microsoft.exchange.webservices.data.core.service.schema.EmailMessageSchema.IsRead;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
@@ -98,7 +97,7 @@ public class EmailService
    * 
    * @throws Exception
    */
-  @Scheduled(fixedRate = 30000)
+//  @Scheduled(fixedRate = 30000)
   private void findEmails()
   {
     try
@@ -189,9 +188,6 @@ public class EmailService
   private static void requestedFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws Exception
   {
     logger.info("Requested Feedback found");
-
-    // TODO check if "Feedback Request: " is here. If so then it was definitely a feedback request. If
-    // not then it may be a Generic request.
 
     String requestID = Utils.getFeedbackRequestIDFromEmailBody(body);
     if (requestID.isEmpty())
