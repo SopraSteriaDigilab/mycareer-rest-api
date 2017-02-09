@@ -19,6 +19,7 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 
 import dataStructure.Employee;
@@ -39,6 +40,10 @@ public class AppControllerTest
   /** Datastore Property - Mocked by Mockito. */
   @Mock
   private Datastore mockDatastore;
+  
+  /** Environment Property - Mocked by Mockito. */
+  @Mock
+  private Environment mockEnvironment;
 
   /** EmployeeDAO Property - Mocked by Mockito. */
   @Mock
@@ -57,7 +62,7 @@ public class AppControllerTest
   @Mock
   private List<Objective> mockListOfObjectives;
 
-  /** ProcessComponentsImpl Property - Represents the unit under test. */
+  /** AppController Property - Represents the unit under test. */
   @InjectMocks
   private AppController unitUnderTest;
 
@@ -78,7 +83,7 @@ public class AppControllerTest
     when(mockQuery.filter(Mockito.anyString(), Mockito.any())).thenReturn(mockQuery);
     when(mockQuery.get()).thenReturn(mockEmployee);
     
-    mockEmployeeDao = new EmployeeDAO(mockDatastore);
+    mockEmployeeDao = new EmployeeDAO(mockDatastore, mockEnvironment);
   }
 
   /**
@@ -106,6 +111,8 @@ public class AppControllerTest
 
     when(mockEmployeeDao.getObjectivesForUser(VALID_EMPLOYEE_ID)).thenReturn(mockListOfObjectives);
 
+    assertEquals(OK, unitUnderTest.getObjectives(VALID_EMPLOYEE_ID).getStatusCode());
+    assertEquals(OK, unitUnderTest.getObjectives(VALID_EMPLOYEE_ID).getStatusCode());
     assertEquals(OK, unitUnderTest.getObjectives(VALID_EMPLOYEE_ID).getStatusCode());
   }
   

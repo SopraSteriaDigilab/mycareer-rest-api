@@ -572,21 +572,25 @@ public class AppController {
 //		}
 //	}
 	
-	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method = POST)
-	public ResponseEntity<String> createFeedbackRequest(
-			@PathVariable("employeeID") long employeeID,
-			@RequestParam(value="emailsTo") String toFields,
-			@RequestParam(value="notes") String notes){
-		try {
-			isValidCreateFeedbackRequest(employeeID, toFields, notes);
-			EmployeeDAO.processFeedbackRequest(employeeID, toFields, notes);
-			return ok("Your feedback request has been processed.");
-		} catch (InvalidAttributeValueException e) {
-			return badRequest().body(e.getMessage());
-		} catch (Exception e) {
-			return badRequest().body(e.getMessage());
-		}
-	}
+  @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
+  public ResponseEntity<String> createFeedbackRequest(@PathVariable("employeeID") long employeeID,
+      @RequestParam(value = "emailsTo") String toFields, @RequestParam(value = "notes") String notes)
+  {
+    try
+    {
+      isValidCreateFeedbackRequest(employeeID, toFields, notes);
+      EmployeeDAO.processFeedbackRequest(employeeID, toFields, notes);
+      return ok("Your feedback request has been processed.");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+    catch (Exception e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
 	
 
 //	/**

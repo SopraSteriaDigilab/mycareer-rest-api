@@ -38,6 +38,7 @@ import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import microsoft.exchange.webservices.data.search.filter.SearchFilter;
 import services.EmployeeDAO;
+import utils.Template;
 import utils.Utils;
 
 /**
@@ -100,14 +101,6 @@ public class EmailService
   @Scheduled(fixedRate = 30000)
   private void findEmails()
   {
-    
-    try {
-      logger.info("--------------------------------------------------------------");
-      logger.info(Utils.populateTemplate("/test.txt", ""));
-    } catch (IOException e){
-      logger.info(e.getMessage());
-    }
-    
     try
     {
       initiateEWSConnection(120000);
@@ -196,6 +189,10 @@ public class EmailService
   private static void requestedFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws Exception
   {
     logger.info("Requested Feedback found");
+
+    // TODO check if "Feedback Request: " is here. If so then it was definitely a feedback request. If
+    // not then it may be a Generic request.
+
     String requestID = Utils.getFeedbackRequestIDFromEmailBody(body);
     if (requestID.isEmpty())
     {
@@ -210,9 +207,9 @@ public class EmailService
     {
       String errorRecipient = from;
       String errorSubject = "Error Processing Feedback";
-      String errorBody = "There was an issue processing your feedback, please try reply to the feedback request "
-          + "email and do make sure not to changed any of the details on the email.";
-      // TODO Replace above with template.
+      // String errorBody = "There was an issue processing your feedback, please try reply to the feedback request "
+      // + "email and do make sure not to changed any of the details on the email.";
+      String errorBody = Template.populateTemplate(env.getProperty("templates.error.invalidfeedback"));
 
       sendEmail(errorRecipient, errorSubject, errorBody);
 
@@ -237,13 +234,26 @@ public class EmailService
     logger.info("Generic Feedback found");
     Set<EmailAddress> errorRecipients = new HashSet<>();
 
+    if (recipients.size() == 1
+        && recipients.stream().anyMatch(s -> s.getAddress().equals(env.getProperty("mail.address"))))
+    {
+      String errorRecipient = from;
+      String errorSubject = "Error Processing Feedback";
+      String errorBody = Template.populateTemplate(env.getProperty("templates.error.invalidfeedback"));
+
+      sendEmail(errorRecipient, errorSubject, errorBody);
+
+      logger.info("Incorrect Use of Feedback.uk found, email sent.");
+      return;
+    }
+
     for (EmailAddress recipient : recipients)
     {
       if (recipient.getAddress().equals(env.getProperty("mail.address"))) continue;
 
       try
       {
-        EmployeeDAO.addFeedback(from, recipient.getAddress(), body);
+        EmployeeDAO.addFeedback(from, recipient.getAddress(), body, false);
       }
       catch (InvalidAttributeValueException | NamingException e)
       {
@@ -285,10 +295,9 @@ public class EmailService
 
     String errorRecipient = employee.getEmailAddress();
     String errorSubject = "Feedback Request Issue";
-    String errorBody = String.format(
-        "There was an issue proccessing your feedback to %s, please make sure the email address is correct and try again",
-        intendedRecipient);
-    // TODO Replace above with template.
+    // String errorBody = String.format("There was an issue proccessing your feedback to %s, please make sure the email
+    // address is correct and try again",intendedRecipient);
+    String errorBody = Template.populateTemplate(env.getProperty("templates.error.invalidemail"), intendedRecipient);
 
     sendEmail(errorRecipient, errorSubject, errorBody);
 

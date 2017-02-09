@@ -1,0 +1,8 @@
+Hello,
+
+Your colleague {0} has replied to your feedback request.
+Login to the MyCareer website at [url/hyperlink] to find out what they said.
+
+Regards,
+
+The MyCareer Team

@@ -1,0 +1,8 @@
+Hi,
+
+The Email address provided: {0}, is incorrect.
+For this reason, a feedback request could not be sent to the above recipient.
+
+Regards,
+
+The MyCareer Team

@@ -1,0 +1,8 @@
+Hello,
+
+Thank you for your feedback, unfortunately the system could not identify a valid employee to associate your feedback to.
+Please try submitting your feedback again. If this is in response to a request, make sure not to change the subject line of the original request email. Otherwise, ensure that you have entered the recipient email correctly. 
+
+Regards,
+
+The MyCareer Team

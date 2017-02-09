@@ -1,5 +1,6 @@
 package services.validate;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -40,8 +41,8 @@ public class ValidateTest
   @Test
   public void testAreStringsEmptyorNullShoudWorkAsExpected() throws InvalidAttributeValueException
   {
-    assertFalse("should return 'false'", Validate.areStringsEmptyorNull(VALID_STRING)); // one valid
-    assertFalse("should return 'false'", Validate.areStringsEmptyorNull(VALID_STRING, VALID_STRING)); // multiple valid
+    assertFalse(Validate.areStringsEmptyorNull(VALID_STRING)); // one valid
+    assertFalse(Validate.areStringsEmptyorNull(VALID_STRING, VALID_STRING)); // multiple valid
   }
 
   /**
@@ -52,7 +53,7 @@ public class ValidateTest
   @Test(expected = InvalidAttributeValueException.class)
   public void testAreStringsEmptyorNullWithEmpty() throws InvalidAttributeValueException
   {
-    Validate.areStringsEmptyorNull(EMPTY_STRING, EMPTY_STRING); // both empty
+    Validate.areStringsEmptyorNull(VALID_STRING, EMPTY_STRING); // both empty
   }
 
   /**
