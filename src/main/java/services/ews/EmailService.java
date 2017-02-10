@@ -89,6 +89,8 @@ public class EmailService
     message.setBody(new MessageBody(Text, body));
     message.getToRecipients().add(recipient);
     message.sendAndSaveCopy();
+    // emailService.close();
+    // TODO throws an error
   }
 
   /**
@@ -97,8 +99,8 @@ public class EmailService
    * 
    * @throws Exception
    */
-  //TODO change to 60000
-//  @Scheduled(fixedRate = 30000)
+  // TODO change to 60000
+  // @Scheduled(fixedRate = 30000)
   private void findEmails()
   {
     try
@@ -133,6 +135,12 @@ public class EmailService
     {
       logger.error(e.getMessage());
     }
+    finally
+    {
+      // emailService.close();
+      // TODO throws an error
+    }
+
   }
 
   /**
