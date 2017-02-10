@@ -7,7 +7,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static services.validate.ValidateAppController.isValidCreateFeedbackRequest;
 
-
 import java.io.IOException;
 import java.time.YearMonth;
 import java.time.ZoneId;
@@ -21,6 +20,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +40,9 @@ import dataStructure.Note;
 import dataStructure.Objective;
 import services.EmployeeDAO;
 import services.ad.ADProfileDAO;
+import services.ews.EmailService;
 import services.validate.Validate;
+import utils.Template;
 
 /**
  * 
@@ -54,9 +58,16 @@ import services.validate.Validate;
  */
 @CrossOrigin
 @RestController
+@PropertySource("${ENVIRONMENT}.properties")
 public class AppController {
-	
-	private static final Logger logger = LoggerFactory.getLogger(AppController.class);
+  
+  /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
+  private static final Logger logger = LoggerFactory.getLogger(AppController.class);
+  
+  /** Environment Property - Reference to environment to get property details. */
+  @Autowired
+  private  Environment env;
+  
 	
 	@RequestMapping(value="/", method = GET)
 	public ResponseEntity<String> welcomePage() {
@@ -712,9 +723,12 @@ public class AppController {
 			if(temp.isBefore(YearMonth.now(ZoneId.of(UK_TIMEZONE)))){
 				throw new InvalidAttributeValueException("Date can not be in the past");
 			}
-
+			
 			//get user and loop through emails and add objective
 			String proposedBy=EmployeeDAO.getFullNameUser(employeeID);
+			
+			String subject = String.format("Proposed Objective from %s", proposedBy);
+			
 			for(String email : emailSet){
 				try{
 					ADProfile_Basic userInQuestion = ADProfileDAO.authenticateUserProfile(email);
@@ -724,6 +738,17 @@ public class AppController {
 					if(inserted){
 						insertAccepted = true;
 						result+=  userInQuestion.getFullName() +", ";
+
+						try
+            {
+						  String body = Template.populateTemplate(env.getProperty("templates.objective.proposed"), proposedBy);
+              EmailService.sendEmail(email, subject, body);
+            }
+            catch (Exception e)
+            {
+              logger.error("Email could not be sent for a proposed objective. Error: {}", e);
+            }
+						
 					} else{
 						errorInserting = true;
 						errorResult+= "Could not send to " + userInQuestion.getEmployeeID() +", ";

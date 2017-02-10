@@ -97,6 +97,7 @@ public class EmailService
    * 
    * @throws Exception
    */
+  //TODO change to 60000
 //  @Scheduled(fixedRate = 30000)
   private void findEmails()
   {

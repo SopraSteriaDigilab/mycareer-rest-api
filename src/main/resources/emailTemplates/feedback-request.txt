@@ -1,5 +1,3 @@
-Feedback Request
-
 Hello,
  
 {0} has requested your feedback. 

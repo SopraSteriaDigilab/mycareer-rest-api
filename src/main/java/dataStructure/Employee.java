@@ -948,94 +948,6 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		});	
 	}
 
-//	/**
-//	 * 
-//	 * This method checks and update the user data with the new given information 
-//	 * The only field that never changes and therefore it won't be checked is the GUID.
-//	 * The GUID is the AD value unique not only inside the enterprise, but in the entire globe
-//	 * 
-//	 * @param data The user data to compare with the corrent information
-//	 * @return True if the data had to be updated, false if the data didn't need changing
-//	 * @throws InvalidAttributeValueException 
-//	 */
-//	public boolean verifyDataIsUpToDate(ADProfile_Advanced data) throws InvalidAttributeValueException {
-//	  //TODO I have updated this method adding checks for names, and fixing the reporteeCN check.
-//	  //Still should redo this method and add test.
-//		int itemsUpdated=0;
-//
-//    List<String> currentReporteeList=this.getReporteeCNs();
-//    List<String> ADReporteeList=data.getReporteeCNs();
-//    
-//    if(!currentReporteeList.equals(ADReporteeList)){
-//      itemsUpdated++;
-//      this.setReporteeCNs(ADReporteeList);
-//    }
-//		
-//		
-//		
-//		
-//		
-//		//Start checking the fields
-//		
-//		//Check the employeeID
-//		if(this.getEmployeeID()!=data.getEmployeeID()){
-//			//Update the counter and the user data
-//			itemsUpdated++;
-//			this.setEmployeeID(data.getEmployeeID());
-//		}
-//
-//		//Check the Email address
-//		if(!this.getEmailAddress().equals(data.getEmailAddress())){
-//			//Update the counter and the user data
-//			itemsUpdated++;
-//			this.setEmailAddress(data.getEmailAddress());
-//		}
-//
-//		//Check the username
-//		if(!this.getUsername().equals(data.getUsername())){
-//			//Update the counter and the user data
-//			itemsUpdated++;
-//			this.setUsername(data.getUsername());
-//		}
-//
-//		//Check the company
-//		if(!this.getCompany().equals(data.getCompany())){
-//			//Update the counter and the user data
-//			itemsUpdated++;
-//			this.setCompany(data.getCompany());
-//		}
-//
-//		//Check the team
-//		if(!this.getTeam().equals(data.getTeam())){
-//			//Update the counter and the user data
-//			itemsUpdated++;
-//			this.setTeam(data.getTeam());
-//		}
-//
-//		//Check the list of reportees
-////		int subCounter=0;
-//
-//    
-//		
-//    // TODO This doesnt work... Logic doesn't work.
-//    // If repNewSubList is 0 (i.e. an employees reportee leaves the company) then this wont even check...
-////		for(int i=0; i<repNewSubList.size(); i++){
-////			if(!repOldSubList.contains(repNewSubList.get(i))){
-////				subCounter++;
-////			}
-////		}
-////		if(subCounter>0){
-////			//Update the counter and the user data
-////			itemsUpdated++;
-////			this.setReporteeCNs(ADReporteeList);
-////		}
-//
-//		//Return a value
-//		if(itemsUpdated>0)
-//			return true;
-//		return false;
-//	}
-
   /**
    * Verifies if user details matches ad profile and updates fields that are not the same.
    *
@@ -1045,6 +957,8 @@ public class Employee extends ADProfile_Advanced implements Serializable{
    */
   public boolean matchAndUpdated(ADProfile_Advanced adProfileAdvance) throws InvalidAttributeValueException
   {
+    //TODO Probably a better way to do this.. Also maybe move this method to EmployeeDAO...?
+    //Override equals method.
     boolean updated = false;
 
     if (!this.getCompany().equals(adProfileAdvance.getCompany()))

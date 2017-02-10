@@ -92,6 +92,7 @@ public class EmployeeTest
   public void testMatchAndUpdate() throws InvalidAttributeValueException{
     boolean updated = unitUnderTest.matchAndUpdated(adProfileAdvanced);
     
+    //TODO User overridden equals method for employee...
     assertFalse(updated);
     assertEquals(adProfileAdvanced.getReporteeCNs(), unitUnderTest.getReporteeCNs());
     assertEquals(adProfileAdvanced.getCompany(),  unitUnderTest.getCompany());
