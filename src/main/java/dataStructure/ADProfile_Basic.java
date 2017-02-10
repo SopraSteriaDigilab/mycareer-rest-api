@@ -1,5 +1,7 @@
 package dataStructure;
 
+import static dataStructure.Constants.*;
+
 import java.io.Serializable;
 import javax.management.InvalidAttributeValueException;
 import com.google.gson.Gson;
@@ -23,25 +25,28 @@ public class ADProfile_Basic implements Serializable{
 	private String surname, forename, username;
 	private String emailAddress;
 	private boolean isManager;
+	private boolean hasHRDash;
 	
 	//Empty Constructor
 	public ADProfile_Basic(){
-		this.surname=Constants.INVALID_STRING;
-		this.forename=Constants.INVALID_STRING;
-		this.employeeID=Constants.INVALID_INT;
-		this.username=Constants.INVALID_STRING;
-		this.emailAddress=Constants.INVALID_STRING;
-		this.isManager=false;
+		this.surname = INVALID_STRING;
+		this.forename = INVALID_STRING;
+		this.employeeID = INVALID_INT;
+		this.username = INVALID_STRING;
+		this.emailAddress = INVALID_STRING;
+		this.isManager = false;
+		this.hasHRDash = false;
 	}
 	
 	//Constructor with parameters
-	public ADProfile_Basic(long employeeID, String surname, String forename, boolean manager, String username, String emailAddress) throws InvalidAttributeValueException{
+	public ADProfile_Basic(long employeeID, String surname, String forename, boolean manager, String username, String emailAddress, boolean hasHRDash) throws InvalidAttributeValueException{
 		this.setSurname(surname);
 		this.setForename(forename);
 		this.setEmployeeID(employeeID);
 		this.setUsername(username);
 		this.setEmailAddress(emailAddress);
-		this.isManager=manager;
+		this.isManager = manager;
+		this.hasHRDash = hasHRDash;
 	}
 
 	/**
@@ -123,6 +128,14 @@ public class ADProfile_Basic implements Serializable{
 		return isManager;
 	}
 	
+	public void setHasHRDash(boolean hasHRDash){
+		this.hasHRDash = hasHRDash;
+	}
+	
+	public boolean getHasHRDash() {
+		return hasHRDash;
+	}
+	
 	public String toGson(){
 		Gson gsonData=new Gson();
 		return gsonData.toJson(this);
@@ -130,12 +143,14 @@ public class ADProfile_Basic implements Serializable{
 	
 	@Override
 	public String toString(){
-		String s="";
-		s+="FullName: "+this.getFullName()+"\n";
-		s+="EmployeeID: "+this.getEmployeeID()+"\n";
-		s+="IsManager: "+this.getIsManager()+"\n";
-		s+="Username: "+this.getUsername()+"\n";
-		s+="IsManager: "+this.getIsManager()+"\n";
+		String s = "";
+		s += "FullName: " + this.getFullName() + "\n";
+		s += "EmployeeID: " + this.getEmployeeID() + "\n";
+		s += "IsManager: " + this.getIsManager() + "\n";
+		s += "Username: " + this.getUsername() + "\n";
+		s += "IsManager: " + this.getIsManager() + "\n";
+		s += "HasHRDash: " + hasHRDash + "\n";
+		
 		return s;
 	}
 

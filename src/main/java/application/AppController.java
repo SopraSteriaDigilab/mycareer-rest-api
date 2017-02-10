@@ -41,8 +41,9 @@ import dataStructure.Objective;
 import domain.HRData;
 import domain.HRObjectiveData;
 import services.HRDataDAO;
-import services.EmployeeDAO;
 import services.ad.ADProfileDAO;
+import services.EmployeeDAO;
+import services.EmployeeProfileDAO_NEW;
 import services.validate.Validate;
 
 /**

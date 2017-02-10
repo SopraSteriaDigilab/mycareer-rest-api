@@ -91,6 +91,22 @@ public class ADProfileDAO {
 			UUID uid=UUID.nameUUIDFromBytes((byte[])attrs.get("objectGUID").get());
 			adObj.setGUID(uid.toString());
 			
+			// Check for HR Dashboard permission
+			final Attribute attr = attrs.get("memberOf");
+			@SuppressWarnings("unchecked")
+			final NamingEnumeration<String> groups = (NamingEnumeration<String>) attr.getAll();
+			String group = null;
+			boolean hasHRDash = false;
+			
+			while (groups.hasMoreElements()) {
+				group = groups.next().toUpperCase();
+				if (group.contains(AD_SOPRA_HR_DASH.toUpperCase())) {
+					hasHRDash = true;
+					break;
+				}
+			}
+			
+			adObj.setHasHRDash(hasHRDash);
 			adObj.setSurname((String)attrs.get("sn").get());
 			adObj.setForename((String)attrs.get("givenName").get());
 			adObj.setEmailAddress((String)attrs.get("mail").get());
@@ -98,6 +114,7 @@ public class ADProfileDAO {
 			adObj.setCompany((String) attrs.get("company").get());
 			adObj.setTeam((String) attrs.get("department").get());
 		} catch (NoSuchElementException | NullPointerException e) { // There is no  matching user in the Active Directory.
+			e.printStackTrace();
 			throw new InvalidAttributeValueException(NOTFOUND_EMAILORUSERNAME_AD + email);
 		} finally {
 			// Close the connection with the AD
@@ -288,44 +305,6 @@ public class ADProfileDAO {
 		ldapSteriaContext.close();
 		ldapSteriaContext=null;
 		return fullName;
-	}
-	
-	public static String findEmployeeFullNameFromID(String id)throws InvalidAttributeValueException, NamingException{
-		//Verify the given ID
-		if(id==null || id.length()<1)
-			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
-		//Instantiate the connection
-		if(ldapContext==null)
-			ldapContext = getADConnection();
-
-		// Create the search controls         
-		SearchControls searchCtls = new SearchControls();
-		//Specify the attributes to return
-		searchCtls.setReturningAttributes(AD_SOPRA_ATTRIBUTES);
-		//Specify the search scope
-		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		//specify the LDAP search filter
-		String searchFilter = "(extensionAttribute7=s" + id + ")";
-		
-		// Search for objects using the filter
-		NamingEnumeration<SearchResult> answer = ldapContext.search(AD_SOPRA_TREE, searchFilter, searchCtls);
-
-		//Check the results retrieved
-		if(answer.hasMoreElements()){
-			SearchResult sr = (SearchResult)answer.next();
-			Attributes attrs = sr.getAttributes();
-			
-			//Find and return the full name
-			String surname=(String)attrs.get("sn").get();
-			//Convert the upper case surname into a lower case string with only the 1st char uppercase
-			surname=surname.substring(0,1).toUpperCase()+surname.substring(1).toLowerCase();
-			String forename=(String)attrs.get("givenName").get();
-			return surname+" "+forename;
-		}
-		//Close the connection with the AD
-		ldapContext.close();
-		ldapContext=null;
-		throw new InvalidAttributeValueException(INVALID_IDMATCHUSERNAME + id);
 	}
 
 	private static DirContext getADConnection() throws NamingException{

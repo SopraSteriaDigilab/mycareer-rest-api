@@ -139,8 +139,8 @@ public final class Constants {
 	public static final String AD_SOPRA_USERNAME="svc_mycareer@emea.msad.sopra";
 	public static final String AD_SOPRA_PASSWORD="N9T$SiPSZ";
 	public static final String AD_SOPRA_TREE="ou=usersemea,DC=emea,DC=msad,DC=sopra";
-	public static final String[] AD_SOPRA_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "extensionAttribute7", "objectGUID", "mail", "department", "targetAddress"};
-	
+	public static final String[] AD_SOPRA_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "extensionAttribute7", "objectGUID", "mail", "department", "targetAddress", "memberOf"};
+	public static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
 	//Steria AD Details
 	public static final String AD_STERIA_HOST="ldap://one.steria.dom";
 	public static final String AD_STERIA_USERNAME="UK-SVC-CAREER";
