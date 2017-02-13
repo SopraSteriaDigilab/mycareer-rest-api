@@ -357,6 +357,31 @@ public class EmployeeDAO
     }
     else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
   }
+  
+
+  public static boolean insertNewNoteForReportee(long employeeID, long reporteeEmployeeID, String noteDescription) throws InvalidAttributeValueException
+  {
+    if(employeeID < 1 || reporteeEmployeeID < 1)
+      throw new InvalidAttributeValueException("The ID provided was not found. Please try again with valid ID's");
+
+    String managerName = getFullNameUser(employeeID);
+    
+    insertNewNote(reporteeEmployeeID, new Note(1, 0, 0, noteDescription, managerName));
+
+    String reporteeEmail = getEmployee(reporteeEmployeeID).getEmailAddress();
+    String subject = String.format("Note added from %s", managerName);
+    try
+    {
+      String body = Template.populateTemplate(env.getProperty("templates.note.added"), managerName);
+      EmailService.sendEmail(reporteeEmail, subject, body);
+    }
+    catch (Exception e)
+    {
+      logger.error("Email could not be sent for a proposed objective. Error: {}", e);
+    }
+    
+    return true;
+  }
 
   public static boolean addNewVersionNote(long employeeID, int noteID, Object data)
       throws InvalidAttributeValueException
@@ -747,5 +772,6 @@ public class EmployeeDAO
     }
     else throw new InvalidAttributeValueException(NULL_USER_DATA);
   }
+
 
 }

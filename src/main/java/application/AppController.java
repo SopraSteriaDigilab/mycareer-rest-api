@@ -413,8 +413,10 @@ public class AppController {
 		try{
 			Note obj=new Note(1, noteType, linkID, body,from);
 			boolean inserted=EmployeeDAO.insertNewNote(employeeID,obj);
-			if(inserted)
+			if(inserted){
 				return ok("Note inserted correctly");
+				
+			}
 			else
 				return badRequest().body("Error while adding the Note");
 		}
@@ -425,6 +427,30 @@ public class AppController {
 			return badRequest().body(e.getMessage());
 		}
 	}
+	
+  /**
+   * POST End Point - adds note to reportee
+   *
+   * @param employeeID
+   * @param reporteeEmployeeID
+   * @param body
+   * @return
+   */
+  @RequestMapping(value = "/addNoteToReportee/{employeeID}", method = POST)
+  public ResponseEntity<?> addNoteToReportee(@PathVariable long employeeID, @RequestParam long reporteeEmployeeID,
+      @RequestParam String body)
+  {
+    try
+    {
+      EmployeeDAO.insertNewNoteForReportee(employeeID, reporteeEmployeeID, body);
+      return ok("Note inserted correctly");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+	
 
 	/**
 	 * 
