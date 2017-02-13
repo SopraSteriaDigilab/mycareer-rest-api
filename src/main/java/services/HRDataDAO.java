@@ -73,7 +73,7 @@ public class HRDataDAO {
 	public static long getTotalUsersWithSubmittedFeedback() {
 
 		long totalUsersWithSubmittedFeedback = dbConnection.find(Employee.class)
-				.field("groupFeedbackRequests").exists().countAll();
+				.field("feedbackRequests").exists().countAll();
 		return totalUsersWithSubmittedFeedback;
 
 	}// getTotalUsersWithSubmittedFeedback
