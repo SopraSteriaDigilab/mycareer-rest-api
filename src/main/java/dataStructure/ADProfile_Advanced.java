@@ -26,7 +26,6 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 
 	//Empty Constructor
 	public ADProfile_Advanced(){
-		super();
 		this.company=Constants.INVALID_STRING;
 		this.team=Constants.INVALID_STRING;
 		this.GUID=Constants.INVALID_STRING;
@@ -44,8 +43,9 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 			String company,
 			String team,
 			boolean isManager,
+			boolean hasHRDash,
 			List<String> reps) throws InvalidAttributeValueException{
-		super(employeeID, surname, name, isManager, username, emailAddress);
+		super(employeeID, surname, name, isManager, username, emailAddress, hasHRDash);
 		this.setGUID(guid);
 		this.setCompany(company);
 		this.setTeam(team);

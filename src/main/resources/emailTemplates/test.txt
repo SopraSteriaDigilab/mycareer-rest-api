@@ -1,0 +1,4 @@
+Name {} of something
+Something {} bye
+asdasd
+Something else {} hi

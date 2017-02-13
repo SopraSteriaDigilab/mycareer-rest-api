@@ -139,8 +139,8 @@ public final class Constants {
 	public static final String AD_SOPRA_USERNAME="svc_mycareer@emea.msad.sopra";
 	public static final String AD_SOPRA_PASSWORD="N9T$SiPSZ";
 	public static final String AD_SOPRA_TREE="ou=usersemea,DC=emea,DC=msad,DC=sopra";
-	public static final String[] AD_SOPRA_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "extensionAttribute7", "objectGUID", "mail", "department", "targetAddress"};
-	
+	public static final String[] AD_SOPRA_ATTRIBUTES={"sn","givenName","company", "sAMAccountName", "extensionAttribute7", "objectGUID", "mail", "department", "targetAddress", "memberOf"};
+	public static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
 	//Steria AD Details
 	public static final String AD_STERIA_HOST="ldap://one.steria.dom";
 	public static final String AD_STERIA_USERNAME="UK-SVC-CAREER";
@@ -150,13 +150,18 @@ public final class Constants {
 	public static final String[] AD_STERIA_ATTRIBUTES={"directReports", "sn","givenName", "mail", "targetAddress","company", "sAMAccountName","department"};
 
 	//Constants for the emailServices package	
-	public static final String MAILBOX_ADDRESS="feedback.uk@soprasteria.com";
-	public static final String MAIL_USERNAME="FbackUK";
-	public static final String MAIL_PASSWORD="Auto_Map_$459$";
-	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
-	//public static final String MAIL_USERNAME="michael.piccoli@soprasteria.com";
-	//public static final String MAIL_PASSWORD="";
-	//public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
+//	public static final String MAILBOX_ADDRESS="feedback.uk@soprasteria.com";
+//	public static final String MAIL_USERNAME="FbackUK";
+//	public static final String MAIL_PASSWORD="Auto_Map_$459$";
+//	public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
+//	public static final String MAILBOX_ADDRESS = "feedback.dev.uk@soprasteria.com";
+//	public static final String MAIL_USERNAME = "feedback.dev.uk";
+//	public static final String MAIL_PASSWORD = "=9UzlDg^3N";
+//	public static final String MAIL_EXCHANGE_URI = "https://mailbox.corp.sopra/ews/exchange.asmx";
+	public static final String MAILBOX_ADDRESS="ridhwan.nacef@soprasteria.com";
+	public static final String MAIL_USERNAME="ridhwan.nacef@soprasteria.com";
+	public static final String MAIL_PASSWORD="Steria123";
+	public static final String MAIL_EXCHANGE_URI="https://outlook.office365.com/ews/exchange.asmx";
 
 	public static final String MAIL_ENCODING_CHARSET="UTF-8";
 	public static final long MAIL_REFRESH_TIME=(1*60*1000); //1 minute

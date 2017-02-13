@@ -3,13 +3,13 @@ package dataStructure;
 import static dataStructure.Constants.UK_TIMEZONE;
 
 import java.io.Serializable;
-import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 import javax.management.InvalidAttributeValueException;
+
 import org.mongodb.morphia.annotations.Embedded;
+
 import com.google.gson.Gson;
 
 /**
