@@ -436,13 +436,13 @@ public class AppController {
    * @param body
    * @return
    */
-  @RequestMapping(value = "/addNoteToReportee/{employeeID}", method = POST)
-  public ResponseEntity<?> addNoteToReportee(@PathVariable long employeeID, @RequestParam long reporteeEmployeeID,
+  @RequestMapping(value = "/addNoteToReportee/{reporteeEmployeeID}", method = POST)
+  public ResponseEntity<?> addNoteToReportee(@PathVariable long reporteeEmployeeID, @RequestParam String from,
       @RequestParam String body)
   {
     try
     {
-      EmployeeDAO.insertNewNoteForReportee(employeeID, reporteeEmployeeID, body);
+      EmployeeDAO.insertNewNoteForReportee(reporteeEmployeeID, from, body);
       return ok("Note inserted correctly");
     }
     catch (InvalidAttributeValueException e)

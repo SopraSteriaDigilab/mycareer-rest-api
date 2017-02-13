@@ -359,20 +359,18 @@ public class EmployeeDAO
   }
   
 
-  public static boolean insertNewNoteForReportee(long employeeID, long reporteeEmployeeID, String noteDescription) throws InvalidAttributeValueException
+  public static boolean insertNewNoteForReportee(long employeeID, String from, String noteDescription) throws InvalidAttributeValueException
   {
-    if(employeeID < 1 || reporteeEmployeeID < 1)
-      throw new InvalidAttributeValueException("The ID provided was not found. Please try again with valid ID's");
-
-    String managerName = getFullNameUser(employeeID);
+    if(employeeID < 1)
+      throw new InvalidAttributeValueException("The ID provided was not found. Please try again with valid ID");
     
-    insertNewNote(reporteeEmployeeID, new Note(1, 0, 0, noteDescription, managerName));
+    insertNewNote(employeeID, new Note(1, 0, 0, noteDescription, from));
 
-    String reporteeEmail = getEmployee(reporteeEmployeeID).getEmailAddress();
-    String subject = String.format("Note added from %s", managerName);
+    String reporteeEmail = getEmployee(employeeID).getEmailAddress();
+    String subject = String.format("Note added from %s", from);
     try
     {
-      String body = Template.populateTemplate(env.getProperty("templates.note.added"), managerName);
+      String body = Template.populateTemplate(env.getProperty("templates.note.added"), from);
       EmailService.sendEmail(reporteeEmail, subject, body);
     }
     catch (Exception e)
