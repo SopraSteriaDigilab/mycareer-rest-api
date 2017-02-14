@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import dataStructure.Employee;
 
 /**
@@ -13,20 +15,19 @@ import dataStructure.Employee;
  */
 public class EmployeeStatistics
 {
-  
-  /** String[] Constant - Indicates fields to be used in the feedback statistics */
-  public final static String[] FEEDBACK_FIELDS = { "employeeID", "forename", "surname", "company", "superSector",
-      "steriaDepartment", "feedback" };
-  
+
   /** String[] Constant - Indicates fields to be used in the employee statistics */
-  public final static String[] EMPLOYEE_FIELDS = {  "employeeID", "forename", "surname", "company", "superSector",
+  public final static String[] EMPLOYEE_FIELDS = { "employeeID", "forename", "surname", "company", "superSector",
       "steriaDepartment" };
+
+  public final static String[] FEEDBACK_FIELDS = {  "feedback" };
+
 
   /**
    * Statistics for employees given a list of employees.
    *
    * @param employees
-   * @return 
+   * @return
    */
   @SuppressWarnings("rawtypes")
   public List<Map> getEmployeeStats(List<Employee> employees)
@@ -38,12 +39,12 @@ public class EmployeeStatistics
     });
     return statistics;
   }
-  
+
   /**
    * Statistics for feedback given a list of employees.
    *
    * @param employees
-   * @return 
+   * @return
    */
   @SuppressWarnings("rawtypes")
   public List<Map> getFeedbackStats(List<Employee> employees)
@@ -56,9 +57,9 @@ public class EmployeeStatistics
     });
     return statistics;
   }
-  
-  
-  private Map<String, Object> getBasicMap(Employee employee){
+
+  private Map<String, Object> getBasicMap(Employee employee)
+  {
     Map<String, Object> map = new HashMap<>();
     map.put("employeeID", employee.getEmployeeID());
     map.put("fullName", employee.getFullName());

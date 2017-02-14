@@ -1,5 +1,6 @@
 package services;
 
+import static org.apache.commons.lang3.ArrayUtils.addAll;
 import static utils.EmployeeStatistics.EMPLOYEE_FIELDS;
 import static utils.EmployeeStatistics.FEEDBACK_FIELDS;
 
@@ -15,6 +16,7 @@ import domain.HRDevNeedsData;
 import domain.HRObjectiveData;
 import domain.HRTotals;
 import utils.EmployeeStatistics;
+
 
 /**
  * HR Service class.
@@ -150,7 +152,7 @@ public class HRDataDAO
   public List<Map> getFeedbackStats()
   {
     List<Employee> employees = dbConnection.createQuery(Employee.class).field("feedback").exists()
-        .retrievedFields(true, FEEDBACK_FIELDS).asList();
+        .retrievedFields(true, addAll(EMPLOYEE_FIELDS, FEEDBACK_FIELDS)).asList();
     return stats.getFeedbackStats(employees);
   }
 
