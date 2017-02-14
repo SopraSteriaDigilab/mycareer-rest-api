@@ -112,9 +112,9 @@ public class ADProfileDAO {
 			adObj.setEmailAddress((String)attrs.get("mail").get());
 			adObj.setUsername((String)attrs.get("sAMAccountName").get());
 			adObj.setCompany((String) attrs.get("company").get());
+			adObj.setSopraDepartment((String) attrs.get("department").get());
 			adObj.setTeam((String) attrs.get("department").get());
 		} catch (NoSuchElementException | NullPointerException e) { // There is no  matching user in the Active Directory.
-			e.printStackTrace();
 			throw new InvalidAttributeValueException(NOTFOUND_EMAILORUSERNAME_AD + email);
 		} finally {
 			// Close the connection with the AD
@@ -129,21 +129,21 @@ public class ADProfileDAO {
 		ADProfile_Advanced adObj = new ADProfile_Advanced();
 		/// Instantiate the connection
 		//Instantiate the connection
-				if(ldapSteriaContext==null)
-					ldapSteriaContext = getADSteriaConnectionJV();
+		if(ldapSteriaContext==null)
+			ldapSteriaContext = getADSteriaConnectionJV();
 
-				// Create the search controls         
-				SearchControls searchCtls = new SearchControls();
-				//Specify the attributes to return
-				searchCtls.setReturningAttributes(AD_STERIA_ATTRIBUTES);
-				//Specify the search scope
-				searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-				//specify the LDAP search filter
-				
-				String searchFilter = "(targetAddress=" + email + ")";
-				
-				// Search for objects using the filter
-				NamingEnumeration<SearchResult> answer = ldapSteriaContext.search(AD_STERIA_SEARCH_TREE, searchFilter, searchCtls);
+		// Create the search controls         
+		SearchControls searchCtls = new SearchControls();
+		//Specify the attributes to return
+		searchCtls.setReturningAttributes(AD_STERIA_ATTRIBUTES);
+		//Specify the search scope
+		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		//specify the LDAP search filter
+		
+		String searchFilter = "(targetAddress=" + email + ")";
+		
+		// Search for objects using the filter
+		NamingEnumeration<SearchResult> answer = ldapSteriaContext.search(AD_STERIA_SEARCH_TREE, searchFilter, searchCtls);
 
 		// Check the results retrieved
 		try {
@@ -158,7 +158,7 @@ public class ADProfileDAO {
 			// inside the ADReporteedDAO which deals with the connection with
 			// the STERIA AD
 			try {
-				adObj = ADReporteesDAO.findManagerReportees(adObj.getUsername(), adObj);
+				adObj = ADReporteesDAO.findSteriaProfileAttributes(adObj.getUsername(), adObj);
 			} catch (Exception e) {
 				// TO BE COMPLETED!!!
 				System.err.println(e.getMessage());
@@ -181,7 +181,7 @@ public class ADProfileDAO {
 			adObj = getProfileFromSopraAD(usernameEmail);
 			// the STERIA AD
 			try {
-				adObj = ADReporteesDAO.findManagerReportees(adObj.getUsername(), adObj);
+				adObj = ADReporteesDAO.findSteriaProfileAttributes(adObj.getUsername(), adObj);
 			} catch (Exception e) {
 				// TO BE COMPLETED!!!
 				System.err.println(e.getMessage());

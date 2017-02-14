@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
+import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;

@@ -60,7 +60,7 @@ public class ADConnection_NEW implements AutoCloseable {
 	public void close() throws NamingException {
 		try {
 			connection.close();
-		} catch (NamingException | NullPointerException e) {
+		} catch (final NamingException | NullPointerException e) {
 			LOGGER.info(e.getStackTrace().toString());
 		}
 	}
