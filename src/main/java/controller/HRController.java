@@ -44,6 +44,18 @@ public class HRController
   {
     return ResponseEntity.ok(hrService.getHRData());
   }
+  
+
+  /**
+   * GET End Point - Gets overview of my career stats
+   *
+   * @return
+   */
+  @RequestMapping(value = "/getMyCareerStats", method = GET)
+  public ResponseEntity<?> getMyCareerStats()
+  {
+    return ResponseEntity.ok(hrService.getMyCareerStats());
+  }
 
   /**
    * GET End Point - Gets lists of employees and the number of feedback they have received

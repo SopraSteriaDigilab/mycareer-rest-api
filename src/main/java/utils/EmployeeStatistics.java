@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import dataStructure.Employee;
 
 /**
@@ -20,8 +18,40 @@ public class EmployeeStatistics
   public final static String[] EMPLOYEE_FIELDS = { "employeeID", "forename", "surname", "company", "superSector",
       "steriaDepartment" };
 
-  public final static String[] FEEDBACK_FIELDS = {  "feedback" };
+  /** String[] Constant - Represents fields to be used in the feedback statistics */
+  public final static String[] FEEDBACK_FIELDS = { "feedback" };
 
+  /** String[] Constant - Represents fields to be used in the objectives statistics */
+  public final static String[] OBJECTIVES_FIELDS = { "objectives" };
+
+  /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
+  public final static String[] DEVELOPMENT_NEEDS_FIELDS = { "developmentNeeds" };
+
+  /**
+   * Statistics from my career.
+   *
+   * @param users
+   * @param objectives
+   * @param devNeeds
+   * @param notes
+   * @param competencies
+   * @param feedbackRequests
+   * @param feedbacks
+   * @return
+   */
+  public Map<String, Object> getMyCareerStats(long users, long objectives, long devNeeds, long notes, long competencies,
+      long feedbackRequests, long feedbacks)
+  {
+    Map<String, Object> map = new HashMap<>();
+    map.put("totalAccounts", users);
+    map.put("usersWithObjectives", objectives);
+    map.put("usersWithDevNeeds", devNeeds);
+    map.put("usersWithNotes", notes);
+    map.put("usersWithCompetencies", competencies);
+    map.put("usersWithFeedbackRequests", feedbackRequests);
+    map.put("usersWithFeedback", feedbacks);
+    return map;
+  }
 
   /**
    * Statistics for employees given a list of employees.
@@ -58,6 +88,12 @@ public class EmployeeStatistics
     return statistics;
   }
 
+  /**
+   * Gets the standard employee details.
+   *
+   * @param employee
+   * @return
+   */
   private Map<String, Object> getBasicMap(Employee employee)
   {
     Map<String, Object> map = new HashMap<>();
@@ -68,6 +104,5 @@ public class EmployeeStatistics
     map.put("department", employee.getSteriaDepartment());
     return map;
   }
-
 
 }
