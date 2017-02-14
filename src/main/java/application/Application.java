@@ -17,7 +17,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
-@ComponentScan(basePackages = {"application","services","utils"})
+@ComponentScan(basePackages = {"application","services","utils", "controller"})
 @EnableScheduling
 public class Application {
 	

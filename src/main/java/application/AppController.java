@@ -94,23 +94,7 @@ public class AppController {
 	//HR data methods
 	
 	
-	/**
-	 * This method allows the front-end to retrieve a summary of a user's details and un-archived objectives.
-	 * 
-	 */
-	@RequestMapping(value="/getHRObjectiveData", method=GET)
-	public ResponseEntity<List<HRObjectiveData>> getHRObjectiveData(){
-		return ResponseEntity.ok(HRDataDAO.getHRObjectiveData());	
-	}	
-	
-	/**
-	 * This method allows the front-end to retrieve a totals, objective counts, and development need counts in a single API call.
-	 * 
-	 */
-	@RequestMapping(value="/getHRData", method=GET)
-	public ResponseEntity<HRData> getHRData(){
-		return ResponseEntity.ok(HRDataDAO.getHRData());
-	}
+
 	
 	//End of HR data methods
 
