@@ -1,8 +1,8 @@
-
 package services;
 
+import static utils.EmployeeStatistics.FEEDBACK_FIELDS;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +13,7 @@ import domain.HRData;
 import domain.HRDevNeedsData;
 import domain.HRObjectiveData;
 import domain.HRTotals;
+import utils.EmployeeStatistics;
 
 /**
  * HR Service class.
@@ -23,60 +24,62 @@ import domain.HRTotals;
 public class HRDataDAO
 {
 
-  private final String[] FEEDBACK_FIELDS = { "forename", "surname", "employeeID", "objectives" };
-
   private static Datastore dbConnection;
-
+  
+  private EmployeeStatistics stats = new EmployeeStatistics();
+  
+  public HRDataDAO(){}
+  
   public HRDataDAO(Datastore dbConnection)
   {
     HRDataDAO.dbConnection = dbConnection;
   }
 
-  public static long getTotalNumberOfUsers()
+  public long getTotalNumberOfUsers()
   {
     long totalAccounts = dbConnection.find(Employee.class).countAll();
     return totalAccounts;
   }
 
-  public static long getTotalUsersWithObjectives()
+  public long getTotalUsersWithObjectives()
   {
     long totalUsersWithObjectives = dbConnection.find(Employee.class).field("objectives").exists().countAll();
     return totalUsersWithObjectives;
   }
 
-  public static long getTotalUsersWithDevelopmentNeeds()
+  public long getTotalUsersWithDevelopmentNeeds()
   {
     long totalUsersWithDevelopmentNeeds = dbConnection.find(Employee.class).field("developmentNeeds").exists()
         .countAll();
     return totalUsersWithDevelopmentNeeds;
   }
 
-  public static long getTotalUsersWithNotes()
+  public long getTotalUsersWithNotes()
   {
     long totalUsersWithNotes = dbConnection.find(Employee.class).field("notes").exists().countAll();
     return totalUsersWithNotes;
   }
 
-  public static long getTotalUsersWithCompetencies()
+  public long getTotalUsersWithCompetencies()
   {
     long totalUsersWithCompetencies = dbConnection.find(Employee.class).field("competencies").exists().countAll();
     return totalUsersWithCompetencies;
   }
 
-  public static long getTotalUsersWithSubmittedFeedback()
+  public long getTotalUsersWithSubmittedFeedback()
   {
     long totalUsersWithSubmittedFeedback = dbConnection.find(Employee.class).field("feedbackRequests").exists()
         .countAll();
     return totalUsersWithSubmittedFeedback;
   }
 
-  public static long getTotalUsersWithFeedback()
+  public long getTotalUsersWithFeedback()
   {
     long totalUsersWithFeedback = dbConnection.find(Employee.class).field("feedback").exists().countAll();
     return totalUsersWithFeedback;
   }
 
-  public static HRData getHRData()
+  public HRData getHRData()
   {
     HRTotals hrTotals = getHRTotals();
 
@@ -87,7 +90,7 @@ public class HRDataDAO
     return hrData;
   }
 
-  public static HRTotals getHRTotals()
+  public HRTotals getHRTotals()
   {
     long totalAccounts = getTotalNumberOfUsers();
     long totalUsersWithObjectives = getTotalUsersWithObjectives();
@@ -101,7 +104,7 @@ public class HRDataDAO
         totalUsersWithCompetencies, totalUsersWithSubmittedFeedback, totalUsersWithFeedback);
   }
 
-  public static List<HRObjectiveData> getHRObjectiveData()
+  public List<HRObjectiveData> getHRObjectiveData()
   {
     List<HRObjectiveData> hrObjectiveList = new ArrayList<>();
     List<Employee> query = dbConnection.createQuery(Employee.class).field("objectives").exists()
@@ -118,7 +121,7 @@ public class HRDataDAO
     return hrObjectiveList;
   }
 
-  public static List<HRDevNeedsData> getHRDevNeedsData()
+  public List<HRDevNeedsData> getHRDevNeedsData()
   {
     List<HRDevNeedsData> hrDevNeedsList = new ArrayList<>();
     List<Employee> query = dbConnection.createQuery(Employee.class).field("developmentNeeds").exists()
@@ -135,24 +138,17 @@ public class HRDataDAO
     return hrDevNeedsList;
   }
 
-//  public static List<Map> getFeedbackStats()
-//  {
-//    List<Map> a = new ArrayList<>();
-//    List<Employee> query = dbConnection.createQuery(Employee.class).field("feedback").exists()
-//        .retrievedFields(true, "employeeID", "forename", "surname", "company", "superSector", "steriaDepartment").asList();
-//    // TODO
-//    for(Employee emp : query){
-//      Map<String, Object> m = new HashMap<>(); 
-//      m.put("employeeID", emp.getEmployeeID());
-//      m.put("fullName", emp.getFullName());
-//      m.put("totalFeedback", emp.getFullName());
-//      m.put("company", emp.getCompany());
-//      m.put("superSector", emp.s;
-//      m.put("department", emp.getDe());
-//      a.add(m);
-//      
-//    }
-//    return a;
-//  }
+  /**
+   * Statistics for feedback from the employees from the database.
+   *
+   * @return
+   */
+  @SuppressWarnings("rawtypes")
+  public List<Map> getFeedbackStats()
+  {
+    List<Employee> employees = dbConnection.createQuery(Employee.class).field("feedback").exists()
+        .retrievedFields(true, FEEDBACK_FIELDS).asList();
+    return stats.getFeedbackStats(employees);
+  }
 
 }

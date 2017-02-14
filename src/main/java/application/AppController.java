@@ -8,12 +8,10 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static services.validate.ValidateAppController.isValidCreateFeedbackRequest;
 
-
 import java.io.IOException;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -32,19 +30,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
-import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
-import domain.HRData;
-import domain.HRObjectiveData;
-import services.HRDataDAO;
-import services.ad.ADProfileDAO;
 import services.EmployeeDAO;
-import services.EmployeeProfileDAO_NEW;
+import services.ad.ADProfileDAO;
 import services.validate.Validate;
 
 /**
@@ -91,13 +84,6 @@ public class AppController {
 		String username = request.getRemoteUser();
 		return authenticateUserProfile(username);
 	}
-	
-	//HR data methods
-	
-	
-
-	
-	//End of HR data methods
 
 	/**
 	 * 
