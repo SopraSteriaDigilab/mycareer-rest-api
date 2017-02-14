@@ -15,9 +15,30 @@ public class EmployeeStatistics
 {
   
   /** String[] Constant - Indicates fields to be used in the feedback statistics */
-  public final static String[] FEEDBACK_FIELDS = { "forename", "surname", "employeeID", "company", "superSector",
+  public final static String[] FEEDBACK_FIELDS = { "employeeID", "forename", "surname", "company", "superSector",
       "steriaDepartment", "feedback" };
+  
+  /** String[] Constant - Indicates fields to be used in the employee statistics */
+  public final static String[] EMPLOYEE_FIELDS = {  "employeeID", "forename", "surname", "company", "superSector",
+      "steriaDepartment" };
 
+  /**
+   * Statistics for employees given a list of employees.
+   *
+   * @param employees
+   * @return 
+   */
+  @SuppressWarnings("rawtypes")
+  public List<Map> getEmployeeStats(List<Employee> employees)
+  {
+    List<Map> statistics = new ArrayList<>();
+    employees.forEach(e -> {
+      Map<String, Object> map = getBasicMap(e);
+      statistics.add(map);
+    });
+    return statistics;
+  }
+  
   /**
    * Statistics for feedback given a list of employees.
    *
@@ -29,16 +50,23 @@ public class EmployeeStatistics
   {
     List<Map> statistics = new ArrayList<>();
     employees.forEach(e -> {
-      Map<String, Object> map = new HashMap<>();
-      map.put("employeeID", e.getEmployeeID());
-      map.put("fullName", e.getFullName());
+      Map<String, Object> map = getBasicMap(e);
       map.put("totalFeedback", e.getFeedback().size());
-      map.put("company", e.getCompany());
-      map.put("superSector", e.getSuperSector());
-      map.put("department", e.getSteriaDepartment());
       statistics.add(map);
     });
     return statistics;
   }
+  
+  
+  private Map<String, Object> getBasicMap(Employee employee){
+    Map<String, Object> map = new HashMap<>();
+    map.put("employeeID", employee.getEmployeeID());
+    map.put("fullName", employee.getFullName());
+    map.put("company", employee.getCompany());
+    map.put("superSector", employee.getSuperSector());
+    map.put("department", employee.getSteriaDepartment());
+    return map;
+  }
+
 
 }

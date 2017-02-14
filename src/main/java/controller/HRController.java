@@ -55,5 +55,16 @@ public class HRController
   {
     return ResponseEntity.ok(hrService.getFeedbackStats());
   }
+  
+  /**
+   * GET End Point - Gets lists of employees with department data
+   *
+   * @return
+   */
+  @RequestMapping(value = "/getEmployeeStats", method = GET)
+  public ResponseEntity<?> getEmployeeStats()
+  {
+    return ResponseEntity.ok(hrService.getEmployeeStats());
+  }
 
 }

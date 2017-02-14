@@ -1,5 +1,6 @@
 package services;
 
+import static utils.EmployeeStatistics.EMPLOYEE_FIELDS;
 import static utils.EmployeeStatistics.FEEDBACK_FIELDS;
 
 import java.util.ArrayList;
@@ -25,11 +26,13 @@ public class HRDataDAO
 {
 
   private static Datastore dbConnection;
-  
+
   private EmployeeStatistics stats = new EmployeeStatistics();
-  
-  public HRDataDAO(){}
-  
+
+  public HRDataDAO()
+  {
+  }
+
   public HRDataDAO(Datastore dbConnection)
   {
     HRDataDAO.dbConnection = dbConnection;
@@ -149,6 +152,18 @@ public class HRDataDAO
     List<Employee> employees = dbConnection.createQuery(Employee.class).field("feedback").exists()
         .retrievedFields(true, FEEDBACK_FIELDS).asList();
     return stats.getFeedbackStats(employees);
+  }
+
+  /**
+   * Statistics for employees from the database.
+   *
+   * @return
+   */
+  @SuppressWarnings("rawtypes")
+  public List<Map> getEmployeeStats()
+  {
+    List<Employee> employees = dbConnection.createQuery(Employee.class).retrievedFields(true, EMPLOYEE_FIELDS).asList();
+    return stats.getEmployeeStats(employees);
   }
 
 }
