@@ -69,6 +69,10 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			String email,
 			String username,
 			String company,
+			String superSector,
+			String sector,
+			String steriaDepartment,
+			String sopraDepartment,
 			String team,
 			boolean isManager,
 			boolean hasHRDash,
@@ -79,7 +83,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			List<FeedbackRequest> requests,
 			List<List<Competency>> competencies,
 			List<String> reportees) throws InvalidAttributeValueException{
-		super(employeeID, guid, name, surname,email,username,company,team,isManager,hasHRDash,reportees);
+		super(employeeID, guid, name, surname,email,username,company,superSector,sector,steriaDepartment,sopraDepartment,team,isManager,hasHRDash,reportees);
 		this.setFeedback(feeds);
 		this.setObjectiveList(objectives);
 		this.setNoteList(notes);
@@ -96,6 +100,10 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				userData.getEmailAddress(),
 				userData.getUsername(), 
 				userData.getCompany(),
+				userData.getSuperSector(),
+				userData.getSector(),
+				userData.getSteriaDepartment(),
+				userData.getSopraDepartment(),
 				userData.getTeam(), 
 				userData.getIsManager(),
 				userData.getHasHRDash(),
@@ -990,6 +998,34 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			//Update the counter and the user data
 			itemsUpdated++;
 			this.setCompany(data.getCompany());
+		}
+		
+		//Check the super sector
+		if(!this.getSuperSector().equals(data.getSuperSector())){
+			//Update the counter and the user data
+			itemsUpdated++;
+			this.setSuperSector(data.getSuperSector());
+		}
+		
+		//Check the sector
+		if(!this.getSector().equals(data.getSector())){
+			//Update the counter and the user data
+			itemsUpdated++;
+			this.setSector(data.getSector());
+		}
+		
+		// Check the Steria department
+		if(!this.getSteriaDepartment().equals(data.getSteriaDepartment())){
+			//Update the counter and the user data
+			itemsUpdated++;
+			this.setSteriaDepartment(data.getSteriaDepartment());
+		}
+		
+		//Check the Sopra department
+		if(!this.getSopraDepartment().equals(data.getSopraDepartment())){
+			//Update the counter and the user data
+			itemsUpdated++;
+			this.setSopraDepartment(data.getSopraDepartment());
 		}
 
 		//Check the team

@@ -56,7 +56,7 @@ public final class EmployeeProfileDAO_NEW {
 																.append(",")
 																.append(AD_STERIA_LOGIN_TREE)
 																.toString();
-	private static final String[] AD_STERIA_ATTRIBUTES = {"directReports", "sn","givenName", "mail", "targetAddress","company", "sAMAccountName","department"};
+	private static final String[] AD_STERIA_ATTRIBUTES = {"directReports", "sn","givenName", "mail", "targetAddress","company", "sAMAccountName","department", "ou", "SteriaSectorUnit"};
 	
 	// Other AD settings
 	private static final String AUTHENTICATION = "simple";
@@ -153,9 +153,7 @@ public final class EmployeeProfileDAO_NEW {
 		}
 	}
 	
-	private static ADProfile_Advanced getProfileFromSopraAD(String email) throws NamingException, InvalidAttributeValueException {
-		final ADProfile_Advanced adObj = new ADProfile_Advanced();
-		
+	private static ADProfile_Advanced getProfileFromSopraAD(String email, ADProfile_Advanced adObj) throws NamingException, InvalidAttributeValueException {
 		//specify the LDAP search filter
 		String searchFilter="";
 		
@@ -199,6 +197,7 @@ public final class EmployeeProfileDAO_NEW {
 			adObj.setEmailAddress((String)attrs.get("mail").get());
 			adObj.setUsername((String)attrs.get("sAMAccountName").get());
 			adObj.setCompany((String) attrs.get("company").get());
+			adObj.setSopraDepartment((String) attrs.get("department").get());
 			adObj.setTeam((String) attrs.get("department").get());
 			
 		} catch (NoSuchElementException | NullPointerException e) { // There is no  matching user in the Active Directory.
@@ -212,7 +211,7 @@ public final class EmployeeProfileDAO_NEW {
 	}
 
 	private static ADProfile_Advanced authenticateJVEmail(String email) throws NamingException, InvalidAttributeValueException {
-		ADProfile_Advanced adObj = null;
+		ADProfile_Advanced adObj = new ADProfile_Advanced();
 		
 		final String searchFilter = "(targetAddress=" + email + ")";
 		
@@ -220,8 +219,8 @@ public final class EmployeeProfileDAO_NEW {
 		try (final ADConnection_NEW connection = new ADConnection_NEW(STERIA_ENVIRONMENT_SETTINGS)) {
 			final Attributes attrs = connection.searchAD(AD_STERIA_ATTRIBUTES, AD_STERIA_SEARCH_TREE, searchFilter);			
 			
-			adObj = getProfileFromSopraAD((String) attrs.get("sAMAccountName").get());
-			addManagerReportees(adObj.getUsername(), adObj);
+			getProfileFromSopraAD((String) attrs.get("sAMAccountName").get(), adObj);
+			getProfileFromSteriaAD(adObj.getUsername(), adObj);
 			
 		} catch (NoSuchElementException | NullPointerException e) {
 			throw new InvalidAttributeValueException(NOTFOUND_EMAILORUSERNAME_AD.concat(email));
@@ -231,10 +230,11 @@ public final class EmployeeProfileDAO_NEW {
 	}
 
 	private static ADProfile_Advanced authenticateSSEmailUserName(String usernameEmail) throws NamingException, InvalidAttributeValueException {
-		ADProfile_Advanced adObj = getProfileFromSopraAD(usernameEmail);
+		final ADProfile_Advanced adObj = new ADProfile_Advanced();
+		getProfileFromSopraAD(usernameEmail, adObj);
 		
 		try {
-			addManagerReportees(adObj.getUsername(), adObj);
+			getProfileFromSteriaAD(adObj.getUsername(), adObj);
 		} catch (Exception e) {
 			// TODO handle!
 			System.err.println(e.getMessage());
@@ -243,18 +243,24 @@ public final class EmployeeProfileDAO_NEW {
 		return adObj;
 	}
 	
-	private static ADProfile_Advanced addManagerReportees(String username, ADProfile_Advanced userData) throws NamingException, InvalidAttributeValueException {
+	private static ADProfile_Advanced getProfileFromSteriaAD(String username, ADProfile_Advanced userData) throws NamingException, InvalidAttributeValueException {
 		if (username == null || username.length() < 2 || userData == null) {
 			throw new InvalidAttributeValueException(INVALID_CONTEXT_USERNAME);
 		}
 		
 		final String searchFilter="(sAMAccountName=" + username + ")";
 		Attribute directReports = null;
+		String superSector = null;
+		String sector = null;
+		String steriaDepartment = null;
 		boolean isManager = false;
 		
 		try (final ADConnection_NEW connection = new ADConnection_NEW(STERIA_ENVIRONMENT_SETTINGS)) {
 			final Attributes attrs = connection.searchAD(AD_STERIA_ATTRIBUTES, AD_STERIA_SEARCH_TREE, searchFilter);
 			directReports = attrs.get("directReports");
+			superSector = (String) attrs.get("ou").get();
+			sector = ((String) attrs.get("SteriaSectorUnit").get()).substring(3);
+			steriaDepartment = (String) attrs.get("department").get();
 		} catch (final NoSuchElementException nsee) {
 			throw new InvalidAttributeValueException(NOTFOUND_USERNAME_AD.concat(username));
 		}
@@ -275,6 +281,9 @@ public final class EmployeeProfileDAO_NEW {
 		}
 		
 		userData.setIsManager(isManager);
+		userData.setSuperSector(superSector);
+		userData.setSector(sector);
+		userData.setSteriaDepartment(steriaDepartment);
 		
 		return userData;
 	}

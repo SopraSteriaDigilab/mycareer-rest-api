@@ -29,7 +29,7 @@ public class ADReporteesDAO {
 	private static DirContext ldapContext;
 
 	@SuppressWarnings("unchecked")
-	public static ADProfile_Advanced findManagerReportees(String username, ADProfile_Advanced userData) throws NamingException, InvalidAttributeValueException {
+	public static ADProfile_Advanced findSteriaProfileAttributes(String username, ADProfile_Advanced userData) throws NamingException, InvalidAttributeValueException {
 		//Verify the given string
 		if(username==null || username.length()<2 || userData==null)
 			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERNAME);
@@ -69,6 +69,10 @@ public class ADReporteesDAO {
 				//If if goes here, it means the user is not a manager
 				userData.setIsManager(false);
 			}
+			
+			userData.setSector(((String) attrs.get("SteriaSectorUnit").get()).substring(3));
+			userData.setSteriaDepartment((String) attrs.get("department").get());
+			userData.setSuperSector((String) attrs.get("ou").get());
 			//Close the connection with the AD
 			ldapContext.close();
 			ldapContext=null;

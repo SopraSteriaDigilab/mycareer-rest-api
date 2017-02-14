@@ -1,5 +1,7 @@
 package dataStructure;
 
+import static dataStructure.Constants.*;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,15 +23,25 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	//Global Constant
 	private static final long serialVersionUID = -5982675570485578676L;
 	//Global Variables
-	private String GUID, company, team ; 
+	private String GUID;
+	private String team;
+	private String sopraDepartment;
+	private String steriaDepartment;
+	private String sector;
+	private String superSector;
+	private String company;
 	private List<String> reporteeCNs;
 
 	//Empty Constructor
 	public ADProfile_Advanced(){
-		this.company=Constants.INVALID_STRING;
-		this.team=Constants.INVALID_STRING;
-		this.GUID=Constants.INVALID_STRING;
-		this.reporteeCNs=new ArrayList<String>();
+		company = INVALID_STRING;
+		superSector = INVALID_STRING;
+		sector = INVALID_STRING;
+		steriaDepartment = INVALID_STRING;
+		sopraDepartment = INVALID_STRING;
+		team = INVALID_STRING;
+		GUID = INVALID_STRING;
+		reporteeCNs=new ArrayList<String>();
 	}
 
 	//Constructor with parameters
@@ -41,15 +53,67 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 			String emailAddress,
 			String username,
 			String company,
+			String superSector,
+			String sector,
+			String steriaDepartment,
+			String sopraDepartment,
 			String team,
 			boolean isManager,
 			boolean hasHRDash,
 			List<String> reps) throws InvalidAttributeValueException{
 		super(employeeID, surname, name, isManager, username, emailAddress, hasHRDash);
-		this.setGUID(guid);
-		this.setCompany(company);
-		this.setTeam(team);
-		this.setReporteeCNs(reps);
+		setGUID(guid);
+		setCompany(company);
+		setSuperSector(superSector);
+		setSector(sector);
+		setSteriaDepartment(steriaDepartment);
+		setSopraDepartment(sopraDepartment);
+		setTeam(team);
+		setReporteeCNs(reps);
+	}
+
+	public String getSopraDepartment() {
+		return sopraDepartment;
+	}
+
+	public String getSteriaDepartment() {
+		return steriaDepartment;
+	}
+
+	public String getSector() {
+		return sector;
+	}
+
+	public void setSteriaDepartment(String steriaDepartment) throws InvalidAttributeValueException {
+		if (steriaDepartment != null && steriaDepartment.length() > 0 && steriaDepartment.length() < 150) {
+			this.steriaDepartment = steriaDepartment;
+		} else {
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_COMPANY);
+		}
+	}
+
+	public void setSector(String sector) throws InvalidAttributeValueException {
+		if (sector != null && sector.length() > 0 && sector.length() < 15) {
+			this.sector = sector;
+		} else {
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_COMPANY);
+		}
+	}
+
+	public void setSopraDepartment(String sopraDepartment)  throws InvalidAttributeValueException {
+		if (sopraDepartment != null && sopraDepartment.length() > 0 && sopraDepartment.length() < 150) {
+			this.sopraDepartment = sopraDepartment;
+		} else {
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_COMPANY);
+		}
+	}
+
+	public void setSuperSector(String superSector)  throws InvalidAttributeValueException {
+		if (superSector != null && superSector.length() > 0 && superSector.length() < 150) {
+			this.superSector = superSector;
+		} else {
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_COMPANY);
+		}
 	}
 
 	/**
@@ -57,11 +121,12 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	 * @param guid this is a unique value created for each employee of the company 
 	 * @throws InvalidAttributeValueException
 	 */
-	public void setGUID(String guid) throws InvalidAttributeValueException{
-		if(guid!=null && guid.length()>0)
+	public void setGUID(String guid) throws InvalidAttributeValueException {
+		if (guid != null && guid.length() > 0) {
 			this.GUID=guid;
-		else
-			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_GUID);
+		} else {
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_GUID);
+		}
 	}
 
 	public String getGUID(){
@@ -74,10 +139,11 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	 * @throws InvalidAttributeValueException
 	 */
 	public void setCompany(String com) throws InvalidAttributeValueException{
-		if(com!=null && com.length()>0 && com.length()<150)
+		if (com != null && com.length() > 0 && com.length() < 150) {
 			this.company=com;
-		else
-			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_COMPANY);
+		} else {
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_COMPANY);
+		}
 	}
 
 	public String getCompany(){
@@ -93,7 +159,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 		if(team!=null && team.length()>0 && team.length()<150)
 			this.team=team;
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_TEAM);
+			throw new InvalidAttributeValueException(INVALID_CONTEXT_TEAM);
 	}
 
 	public String getTeam(){
@@ -117,7 +183,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 			}
 		}
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLREPORTEESLIST);
+			throw new InvalidAttributeValueException(INVALID_NULLREPORTEESLIST);
 	}
 
 	public List<String> getReporteeCNs(){
@@ -137,7 +203,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 		if(cn!=null && cn.length()>1)
 			return reporteeCNs.add(cn);
 		else
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLREPORTEE);
+			throw new InvalidAttributeValueException(INVALID_NULLREPORTEE);
 	}
 	
 	public String toGson(){
@@ -162,4 +228,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 		return s;
 	}
 
+	public String getSuperSector() {
+		return superSector;
+	}
 }
