@@ -1,0 +1,8 @@
+Hello,
+
+Your colleague {0} has replied to your feedback request.
+Login to the MyCareer website at MyCareer at http://mycareer.uk.corp.sopra/, or at https://portal.soprasteria.com/dana/home/launch.cgi?url=http%3A%2F%2Fmycareer.uk.corp.sopra%3A8080%2Fportal if you are not based in a Sopra Steria office to find out what they said.
+
+Regards,
+
+The MyCareer Team

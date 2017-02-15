@@ -1,12 +1,13 @@
-package services;
+package application;
 
 import static dataStructure.Constants.UK_TIMEZONE;
+import static org.springframework.http.ResponseEntity.badRequest;
+import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static services.validate.ValidateAppController.isValidCreateFeedbackRequest;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.HashSet;
@@ -19,6 +20,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,15 +38,18 @@ import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
-import externalServices.ad.ADProfileDAO;
-import externalServices.ews.SMTPService;
-import externalServices.mongoDB.EmployeeDAO;
-//import externalServices.mongoDB.HrDataDAO;
+import services.EmployeeDAO;
+import services.ad.ADProfileDAO;
+import services.ews.EmailService;
+import services.validate.Validate;
+import utils.Template;
 
 /**
  * 
  * @author Michael Piccoli
  * @author Christopher Kai
+ * @author Ridhwan Nacef
+ * @author Mehmet Mehmet
  * @version 1.0
  * @since 10th October 2016
  * 
@@ -51,13 +58,20 @@ import externalServices.mongoDB.EmployeeDAO;
  */
 @CrossOrigin
 @RestController
+@PropertySource("${ENVIRONMENT}.properties")
 public class AppController {
-	
-	private static final Logger logger = LoggerFactory.getLogger(AppController.class);
+  
+  /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
+  private static final Logger logger = LoggerFactory.getLogger(AppController.class);
+  
+  /** Environment Property - Reference to environment to get property details. */
+  @Autowired
+  private  Environment env;
+  
 	
 	@RequestMapping(value="/", method = GET)
-	public ResponseEntity<?> welcomePage(){
-		return ResponseEntity.ok("Welcome to the MyCareer Project :)");
+	public ResponseEntity<String> welcomePage() {
+		return ok("Welcome to the MyCareer Project");
 	}
 	
 	@RequestMapping(value="/portal", method = GET)
@@ -81,38 +95,6 @@ public class AppController {
 		String username = request.getRemoteUser();
 		return authenticateUserProfile(username);
 	}
-	
-	//HR data methods
-	/**
-	 * This method allows the front-end to retrieve the number of Employees who exist within the database
-	 * 
-	 */
-//	@RequestMapping(value="/getTotalAccounts", method = GET)
-//	public ResponseEntity<Long> getTotalAccounts(){
-//		return ResponseEntity.ok(HrDataDAO.getTotalNumberOfUsers());
-//	}//RequestMapping getTotalAccounts
-//	
-//	/**
-//	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one objective created.
-//	 * 
-//	 */
-//	@RequestMapping(value="/getTotalAccountsWithObjectives", method = GET)
-//	public ResponseEntity<Long> getTotalAccountsWithObjectives(){
-//		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithObjectives());
-//	}//RequestMapping getTotalAccounts
-//	
-//	/**
-//	 * This method allows the front-end to retrieve the number of Employees who exist within the database and have at least one development need created.
-//	 * 
-//	 */
-//	@RequestMapping(value="/getTotalAccountsWithDevelopmentNeeds", method = GET)
-//	public ResponseEntity<Long> getTotalAccountsWithDevelopmentNeeds(){
-//		return ResponseEntity.ok(HrDataDAO.getTotalUsersWithDevelopmentNeeds());
-//	}//RequestMapping getTotalAccounts
-//	
-	
-	
-	
 
 	/**
 	 * 
@@ -126,16 +108,16 @@ public class AppController {
 		if(employeeID>0)
 			try {
 				//Retrieve and return the objectives from the system
-				return ResponseEntity.ok(EmployeeDAO.getObjectivesForUser(employeeID));
+				return ok(EmployeeDAO.getObjectivesForUser(employeeID));
 			}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
+			return badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -149,16 +131,16 @@ public class AppController {
 	public ResponseEntity<?> getFeedback(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
-				return ResponseEntity.ok(EmployeeDAO.getFeedbackForUser(employeeID));
+				return ok(EmployeeDAO.getFeedbackForUser(employeeID));
 			}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
+			return badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -172,17 +154,17 @@ public class AppController {
 	public ResponseEntity<?> getNotes(@PathVariable long employeeID){
 		if(employeeID>0){
 			try{
-				return ResponseEntity.ok(EmployeeDAO.getNotesForUser(employeeID));
+				return ok(EmployeeDAO.getNotesForUser(employeeID));
 			}
 			catch(MongoException me){
-				return ResponseEntity.badRequest().body("DataBase Connection Error");
+				return badRequest().body("DataBase Connection Error");
 			}
 			catch(Exception e){
-				return ResponseEntity.badRequest().body(e.getMessage());
+				return badRequest().body(e.getMessage());
 			}
 		}
 		else
-			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
+			return badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -196,16 +178,16 @@ public class AppController {
 	public ResponseEntity<?> getDevelomentNeeds(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
-				return ResponseEntity.ok(EmployeeDAO.getDevelopmentNeedsForUser(employeeID));
+				return ok(EmployeeDAO.getDevelopmentNeedsForUser(employeeID));
 			}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
+			return badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -219,13 +201,13 @@ public class AppController {
 	public ResponseEntity<?> getCompetencies(
 			@PathVariable("employeeID") long employeeID){
 		try{
-			return ResponseEntity.ok(EmployeeDAO.getCompetenciesForUser(employeeID));
+			return ok(EmployeeDAO.getCompetenciesForUser(employeeID));
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -239,13 +221,13 @@ public class AppController {
 	@RequestMapping(value="/getReportees/{employeeID}", method = GET)
 	public ResponseEntity<?> getReportees(@PathVariable long employeeID){
 		try{
-			return ResponseEntity.ok(EmployeeDAO.getReporteesForUser(employeeID));
+			return ok(EmployeeDAO.getReporteesForUser(employeeID));
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -253,16 +235,16 @@ public class AppController {
 	public ResponseEntity<?> getAllUserData(@PathVariable long employeeID){
 		if(employeeID>0)
 			try{
-				return ResponseEntity.ok(EmployeeDAO.getAllUserDataFromID(employeeID));
+				return ok(EmployeeDAO.getAllUserDataFromID(employeeID));
 			}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 		else
-			return ResponseEntity.badRequest().body(Constants.INVALID_CONTEXT_USERID);
+			return badRequest().body(Constants.INVALID_CONTEXT_USERID);
 	}
 
 	/**
@@ -292,15 +274,15 @@ public class AppController {
 			obj.setProposedBy(proposedBy);
 			boolean inserted=EmployeeDAO.insertNewObjective(employeeID,obj);
 			if(inserted)
-				return ResponseEntity.ok("Objective inserted correctly");
+				return ok("Objective inserted correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while adding the objective");
+				return badRequest().body("Error while adding the objective");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -334,15 +316,15 @@ public class AppController {
 			obj.setProposedBy(proposedBy);
 			boolean inserted=EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj);
 			if(inserted)
-				return ResponseEntity.ok("Objective modified correctly");
+				return ok("Objective modified correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while editing the objective");
+				return badRequest().body("Error while editing the objective");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 	
@@ -354,15 +336,15 @@ public class AppController {
 		try{
 			boolean inserted=EmployeeDAO.updateProgressObjective(employeeID, objectiveID, progress);
 			if(inserted)
-				return ResponseEntity.ok("Objective modified correctly");
+				return ok("Objective modified correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while editing the objective");
+				return badRequest().body("Error while editing the objective");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -384,7 +366,7 @@ public class AppController {
 			//Retrieve the object with the given ID from the DB data
 			Objective obj=EmployeeDAO.getSpecificObjectiveForUser(employeeID, objectiveID);
 			if(obj.getIsArchived()==isArchived) {
-				return ResponseEntity.ok("The status of the objective has not changed");
+				return ok("The status of the objective has not changed");
 			}
 //			//Create a new object which stores the data from the retrieved element but sets a new timestamp to it
 //			Objective newObjUpdated=new Objective(obj);
@@ -396,19 +378,19 @@ public class AppController {
 			boolean inserted = EmployeeDAO.addNewVersionObjective(employeeID, objectiveID, obj);
 			if(inserted) {
 				if(updatedArchiveStatus) {
-					return ResponseEntity.ok("The objective has been archived");
+					return ok("The objective has been archived");
 				} else {
-					return ResponseEntity.ok("The objective has been restored");
+					return ok("The objective has been restored");
 				}
 			} else {
-				return ResponseEntity.badRequest().body("Error while editing the objective");
+				return badRequest().body("Error while editing the objective");
 			}
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -431,18 +413,44 @@ public class AppController {
 		try{
 			Note obj=new Note(1, noteType, linkID, body,from);
 			boolean inserted=EmployeeDAO.insertNewNote(employeeID,obj);
-			if(inserted)
-				return ResponseEntity.ok("Note inserted correctly");
+			if(inserted){
+				return ok("Note inserted correctly");
+				
+			}
 			else
-				return ResponseEntity.badRequest().body("Error while adding the Note");
+				return badRequest().body("Error while adding the Note");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
+	
+  /**
+   * POST End Point - adds note to reportee
+   *
+   * @param employeeID
+   * @param reporteeEmployeeID
+   * @param body
+   * @return
+   */
+  @RequestMapping(value = "/addNoteToReportee/{reporteeEmployeeID}", method = POST)
+  public ResponseEntity<?> addNoteToReportee(@PathVariable long reporteeEmployeeID, @RequestParam String from,
+      @RequestParam String body)
+  {
+    try
+    {
+      EmployeeDAO.insertNewNoteForReportee(reporteeEmployeeID, from, body);
+      return ok("Note inserted correctly");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+	
 
 	/**
 	 * 
@@ -466,15 +474,15 @@ public class AppController {
 			Note obj=new Note(noteID, noteType, linkID, body,from);
 			boolean inserted=EmployeeDAO.addNewVersionNote(employeeID, noteID, obj);
 			if(inserted)
-				return ResponseEntity.ok("Note modified correctly");
+				return ok("Note modified correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while editing the Note");
+				return badRequest().body("Error while editing the Note");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -499,15 +507,15 @@ public class AppController {
 			DevelopmentNeed obj=new DevelopmentNeed(1,0,cat,title,description,timeToCompleteBy);
 			boolean inserted=EmployeeDAO.insertNewDevelopmentNeed(employeeID,obj);
 			if(inserted)
-				return ResponseEntity.ok("Development need inserted correctly");
+				return ok("Development need inserted correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while adding the Development need");
+				return badRequest().body("Error while adding the Development need");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -535,15 +543,15 @@ public class AppController {
 			DevelopmentNeed obj=new DevelopmentNeed(devNeedID,progress,cat,title,description,timeToCompleteBy);
 			boolean inserted=EmployeeDAO.addNewVersionDevelopmentNeed(employeeID, devNeedID, obj);
 			if(inserted)
-				return ResponseEntity.ok("Development need modified correctly");
+				return ok("Development need modified correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while editing the Development need");
+				return badRequest().body("Error while editing the Development need");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -556,93 +564,90 @@ public class AppController {
 		try{
 			boolean inserted=EmployeeDAO.updateProgressDevelopmentNeed(employeeID, devNeedID, progress);
 			if(inserted)
-				return ResponseEntity.ok("DevelopmentNeed modified correctly");
+				return ok("DevelopmentNeed modified correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while editing the developmentNeed");
+				return badRequest().body("Error while editing the developmentNeed");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 	
-	/**
-	 * 
-	 * @param employeeID the employee ID (>0)
-	 * @param toFields an array containing the email addresses, separated by commas (max 20 elements)
-	 * @param notes a string of max 1000 characters containing any additional notes to add to the feedback request email
-	 * @return a message explaining whether the feedback request has been sent or if there was an error while completing the task
-	 */
-	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method = POST)
-	public ResponseEntity<?> createFeedbackRequest(
-			@PathVariable("employeeID") long employeeID,
-			@RequestParam(value="emailsTo") String toFields,
-			@RequestParam(value="notes") String notes){
-		try{
-			//Split the email addresses from the toField into single elements
-			String[] emailAddressesToField=toFields.split(",");
-			for(int i=0; i<emailAddressesToField.length; i++){
-				emailAddressesToField[i]=emailAddressesToField[i].trim();
-			}
-			if(emailAddressesToField[0].length()<1)
-				return ResponseEntity.badRequest().body("No recipients inserted");
-			int attemptsCounter=1;
-			boolean done=SMTPService.tryToSendFeedbackRequest(attemptsCounter, employeeID, notes, emailAddressesToField);
-			if(done)
-				return ResponseEntity.ok("Your feedback request has been processed.");
-			else
-				return ResponseEntity.badRequest().body("Error while creating a feedback request");
-		}
-		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
-	
-	
-//	@RequestMapping(value="/fullNameFeedbackPV/{employeeID}", method = POST)
-//	public ResponseEntity<?> retrieveNames(
+//	/**
+//	 * 
+//	 * @param employeeID the employee ID (>0)
+//	 * @param toFields an array containing the email addresses, separated by commas (max 20 elements)
+//	 * @param notes a string of max 1000 characters containing any additional notes to add to the feedback request email
+//	 * @return a message explaining whether the feedback request has been sent or if there was an error while completing the task
+//	 */
+//
+//	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method=RequestMethod.POST)
+//	public ResponseEntity<?> createFeedbackRequest(
 //			@PathVariable("employeeID") long employeeID,
-//			@RequestParam(value="emailsTo") String toFields){
+//			@RequestParam(value="emailsTo") String toFields,
+//			@RequestParam(value="notes") String notes){
 //		try{
-//			String type = "";
-//			ADProfile_Basic adObj=new ADProfile_Basic();
-//						//Find the full name of the employee providing the feedback from the AD
-//				try{
-//					adObj=ADProfileDAO.authenticateUserProfile(toFields);
-//				}
-//				catch(Exception e){
-//					return ResponseEntity.badRequest().body(" Error while finding the full name of the feedback provider");
-//				}
-//		
-//			
-//				return ResponseEntity.ok("Full Name: " + adObj.getFullName());
+//			//Split the email addresses from the toField into single elements
+//			String[] emailAddressesToField=toFields.split(",");
+//			for(int i=0; i<emailAddressesToField.length; i++){
+//				emailAddressesToField[i]=emailAddressesToField[i].trim();
+//			}
+//			if(emailAddressesToField[0].length()<1)
+//				return badRequest().body("No recipients inserted");
+//			int attemptsCounter=1;
+//			boolean done=SMTPService.tryToSendFeedbackRequest(attemptsCounter, employeeID, notes, emailAddressesToField);
+//			if(done)
+//				return ok("Your feedback request has been processed.");
+//			else
+//				return badRequest().body("Error while creating a feedback request");
 //		}
 //		catch(Exception e){
-//			return ResponseEntity.badRequest().body(e.getMessage());
+//			return badRequest().body(e.getMessage());
 //		}
 //	}
 	
+  @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
+  public ResponseEntity<String> createFeedbackRequest(@PathVariable("employeeID") long employeeID,
+      @RequestParam(value = "emailsTo") String toFields, @RequestParam(value = "notes") String notes)
+  {
+    try
+    {
+      isValidCreateFeedbackRequest(employeeID, toFields, notes);
+      EmployeeDAO.processFeedbackRequest(employeeID, toFields, notes);
+      return ok("Your feedback request has been processed.");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+    catch (Exception e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+	
 
-	/**
-	 * 
-	 * @param employeeID the employee ID
-	 * @return all the feedback requests created by the given user
-	 */
-	@RequestMapping(value="/getRequestedFeedback/{employeeID}", method = GET)
-	public ResponseEntity<?> getGroupFeedbackRequests(
-			@PathVariable("employeeID") long employeeID){
-		try{
-			return ResponseEntity.ok(EmployeeDAO.getGroupFeedbackRequestsForUser(employeeID));
-		}
-		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
-		}
-		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+//	/**
+//	 * 
+//	 * @param employeeID the employee ID
+//	 * @return all the feedback requests created by the given user
+//	 */
+//	@RequestMapping(value="/getRequestedFeedback/{employeeID}", method=RequestMethod.GET)
+//	public ResponseEntity<?> getGroupFeedbackRequests(
+//			@PathVariable("employeeID") long employeeID){
+//		try{
+//			return ok(EmployeeDAO.getGroupFeedbackRequestsForUser(employeeID));
+//		}
+//		catch(MongoException me){
+//			return badRequest().body("DataBase Connection Error");
+//		}
+//		catch(Exception e){
+//			return badRequest().body(e.getMessage());
+//		}
+//	}
 
 	/**
 	 * 
@@ -659,22 +664,22 @@ public class AppController {
 			@RequestParam(value="status") boolean status){
 		try{
 			if(title==null || title.length()<1 || title.length()>200)
-				return ResponseEntity.badRequest().body("The given title is invalid");
+				return badRequest().body("The given title is invalid");
 			int index=Constants.getCompetencyIDGivenTitle(title);
 			if(index<0)
-				return ResponseEntity.badRequest().body("The given title does not match any valid competency");
+				return badRequest().body("The given title does not match any valid competency");
 			Competency obj=new Competency(index,status);
 			boolean inserted=EmployeeDAO.addNewVersionCompetency(employeeID,obj,title);
 			if(inserted)
-				return ResponseEntity.ok("Competency updated correctly");
+				return ok("Competency updated correctly");
 			else
-				return ResponseEntity.badRequest().body("Error while updating the Competency");
+				return badRequest().body("Error while updating the Competency");
 		}
 		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
+			return badRequest().body("DataBase Connection Error");
 		}
 		catch(Exception e){
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		}
 	}
 
@@ -682,15 +687,15 @@ public class AppController {
 	public ResponseEntity<?> authenticateUserProfile(@RequestParam(value="userName_Email") String userName){
 		try {
 			if(userName!=null && !userName.equals("") && userName.length()<300 ){
-				return ResponseEntity.ok(ADProfileDAO.authenticateUserProfile(userName));
+				return ok(ADProfileDAO.authenticateUserProfile(userName));
 			}else{
-				return ResponseEntity.badRequest().body("The username given is invalid");
+				return badRequest().body("The username given is invalid");
 			}
 		} catch (InvalidAttributeValueException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return badRequest().body(e.getMessage());
 		} catch (NamingException e){
-			//			return ResponseEntity.badRequest().body("AD Connection Error");
-			return ResponseEntity.badRequest().body(e.toString());
+			//			return badRequest().body("AD Connection Error");
+			return badRequest().body(e.toString());
 		}	
 	}
 
@@ -725,7 +730,7 @@ public class AppController {
 		try {
 
 			//Check that input variables are not empty
-			areInputValuesEmpty(title, description, completedBy);
+			Validate.areStringsEmptyorNull(title, description, completedBy);
 
 			//Get email addresses and check they are not empty and limit to 20
 			String[] emailAddresses=emails.split(",");
@@ -744,9 +749,12 @@ public class AppController {
 			if(temp.isBefore(YearMonth.now(ZoneId.of(UK_TIMEZONE)))){
 				throw new InvalidAttributeValueException("Date can not be in the past");
 			}
-
+			
 			//get user and loop through emails and add objective
 			String proposedBy=EmployeeDAO.getFullNameUser(employeeID);
+			
+			String subject = String.format("Proposed Objective from %s", proposedBy);
+			
 			for(String email : emailSet){
 				try{
 					ADProfile_Basic userInQuestion = ADProfileDAO.authenticateUserProfile(email);
@@ -756,6 +764,17 @@ public class AppController {
 					if(inserted){
 						insertAccepted = true;
 						result+=  userInQuestion.getFullName() +", ";
+
+						try
+            {
+						  String body = Template.populateTemplate(env.getProperty("templates.objective.proposed"), proposedBy);
+              EmailService.sendEmail(email, subject, body);
+            }
+            catch (Exception e)
+            {
+              logger.error("Email could not be sent for a proposed objective. Error: {}", e);
+            }
+						
 					} else{
 						errorInserting = true;
 						errorResult+= "Could not send to " + userInQuestion.getEmployeeID() +", ";
@@ -772,49 +791,39 @@ public class AppController {
 				result += errorResult;
 			}
 
-			return ResponseEntity.ok(result);
+			return ok(result);
 
 		} catch (InvalidAttributeValueException e) {
 			if(!insertAccepted){ result = ""; }
-			return ResponseEntity.badRequest().body(result + e.getMessage()  +", ");
+			return badRequest().body(result + e.getMessage()  +", ");
 		} catch (NamingException e) {
 			if(!insertAccepted){ result = ""; }
-			return ResponseEntity.badRequest().body(result + e.getMessage()  +", ");
+			return badRequest().body(result + e.getMessage()  +", ");
 		} 
 	}
 
 
-	/**
-	 * Gets all IDs and Titles for each Objective, Competency,Feedback, Development need,
-	 * and team member for this {@code employeeID}.
-	 * 
-	 * @param employeeID
-	 */
-	@RequestMapping(value="/getIDTitlePairs/{employeeID}", method = GET)
-	public ResponseEntity<?> getIDTitlePairs(@PathVariable long employeeID){
-		if(employeeID>0)
-			try {
-				//Retrieve and return the ID Title pairs from the system
-				return ResponseEntity.ok(EmployeeDAO.getIDTitlePairsDataStructure(employeeID));
-			}
-		catch(MongoException me){
-			return ResponseEntity.badRequest().body("DataBase Connection Error");
-		}
-		catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-		else
-			return ResponseEntity.badRequest().body("The given ID is invalid");
-	}
-
-
-
-	private void areInputValuesEmpty(String... args) throws InvalidAttributeValueException{
-		for(String str : args){
-			if(str.length() < 1 || str.isEmpty()){
-				throw new InvalidAttributeValueException("One or more of the values are empty.");
-			}
-		}
-	}
+//	/**
+//	 * Gets all IDs and Titles for each Objective, Competency,Feedback, Development need,
+//	 * and team member for this {@code employeeID}.
+//	 * 
+//	 * @param employeeID
+//	 */
+//	@RequestMapping(value="/getIDTitlePairs/{employeeID}", method = GET)
+//	public ResponseEntity<?> getIDTitlePairs(@PathVariable long employeeID){
+//		if(employeeID>0)
+//			try {
+//				//Retrieve and return the ID Title pairs from the system
+//				return ok(EmployeeDAO.getIDTitlePairsDataStructure(employeeID));
+//			}
+//		catch(MongoException me){
+//			return badRequest().body("DataBase Connection Error");
+//		}
+//		catch (Exception e) {
+//			return badRequest().body(e.getMessage());
+//		}
+//		else
+//			return badRequest().body("The given ID is invalid");
+//	}
 
 }

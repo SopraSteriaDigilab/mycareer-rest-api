@@ -1,4 +1,4 @@
-package services;
+package application;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
 
-import externalServices.mongoDB.EmployeeDAO;
+import services.EmployeeDAO;
 
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
@@ -65,6 +65,6 @@ public class EnvironmentSetup {
 	
 	@Bean
 	public EmployeeDAO employeeDAO() {
-		return new EmployeeDAO(getMongoDBConnection());
+		return new EmployeeDAO(getMongoDBConnection(), env);
 	}
 }
