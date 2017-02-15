@@ -1,0 +1,9 @@
+Hello,
+
+{0} has proposed an objective to you.
+
+To view your new objective, access MyCareer at http://mycareer.uk.corp.sopra/ , or at https://portal.soprasteria.com/dana/home/launch.cgi?url=http%3A%2F%2Fmycareer.uk.corp.sopra%3A8080%2Fportal if you are not based in a Sopra Steria office.
+
+Regards,
+
+The MyCareer Team
