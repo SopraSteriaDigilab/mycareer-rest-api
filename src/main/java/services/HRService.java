@@ -6,7 +6,6 @@ import static utils.EmployeeStatistics.EMPLOYEE_FIELDS;
 import static utils.EmployeeStatistics.FEEDBACK_FIELDS;
 import static utils.EmployeeStatistics.OBJECTIVES_FIELDS;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,9 +13,6 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 
 import dataStructure.Employee;
-import domain.HRData;
-import domain.HRDevNeedsData;
-import domain.HRObjectiveData;
 import utils.EmployeeStatistics;
 
 /**
@@ -25,64 +21,38 @@ import utils.EmployeeStatistics;
  * @version 1.0
  * @since 23rd January 2017
  */
-public class HRDataDAO
+public class HRService
 {
 
+  /** Datastore Constant - Represents connection to the database */
   private static Datastore dbConnection;
 
-  private EmployeeStatistics employeeStats = new EmployeeStatistics();
+  /** EmployeeStatistics Constant - Represents employeeStats reference */
+  private final EmployeeStatistics employeeStats = new EmployeeStatistics();
 
-  public HRDataDAO()
+  /**
+   * Empty Constructor - Responsible for initialising this object.
+   *
+   */
+  public HRService()
   {
   }
 
-  public HRDataDAO(Datastore dbConnection)
+  /**
+   * Datastore Constructor - Responsible for injecting the database connection to this object.
+   *
+   * @param dbConnection
+   */
+  public HRService(Datastore dbConnection)
   {
-    HRDataDAO.dbConnection = dbConnection;
+    HRService.dbConnection = dbConnection;
   }
 
-  public HRData getHRData()
-  {
-    List<HRObjectiveData> hrObjectiveData = getHRObjectiveData();
-    List<HRDevNeedsData> hrDevNeedsData = getHRDevNeedsData();
-    HRData hrData = new HRData(hrObjectiveData, hrDevNeedsData);
-    return hrData;
-  }
-
-  public List<HRObjectiveData> getHRObjectiveData()
-  {
-    List<HRObjectiveData> hrObjectiveList = new ArrayList<>();
-    List<Employee> query = employeeQuery().field("objectives").exists()
-        .retrievedFields(true, "forename", "surname", "employeeID", "objectives").asList();
-
-    if (!query.isEmpty())
-    {
-      for (Employee employee : query)
-      {
-        hrObjectiveList.add(new HRObjectiveData(employee.getEmployeeID(), employee.getFullName(),
-            employee.getLatestVersionObjectives()));
-      }
-    }
-    return hrObjectiveList;
-  }
-
-  public List<HRDevNeedsData> getHRDevNeedsData()
-  {
-    List<HRDevNeedsData> hrDevNeedsList = new ArrayList<>();
-    List<Employee> query = employeeQuery().field("developmentNeeds").exists()
-        .retrievedFields(true, "forename", "surname", "employeeID", "developmentNeeds").asList();
-
-    if (!query.isEmpty())
-    {
-      for (Employee employee : query)
-      {
-        hrDevNeedsList.add(new HRDevNeedsData(employee.getEmployeeID(), employee.getFullName(),
-            employee.getLatestVersionDevelopmentNeeds()));
-      }
-    }
-    return hrDevNeedsList;
-  }
-
+  /**
+   * Statistics for MyCareer from the database.
+   *
+   * @return Statistics for MyCareer
+   */
   public Map<String, Object> getMyCareerStats()
   {
     return employeeStats.getMyCareerStats(employeeQuery().countAll(), countAll("objectives"),
@@ -93,7 +63,7 @@ public class HRDataDAO
   /**
    * Statistics for employees from the database.
    *
-   * @return
+   * @return List of employees that have logged in.
    */
   @SuppressWarnings("rawtypes")
   public List<Map> getEmployeeStats()
@@ -105,7 +75,7 @@ public class HRDataDAO
   /**
    * Statistics for feedback from the employees from the database.
    *
-   * @return
+   * @return Statistics for feedback
    */
   @SuppressWarnings("rawtypes")
   public List<Map> getFeedbackStats()
@@ -116,9 +86,9 @@ public class HRDataDAO
   }
 
   /**
-   *  Statistics for objectives from the employees from the database.
+   * Statistics for objectives from the employees from the database.
    *
-   * @return
+   * @return Statistics for objectives
    */
   public Object getObjectiveStats()
   {
@@ -128,9 +98,9 @@ public class HRDataDAO
   }
 
   /**
-   *  Statistics for objectives from the employees from the database.
+   * Statistics for development needs from the employees from the database.
    *
-   * @return
+   * @return Statistics for development needs
    */
   public Object getDevelopmentNeedStats()
   {
@@ -138,12 +108,23 @@ public class HRDataDAO
         .retrievedFields(true, addAll(EMPLOYEE_FIELDS, DEVELOPMENT_NEEDS_FIELDS)).asList();
     return employeeStats.getDevelopmentNeedStats(employees);
   }
-  
+
+  /**
+   * Employee query
+   *
+   * @return An Employee query
+   */
   private Query<Employee> employeeQuery()
   {
     return dbConnection.find(Employee.class);
   }
 
+  /**
+   * Counts all the employees with the existing field
+   *
+   * @param field The field to check
+   * @return The number of employees with the field.
+   */
   private long countAll(String field)
   {
     return employeeQuery().field(field).exists().countAll();
