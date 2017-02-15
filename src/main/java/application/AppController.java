@@ -37,7 +37,8 @@ import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
 import dataStructure.Objective;
 import services.EmployeeDAO;
-import services.ad.ADProfileDAO;
+import services.EmployeeProfileDAO;
+import services.ad.ADProfileDAO_OLD;
 import services.validate.Validate;
 
 /**
@@ -646,7 +647,7 @@ public class AppController {
 	public ResponseEntity<?> authenticateUserProfile(@RequestParam(value="userName_Email") String userName){
 		try {
 			if(userName!=null && !userName.equals("") && userName.length()<300 ){
-				return ok(ADProfileDAO.authenticateUserProfile(userName));
+				return ok(EmployeeProfileDAO.authenticateUserProfile(userName));
 			}else{
 				return badRequest().body("The username given is invalid");
 			}
@@ -713,7 +714,7 @@ public class AppController {
 			String proposedBy=EmployeeDAO.getFullNameUser(employeeID);
 			for(String email : emailSet){
 				try{
-					ADProfile_Basic userInQuestion = ADProfileDAO.authenticateUserProfile(email);
+					ADProfile_Basic userInQuestion = EmployeeProfileDAO.authenticateUserProfile(email);
 					Objective obj=new Objective(0,0,title,description,completedBy);
 					obj.setProposedBy(proposedBy);
 					boolean inserted=EmployeeDAO.insertNewObjective(userInQuestion.getEmployeeID(), obj);

@@ -24,10 +24,9 @@ public class EmployeeStatistics
    * @param employees
    * @return 
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getFeedbackStats(List<Employee> employees)
+  public List<Map<String, Object>> getFeedbackStats(List<Employee> employees)
   {
-    List<Map> statistics = new ArrayList<>();
+    List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> {
       Map<String, Object> map = new HashMap<>();
       map.put("employeeID", e.getEmployeeID());

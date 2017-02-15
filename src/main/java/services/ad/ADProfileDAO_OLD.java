@@ -31,7 +31,7 @@ import java.util.UUID;
  * This class contains the definition of the ADProfileDAO 
  *
  */
-public class ADProfileDAO {
+public class ADProfileDAO_OLD {
 
 	private static DirContext ldapContext;
 	private static DirContext ldapSteriaContext;
@@ -158,7 +158,7 @@ public class ADProfileDAO {
 			// inside the ADReporteedDAO which deals with the connection with
 			// the STERIA AD
 			try {
-				adObj = ADReporteesDAO.findSteriaProfileAttributes(adObj.getUsername(), adObj);
+				adObj = ADReporteesDAO_OLD.findSteriaProfileAttributes(adObj.getUsername(), adObj);
 			} catch (Exception e) {
 				// TO BE COMPLETED!!!
 				System.err.println(e.getMessage());
@@ -181,7 +181,7 @@ public class ADProfileDAO {
 			adObj = getProfileFromSopraAD(usernameEmail);
 			// the STERIA AD
 			try {
-				adObj = ADReporteesDAO.findSteriaProfileAttributes(adObj.getUsername(), adObj);
+				adObj = ADReporteesDAO_OLD.findSteriaProfileAttributes(adObj.getUsername(), adObj);
 			} catch (Exception e) {
 				// TO BE COMPLETED!!!
 				System.err.println(e.getMessage());
@@ -220,7 +220,7 @@ public class ADProfileDAO {
 			//Extract the username from the AD
 			String userName=(String) attrs.get("sAMAccountName").get();
 			if(!userName.equals(""))
-				return ADProfileDAO.authenticateUserProfile(userName);
+				return ADProfileDAO_OLD.authenticateUserProfile(userName);
 		}
 		throw new InvalidAttributeValueException(INVALID_IDMATCHUSERNAME+employeeID);
 	}

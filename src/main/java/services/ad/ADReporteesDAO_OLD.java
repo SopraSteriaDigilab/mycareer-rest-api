@@ -24,7 +24,7 @@ import dataStructure.Constants;
  *
  */
 
-public class ADReporteesDAO {
+public class ADReporteesDAO_OLD {
 
 	private static DirContext ldapContext;
 

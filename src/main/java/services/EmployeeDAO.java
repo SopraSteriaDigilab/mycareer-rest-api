@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
@@ -46,7 +48,7 @@ import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
-import services.ad.ADProfileDAO;
+import services.ad.ADProfileDAO_OLD;
 import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Utils;
@@ -171,13 +173,28 @@ public class EmployeeDAO
     Employee employee = getEmployee(employeeID);
 
     List<ADProfile_Basic> reporteeList = new ArrayList<>();
-
+    
+//    final List<ADProfile_Basic> reporteeListFromStream = 
+//    		employee.getReporteeCNs().stream()
+//				.map(s -> s.substring(s.indexOf('-') + 1).trim())
+//				.mapToLong(Long::parseLong)
+//				.mapToObj(x -> { // wrap in helper method
+//					try {
+//						return ADProfileDAO.verifyIfUserExists(x);
+//					} catch (InvalidAttributeValueException | NamingException e1) {
+//						// TODO Auto-generated catch block
+//						e1.printStackTrace();
+//					}
+//					return employee;
+//				})
+//		    	.collect(Collectors.toList());
+    			
     for (String str : employee.getReporteeCNs())
     {
       long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
       try
       {
-        reporteeList.add(ADProfileDAO.verifyIfUserExists(temp));
+        reporteeList.add(EmployeeProfileDAO.verifyIfUserExists(temp));
       }
       catch (Exception e)
       {
@@ -597,14 +614,14 @@ public class EmployeeDAO
   {
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
 
-    long employeeID = ADProfileDAO.authenticateUserProfile(recipientEmail).getEmployeeID();
+    long employeeID = EmployeeProfileDAO.authenticateUserProfile(recipientEmail).getEmployeeID();
     Employee employee = getEmployee(employeeID);
 
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
 
     try
     {
-      feedback.setProviderName(ADProfileDAO.findEmployeeFullNameFromEmailAddress(providerEmail));
+      feedback.setProviderName(EmployeeProfileDAO.findEmployeeFullNameFromEmailAddress(providerEmail));
     }
     catch (InvalidAttributeValueException | NamingException e)
     {

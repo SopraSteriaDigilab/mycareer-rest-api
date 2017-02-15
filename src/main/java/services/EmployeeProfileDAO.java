@@ -14,10 +14,12 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+
 import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import services.EmployeeDAO;
-import services.ad.ADConnection_NEW;
+import services.ad.ADConnection;
 
 import java.util.UUID;
 
@@ -32,7 +34,7 @@ import java.util.UUID;
  * This class contains the definition of the ADProfileDAO 
  *
  */
-public final class EmployeeProfileDAO_NEW {
+public final class EmployeeProfileDAO {
 	//Sopra AD Details
 	private static final String AD_SOPRA_HOST="ldap://duns.ldap-ad.dmsi.corp.sopra";
 	private static final String AD_SOPRA_URL = AD_SOPRA_HOST.concat(":389");
@@ -87,7 +89,7 @@ public final class EmployeeProfileDAO_NEW {
 		STERIA_ENVIRONMENT_SETTINGS.put(SECURITY_CREDENTIALS, AD_STERIA_PASSWORD);
 	}
 	
-	private EmployeeProfileDAO_NEW() {}
+	private EmployeeProfileDAO() {}
 	
 	public static ADProfile_Basic authenticateUserProfile(String usernameEmail)
 			throws NamingException, InvalidAttributeValueException {
@@ -116,8 +118,8 @@ public final class EmployeeProfileDAO_NEW {
 		
 		final String searchFilter = "(extensionAttribute7=s" + employeeID + ")";
 
-		try (final ADConnection_NEW connection = new ADConnection_NEW(SOPRA_ENVIRONMENT_SETTINGS)) {
-			final Attributes attrs = connection.searchAD(AD_SOPRA_ATTRIBUTES, AD_SOPRA_TREE, searchFilter);
+		try (final ADConnection connection = new ADConnection(SOPRA_ENVIRONMENT_SETTINGS)) {
+			final Attributes attrs = connection.searchAD(new SearchControls(), AD_SOPRA_ATTRIBUTES, AD_SOPRA_TREE, searchFilter);
 			final String userName = (String) attrs.get("sAMAccountName").get();
 			
 			return authenticateUserProfile(userName);
@@ -134,8 +136,8 @@ public final class EmployeeProfileDAO_NEW {
 		
 		final String searchFilter = "(mail=" + email + ")";
 		
-		try (final ADConnection_NEW connection = new ADConnection_NEW(SOPRA_ENVIRONMENT_SETTINGS)) {
-			Attributes attrs = connection.searchAD(AD_SOPRA_ATTRIBUTES, AD_SOPRA_TREE, searchFilter);
+		try (final ADConnection connection = new ADConnection(SOPRA_ENVIRONMENT_SETTINGS)) {
+			Attributes attrs = connection.searchAD(new SearchControls(), AD_SOPRA_ATTRIBUTES, AD_SOPRA_TREE, searchFilter);
 			
 			//Find and return the full name
 			String surname = (String) attrs.get("sn").get();
@@ -164,8 +166,8 @@ public final class EmployeeProfileDAO_NEW {
 		}
 
 		//Check the results retrieved
-		try (final ADConnection_NEW connection = new ADConnection_NEW(SOPRA_ENVIRONMENT_SETTINGS)) {
-			final Attributes attrs = connection.searchAD(AD_SOPRA_ATTRIBUTES, AD_SOPRA_TREE, searchFilter);
+		try (final ADConnection connection = new ADConnection(SOPRA_ENVIRONMENT_SETTINGS)) {
+			final Attributes attrs = connection.searchAD(new SearchControls(), AD_SOPRA_ATTRIBUTES, AD_SOPRA_TREE, searchFilter);
 			
 			// Get the employee ID from extensionAttribute7.
 			// If this field doesn't exist then this email address cannot be handled
@@ -216,8 +218,8 @@ public final class EmployeeProfileDAO_NEW {
 		final String searchFilter = "(targetAddress=" + email + ")";
 		
 		// Check the results retrieved
-		try (final ADConnection_NEW connection = new ADConnection_NEW(STERIA_ENVIRONMENT_SETTINGS)) {
-			final Attributes attrs = connection.searchAD(AD_STERIA_ATTRIBUTES, AD_STERIA_SEARCH_TREE, searchFilter);			
+		try (final ADConnection connection = new ADConnection(STERIA_ENVIRONMENT_SETTINGS)) {
+			final Attributes attrs = connection.searchAD(new SearchControls(), AD_STERIA_ATTRIBUTES, AD_STERIA_SEARCH_TREE, searchFilter);			
 			
 			getProfileFromSopraAD((String) attrs.get("sAMAccountName").get(), adObj);
 			getProfileFromSteriaAD(adObj.getUsername(), adObj);
@@ -255,8 +257,8 @@ public final class EmployeeProfileDAO_NEW {
 		String steriaDepartment = null;
 		boolean isManager = false;
 		
-		try (final ADConnection_NEW connection = new ADConnection_NEW(STERIA_ENVIRONMENT_SETTINGS)) {
-			final Attributes attrs = connection.searchAD(AD_STERIA_ATTRIBUTES, AD_STERIA_SEARCH_TREE, searchFilter);
+		try (final ADConnection connection = new ADConnection(STERIA_ENVIRONMENT_SETTINGS)) {
+			final Attributes attrs = connection.searchAD(new SearchControls(), AD_STERIA_ATTRIBUTES, AD_STERIA_SEARCH_TREE, searchFilter);
 			directReports = attrs.get("directReports");
 			superSector = (String) attrs.get("ou").get();
 			sector = ((String) attrs.get("SteriaSectorUnit").get()).substring(3);

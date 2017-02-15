@@ -143,8 +143,7 @@ public class HRDataDAO
    *
    * @return
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getFeedbackStats()
+  public List<Map<String, Object>> getFeedbackStats()
   {
     List<Employee> employees = dbConnection.createQuery(Employee.class).field("feedback").exists()
         .retrievedFields(true, FEEDBACK_FIELDS).asList();
