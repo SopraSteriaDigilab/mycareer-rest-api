@@ -1,8 +1,10 @@
 package services;
 
 import static org.apache.commons.lang3.ArrayUtils.addAll;
+import static utils.EmployeeStatistics.DEVELOPMENT_NEEDS_FIELDS;
 import static utils.EmployeeStatistics.EMPLOYEE_FIELDS;
 import static utils.EmployeeStatistics.FEEDBACK_FIELDS;
+import static utils.EmployeeStatistics.OBJECTIVES_FIELDS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,6 @@ import dataStructure.Employee;
 import domain.HRData;
 import domain.HRDevNeedsData;
 import domain.HRObjectiveData;
-import domain.HRTotals;
 import utils.EmployeeStatistics;
 
 /**
@@ -82,17 +83,11 @@ public class HRDataDAO
     return hrDevNeedsList;
   }
 
-  /**
-   * Statistics for feedback from the employees from the database.
-   *
-   * @return
-   */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getFeedbackStats()
+  public Map<String, Object> getMyCareerStats()
   {
-    List<Employee> employees = employeeQuery().field("feedback").exists()
-        .retrievedFields(true, addAll(EMPLOYEE_FIELDS, FEEDBACK_FIELDS)).asList();
-    return employeeStats.getFeedbackStats(employees);
+    return employeeStats.getMyCareerStats(employeeQuery().countAll(), countAll("objectives"),
+        countAll("developmentNeeds"), countAll("notes"), countAll("competencies"), countAll("feedbackRequests"),
+        countAll("feedback"));
   }
 
   /**
@@ -107,13 +102,43 @@ public class HRDataDAO
     return employeeStats.getEmployeeStats(employees);
   }
 
-  public Map<String, Object> getMyCareerStats()
+  /**
+   * Statistics for feedback from the employees from the database.
+   *
+   * @return
+   */
+  @SuppressWarnings("rawtypes")
+  public List<Map> getFeedbackStats()
   {
-    return employeeStats.getMyCareerStats(employeeQuery().countAll(), countAll("objectives"),
-        countAll("developmentNeeds"), countAll("notes"), countAll("competencies"), countAll("feedbackRequests"),
-        countAll("feedback"));
+    List<Employee> employees = employeeQuery().field("feedback").exists()
+        .retrievedFields(true, addAll(EMPLOYEE_FIELDS, FEEDBACK_FIELDS)).asList();
+    return employeeStats.getFeedbackStats(employees);
   }
 
+  /**
+   *  Statistics for objectives from the employees from the database.
+   *
+   * @return
+   */
+  public Object getObjectiveStats()
+  {
+    List<Employee> employees = employeeQuery().field("objectives").exists()
+        .retrievedFields(true, addAll(EMPLOYEE_FIELDS, OBJECTIVES_FIELDS)).asList();
+    return employeeStats.getObjectiveStats(employees);
+  }
+
+  /**
+   *  Statistics for objectives from the employees from the database.
+   *
+   * @return
+   */
+  public Object getDevelopmentNeedStats()
+  {
+    List<Employee> employees = employeeQuery().field("developmentNeeds").exists()
+        .retrievedFields(true, addAll(EMPLOYEE_FIELDS, DEVELOPMENT_NEEDS_FIELDS)).asList();
+    return employeeStats.getDevelopmentNeedStats(employees);
+  }
+  
   private Query<Employee> employeeQuery()
   {
     return dbConnection.find(Employee.class);

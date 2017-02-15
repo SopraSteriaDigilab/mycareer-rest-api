@@ -22,10 +22,10 @@ import services.HRDataDAO;
 @RequestMapping("/hr")
 public class HRController
 {
-  
+
   /** HRDataDAO Constant - Represents the service to be user for hr data. */
   private final HRDataDAO hrService = new HRDataDAO();
-  
+
   /**
    * This method allows the front-end to retrieve a summary of a user's details and un-archived objectives.
    */
@@ -44,7 +44,6 @@ public class HRController
   {
     return ResponseEntity.ok(hrService.getHRData());
   }
-  
 
   /**
    * GET End Point - Gets overview of my career stats
@@ -58,6 +57,17 @@ public class HRController
   }
 
   /**
+   * GET End Point - Gets lists of employees with department data
+   *
+   * @return
+   */
+  @RequestMapping(value = "/getEmployeeStats", method = GET)
+  public ResponseEntity<?> getEmployeeStats()
+  {
+    return ResponseEntity.ok(hrService.getEmployeeStats());
+  }
+
+  /**
    * GET End Point - Gets lists of employees and the number of feedback they have received
    *
    * @return
@@ -67,16 +77,27 @@ public class HRController
   {
     return ResponseEntity.ok(hrService.getFeedbackStats());
   }
-  
+
   /**
-   * GET End Point - Gets lists of employees with department data
+   * GET End Point - Gets lists of employees and their objective statistics
    *
    * @return
    */
-  @RequestMapping(value = "/getEmployeeStats", method = GET)
-  public ResponseEntity<?> getEmployeeStats()
+  @RequestMapping(value = "/getObjectiveStats", method = GET)
+  public ResponseEntity<?> getObjectiveStats()
   {
-    return ResponseEntity.ok(hrService.getEmployeeStats());
+    return ResponseEntity.ok(hrService.getObjectiveStats());
+  }
+
+  /**
+   * GET End Point - Gets lists of employees and their development needs statistics
+   *
+   * @return
+   */
+  @RequestMapping(value = "/getDevelopmentNeedStats", method = GET)
+  public ResponseEntity<?> getDevelopmentNeedStats()
+  {
+    return ResponseEntity.ok(hrService.getDevelopmentNeedStats());
   }
 
 }
