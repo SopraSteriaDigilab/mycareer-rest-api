@@ -1,22 +1,29 @@
 package dataStructure;
 
+import static services.validate.Validate.isNull;
+
 import java.io.Serializable;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import javax.management.InvalidAttributeValueException;
+
+import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
-import org.bson.types.ObjectId;
+
 import com.google.gson.Gson;
 
 /**
  * 
  * @author Michael Piccoli
  * @author Christopher Kai
+ * @author Ridhwan Nacef
+ * @author Mehmet Mehmet
  * @version 1.0
  * @since 10th October 2016
  * 
@@ -39,7 +46,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	@Embedded
 	private List<List<DevelopmentNeed>> developmentNeeds;
 	@Embedded
-	private List<GroupFeedbackRequest> groupFeedbackRequests;
+	private List<FeedbackRequest> feedbackRequests;
 	@Embedded
 	private List<List<Competency>> competencies;
 
@@ -50,7 +57,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		this.objectives=new ArrayList<List<Objective>>();
 		this.notes=new ArrayList<List<Note>>();
 		this.developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
-		this.groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
+		this.feedbackRequests=new ArrayList<FeedbackRequest>();
 		this.competencies=new ArrayList<List<Competency>>();
 	}
 
@@ -69,15 +76,15 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			List<List<Objective>> objectives,
 			List<List<Note>> notes,
 			List<List<DevelopmentNeed>> needs,
-			List<GroupFeedbackRequest> requests,
+			List<FeedbackRequest> requests,
 			List<List<Competency>> competencies,
 			List<String> reportees) throws InvalidAttributeValueException{
 		super(employeeID, guid, name, surname,email,username,company,team,isManager,reportees);
-		this.setFeedbackList(feeds);
+		this.setFeedback(feeds);
 		this.setObjectiveList(objectives);
 		this.setNoteList(notes);
 		this.setDevelopmentNeedsList(needs);
-		this.setGroupFeedbackRequestsList(requests);
+		this.setFeedbackRequestsList(requests);
 		this.setCompetenciesList(competencies);
 	}
 
@@ -96,7 +103,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		this.objectives=new ArrayList<List<Objective>>();
 		this.notes=new ArrayList<List<Note>>();
 		this.developmentNeeds=new ArrayList<List<DevelopmentNeed>>();
-		this.groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
+		this.feedbackRequests=new ArrayList<FeedbackRequest>();
 		this.competencies=new ArrayList<List<Competency>>();
 	}
 
@@ -108,40 +115,46 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		return id;
 	}
 
-	/**
-	 * 
-	 * @param feeds the list of feedback to assign to an employee
-	 * @throws InvalidClassException
-	 * @throws InvalidAttributeValueException
-	 */
-	public void setFeedbackList(List<Feedback> feeds) throws InvalidAttributeValueException{
-		if(feeds!=null){
-			//Create a counter that keeps count of the error produced
-			int errorCounter=0;
-			this.feedback=new ArrayList<Feedback>();
-			//Check if the feedback objects inside the list are valid
-			for(Feedback temp:feeds){
-				if(temp.isFeedbackValid())
-					this.feedback.add(temp);
-				else
-					errorCounter++;
-			}
-			//Verify if there has been any error
-			if(errorCounter!=0)
-				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST);
-		}
-		else
-			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACKLIST);
-	}
+//	/**
+//	 * 
+//	 * @param feeds the list of feedback to assign to an employee
+//	 * @throws InvalidClassException
+//	 * @throws InvalidAttributeValueException
+//	 */
+//	public void setFeedbackList(List<Feedback> feeds) throws InvalidAttributeValueException{
+//		if(feeds!=null){
+//			//Create a counter that keeps count of the error produced
+//			int errorCounter=0;
+//			this.feedback=new ArrayList<Feedback>();
+////			Check if the feedback objects inside the list are valid
+//			for(Feedback temp:feeds){
+//				if(temp.isFeedbackValid())
+//					this.feedback.add(temp);
+//				else
+//					errorCounter++;
+//			}
+//			//Verify if there has been any error
+//			if(errorCounter!=0)
+//				throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST);
+//		}
+//		else
+//			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACKLIST);
+//	}
+	
+	
 
-	public List<Feedback> getAllFeedback(){
+	public List<Feedback> getFeedback(){
 		return this.feedback;
 	}
 	
+	public void setFeedback(List<Feedback> feedback) {
+		this.feedback = feedback;
+	}
+
 	public Feedback getSpecificFeedback(int id) throws InvalidAttributeValueException {
 		if(id>0){
 			return feedback.stream()
-					.filter(f->f.getID()==id)
+					.filter(f->f.getId()==id)
 					.findFirst()
 					.get();
 		}
@@ -196,7 +209,7 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		else{
 			//If the list if not empty, retrieve all the elements and add them to the list
 			//that is going to be returned
-			for(List<Objective> subList:objectives){
+			for(List<Objective> subList:objectives){ 
 				//The last element contains the latest version for the objective
 				organisedList.add(subList.get(subList.size()-1));
 			}
@@ -403,33 +416,23 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		return null;
 	}
 
-	/**
-	 * 
-	 * This method copies the data from an already exciting list to the one for the current user
-	 * 
+	/** 
 	 * @param data the list of feedback request object
 	 * @throws InvalidAttributeValueException
 	 */
-	public void setGroupFeedbackRequestsList(List<GroupFeedbackRequest> data) throws InvalidAttributeValueException{
-		if(data!=null){
-			//Counter that keeps tracks of the error while adding elements
-			int errorCounter=0;
-			this.groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
-			//Verify if each development need is valid
-			for(int i=0; i<data.size(); i++){
-				//Add a new List to the list of developmentNeeds
-				if(data.get(i)!=null){
-					if(!groupFeedbackRequests.add(data.get(i)))
-						errorCounter++;
-				}
-			}
-			//Verify if there were errors during the import of development needs
-			if(errorCounter!=0)
-				throw new InvalidAttributeValueException(Constants.INVALID_GROUPFEEDBACKREQUESTLIST_CONTEXT);
+	public void setFeedbackRequestsList(List<FeedbackRequest> feedbackRequestList) throws InvalidAttributeValueException {
+		
+		if(feedbackRequestList == null /*|| feedbackRequestList.isEmpty()*/)
+			throw new InvalidAttributeValueException("The list is invalid. Please try again with a valid list.");
+		
+		for(FeedbackRequest feedbackRequest : feedbackRequestList){
+			if(feedbackRequest == null)
+				throw new InvalidAttributeValueException("One or more items in this list is invalid. Please try again with a valid list.");
 		}
-		else
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUESTLIST_CONTEXT);
+		
+		this.feedbackRequests = new ArrayList<>(feedbackRequestList);
 	}
+	
 
 	/**
 	 * 
@@ -437,60 +440,51 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 	 * 
 	 * @return
 	 */
-	public List<GroupFeedbackRequest> getGroupFeedbackRequestsList(){
-		return this.groupFeedbackRequests;
+	public List<FeedbackRequest> getFeedbackRequestsList(){
+		return this.feedbackRequests;
 	}
-
+	
+	
 	/**
-	 * 
-	 * This method retrieves a specific feedback request based 
-	 * 
 	 * @param id
-	 * @return
+	 * @return Returns the feedback request with the given id.
 	 * @throws InvalidAttributeValueException 
 	 */
-	public FeedbackRequest getSpecificFeedbackRequestFromGroupFBRequests(String id) throws InvalidAttributeValueException{
-		if(id!=null && !id.equals("")){
-			//			return feedbackRequests.stream()
-			//			.filter(t -> t.getID().equals(id))
-			//			.findFirst().get();
-			for(int i=0; i<groupFeedbackRequests.size(); i++){
-				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(id) != null)
-					return groupFeedbackRequests.get(i).searchFeedbackRequestID(id);
-			}
+	public FeedbackRequest getFeedbackRequest(String id) throws InvalidAttributeValueException {
+		for(FeedbackRequest feedbackRequest : this.feedbackRequests){
+			if(feedbackRequest.getId().equals(id))
+				return feedbackRequest;
 		}
-		return null;
+		throw new InvalidAttributeValueException("Feedback Request does not exist.");
 	}
-	
-	public GroupFeedbackRequest getSpecificGroupFeedbackRequest(String id) throws InvalidAttributeValueException{
-		if(id!=null && !id.equals("")){
-			for(int i=0; i<groupFeedbackRequests.size(); i++){
-				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(id) != null)
-					return groupFeedbackRequests.get(i);
-			}
-		}
-		return null;
-	}
-	
-	public String removeSpecificFeedbackRequest(String fbID) throws InvalidAttributeValueException{
-		if(fbID!=null && !fbID.equals("")){
-			for(int i=0; i<groupFeedbackRequests.size(); i++){
-				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID)!=null){
-					//Remove the full group Request Feedback if it contains only 1 feedback request
-					String emailRecipient=groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID).getRecipient();
-					if(groupFeedbackRequests.get(i).getRequestList().size()==1)
-						groupFeedbackRequests.remove(i);
-					//Alternatively, remove the given feedback request
-					else
-						groupFeedbackRequests.get(i).removeFeedbackRequest(fbID);
-					//Return the email address found
-					return emailRecipient;
-				}
-			}
-			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_NOTFOUND_CONTEXT);
-		}
-		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_ID_CONTEXT);
-	}
+
+//	/**
+//	 * 
+//	 * This method retrieves a specific feedback request based 
+//	 * 
+//	 * @param id
+//	 * @return
+//	 * @throws InvalidAttributeValueException 
+//	 */
+//	public String removeSpecificFeedbackRequest(String fbID) throws InvalidAttributeValueException{
+//		if(fbID!=null && !fbID.equals("")){
+//			for(int i=0; i<groupFeedbackRequests.size(); i++){
+//				if(groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID)!=null){
+//					//Remove the full group Request Feedback if it contains only 1 feedback request
+//					String emailRecipient=groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID).getRecipient();
+//					if(groupFeedbackRequests.get(i).getRequestList().size()==1)
+//						groupFeedbackRequests.remove(i);
+//					//Alternatively, remove the given feedback request
+//					else
+//						groupFeedbackRequests.get(i).removeFeedbackRequest(fbID);
+//					//Return the email address found
+//					return emailRecipient;
+//				}
+//			}
+//			throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_NOTFOUND_CONTEXT);
+//		}
+//		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_ID_CONTEXT);
+//	}
 
 	/**
 	 * 
@@ -620,53 +614,58 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCYTID_CONTEXT);
 	}
 
-	/**
-	 * 
-	 * @param obj This method adds a Generic feedback to the employee feedback list
-	 * @return It returns true when a feedback has been successfully added to the list, false otherwise
-	 * @throws InvalidAttributeValueException 
-	 */
-	public boolean addGenericFeedback(Feedback obj) throws InvalidAttributeValueException{
-		if(feedback==null)
-			feedback=new ArrayList<Feedback>();
-		//Verify that the object is not null
-		if(obj==null)
-			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACK);
-		//At this point the Feedback hasn't got an ID, let's create it
-		obj.setID((feedback.size()+1));
-		if(obj.isFeedbackValid())
-			return feedback.add(obj);
-		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
+//	/**
+//	 * @deprecated Since January 2016. Use {@linkplain #addFeedback(Feedback)}
+//	 * @param obj This method adds a Generic feedback to the employee feedback list
+//	 * @return It returns true when a feedback has been successfully added to the list, false otherwise
+//	 * @throws InvalidAttributeValueException 
+//	 */
+//	public boolean addGenericFeedback(Feedback obj) throws InvalidAttributeValueException{
+//		if(feedback==null)
+//			feedback=new ArrayList<Feedback>();
+//		//Verify that the object is not null
+//		if(obj==null)
+//			throw new InvalidAttributeValueException(Constants.NULL_FEEDBACK);
+//		//At this point the Feedback hasn't got an ID, let's create it
+//		obj.setID((feedback.size()+1));
+//		if(obj.isFeedbackValid())
+//			return feedback.add(obj);
+//		throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
+//	}
+	
+	public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException {
+		isNull(feedback);
+		return this.feedback.add(feedback);
 	}
 
-	/**
-	 * 
-	 * @param objectiveID
-	 * @param obj objective data
-	 * @return true if the objective has been added correctly
-	 * @throws InvalidAttributeValueException
-	 */
-	public boolean addFeedbackToObjective(int objectiveID, Feedback obj) throws InvalidAttributeValueException{
-		//Verify the data is valid
-		if(objectiveID<0 && obj==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACK_OBJECTIVEID_CONTEXT);
-		//Search for the objective ID within the list of objectives
-		//add the objective if the ID is found
-		for(int i=0; i<this.objectives.size(); i++){
-			//If the appropriate objective is found, add the feedback to its list
-			if(this.objectives.get(i).get(0).getID()==objectiveID){
-				//Now that the related objective is found, create an ID for this feedback
-				obj.setID(this.objectives.get(i).size()+1);
-				//Validate the data
-				if(obj.isFeedbackValid())
-					//Try to add the new feedback
-					return this.objectives.get(i).get(this.objectives.get(i).size()-1).addFeedback(obj);
-				else
-					throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
-			}
-		}
-		return false;
-	}
+//	/**
+//	 * 
+//	 * @param objectiveID
+//	 * @param obj objective data
+//	 * @return true if the objective has been added correctly
+//	 * @throws InvalidAttributeValueException
+//	 */
+//	public boolean addFeedbackToObjective(int objectiveID, Feedback obj) throws InvalidAttributeValueException{
+//		//Verify the data is valid
+//		if(objectiveID<0 && obj==null)
+//			throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACK_OBJECTIVEID_CONTEXT);
+//		//Search for the objective ID within the list of objectives
+//		//add the objective if the ID is found
+//		for(int i=0; i<this.objectives.size(); i++){
+//			//If the appropriate objective is found, add the feedback to its list
+//			if(this.objectives.get(i).get(0).getID()==objectiveID){
+//				//Now that the related objective is found, create an ID for this feedback
+//				obj.setID(this.objectives.get(i).size()+1);
+//				//Validate the data
+//				if(obj.isFeedbackValid())
+//					//Try to add the new feedback
+//					return this.objectives.get(i).get(this.objectives.get(i).size()-1).addFeedback(obj);
+//				else
+//					throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
+//			}
+//		}
+//		return false;
+//	}
 
 	/**
 	 * 
@@ -824,58 +823,71 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		}
 		throw new InvalidAttributeValueException(Constants.INVALID_DEVNEED_CONTEXT);
 	}
-
+	
 	/**
-	 * 
-	 * This method add a feedback request to a given user ID
-	 * 
-	 * @param obj the feedback request object to insert
-	 * @return true if it completes correctly, false otherwise
-	 * @throws InvalidAttributeValueException 
+	 * Add feedback request to employee
+	 * @param feedbackRequest
+	 * @return true if it was added, false otherwise
+	 * @throws InvalidAttributeValueException if feedbackRequest is null
 	 */
-	public boolean addGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
-		if(groupFeedbackRequests==null)
-			groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
-		//Verify that the object is not null
-		if(obj==null)
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
-		//The object has now been validated and can be added to the list for this user
-		return groupFeedbackRequests.add(obj);
+	public boolean addFeedbackRequest(FeedbackRequest feedbackRequest) throws InvalidAttributeValueException{
+		if(feedbackRequest == null)
+			throw new InvalidAttributeValueException("This object is invalid.");
+		
+		return this.feedbackRequests.add(feedbackRequest);
 	}
 
-	/**
-	 * 
-	 * This method updates the content of a feedback request
-	 * 
-	 * @param obj the new feedback request object containing the right ID
-	 * @return true if it completes correctly, false otherwise
-	 * @throws InvalidAttributeValueException 
-	 */
-	public boolean updateGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
-		if(obj!=null){
-			for(int i=0; i<groupFeedbackRequests.size(); i++){
-				if(groupFeedbackRequests.get(i).getID().equals(obj.getID()))
-					//Remove the obsolete object and add the new one
-					return (groupFeedbackRequests.remove(groupFeedbackRequests.get(i))) && (groupFeedbackRequests.add(obj));
-			}
-		}
-		throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
-	}
+//	/**
+//	 * 
+//	 * This method add a feedback request to a given user ID
+//	 * 
+//	 * @param obj the feedback request object to insert
+//	 * @return true if it completes correctly, false otherwise
+//	 * @throws InvalidAttributeValueException 
+//	 */
+//	public boolean addGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
+//		if(groupFeedbackRequests==null)
+//			groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
+//		//Verify that the object is not null
+//		if(obj==null)
+//			throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
+//		//The object has now been validated and can be added to the list for this user
+//		return groupFeedbackRequests.add(obj);
+//	}
 
-	/**
-	 * 
-	 * This method verifies if the ID for the feedback request is unique to the user
-	 * 
-	 * @param req the feedback request object
-	 * @return true if it completes correctly, false otherwise
-	 */
-	public boolean isGroupFeedbackRequestUniqueToEmployee(GroupFeedbackRequest req){
-		for(GroupFeedbackRequest t:groupFeedbackRequests){
-			if(t.getID().equals(req.getID()))
-				return false;
-		}
-		return true;
-	}
+//	/**
+//	 * 
+//	 * This method updates the content of a feedback request
+//	 * 
+//	 * @param obj the new feedback request object containing the right ID
+//	 * @return true if it completes correctly, false otherwise
+//	 * @throws InvalidAttributeValueException 
+//	 */
+//	public boolean updateGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
+//		if(obj!=null){
+//			for(int i=0; i<groupFeedbackRequests.size(); i++){
+//				if(groupFeedbackRequests.get(i).getID().equals(obj.getID()))
+//					//Remove the obsolete object and add the new one
+//					return (groupFeedbackRequests.remove(groupFeedbackRequests.get(i))) && (groupFeedbackRequests.add(obj));
+//			}
+//		}
+//		throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
+//	}
+
+//	/**
+//	 * 
+//	 * This method verifies if the ID for the feedback request is unique to the user
+//	 * 
+//	 * @param req the feedback request object
+//	 * @return true if it completes correctly, false otherwise
+//	 */
+//	public boolean isGroupFeedbackRequestUniqueToEmployee(GroupFeedbackRequest req){
+//		for(GroupFeedbackRequest t:groupFeedbackRequests){
+//			if(t.getID().equals(req.getID()))
+//				return false;
+//		}
+//		return true;
+//	}
 
 	/**
 	 * 
@@ -936,76 +948,70 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		});	
 	}
 
-	/**
-	 * 
-	 * This method checks and update the user data with the new given information 
-	 * The only field that never changes and therefore it won't be checked is the GUID.
-	 * The GUID is the AD value unique not only inside the enterprise, but in the entire globe
-	 * 
-	 * @param data The user data to compare with the corrent information
-	 * @return True if the data had to be updated, false if the data didn't need changing
-	 * @throws InvalidAttributeValueException 
-	 */
-	public boolean verifyDataIsUpToDate(ADProfile_Advanced data) throws InvalidAttributeValueException{
-		int itemsUpdated=0;
+  /**
+   * Verifies if user details matches ad profile and updates fields that are not the same.
+   *
+   * @param adProfileAdvance
+   * @return True if nothing was updated, false otherwise 
+   * @throws InvalidAttributeValueException 
+   */
+  public boolean matchAndUpdated(ADProfile_Advanced adProfileAdvance) throws InvalidAttributeValueException
+  {
+    //TODO Probably a better way to do this.. Also maybe move this method to EmployeeDAO...?
+    //Override equals method.
+    boolean updated = false;
 
-		//Start checking the fields
+    if (!this.getCompany().equals(adProfileAdvance.getCompany()))
+    {
+      this.setCompany(adProfileAdvance.getCompany());
+      updated = true;
+    }
+    if (!this.getEmailAddress().equals(adProfileAdvance.getEmailAddress()))
+    {
+      this.setEmailAddress(adProfileAdvance.getEmailAddress());
+      updated = true;
+    }
+    if (this.getEmployeeID() != (adProfileAdvance.getEmployeeID()))
+    {
+      this.setEmployeeID(adProfileAdvance.getEmployeeID());
+      updated = true;
+    }
+    if (!this.getForename().equals(adProfileAdvance.getForename()))
+    {
+      this.setForename(adProfileAdvance.getForename());
+      updated = true;
+    }    
+    if (this.getIsManager() != adProfileAdvance.getIsManager())
+    {
+      this.setIsManager(adProfileAdvance.getIsManager());
+      updated = true;
+    }
+    if (!this.getReporteeCNs().equals(adProfileAdvance.getReporteeCNs()))
+    {
+      this.setReporteeCNs(adProfileAdvance.getReporteeCNs());
+      updated = true;
+    }
+    if (!this.getSurname().equals(adProfileAdvance.getSurname()))
+    {
+      this.setSurname(adProfileAdvance.getSurname());
+      updated = true;
+    }
+    if (!this.getTeam().equals(adProfileAdvance.getTeam()))
+    {
+      this.setTeam(adProfileAdvance.getTeam());
+      updated = true;
+    }
+    if (!this.getUsername().equals(adProfileAdvance.getUsername()))
+    {
+      this.setUsername(adProfileAdvance.getUsername());
+      updated = true;
+    }
 
-		//Check the employeeID
-		if(this.getEmployeeID()!=data.getEmployeeID()){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setEmployeeID(data.getEmployeeID());
-		}
-
-		//Check the Email address
-		if(!this.getEmailAddress().equals(data.getEmailAddress())){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setEmailAddress(data.getEmailAddress());
-		}
-
-		//Check the username
-		if(!this.getUsername().equals(data.getUsername())){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setUsername(data.getUsername());
-		}
-
-		//Check the company
-		if(!this.getCompany().equals(data.getCompany())){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setCompany(data.getCompany());
-		}
-
-		//Check the team
-		if(!this.getTeam().equals(data.getTeam())){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setTeam(data.getTeam());
-		}
-
-		//Check the list of reportees
-		int subCounter=0;
-		List<String> repOldSubList=this.getReporteeCNs();
-		List<String> repNewSubList=data.getReporteeCNs();
-		for(int i=0; i<repNewSubList.size(); i++){
-			if(!repOldSubList.contains(repNewSubList.get(i))){
-				subCounter++;
-			}
-		}
-		if(subCounter>0){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setReporteeCNs(repNewSubList);
-		}
-
-		//Return a value
-		if(itemsUpdated>0)
-			return true;
-		return false;
-	}
+    return updated;
+  }
+	
+	
+	
 	
 	public String toGson(){
 		Gson gsonData=new Gson();
@@ -1051,13 +1057,13 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 				s+="Version "+version++ +"\n"+obj.toString()+"\n";
 			}
 		}
-		//Add the Feedback requests
-		s+="Group Feedback Requests:\n";
-		counter=1;
-		for(GroupFeedbackRequest t:groupFeedbackRequests){
-			s+="Request "+counter++ +"\n";
-			s+=t.toString();
-		}
+//		//Add the Feedback requests
+//		s+="Group Feedback Requests:\n";
+//		counter=1;
+//		for(FeedbackRequest t:feedbackRequests){
+//			s+="Request "+counter++ +"\n";
+//			s+=t.toString();
+//		}
 		//Add the Competencies
 		s+="Competencies: ";
 		//Retrieve all the sublists
@@ -1073,6 +1079,10 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 			}catch(Exception r){}
 		}
 		return s;
+	}
+
+	public int nextFeedbackID() {
+		return this.feedback.size()+1;
 	}
 
 }

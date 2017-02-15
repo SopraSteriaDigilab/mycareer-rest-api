@@ -107,17 +107,11 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable{
 	 * @throws InvalidAttributeValueException 
 	 */
 	public void setReporteeCNs(List<String> reportees) throws InvalidAttributeValueException{
-		//Instantiate the list if it hasn't been already done so
-		if(this.reporteeCNs==null)
-			this.reporteeCNs=new ArrayList<String>();
-		//Add each elements inside the list
-		if(reportees!=null){
-			for(String temp:reportees){
-				reporteeCNs.add(temp);
-			}
-		}
-		else
-			throw new InvalidAttributeValueException(Constants.INVALID_NULLREPORTEESLIST);
+		if(reportees==null)
+		  throw new InvalidAttributeValueException(Constants.INVALID_NULLREPORTEESLIST);
+		
+		this.reporteeCNs = reportees;
+			
 	}
 
 	public List<String> getReporteeCNs(){
