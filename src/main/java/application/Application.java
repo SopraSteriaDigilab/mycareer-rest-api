@@ -19,7 +19,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(exclude = { MongoAutoConfiguration.class, MongoDataAutoConfiguration.class })
-@ComponentScan(basePackages = { "application", "services", "utils" })
+@ComponentScan(basePackages = { "application", "services", "utils", "controller" })
 @EnableScheduling
 public class Application
 {
@@ -28,12 +28,15 @@ public class Application
 
   public static void main(String[] args) throws FileNotFoundException, IOException
   {
-     try {
-     setEnvironmentProperty();
-     SpringApplication.run(Application.class, args);
-     } catch (UnknownHostException e) {
-     logger.error("Application Error: " + e.getMessage());
-     }
+    try
+    {
+      setEnvironmentProperty();
+      SpringApplication.run(Application.class, args);
+    }
+    catch (UnknownHostException e)
+    {
+      logger.error("Application Error: " + e.getMessage());
+    }
   }
 
   private static void setEnvironmentProperty() throws UnknownHostException
