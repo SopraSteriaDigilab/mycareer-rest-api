@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import dataStructure.Employee;
@@ -36,17 +35,13 @@ import microsoft.exchange.webservices.data.property.complex.MessageBody;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import microsoft.exchange.webservices.data.search.filter.SearchFilter;
-import services.EmployeeDAO;
+import services.EmployeeService;
 import utils.Template;
 import utils.Utils;
 
 /**
  * 
  * Class with static methods using the EWS Java API to handle Email functionality within the MyCareer project.
- * 
- * @author Ridhwan Nacef
- * @version 1.0
- * @since January 2017
  * @see <a href="https://github.com/OfficeDev/ews-java-api">EWS Java API</a>
  */
 @Component
@@ -54,7 +49,10 @@ import utils.Utils;
 public class EmailService
 {
   /** Logger Property - Represents an implementation of the Logger interface that may be used here.. */
-  private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
+
+  /** TYPE Property|Constant - Represents|Indicates... */
+  private static final EmployeeService EMPLOYEE_SERVICE = new EmployeeService();
 
   /** Environment Property - Reference to environment to get property details. */
   private static Environment env;
@@ -99,19 +97,19 @@ public class EmailService
    * 
    * @throws Exception
    */
-//  @Scheduled(fixedRate = 60000)
+  // @Scheduled(fixedRate = 60000)
   private void findEmails()
   {
     try
     {
       initiateEWSConnection(120000);
 
-      logger.info("Finding unread Emails...");
+      LOGGER.info("Finding unread Emails...");
       int unreadEmails = Folder.bind(emailService, Inbox).getUnreadCount();
 
       if (unreadEmails < 1)
       {
-        logger.info("No unread Emails...", unreadEmails);
+        LOGGER.info("No unread Emails...", unreadEmails);
         return;
       }
 
@@ -123,16 +121,16 @@ public class EmailService
 
       emailService.loadPropertiesForItems(findResults, propertySet);
 
-      logger.info("Total number of items found {} ", findResults.getTotalCount());
+      LOGGER.info("Total number of items found {} ", findResults.getTotalCount());
       for (Item item : findResults)
       {
         analyseAndSortEmail((EmailMessage) item);
       }
-      logger.info("Find Emails task complete ");
+      LOGGER.info("Find Emails task complete ");
     }
     catch (Exception e)
     {
-      logger.error(e.getMessage());
+      LOGGER.error(e.getMessage());
     }
     finally
     {
@@ -180,7 +178,7 @@ public class EmailService
     }
     catch (Exception e)
     {
-      logger.error(e.getMessage());
+      LOGGER.error(e.getMessage());
     }
   }
 
@@ -195,7 +193,7 @@ public class EmailService
    */
   private static void requestedFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws Exception
   {
-    logger.info("Requested Feedback found");
+    LOGGER.info("Requested Feedback found");
 
     String requestID = Utils.getFeedbackRequestIDFromEmailBody(body);
     if (requestID.isEmpty())
@@ -205,7 +203,7 @@ public class EmailService
     }
     try
     {
-      EmployeeDAO.addRequestedFeedback(from, requestID, body);
+      EMPLOYEE_SERVICE.addRequestedFeedback(from, requestID, body);
     }
     catch (InvalidAttributeValueException | NamingException e)
     {
@@ -217,9 +215,9 @@ public class EmailService
 
       sendEmail(errorRecipient, errorSubject, errorBody);
 
-      logger.info("Requested Feedback, email sent. Error: {}", e.getMessage());
+      LOGGER.info("Requested Feedback, email sent. Error: {}", e.getMessage());
     }
-    logger.info("Requested Feedback processed");
+    LOGGER.info("Requested Feedback processed");
   }
 
   /**
@@ -235,7 +233,7 @@ public class EmailService
    */
   private static void genericFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws Exception
   {
-    logger.info("Generic Feedback found");
+    LOGGER.info("Generic Feedback found");
     Set<EmailAddress> errorRecipients = new HashSet<>();
 
     if (recipients.size() == 1
@@ -247,7 +245,7 @@ public class EmailService
 
       sendEmail(errorRecipient, errorSubject, errorBody);
 
-      logger.info("Incorrect Use of Feedback.uk found, email sent.");
+      LOGGER.info("Incorrect Use of Feedback.uk found, email sent.");
       return;
     }
 
@@ -257,13 +255,13 @@ public class EmailService
 
       try
       {
-        EmployeeDAO.addFeedback(from, recipient.getAddress(), body, false);
+        EMPLOYEE_SERVICE.addFeedback(from, recipient.getAddress(), body, false);
       }
       catch (InvalidAttributeValueException | NamingException e)
       {
         errorRecipients.add(recipient);
 
-        logger.error("Error processing feedback from {} to {}, Error:{}", from, recipient, e.getMessage());
+        LOGGER.error("Error processing feedback from {} to {}, Error:{}", from, recipient, e.getMessage());
       }
     }
     if (!errorRecipients.isEmpty())
@@ -276,10 +274,10 @@ public class EmailService
 
       sendEmail(errorRecipient, errorSubject, errorBody);
 
-      logger.error("Email sent to {} regarding error feedback to {}", from, errorRecipients.toString());
+      LOGGER.error("Email sent to {} regarding error feedback to {}", from, errorRecipients.toString());
     }
 
-    logger.info("Generic Feedback processed");
+    LOGGER.info("Generic Feedback processed");
   }
 
   /**
@@ -291,10 +289,10 @@ public class EmailService
    */
   private static void undeliverableFeedbackFound(String subject, String body) throws Exception
   {
-    logger.info("Undelivered Email found.");
+    LOGGER.info("Undelivered Email found.");
 
     long employeeID = Utils.getEmployeeIDFromFeedbackRequestSubject(subject);
-    Employee employee = EmployeeDAO.getEmployee(employeeID);
+    Employee employee = EMPLOYEE_SERVICE.getEmployee(employeeID);
     String intendedRecipient = Utils.getRecipientFromUndeliverableEmail(body);
 
     String errorRecipient = employee.getEmailAddress();
@@ -305,7 +303,7 @@ public class EmailService
 
     sendEmail(errorRecipient, errorSubject, errorBody);
 
-    logger.info("Undelivered Email processed, error email sent.");
+    LOGGER.info("Undelivered Email processed, error email sent.");
   }
 
   /**

@@ -38,7 +38,7 @@ public class ValidateAppControllerTest
   public void testIsValidCreateFeedbackRequestWithValid() throws InvalidAttributeValueException
   {
     StringBuilder validEmailList = new StringBuilder(validEmail1 + "," + validEmail2);
-    
+
     assertTrue("should return 'true'",
         ValidateAppController.isValidCreateFeedbackRequest(validID, validEmail1, validString));
     assertTrue("should return 'true'",

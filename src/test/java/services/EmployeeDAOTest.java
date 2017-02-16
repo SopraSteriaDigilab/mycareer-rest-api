@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 
-import application.AppController;
 import application.AppControllerTest;
+import controller.EmployeeController;
 import dataStructure.Employee;
 import dataStructure.Objective;
 
@@ -39,14 +39,14 @@ public class EmployeeDAOTest
   /** Datastore Property - Mocked by Mockito. */
   @Mock
   private Datastore mockDatastore;
-  
+
   /** Environment Property - Mocked by Mockito. */
   @Mock
   private Environment mockEnvironment;
 
   /** EmployeeDAO Property - Mocked by Mockito. */
   @Mock
-  private EmployeeDAO mockEmployeeDao;
+  private EmployeeService mockEmployeeDao;
 
   /** Employee Property - Mocked by Mockito. */
   @Mock
@@ -63,7 +63,7 @@ public class EmployeeDAOTest
 
   /** ProcessComponentsImpl Property - Represents the unit under test. */
   @InjectMocks
-  private EmployeeDAO unitUnderTest;
+  private EmployeeService unitUnderTest;
 
   /**
    * Setup method that runs once before each test method.
@@ -74,7 +74,7 @@ public class EmployeeDAOTest
   {
     // LOG.debug("AppControllerTest.setup()", true);
 
-    unitUnderTest = new EmployeeDAO();
+    unitUnderTest = new EmployeeService();
 
     MockitoAnnotations.initMocks(this);
 
@@ -82,7 +82,7 @@ public class EmployeeDAOTest
     when(mockQuery.filter(Mockito.anyString(), Mockito.any())).thenReturn(mockQuery);
     when(mockQuery.get()).thenReturn(mockEmployee);
 
-    mockEmployeeDao = new EmployeeDAO(mockDatastore, mockEnvironment);
+    mockEmployeeDao = new EmployeeService(mockDatastore, mockEnvironment);
   }
 
   /**

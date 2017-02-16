@@ -18,8 +18,6 @@ import utils.EmployeeStatistics;
 /**
  * HR Service class.
  * 
- * @version 1.0
- * @since 23rd January 2017
  */
 public class HRService
 {
