@@ -2,16 +2,12 @@ package controller;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import domain.HRData;
-import domain.HRObjectiveData;
-import services.HRDataDAO;
+import services.HRService;
 
 /**
  * HRController Class - Rest controller for the HR of MyCareer.
@@ -22,27 +18,29 @@ import services.HRDataDAO;
 @RequestMapping("/hr")
 public class HRController
 {
-  
   /** HRDataDAO Constant - Represents the service to be user for hr data. */
-  private final HRDataDAO hrService = new HRDataDAO();
-  
+  private final HRService hrService = new HRService();
+
   /**
-   * This method allows the front-end to retrieve a summary of a user's details and un-archived objectives.
+   * GET End Point - Gets overview of my career stats
+   *
+   * @return
    */
-  @RequestMapping(value = "/getHRObjectiveData", method = GET)
-  public ResponseEntity<List<HRObjectiveData>> getHRObjectiveData()
+  @RequestMapping(value = "/getMyCareerStats", method = GET)
+  public ResponseEntity<?> getMyCareerStats()
   {
-    return ResponseEntity.ok(hrService.getHRObjectiveData());
+    return ResponseEntity.ok(hrService.getMyCareerStats());
   }
 
   /**
-   * This method allows the front-end to retrieve a totals, objective counts, and development need counts in a single
-   * API call.
+   * GET End Point - Gets lists of employees with department data
+   *
+   * @return
    */
-  @RequestMapping(value = "/getHRData", method = GET)
-  public ResponseEntity<HRData> getHRData()
+  @RequestMapping(value = "/getEmployeeStats", method = GET)
+  public ResponseEntity<?> getEmployeeStats()
   {
-    return ResponseEntity.ok(hrService.getHRData());
+    return ResponseEntity.ok(hrService.getEmployeeStats());
   }
 
   /**
@@ -54,6 +52,28 @@ public class HRController
   public ResponseEntity<?> getFeedbackStats()
   {
     return ResponseEntity.ok(hrService.getFeedbackStats());
+  }
+
+  /**
+   * GET End Point - Gets lists of employees and their objective statistics
+   *
+   * @return
+   */
+  @RequestMapping(value = "/getObjectiveStats", method = GET)
+  public ResponseEntity<?> getObjectiveStats()
+  {
+    return ResponseEntity.ok(hrService.getObjectiveStats());
+  }
+
+  /**
+   * GET End Point - Gets lists of employees and their development needs statistics
+   *
+   * @return
+   */
+  @RequestMapping(value = "/getDevelopmentNeedStats", method = GET)
+  public ResponseEntity<?> getDevelopmentNeedStats()
+  {
+    return ResponseEntity.ok(hrService.getDevelopmentNeedStats());
   }
 
 }

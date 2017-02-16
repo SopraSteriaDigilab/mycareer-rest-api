@@ -17,7 +17,7 @@ import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
 
-import services.HRDataDAO;
+import services.HRService;
 import services.EmployeeDAO;
 
 @Configuration
@@ -70,7 +70,7 @@ public class EnvironmentSetup {
 	}
 	
 	@Bean
-	public HRDataDAO hrDataDAO() {
-		return new HRDataDAO(getMongoDBConnection());
+	public HRService hrDataDAO() {
+		return new HRService(getMongoDBConnection());
 	}
 }
