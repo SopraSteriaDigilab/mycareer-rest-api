@@ -36,6 +36,9 @@ import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import com.mongodb.MongoException;
 
@@ -51,6 +54,7 @@ import dataStructure.Objective;
 import services.ad.ADProfileDAO_OLD;
 import services.ews.EmailService;
 import services.validate.Validate;
+import utils.Template;
 import utils.Utils;
 
 /**
@@ -64,6 +68,8 @@ import utils.Utils;
  * @since 10th October 2016
  *
  */
+@Component
+@PropertySource("${ENVIRONMENT}.properties")
 public class EmployeeDAO
 {
 
@@ -74,6 +80,9 @@ public class EmployeeDAO
 
   /** String Constant - Represents Feedback Request */
   public final static String FEEDBACK_REQUEST = "Feedback Request";
+  
+  /** Environment Property - Reference to environment to get property details. */
+  private static Environment env;
 
   /**
    * EmployeeDAO Constructor - Needed for mongoDB.
@@ -88,9 +97,10 @@ public class EmployeeDAO
    *
    * @param dbConnection
    */
-  public EmployeeDAO(Datastore dbConnection)
+  public EmployeeDAO(Datastore dbConnection, Environment env)
   {
     EmployeeDAO.dbConnection = dbConnection;
+    EmployeeDAO.env = env;
   }
 
   /**
@@ -364,6 +374,29 @@ public class EmployeeDAO
     }
     else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
   }
+  
+
+  public static boolean insertNewNoteForReportee(long employeeID, String from, String noteDescription) throws InvalidAttributeValueException
+  {
+    if(employeeID < 1)
+      throw new InvalidAttributeValueException("The ID provided was not found. Please try again with valid ID");
+    
+    insertNewNote(employeeID, new Note(1, 0, 0, noteDescription, from));
+
+    String reporteeEmail = getEmployee(employeeID).getEmailAddress();
+    String subject = String.format("Note added from %s", from);
+    try
+    {
+      String body = Template.populateTemplate(env.getProperty("templates.note.added"), from);
+      EmailService.sendEmail(reporteeEmail, subject, body);
+    }
+    catch (Exception e)
+    {
+      logger.error("Email could not be sent for a proposed objective. Error: {}", e);
+    }
+    
+    return true;
+  }
 
   public static boolean addNewVersionNote(long employeeID, int noteID, Object data)
       throws InvalidAttributeValueException
@@ -554,13 +587,14 @@ public class EmployeeDAO
     Employee requester = EmployeeDAO.getEmployee(employeeID);
     Set<String> recipientList = Utils.stringEmailsToHashSet(emailsString);
     List<String> errorRecipientList = new ArrayList<String>();
+    String requesterName = requester.getFullName();
 
     for (String recipient : recipientList)
     {
       String tempID = Utils.generateFeedbackRequestID(employeeID);
       String subject = String.format("Feedback Request from %s - %s", requester.getFullName(), employeeID);
-      String body = String.format("%s \n\n Feedback_Request: %s", notes, tempID);
-      // TODO Replace above with template.
+//      String body = String.format("%s \n\n Feedback_Request: %s", notes, tempID);
+      String body = Template.populateTemplate(env.getProperty("templates.feedback.request"), requesterName, notes, tempID);
       try
       {
         EmailService.sendEmail(recipient, subject, body);
@@ -605,11 +639,10 @@ public class EmployeeDAO
    * @param providerEmail
    * @param recipientEmail
    * @param feedbackDescription
-   * @throws InvalidAttributeValueException
-   * @throws NamingException
+   * @throws Exception 
    */
-  public static void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription)
-      throws InvalidAttributeValueException, NamingException
+  public static void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription, boolean isFeedbackRequest)
+      throws Exception
 
   {
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
@@ -633,6 +666,16 @@ public class EmployeeDAO
     UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback",
         employee.getFeedback());
     dbConnection.update(employee, ops);
+
+    if (isFeedbackRequest)
+    {
+
+      String provider = (!feedback.getProviderName().isEmpty()) ? feedback.getProviderName() : providerEmail;
+      String subject = String.format("Feedback Request reply from %s", provider);
+      String body = Template.populateTemplate(env.getProperty("templates.feedback.reply"), provider);
+
+      EmailService.sendEmail(recipientEmail, subject, body);
+    }
   }
 
   /**
@@ -642,11 +685,10 @@ public class EmployeeDAO
    * @param providerEmail
    * @param feedbackRequestID
    * @param feedbackDescription
-   * @throws InvalidAttributeValueException
-   * @throws NamingException
+   * @throws Exception 
    */
   public static void addRequestedFeedback(String providerEmail, String feedbackRequestID, String feedbackDescription)
-      throws InvalidAttributeValueException, NamingException
+      throws Exception
   {
     Validate.areStringsEmptyorNull(providerEmail, feedbackRequestID, feedbackDescription);
 
@@ -659,7 +701,7 @@ public class EmployeeDAO
         employee.getFeedbackRequestsList());
     dbConnection.update(employee, ops);
 
-    addFeedback(providerEmail, employee.getEmailAddress(), feedbackDescription);
+    addFeedback(providerEmail, employee.getEmailAddress(), feedbackDescription, true);
   }
 
   /**
@@ -718,13 +760,13 @@ public class EmployeeDAO
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
-          boolean resUpdate = e.verifyDataIsUpToDate(userData);
+          boolean updated = e.matchAndUpdated(userData);
           // If the method returns true, the data has been updated
-          if (resUpdate)
+          if (updated)
           {
             // Reflect the changes to our system, updating the user data in the MongoDB
             // Remove incorrect document
-            dbConnection.findAndDelete(querySearch);
+//            dbConnection.findAndDelete(querySearch);
             // Commit the changes to the DB
             dbConnection.save(e);
           }
@@ -746,5 +788,6 @@ public class EmployeeDAO
     }
     else throw new InvalidAttributeValueException(NULL_USER_DATA);
   }
+
 
 }

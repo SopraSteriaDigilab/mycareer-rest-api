@@ -35,7 +35,7 @@ public class UtilsTest
   private final String INVALID_REQUEST_FEEDBACK_ID = "111_111";
 
   /** TODO TYPE Property|Constant - Represents|Indicates... */
-  private final String REQUEST_FEEDBACK_ID_TEXT = "Random text. Feedback_Request: 111111_11111111111111111";
+  private final String REQUEST_FEEDBACK_ID_TEXT = "Random text. Request ID: 111111_11111111111111111";
 
   /** TODO TYPE Property|Constant - Represents|Indicates... */
   private final String REQUEST_FEEDBACK_ID_TEXT_2 = "Random text.";

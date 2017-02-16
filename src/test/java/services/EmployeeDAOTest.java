@@ -17,6 +17,7 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 
 import application.AppController;
@@ -38,6 +39,10 @@ public class EmployeeDAOTest
   /** Datastore Property - Mocked by Mockito. */
   @Mock
   private Datastore mockDatastore;
+  
+  /** Environment Property - Mocked by Mockito. */
+  @Mock
+  private Environment mockEnvironment;
 
   /** EmployeeDAO Property - Mocked by Mockito. */
   @Mock
@@ -77,7 +82,7 @@ public class EmployeeDAOTest
     when(mockQuery.filter(Mockito.anyString(), Mockito.any())).thenReturn(mockQuery);
     when(mockQuery.get()).thenReturn(mockEmployee);
 
-    mockEmployeeDao = new EmployeeDAO(mockDatastore);
+    mockEmployeeDao = new EmployeeDAO(mockDatastore, mockEnvironment);
   }
 
   /**

@@ -957,106 +957,66 @@ public class Employee extends ADProfile_Advanced implements Serializable{
 		});	
 	}
 
-	/**
-	 * 
-	 * This method checks and update the user data with the new given information 
-	 * The only field that never changes and therefore it won't be checked is the GUID.
-	 * The GUID is the AD value unique not only inside the enterprise, but in the entire globe
-	 * 
-	 * @param data The user data to compare with the corrent information
-	 * @return True if the data had to be updated, false if the data didn't need changing
-	 * @throws InvalidAttributeValueException 
-	 */
-	public boolean verifyDataIsUpToDate(ADProfile_Advanced data) throws InvalidAttributeValueException {
-		int itemsUpdated=0;
+  /**
+   * Verifies if user details matches ad profile and updates fields that are not the same.
+   *
+   * @param adProfileAdvance
+   * @return True if nothing was updated, false otherwise 
+   * @throws InvalidAttributeValueException 
+   */
+  public boolean matchAndUpdated(ADProfile_Advanced adProfileAdvance) throws InvalidAttributeValueException
+  {
+    //TODO Probably a better way to do this.. Also maybe move this method to EmployeeDAO...?
+    //Override equals method.
+    boolean updated = false;
 
-		//Start checking the fields
-
-		//Check the employeeID
-		if(this.getEmployeeID()!=data.getEmployeeID()){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setEmployeeID(data.getEmployeeID());
-		}
-
-		//Check the Email address
-		if(!this.getEmailAddress().equals(data.getEmailAddress())){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setEmailAddress(data.getEmailAddress());
-		}
-
-		//Check the username
-		if(!this.getUsername().equals(data.getUsername())){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setUsername(data.getUsername());
-		}
-
-		//Check the company
-		if(!this.getCompany().equals(data.getCompany())){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setCompany(data.getCompany());
-		}
-		
-		//Check the super sector
-		if(!this.getSuperSector().equals(data.getSuperSector())){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setSuperSector(data.getSuperSector());
-		}
-		
-		//Check the sector
-		if(!this.getSector().equals(data.getSector())){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setSector(data.getSector());
-		}
-		
-		// Check the Steria department
-		if(!this.getSteriaDepartment().equals(data.getSteriaDepartment())){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setSteriaDepartment(data.getSteriaDepartment());
-		}
-		
-		//Check the Sopra department
-		if(!this.getSopraDepartment().equals(data.getSopraDepartment())){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setSopraDepartment(data.getSopraDepartment());
-		}
-
-		//Check the team
-		if(!this.getTeam().equals(data.getTeam())){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setTeam(data.getTeam());
-		}
-
-		//Check the list of reportees
-		int subCounter=0;
-		List<String> repOldSubList=this.getReporteeCNs();
-		List<String> repNewSubList=data.getReporteeCNs();
-    // TODO This doesnt work... Logic doesn't work.
-    // If repNewSubList is 0 (i.e. an employees reportee leaves the company) then this wont even check...
-		for(int i=0; i<repNewSubList.size(); i++){
-			if(!repOldSubList.contains(repNewSubList.get(i))){
-				subCounter++;
-			}
-		}
-		if(subCounter>0){
-			//Update the counter and the user data
-			itemsUpdated++;
-			this.setReporteeCNs(repNewSubList);
-		}
-
-		//Return a value
-		if(itemsUpdated>0)
-			return true;
-		return false;
-	}
+    if (!this.getCompany().equals(adProfileAdvance.getCompany()))
+    {
+      this.setCompany(adProfileAdvance.getCompany());
+      updated = true;
+    }
+    if (!this.getEmailAddress().equals(adProfileAdvance.getEmailAddress()))
+    {
+      this.setEmailAddress(adProfileAdvance.getEmailAddress());
+      updated = true;
+    }
+    if (this.getEmployeeID() != (adProfileAdvance.getEmployeeID()))
+    {
+      this.setEmployeeID(adProfileAdvance.getEmployeeID());
+      updated = true;
+    }
+    if (!this.getForename().equals(adProfileAdvance.getForename()))
+    {
+      this.setForename(adProfileAdvance.getForename());
+      updated = true;
+    }    
+    if (this.getIsManager() != adProfileAdvance.getIsManager())
+    {
+      this.setIsManager(adProfileAdvance.getIsManager());
+      updated = true;
+    }
+    if (!this.getReporteeCNs().equals(adProfileAdvance.getReporteeCNs()))
+    {
+      this.setReporteeCNs(adProfileAdvance.getReporteeCNs());
+      updated = true;
+    }
+    if (!this.getSurname().equals(adProfileAdvance.getSurname()))
+    {
+      this.setSurname(adProfileAdvance.getSurname());
+      updated = true;
+    }
+    if (!this.getTeam().equals(adProfileAdvance.getTeam()))
+    {
+      this.setTeam(adProfileAdvance.getTeam());
+      updated = true;
+    }
+    if (!this.getUsername().equals(adProfileAdvance.getUsername()))
+    {
+      this.setUsername(adProfileAdvance.getUsername());
+      updated = true;
+    }
+    return updated;
+  }
 	
 	public String toGson(){
 		Gson gsonData=new Gson();

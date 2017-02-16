@@ -21,6 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,8 +41,9 @@ import dataStructure.Note;
 import dataStructure.Objective;
 import services.EmployeeDAO;
 import services.EmployeeProfileDAO;
-import services.ad.ADProfileDAO_OLD;
+import services.ews.EmailService;
 import services.validate.Validate;
+import utils.Template;
 
 /**
  * 
@@ -55,9 +59,16 @@ import services.validate.Validate;
  */
 @CrossOrigin
 @RestController
+@PropertySource("${ENVIRONMENT}.properties")
 public class AppController {
-	
-	private static final Logger logger = LoggerFactory.getLogger(AppController.class);
+  
+  /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
+  private static final Logger logger = LoggerFactory.getLogger(AppController.class);
+  
+  /** Environment Property - Reference to environment to get property details. */
+  @Autowired
+  private  Environment env;
+  
 	
 	@RequestMapping(value="/", method = GET)
 	public ResponseEntity<String> welcomePage() {
@@ -403,8 +414,10 @@ public class AppController {
 		try{
 			Note obj=new Note(1, noteType, linkID, body,from);
 			boolean inserted=EmployeeDAO.insertNewNote(employeeID,obj);
-			if(inserted)
+			if(inserted){
 				return ok("Note inserted correctly");
+				
+			}
 			else
 				return badRequest().body("Error while adding the Note");
 		}
@@ -415,6 +428,30 @@ public class AppController {
 			return badRequest().body(e.getMessage());
 		}
 	}
+	
+  /**
+   * POST End Point - adds note to reportee
+   *
+   * @param employeeID
+   * @param reporteeEmployeeID
+   * @param body
+   * @return
+   */
+  @RequestMapping(value = "/addNoteToReportee/{reporteeEmployeeID}", method = POST)
+  public ResponseEntity<?> addNoteToReportee(@PathVariable long reporteeEmployeeID, @RequestParam String from,
+      @RequestParam String body)
+  {
+    try
+    {
+      EmployeeDAO.insertNewNoteForReportee(reporteeEmployeeID, from, body);
+      return ok("Note inserted correctly");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+	
 
 	/**
 	 * 
@@ -573,21 +610,25 @@ public class AppController {
 //		}
 //	}
 	
-	@RequestMapping(value="/generateFeedbackRequest/{employeeID}", method = POST)
-	public ResponseEntity<String> createFeedbackRequest(
-			@PathVariable("employeeID") long employeeID,
-			@RequestParam(value="emailsTo") String toFields,
-			@RequestParam(value="notes") String notes){
-		try {
-			isValidCreateFeedbackRequest(employeeID, toFields, notes);
-			EmployeeDAO.processFeedbackRequest(employeeID, toFields, notes);
-			return ok("Your feedback request has been processed.");
-		} catch (InvalidAttributeValueException e) {
-			return badRequest().body(e.getMessage());
-		} catch (Exception e) {
-			return badRequest().body(e.getMessage());
-		}
-	}
+  @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
+  public ResponseEntity<String> createFeedbackRequest(@PathVariable("employeeID") long employeeID,
+      @RequestParam(value = "emailsTo") String toFields, @RequestParam(value = "notes") String notes)
+  {
+    try
+    {
+      isValidCreateFeedbackRequest(employeeID, toFields, notes);
+      EmployeeDAO.processFeedbackRequest(employeeID, toFields, notes);
+      return ok("Your feedback request has been processed.");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+    catch (Exception e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
 	
 
 //	/**
@@ -709,9 +750,12 @@ public class AppController {
 			if(temp.isBefore(YearMonth.now(ZoneId.of(UK_TIMEZONE)))){
 				throw new InvalidAttributeValueException("Date can not be in the past");
 			}
-
+			
 			//get user and loop through emails and add objective
 			String proposedBy=EmployeeDAO.getFullNameUser(employeeID);
+			
+			String subject = String.format("Proposed Objective from %s", proposedBy);
+			
 			for(String email : emailSet){
 				try{
 					ADProfile_Basic userInQuestion = EmployeeProfileDAO.authenticateUserProfile(email);
@@ -721,6 +765,17 @@ public class AppController {
 					if(inserted){
 						insertAccepted = true;
 						result+=  userInQuestion.getFullName() +", ";
+
+						try
+            {
+						  String body = Template.populateTemplate(env.getProperty("templates.objective.proposed"), proposedBy);
+              EmailService.sendEmail(email, subject, body);
+            }
+            catch (Exception e)
+            {
+              logger.error("Email could not be sent for a proposed objective. Error: {}", e);
+            }
+						
 					} else{
 						errorInserting = true;
 						errorResult+= "Could not send to " + userInQuestion.getEmployeeID() +", ";

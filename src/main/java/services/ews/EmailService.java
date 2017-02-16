@@ -5,7 +5,6 @@ import static microsoft.exchange.webservices.data.core.enumeration.property.Body
 import static microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName.Inbox;
 import static microsoft.exchange.webservices.data.core.service.schema.EmailMessageSchema.IsRead;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
@@ -38,6 +37,7 @@ import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import microsoft.exchange.webservices.data.search.filter.SearchFilter;
 import services.EmployeeDAO;
+import utils.Template;
 import utils.Utils;
 
 /**
@@ -89,6 +89,8 @@ public class EmailService
     message.setBody(new MessageBody(Text, body));
     message.getToRecipients().add(recipient);
     message.sendAndSaveCopy();
+    // emailService.close();
+    // TODO throws an error
   }
 
   /**
@@ -97,17 +99,9 @@ public class EmailService
    * 
    * @throws Exception
    */
-//  @Scheduled(fixedRate = 30000)
+//  @Scheduled(fixedRate = 60000)
   private void findEmails()
   {
-    
-    try {
-      logger.info("--------------------------------------------------------------");
-      logger.info(Utils.populateTemplate("/test.txt", ""));
-    } catch (IOException e){
-      logger.info(e.getMessage());
-    }
-    
     try
     {
       initiateEWSConnection(120000);
@@ -140,6 +134,12 @@ public class EmailService
     {
       logger.error(e.getMessage());
     }
+    finally
+    {
+      // emailService.close();
+      // TODO throws an error
+    }
+
   }
 
   /**
@@ -156,8 +156,8 @@ public class EmailService
       String from = email.getFrom().getAddress();
       Set<EmailAddress> recipients = new HashSet<>(email.getToRecipients().getItems());
       // Set<EmailAddress> ccRecipients = new HashSet<>(email.getCcRecipients().getItems());
-      String subject = email.getSubject().toLowerCase();
-      String body = email.getBody().toString().trim();
+      String subject = (email.getSubject() == null) ? "" : email.getSubject().toLowerCase();
+      String body = (email.getBody() == null) ? "" : email.getBody().toString().trim();
 
       if (subject.contains("undeliverable"))
       {
@@ -196,6 +196,7 @@ public class EmailService
   private static void requestedFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws Exception
   {
     logger.info("Requested Feedback found");
+
     String requestID = Utils.getFeedbackRequestIDFromEmailBody(body);
     if (requestID.isEmpty())
     {
@@ -210,9 +211,9 @@ public class EmailService
     {
       String errorRecipient = from;
       String errorSubject = "Error Processing Feedback";
-      String errorBody = "There was an issue processing your feedback, please try reply to the feedback request "
-          + "email and do make sure not to changed any of the details on the email.";
-      // TODO Replace above with template.
+      // String errorBody = "There was an issue processing your feedback, please try reply to the feedback request "
+      // + "email and do make sure not to changed any of the details on the email.";
+      String errorBody = Template.populateTemplate(env.getProperty("templates.error.invalidfeedback"));
 
       sendEmail(errorRecipient, errorSubject, errorBody);
 
@@ -237,13 +238,26 @@ public class EmailService
     logger.info("Generic Feedback found");
     Set<EmailAddress> errorRecipients = new HashSet<>();
 
+    if (recipients.size() == 1
+        && recipients.stream().anyMatch(s -> s.getAddress().equals(env.getProperty("mail.address"))))
+    {
+      String errorRecipient = from;
+      String errorSubject = "Error Processing Feedback";
+      String errorBody = Template.populateTemplate(env.getProperty("templates.error.invalidfeedback"));
+
+      sendEmail(errorRecipient, errorSubject, errorBody);
+
+      logger.info("Incorrect Use of Feedback.uk found, email sent.");
+      return;
+    }
+
     for (EmailAddress recipient : recipients)
     {
       if (recipient.getAddress().equals(env.getProperty("mail.address"))) continue;
 
       try
       {
-        EmployeeDAO.addFeedback(from, recipient.getAddress(), body);
+        EmployeeDAO.addFeedback(from, recipient.getAddress(), body, false);
       }
       catch (InvalidAttributeValueException | NamingException e)
       {
@@ -285,10 +299,9 @@ public class EmailService
 
     String errorRecipient = employee.getEmailAddress();
     String errorSubject = "Feedback Request Issue";
-    String errorBody = String.format(
-        "There was an issue proccessing your feedback to %s, please make sure the email address is correct and try again",
-        intendedRecipient);
-    // TODO Replace above with template.
+    // String errorBody = String.format("There was an issue proccessing your feedback to %s, please make sure the email
+    // address is correct and try again",intendedRecipient);
+    String errorBody = Template.populateTemplate(env.getProperty("templates.error.invalidemail"), intendedRecipient);
 
     sendEmail(errorRecipient, errorSubject, errorBody);
 

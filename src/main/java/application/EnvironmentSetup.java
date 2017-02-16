@@ -66,7 +66,7 @@ public class EnvironmentSetup {
 	
 	@Bean
 	public EmployeeDAO employeeDAO() {
-		return new EmployeeDAO(getMongoDBConnection());
+		return new EmployeeDAO(getMongoDBConnection(), env);
 	}
 	
 	@Bean
