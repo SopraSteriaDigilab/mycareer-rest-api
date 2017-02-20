@@ -108,6 +108,19 @@ public class HRService
   }
 
   /**
+   * 
+   * Break down of development needs with category, not including complete ones.
+   *
+   * @return
+   */
+  public Object getDevelopmentNeedBreakDown()
+  {
+    List<Employee> employees = employeeQuery().field("developmentNeeds").exists()
+        .retrievedFields(true, addAll(EMPLOYEE_FIELDS, DEVELOPMENT_NEEDS_FIELDS)).asList();
+    return employeeStats.getDevelopmentNeedBreakDown(employees);
+  }
+
+  /**
    * Employee query
    *
    * @return An Employee query

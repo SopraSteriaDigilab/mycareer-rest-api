@@ -76,4 +76,15 @@ public class HRController
     return ResponseEntity.ok(hrService.getDevelopmentNeedStats());
   }
 
+  /**
+   * GET End Point - Gets lists of employees with started and in progress development needs with categories.
+   *
+   * @return
+   */
+  @RequestMapping(value = "/getDevelopmentNeedBreakDown", method = GET)
+  public ResponseEntity<?> getDevelopmentNeedBreakDown()
+  {
+    return ResponseEntity.ok(hrService.getDevelopmentNeedBreakDown());
+  }
+
 }
