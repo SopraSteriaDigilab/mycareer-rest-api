@@ -78,11 +78,12 @@ public class EmployeeStatistics
    * @param employees
    * @return
    */
+  @SuppressWarnings("rawtypes")
   public List<Map> getFeedbackStats(List<Employee> employees)
   {
     List<Map> statistics = new ArrayList<>();
     employees.forEach(e -> {
-      Map map = getBasicMap(e);
+      Map<String, Object> map = getBasicMap(e);
       map.put("totalFeedback", e.getFeedback().size());
       statistics.add(map);
     });

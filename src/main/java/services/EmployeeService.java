@@ -79,7 +79,7 @@ public class EmployeeService
   private static Environment env;
 
   /**
-   * EmployeeDAO Constructor - Needed for mongoDB.
+   * EmployeeDAO Constructor - Needed for morphia?.
    *
    */
   public EmployeeService()
@@ -115,6 +115,7 @@ public class EmployeeService
   }
 
   /**
+   * Get Employee query with the specified id
    *
    * @param employeeID
    * @return
@@ -124,21 +125,50 @@ public class EmployeeService
     return dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
   }
 
+  /**
+   * Gets full name os a user from the database
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public String getFullNameUser(long employeeID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).getFullName();
   }
 
+  /**
+   * Get a list of the current objectives for a user.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public List<Objective> getObjectivesForUser(long employeeID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).getLatestVersionObjectives();
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param objectiveID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public Objective getSpecificObjectiveForUser(long employeeID, int objectiveID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).getLatestVersionOfSpecificObjective(objectiveID);
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public List<Feedback> getFeedbackForUser(long employeeID) throws InvalidAttributeValueException
   {
     List<Feedback> feedbackList = getEmployee(employeeID).getFeedback();
@@ -146,49 +176,69 @@ public class EmployeeService
     return feedbackList;
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public List<Note> getNotesForUser(long employeeID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).getLatestVersionNotes();
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public List<DevelopmentNeed> getDevelopmentNeedsForUser(long employeeID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).getLatestVersionDevelopmentNeeds();
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public String getAllUserDataFromID(long employeeID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).toString();
   }
 
-  // Returns list of Competencies for a user
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public List<Competency> getCompetenciesForUser(long employeeID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).getLatestVersionCompetencies();
   }
 
-  // Returns list of reportees for a user
+
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   * @throws NamingException
+   */
   public List<ADProfile_Basic> getReporteesForUser(long employeeID)
       throws InvalidAttributeValueException, NamingException
   {
     Employee employee = getEmployee(employeeID);
 
     List<ADProfile_Basic> reporteeList = new ArrayList<>();
-
-    // final List<ADProfile_Basic> reporteeListFromStream =
-    // employee.getReporteeCNs().stream()
-    // .map(s -> s.substring(s.indexOf('-') + 1).trim())
-    // .mapToLong(Long::parseLong)
-    // .mapToObj(x -> { // wrap in helper method
-    // try {
-    // return ADProfileDAO.verifyIfUserExists(x);
-    // } catch (InvalidAttributeValueException | NamingException e1) {
-    // // TODO Auto-generated catch block
-    // e1.printStackTrace();
-    // }
-    // return employee;
-    // })
-    // .collect(Collectors.toList());
 
     for (String str : employee.getReporteeCNs())
     {
@@ -242,6 +292,15 @@ public class EmployeeService
     else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param objectiveID
+   * @param progress
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean updateProgressObjective(long employeeID, int objectiveID, int progress)
       throws InvalidAttributeValueException
   {
@@ -279,6 +338,15 @@ public class EmployeeService
     return updated;
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param objectiveID
+   * @param data
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean addNewVersionObjective(long employeeID, int objectiveID, Object data)
       throws InvalidAttributeValueException
   {
@@ -333,6 +401,15 @@ public class EmployeeService
     return false;
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param data
+   * @return
+   * @throws InvalidAttributeValueException
+   * @throws MongoException
+   */
   public boolean insertNewNote(long employeeID, Object data) throws InvalidAttributeValueException, MongoException
   {
     // Check the employeeID
@@ -364,6 +441,15 @@ public class EmployeeService
     else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param from
+   * @param noteDescription
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean insertNewNoteForReportee(long employeeID, String from, String noteDescription)
       throws InvalidAttributeValueException
   {
@@ -387,6 +473,15 @@ public class EmployeeService
     return true;
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param noteID
+   * @param data
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean addNewVersionNote(long employeeID, int noteID, Object data) throws InvalidAttributeValueException
   {
     // Check EmployeeID and noteID
@@ -439,6 +534,15 @@ public class EmployeeService
     return false;
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param data
+   * @return
+   * @throws InvalidAttributeValueException
+   * @throws MongoException
+   */
   public boolean insertNewDevelopmentNeed(long employeeID, Object data)
       throws InvalidAttributeValueException, MongoException
   {
@@ -472,6 +576,15 @@ public class EmployeeService
     else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param devNeedID
+   * @param progress
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean updateProgressDevelopmentNeed(long employeeID, int devNeedID, int progress)
       throws InvalidAttributeValueException
   {
@@ -509,6 +622,15 @@ public class EmployeeService
     return updated;
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param devNeedID
+   * @param data
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, Object data)
       throws InvalidAttributeValueException
   {
@@ -734,6 +856,13 @@ public class EmployeeService
     return false;
   }
 
+  /**
+   * TODO: Describe this method.
+   *
+   * @param userData
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public ADProfile_Basic matchADWithMongoData(ADProfile_Advanced userData) throws InvalidAttributeValueException
   {
     if (userData != null)
