@@ -18,21 +18,24 @@ import javax.naming.directory.SearchControls;
 
 import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
-import services.EmployeeService;
 import services.ad.ADConnection;
+import services.ad.ADConnectionException;
 
 import java.util.UUID;
 
 /**
- * This class contains the definition of the ADProfileDAO
+ * 
+ * @author Michael Piccoli
+ * @author Ridhwan Nacef
+ * @author Mehmet Mehmet
+ * @version 1.0
+ * @since 14th November 2016
+ * 
+ *        This class contains the definition of the ADProfileDAO
  *
  */
 public final class EmployeeProfileDAO
 {
-
-  /** TYPE Property|Constant - Represents|Indicates... */
-  private final EmployeeService employeeService = new EmployeeService();
-
   // Sopra AD Details
   private static final String AD_SOPRA_HOST = "ldap://duns.ldap-ad.dmsi.corp.sopra";
   private static final String AD_SOPRA_URL = AD_SOPRA_HOST.concat(":389");
@@ -61,6 +64,8 @@ public final class EmployeeProfileDAO
   private static final String AUTHENTICATION = "simple";
   private static final String LDAP_CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
   private static final String BINARY_ATTRIBUTES_KEY = "java.naming.ldap.attributes.binary";
+  private static final String TIMEOUT_ATTRIBUTE_KEY = "com.sun.jndi.ldap.read.timeout";
+  private static final String TIMEOUT_ATTRIBUTE = "10000";
 
   // AD errors
   private static final String NOTFOUND_EMAILORUSERNAME_AD = "The given 'username/email address' didn't match any valid employee: ";
@@ -79,16 +84,18 @@ public final class EmployeeProfileDAO
     SOPRA_ENVIRONMENT_SETTINGS.put(BINARY_ATTRIBUTES_KEY, AD_SOPRA_BINARY_ATTRIBUTES);
     SOPRA_ENVIRONMENT_SETTINGS.put(SECURITY_PRINCIPAL, AD_SOPRA_PRINCIPAL);
     SOPRA_ENVIRONMENT_SETTINGS.put(SECURITY_CREDENTIALS, AD_SOPRA_PASSWORD);
+    SOPRA_ENVIRONMENT_SETTINGS.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
 
     STERIA_ENVIRONMENT_SETTINGS.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
     STERIA_ENVIRONMENT_SETTINGS.put(PROVIDER_URL, AD_STERIA_URL);
     STERIA_ENVIRONMENT_SETTINGS.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
     STERIA_ENVIRONMENT_SETTINGS.put(SECURITY_PRINCIPAL, AD_STERIA_PRINCIPAL);
     STERIA_ENVIRONMENT_SETTINGS.put(SECURITY_CREDENTIALS, AD_STERIA_PASSWORD);
+    STERIA_ENVIRONMENT_SETTINGS.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
   }
 
   public ADProfile_Basic authenticateUserProfile(String usernameEmail)
-      throws NamingException, InvalidAttributeValueException
+      throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
     // Verify the given string
     if (usernameEmail == null || usernameEmail.equals("") || usernameEmail.length() < 1)
@@ -111,10 +118,11 @@ public final class EmployeeProfileDAO
       adObj = authenticateSSEmailUserName(usernameEmail);
     }
 
-    return employeeService.matchADWithMongoData(adObj);
+    return adObj;
   }
 
-  public ADProfile_Basic verifyIfUserExists(long employeeID) throws NamingException, InvalidAttributeValueException
+  public ADProfile_Basic verifyIfUserExists(long employeeID)
+      throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
     if (employeeID < 1)
     {
@@ -139,7 +147,7 @@ public final class EmployeeProfileDAO
 
   // find full name using sopra steria email
   public String findEmployeeFullNameFromEmailAddress(String email)
-      throws NamingException, InvalidAttributeValueException
+      throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
     if (email == null || email.length() < 1)
     {
@@ -237,7 +245,8 @@ public final class EmployeeProfileDAO
     return adObj;
   }
 
-  private ADProfile_Advanced authenticateJVEmail(String email) throws NamingException, InvalidAttributeValueException
+  private ADProfile_Advanced authenticateJVEmail(String email)
+      throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
     ADProfile_Advanced adObj = new ADProfile_Advanced();
 
@@ -281,7 +290,7 @@ public final class EmployeeProfileDAO
   }
 
   private ADProfile_Advanced getProfileFromSteriaAD(String username, ADProfile_Advanced userData)
-      throws NamingException, InvalidAttributeValueException
+      throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
     if (username == null || username.length() < 2 || userData == null)
     {
