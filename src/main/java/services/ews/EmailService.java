@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import dataStructure.Employee;
@@ -97,7 +98,7 @@ public class EmailService
    * 
    * @throws Exception
    */
-  // @Scheduled(fixedRate = 60000)
+  @Scheduled(fixedRate = 60000)
   private void findEmails()
   {
     try
