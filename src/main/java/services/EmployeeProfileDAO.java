@@ -24,14 +24,7 @@ import services.ad.ADConnectionException;
 import java.util.UUID;
 
 /**
- * 
- * @author Michael Piccoli
- * @author Ridhwan Nacef
- * @author Mehmet Mehmet
- * @version 1.0
- * @since 14th November 2016
- * 
- *        This class contains the definition of the ADProfileDAO
+ * This class contains the definition of the ADProfileDAO
  *
  */
 public final class EmployeeProfileDAO

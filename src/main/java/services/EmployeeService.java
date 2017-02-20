@@ -245,7 +245,7 @@ public class EmployeeService
       long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
       try
       {
-        reporteeList.add(PROFILE_DAO.verifyIfUserExists(temp));
+        reporteeList.add(matchADWithMongoData((ADProfile_Advanced) PROFILE_DAO.verifyIfUserExists(temp)));
       }
       catch (Exception e)
       {
@@ -758,7 +758,7 @@ public class EmployeeService
   {
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
 
-    long employeeID = PROFILE_DAO.authenticateUserProfile(recipientEmail).getEmployeeID();
+    long employeeID = matchADWithMongoData((ADProfile_Advanced) PROFILE_DAO.authenticateUserProfile(recipientEmail)).getEmployeeID();
     Employee employee = getEmployee(employeeID);
 
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
