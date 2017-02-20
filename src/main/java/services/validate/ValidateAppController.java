@@ -8,6 +8,9 @@ import utils.Utils;
 
 /**
  * Class to handle validation of AppController methods.
+ * 
+ * @deprecated This will be replaced with Spring Rest.
+ * 
  */
 public class ValidateAppController
 {

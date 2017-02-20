@@ -41,6 +41,8 @@ targetCompatibility = 1.8
 dependencies {
 	
 	//Development suits
+	compile("org.springframework.boot:spring-boot-devtools")
+	
 	//Exclude Tomcat because it is already part of Jetty
     compile("org.springframework.boot:spring-boot-starter-web")
     
@@ -59,14 +61,14 @@ dependencies {
     //Add a logging library to log crucial events that happen in the system --> TO BE IMPLEMENTED
     //compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.7'
     
-    //Test suits
-    testCompile("junit:junit")
-    //testCompile("org.springframework.boot:spring-boot-starter-test")
-    
     compile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
     
     //SSO with SPNEGO (Internal libraries)
     compile files('libs/spnego-r7.jar')
 	compile files('libs/local_policy.jar')
 	compile files('libs/US_export_policy.jar')
+	
+	    //Test suits
+    testCompile("junit:junit")
+    //testCompile("org.springframework.boot:spring-boot-starter-test")
 }

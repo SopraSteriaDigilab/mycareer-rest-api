@@ -28,6 +28,9 @@ public class EmployeeStatistics
 
   /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
   public final static String[] DEVELOPMENT_NEEDS_FIELDS = { "developmentNeeds" };
+  
+  /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
+  public final static String[] DEVELOPMENT_NEED_CATEGORIES = { "On Job Training", "Classroom Training", "Online or E-Learning", "Self-Study", "Other" };
 
   /**
    * Statistics from my career.
@@ -91,7 +94,7 @@ public class EmployeeStatistics
   }
 
   /**
-   * Statistics for my objectives given employees
+   * Statistics for objectives given employees
    *
    * @param employees
    * @return
@@ -108,6 +111,12 @@ public class EmployeeStatistics
     return statistics;
   }
 
+  /**
+   * Statistics for development needs given employees
+   *
+   * @param employees
+   * @return
+   */
   @SuppressWarnings("rawtypes")
   public Object getDevelopmentNeedStats(List<Employee> employees)
   {
@@ -119,6 +128,28 @@ public class EmployeeStatistics
     });
     return statistics;
   }
+
+  /**
+   * Details of development needs per employee with category and title
+   *
+   * @param employees
+   * @return
+   */
+  public Object getDevelopmentNeedBreakDown(List<Employee> employees)
+  {
+    List<Map> statistics = new ArrayList<>();
+    employees.forEach(e -> {
+      e.getLatestVersionDevelopmentNeeds().forEach(d -> {
+        if(d.getProgress() == 2) return;
+        Map<String, Object> map = getBasicMap(e);
+        map.put("title" , d.getTitle());
+        map.put("category" , DEVELOPMENT_NEED_CATEGORIES[d.getCategory()]);
+        statistics.add(map);
+      });
+    });
+    return statistics;
+  }
+
 
   /**
    * Gets the standard employee details.
@@ -199,4 +230,38 @@ public class EmployeeStatistics
     map.put("complete", complete);
   }
 
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 }
