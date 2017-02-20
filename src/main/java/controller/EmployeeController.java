@@ -17,7 +17,10 @@ import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +41,7 @@ import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Note;
+import dataStructure.Note_NEW;
 import dataStructure.Objective;
 import services.EmployeeProfileDAO;
 import services.EmployeeService;
@@ -44,7 +49,7 @@ import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Template;
 
-/** 
+/**
  * This class contains all the available roots of the web service
  */
 @CrossOrigin
@@ -55,6 +60,8 @@ public class EmployeeController
 
   /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
   private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
+
+  private static final String ERROR_ID_EMPTY = "ID must not be empty";
 
   private final EmployeeService employeeService = new EmployeeService();
 
@@ -417,95 +424,122 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * This method allows the front-end to add a new note to a specific user
-   * 
-   * @param employeeID the employee ID (>0)
-   * @param from the author of the note (<150)
-   * @param body the content of the note (<1000)
-   * @return a message explaining if the note has been added or if there was an error while completing the task
+   * POST End point - Adds note to employee
+   *
    */
   @RequestMapping(value = "/addNote/{employeeID}", method = POST)
-  public ResponseEntity<?> addNoteToAUser(@PathVariable("employeeID") long employeeID,
-      @RequestParam(value = "noteType") int noteType, @RequestParam(value = "linkID") int linkID,
-      @RequestParam(value = "from") String from, @RequestParam(value = "body") String body)
+  public ResponseEntity<?> addNote(
+      @PathVariable @NotNull(message = ERROR_ID_EMPTY) @NotEmpty(message = ERROR_ID_EMPTY) long employeeID,
+      @RequestBody @Valid Note_NEW note)
   {
     try
     {
-      Note obj = new Note(1, noteType, linkID, body, from);
-      boolean inserted = employeeService.insertNewNote(employeeID, obj);
-      if (inserted)
-      {
-        return ok("Note inserted correctly");
-
-      }
-      else return badRequest().body("Error while adding the Note");
-    }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
-    }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-  }
-
-  /**
-   * POST End Point - adds note to reportee
-   *
-   * @param employeeID
-   * @param reporteeEmployeeID
-   * @param body
-   * @return
-   */
-  @RequestMapping(value = "/addNoteToReportee/{reporteeEmployeeID}", method = POST)
-  public ResponseEntity<?> addNoteToReportee(@PathVariable long reporteeEmployeeID, @RequestParam String from,
-      @RequestParam String body)
-  {
-    try
-    {
-      employeeService.insertNewNoteForReportee(reporteeEmployeeID, from, body);
-      return ok("Note inserted correctly");
+      Note_NEW newNote = new Note_NEW(note);
+      employeeService.addNote(employeeID, newNote);
+      return ok("Note inserted");
     }
     catch (InvalidAttributeValueException e)
     {
       return badRequest().body(e.getMessage());
     }
+
   }
 
-  /**
-   * 
-   * This method allows the front-end to edit a new version of a note currently stored within the system
-   * 
-   * @param employeeID the employeeID (>0)
-   * @param noteID the ID of the note to edit (>0)
-   * @param from the author of the note (<150)
-   * @param body the content of the note (<1000)
-   * @return a message explaining if the note has been added or if there was an error while completing the task
-   */
-  @RequestMapping(value = "/editNote/{employeeID}", method = POST)
-  public ResponseEntity<?> addNewVersionNoteToAUser(@PathVariable("employeeID") long employeeID,
-      @RequestParam(value = "noteID") int noteID, @RequestParam(value = "noteType") int noteType,
-      @RequestParam(value = "linkID") int linkID, @RequestParam(value = "from") String from,
-      @RequestParam(value = "body") String body)
+  public void addNoteToReportee()
   {
-    try
-    {
-      Note obj = new Note(noteID, noteType, linkID, body, from);
-      boolean inserted = employeeService.addNewVersionNote(employeeID, noteID, obj);
-      if (inserted) return ok("Note modified correctly");
-      else return badRequest().body("Error while editing the Note");
-    }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
-    }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
+    // TODO this method
   }
+
+  // /**
+  // *
+  // * This method allows the front-end to add a new note to a specific user
+  // *
+  // * @param employeeID the employee ID (>0)
+  // * @param from the author of the note (<150)
+  // * @param body the content of the note (<1000)
+  // * @return a message explaining if the note has been added or if there was an error while completing the task
+  // */
+  // @RequestMapping(value = "/addNote/{employeeID}", method = POST)
+  // public ResponseEntity<?> addNoteToAUser(@PathVariable("employeeID") long employeeID,
+  // @RequestParam(value = "noteType") int noteType, @RequestParam(value = "linkID") int linkID,
+  // @RequestParam(value = "from") String from, @RequestParam(value = "body") String body)
+  // {
+  // try
+  // {
+  // Note obj = new Note(1, noteType, linkID, body, from);
+  // boolean inserted = employeeService.insertNewNote(employeeID, obj);
+  // if (inserted)
+  // {
+  // return ok("Note inserted correctly");
+  //
+  // }
+  // else return badRequest().body("Error while adding the Note");
+  // }
+  // catch (MongoException me)
+  // {
+  // return badRequest().body("DataBase Connection Error");
+  // }
+  // catch (Exception e)
+  // {
+  // return badRequest().body(e.getMessage());
+  // }
+  // }
+
+  // /**
+  // * POST End Point - adds note to reportee
+  // *
+  // * @param employeeID
+  // * @param reporteeEmployeeID
+  // * @param body
+  // * @return
+  // */
+  // @RequestMapping(value = "/addNoteToReportee/{reporteeEmployeeID}", method = POST)
+  // public ResponseEntity<?> addNoteToReportee(@PathVariable long reporteeEmployeeID, @RequestParam String from,
+  // @RequestParam String body)
+  // {
+  // try
+  // {
+  // employeeService.insertNewNoteForReportee(reporteeEmployeeID, from, body);
+  // return ok("Note inserted correctly");
+  // }
+  // catch (InvalidAttributeValueException e)
+  // {
+  // return badRequest().body(e.getMessage());
+  // }
+  // }
+
+  // /**
+  // *
+  // * This method allows the front-end to edit a new version of a note currently stored within the system
+  // *
+  // * @param employeeID the employeeID (>0)
+  // * @param noteID the ID of the note to edit (>0)
+  // * @param from the author of the note (<150)
+  // * @param body the content of the note (<1000)
+  // * @return a message explaining if the note has been added or if there was an error while completing the task
+  // */
+  // @RequestMapping(value = "/editNote/{employeeID}", method = POST)
+  // public ResponseEntity<?> addNewVersionNoteToAUser(@PathVariable("employeeID") long employeeID,
+  // @RequestParam(value = "noteID") int noteID, @RequestParam(value = "noteType") int noteType,
+  // @RequestParam(value = "linkID") int linkID, @RequestParam(value = "from") String from,
+  // @RequestParam(value = "body") String body)
+  // {
+  // try
+  // {
+  // Note obj = new Note(noteID, noteType, linkID, body, from);
+  // boolean inserted = employeeService.addNewVersionNote(employeeID, noteID, obj);
+  // if (inserted) return ok("Note modified correctly");
+  // else return badRequest().body("Error while editing the Note");
+  // }
+  // catch (MongoException me)
+  // {
+  // return badRequest().body("DataBase Connection Error");
+  // }
+  // catch (Exception e)
+  // {
+  // return badRequest().body(e.getMessage());
+  // }
+  // }
 
   /**
    * 

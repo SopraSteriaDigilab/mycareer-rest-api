@@ -48,6 +48,7 @@ import dataStructure.Employee;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note;
+import dataStructure.Note_NEW;
 import dataStructure.Objective;
 import services.ews.EmailService;
 import services.validate.Validate;
@@ -223,7 +224,6 @@ public class EmployeeService
   {
     return getEmployee(employeeID).getLatestVersionCompetencies();
   }
-
 
   /**
    * TODO: Describe this method.
@@ -401,138 +401,154 @@ public class EmployeeService
     return false;
   }
 
-  /**
-   * TODO: Describe this method.
-   *
-   * @param employeeID
-   * @param data
-   * @return
-   * @throws InvalidAttributeValueException
-   * @throws MongoException
-   */
-  public boolean insertNewNote(long employeeID, Object data) throws InvalidAttributeValueException, MongoException
+  public boolean addNote(long employeeID, Note_NEW note) throws InvalidAttributeValueException
   {
-    // Check the employeeID
-    if (employeeID > 0)
-    {
-      if (data != null && data instanceof Note)
-      {
-        // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-        if (querySearch.get() != null)
-        {
-          Employee e = querySearch.get();
-          // Add the new note to the list
-          if (e.addNote((Note) data))
-          {
-            // Update the List<List<Note>> in the DB passing the new list
-            UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes",
-                e.getNoteList());
-            // Commit the changes to the DB
-            dbConnection.update(querySearch, ops);
-            return true;
-          }
-          else throw new InvalidAttributeValueException(NOTE_NOTADDED_ERROR);
-        }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-      }
-      else throw new InvalidAttributeValueException(INVALID_NOTE);
-    }
-    else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
-  }
-
-  /**
-   * TODO: Describe this method.
-   *
-   * @param employeeID
-   * @param from
-   * @param noteDescription
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public boolean insertNewNoteForReportee(long employeeID, String from, String noteDescription)
-      throws InvalidAttributeValueException
-  {
-    if (employeeID < 1)
-      throw new InvalidAttributeValueException("The ID provided was not found. Please try again with valid ID");
-
-    insertNewNote(employeeID, new Note(1, 0, 0, noteDescription, from));
-
-    String reporteeEmail = getEmployee(employeeID).getEmailAddress();
-    String subject = String.format("Note added from %s", from);
-    try
-    {
-      String body = Template.populateTemplate(env.getProperty("templates.note.added"), from);
-      EmailService.sendEmail(reporteeEmail, subject, body);
-    }
-    catch (Exception e)
-    {
-      logger.error("Email could not be sent for a proposed objective. Error: {}", e);
-    }
-
+    Query<Employee> employeeQuery = getEmployeeQuery(employeeID);
+    Employee employee = employeeQuery.get();
+    employee.addNote(note);
+    
+    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class).set("newNotes", employee.getNewNotes());
+    dbConnection.update(employeeQuery, updateOperation);
     return true;
   }
 
-  /**
-   * TODO: Describe this method.
-   *
-   * @param employeeID
-   * @param noteID
-   * @param data
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public boolean addNewVersionNote(long employeeID, int noteID, Object data) throws InvalidAttributeValueException
+  public void addNoteToReportee()
   {
-    // Check EmployeeID and noteID
-    if (employeeID > 0 && noteID > 0)
-    {
-      if (data != null && data instanceof Note)
-      {
-        // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-        if (querySearch.get() != null)
-        {
-          Employee e = querySearch.get();
-          // Extract its List of notes
-          List<List<Note>> dataFromDB = e.getNoteList();
-          // Search for the objective Id within the list of notes
-          int indexNoteList = -1;
-          for (int i = 0; i < dataFromDB.size(); i++)
-          {
-            // Save the index of the list when the noteID is found
-            if (dataFromDB.get(i).get(0).getID() == noteID)
-            {
-              indexNoteList = i;
-              // Exit the for loop once the value has been found
-              break;
-            }
-          }
-          // verify that the index variable has changed its value
-          if (indexNoteList != -1)
-          {
-            // Add the updated version of the note
-            if (e.editNote((Note) data))
-            {
-              // Update the List<List<Note>> in the DB passing the new list
-              UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes",
-                  e.getNoteList());
-              // Commit the changes to the DB
-              dbConnection.update(querySearch, ops);
-              return true;
-            }
-          }
-          // if the index hasn't changed its value it means that there is no note with such ID, therefore throw and
-          // exception
-          else throw new InvalidAttributeValueException(INVALID_NOTEID);
-        }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-      }
-      else throw new InvalidAttributeValueException(INVALID_NOTE);
-    }
-    else throw new InvalidAttributeValueException(INVALID_NOTE_OR_EMPLOYEEID);
-    return false;
+    // TODO this method
   }
+
+//  /**
+//   *
+//   *
+//   * @param employeeID
+//   * @param data
+//   * @return
+//   * @throws InvalidAttributeValueException
+//   * @throws MongoException
+//   */
+//  public boolean insertNewNote(long employeeID, Object data) throws InvalidAttributeValueException, MongoException
+//  {
+//    // Check the employeeID
+//    if (employeeID > 0)
+//    {
+//      if (data != null && data instanceof Note)
+//      {
+//        // Retrieve Employee with the given ID
+//        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+//        if (querySearch.get() != null)
+//        {
+//          Employee e = querySearch.get();
+//          // Add the new note to the list
+//          if (e.addNote((Note) data))
+//          {
+//            // Update the List<List<Note>> in the DB passing the new list
+//            UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes",
+//                e.getNoteList());
+//            // Commit the changes to the DB
+//            dbConnection.update(querySearch, ops);
+//            return true;
+//          }
+//          else throw new InvalidAttributeValueException(NOTE_NOTADDED_ERROR);
+//        }
+//        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+//      }
+//      else throw new InvalidAttributeValueException(INVALID_NOTE);
+//    }
+//    else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
+//  }
+
+  // /**
+  // * TODO: Describe this method.
+  // *
+  // * @param employeeID
+  // * @param from
+  // * @param noteDescription
+  // * @return
+  // * @throws InvalidAttributeValueException
+  // */
+  // public boolean insertNewNoteForReportee(long employeeID, String from, String noteDescription)
+  // throws InvalidAttributeValueException
+  // {
+  // if (employeeID < 1)
+  // throw new InvalidAttributeValueException("The ID provided was not found. Please try again with valid ID");
+  //
+  // insertNewNote(employeeID, new Note(1, 0, 0, noteDescription, from));
+  //
+  // String reporteeEmail = getEmployee(employeeID).getEmailAddress();
+  // String subject = String.format("Note added from %s", from);
+  // try
+  // {
+  // String body = Template.populateTemplate(env.getProperty("templates.note.added"), from);
+  // EmailService.sendEmail(reporteeEmail, subject, body);
+  // }
+  // catch (Exception e)
+  // {
+  // logger.error("Email could not be sent for a proposed objective. Error: {}", e);
+  // }
+  //
+  // return true;
+  // }
+
+//  /**
+//   * TODO: Describe this method.
+//   *
+//   * @param employeeID
+//   * @param noteID
+//   * @param data
+//   * @return
+//   * @throws InvalidAttributeValueException
+//   */
+//  public boolean addNewVersionNote(long employeeID, int noteID, Object data) throws InvalidAttributeValueException
+//  {
+//    // Check EmployeeID and noteID
+//    if (employeeID > 0 && noteID > 0)
+//    {
+//      if (data != null && data instanceof Note)
+//      {
+//        // Retrieve Employee with the given ID
+//        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+//        if (querySearch.get() != null)
+//        {
+//          Employee e = querySearch.get();
+//          // Extract its List of notes
+//          List<List<Note>> dataFromDB = e.getNoteList();
+//          // Search for the objective Id within the list of notes
+//          int indexNoteList = -1;
+//          for (int i = 0; i < dataFromDB.size(); i++)
+//          {
+//            // Save the index of the list when the noteID is found
+//            if (dataFromDB.get(i).get(0).getID() == noteID)
+//            {
+//              indexNoteList = i;
+//              // Exit the for loop once the value has been found
+//              break;
+//            }
+//          }
+//          // verify that the index variable has changed its value
+//          if (indexNoteList != -1)
+//          {
+//            // Add the updated version of the note
+//            if (e.editNote((Note) data))
+//            {
+//              // Update the List<List<Note>> in the DB passing the new list
+//              UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes",
+//                  e.getNoteList());
+//              // Commit the changes to the DB
+//              dbConnection.update(querySearch, ops);
+//              return true;
+//            }
+//          }
+//          // if the index hasn't changed its value it means that there is no note with such ID, therefore throw and
+//          // exception
+//          else throw new InvalidAttributeValueException(INVALID_NOTEID);
+//        }
+//        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+//      }
+//      else throw new InvalidAttributeValueException(INVALID_NOTE);
+//    }
+//    else throw new InvalidAttributeValueException(INVALID_NOTE_OR_EMPLOYEEID);
+//    return false;
+//  }
 
   /**
    * TODO: Describe this method.

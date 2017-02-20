@@ -37,6 +37,8 @@ public class Employee extends ADProfile_Advanced implements Serializable
   @Embedded
   private List<List<Note>> notes;
   @Embedded
+  private List<Note_NEW> newNotes;
+  @Embedded
   private List<List<DevelopmentNeed>> developmentNeeds;
   @Embedded
   private List<FeedbackRequest> feedbackRequests;
@@ -49,6 +51,7 @@ public class Employee extends ADProfile_Advanced implements Serializable
     this.feedback = new ArrayList<Feedback>();
     this.objectives = new ArrayList<List<Objective>>();
     this.notes = new ArrayList<List<Note>>();
+    this.newNotes = new ArrayList<Note_NEW>();
     this.developmentNeeds = new ArrayList<List<DevelopmentNeed>>();
     this.feedbackRequests = new ArrayList<FeedbackRequest>();
     this.competencies = new ArrayList<List<Competency>>();
@@ -58,7 +61,7 @@ public class Employee extends ADProfile_Advanced implements Serializable
   public Employee(long employeeID, String guid, String name, String surname, String email, String username,
       String company, String superSector, String sector, String steriaDepartment, String sopraDepartment, String team,
       boolean isManager, boolean hasHRDash, List<Feedback> feeds, List<List<Objective>> objectives,
-      List<List<Note>> notes, List<List<DevelopmentNeed>> needs, List<FeedbackRequest> requests,
+      List<List<Note>> notes, List<Note_NEW> newNotes, List<List<DevelopmentNeed>> needs, List<FeedbackRequest> requests,
       List<List<Competency>> competencies, List<String> reportees) throws InvalidAttributeValueException
   {
     super(employeeID, guid, name, surname, email, username, company, superSector, sector, steriaDepartment,
@@ -66,6 +69,7 @@ public class Employee extends ADProfile_Advanced implements Serializable
     this.setFeedback(feeds);
     this.setObjectiveList(objectives);
     this.setNoteList(notes);
+    this.setNewNotes(newNotes);
     this.setDevelopmentNeedsList(needs);
     this.setFeedbackRequestsList(requests);
     this.setCompetenciesList(competencies);
@@ -80,6 +84,7 @@ public class Employee extends ADProfile_Advanced implements Serializable
     this.feedback = new ArrayList<Feedback>();
     this.objectives = new ArrayList<List<Objective>>();
     this.notes = new ArrayList<List<Note>>();
+    this.newNotes = new ArrayList<Note_NEW>();
     this.developmentNeeds = new ArrayList<List<DevelopmentNeed>>();
     this.feedbackRequests = new ArrayList<FeedbackRequest>();
     this.competencies = new ArrayList<List<Competency>>();
@@ -265,6 +270,18 @@ public class Employee extends ADProfile_Advanced implements Serializable
   {
     return this.notes;
   }
+  
+  /** @return the notes */
+  public List<Note_NEW> getNewNotes()
+  {
+    return newNotes;
+  }
+
+  /** @param newNotes */
+  public void setNewNotes(List<Note_NEW> newNotes)
+  {
+    this.newNotes = newNotes;
+  }
 
   /**
    * 
@@ -388,7 +405,7 @@ public class Employee extends ADProfile_Advanced implements Serializable
   /**
    * @throws InvalidAttributeValueException
    * 
-   * This method returns the latest version of a specific development need, given its ID
+   *           This method returns the latest version of a specific development need, given its ID
    * 
    * @param id development need ID @return the DevelopmentNeed data object @throws
    */
@@ -730,60 +747,67 @@ public class Employee extends ADProfile_Advanced implements Serializable
     throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE);
   }
 
-  /**
-   * 
-   * This method adds a new note to a specific user
-   * 
-   * @param obj note object
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public boolean addNote(Note obj) throws InvalidAttributeValueException
+  public boolean addNote(Note_NEW note)
   {
-    if (notes == null) notes = new ArrayList<List<Note>>();
-    // Verify that the note is not null
-    if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_NOTE);
-    // At this point, the note hasn't got an ID, let's create one
-    obj.setID(notes.size() + 1);
-    if (obj.isNoteValid())
-    {
-      List<Note> tempList = new ArrayList<Note>();
-      // add the first version of this note
-      boolean res1 = tempList.add(obj);
-      boolean res2 = notes.add(tempList);
-      // Action completed, verify the results
-      return (res1 && res2);
-    }
-    throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
+    note.setId(this.getNewNotes().size());
+    return this.newNotes.add(note);
   }
-
-  /**
-   * 
-   * This method adds a new version of the note
-   * 
-   * @param obj note data
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public boolean editNote(Note obj) throws InvalidAttributeValueException
-  {
-    // Verify that the object is not null
-    if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_NOTE);
-    // Step 1: Verify that the object contains valid data
-    if (obj.isNoteValid())
-    {
-      // Step 2: Verify that the ID contained within the note object is in the system
-      for (int i = 0; i < notes.size(); i++)
-      {
-        List<Note> listTemp = notes.get(i);
-        // The elements within each list has all the same ID, so pick the first one and compare it
-        if ((listTemp.get(0)).getID() == obj.getID())
-          // Add the note to the end of the list
-          return notes.get(i).add(obj);
-      }
-    }
-    throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
-  }
+  
+  
+  // /**
+  // *
+  // * This method adds a new note to a specific user
+  // *
+  // * @param obj note object
+  // * @return
+  // * @throws InvalidAttributeValueException
+  // */
+  // public boolean addNote(Note obj) throws InvalidAttributeValueException
+  // {
+  // if (notes == null) notes = new ArrayList<List<Note>>();
+  // // Verify that the note is not null
+  // if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_NOTE);
+  // // At this point, the note hasn't got an ID, let's create one
+  // obj.setID(notes.size() + 1);
+  // if (obj.isNoteValid())
+  // {
+  // List<Note> tempList = new ArrayList<Note>();
+  // // add the first version of this note
+  // boolean res1 = tempList.add(obj);
+  // boolean res2 = notes.add(tempList);
+  // // Action completed, verify the results
+  // return (res1 && res2);
+  // }
+  // throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
+  // }
+  //
+  // /**
+  // *
+  // * This method adds a new version of the note
+  // *
+  // * @param obj note data
+  // * @return
+  // * @throws InvalidAttributeValueException
+  // */
+  // public boolean editNote(Note obj) throws InvalidAttributeValueException
+  // {
+  // // Verify that the object is not null
+  // if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_NOTE);
+  // // Step 1: Verify that the object contains valid data
+  // if (obj.isNoteValid())
+  // {
+  // // Step 2: Verify that the ID contained within the note object is in the system
+  // for (int i = 0; i < notes.size(); i++)
+  // {
+  // List<Note> listTemp = notes.get(i);
+  // // The elements within each list has all the same ID, so pick the first one and compare it
+  // if ((listTemp.get(0)).getID() == obj.getID())
+  // // Add the note to the end of the list
+  // return notes.get(i).add(obj);
+  // }
+  // }
+  // throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
+  // }
 
   /**
    * 
