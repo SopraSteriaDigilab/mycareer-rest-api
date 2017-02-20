@@ -255,7 +255,7 @@ public final class EmployeeProfileDAO
       getProfileFromSteriaAD(adObj.getUsername(), adObj);
 
     }
-    catch (NoSuchElementException | NullPointerException e)
+    catch (NoSuchElementException | NullPointerException | NamingException e)
     {
       throw new InvalidAttributeValueException(NOTFOUND_EMAILORUSERNAME_AD.concat(email));
     }

@@ -64,7 +64,7 @@ public class ADConnection implements AutoCloseable
    * Performs a search of the active directory.
    *
    * @param searchCtls The search controls to use for the search (note that if returning
-   * attributes and/or search scope are already set, they will be overriden by this method). 
+   * attributes and/or search scope are already set, they will be overridden by this method). 
    * @param returningAttributes The attributes to return from the search.
    * @param searchTree The directory/directories on the target AD to search.
    * @param searchFilter A search filter.
@@ -72,7 +72,7 @@ public class ADConnection implements AutoCloseable
    * @throws ADConnectionException If an exception occurred while trying to connect to or
    * search the AD.
    * @throws NamingException If an exception occurred while attempting to access the first
-   * of the result of the search.
+   * result of the search.
    * @throws NoSuchElementException If the search produced no results.
    */
   public Attributes searchAD(final SearchControls searchCtls, final String[] returningAttributes,
