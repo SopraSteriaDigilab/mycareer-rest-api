@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
+import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
@@ -46,6 +47,7 @@ import dataStructure.Note;
 import dataStructure.Objective;
 import services.EmployeeProfileDAO;
 import services.EmployeeService;
+import services.ad.ADConnectionException;
 import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Template;
@@ -754,21 +756,16 @@ public class EmployeeController
     {
       if (userName != null && !userName.equals("") && userName.length() < 300)
       {
-        return ok(profileDAO.authenticateUserProfile(userName));
+        return ok(employeeService.matchADWithMongoData((ADProfile_Advanced) profileDAO.authenticateUserProfile(userName)));
       }
       else
       {
         return badRequest().body("The username given is invalid");
       }
     }
-    catch (InvalidAttributeValueException e)
+    catch (InvalidAttributeValueException | NamingException | ADConnectionException e)
     {
       return badRequest().body(e.getMessage());
-    }
-    catch (NamingException e)
-    {
-      // return badRequest().body("AD Connection Error");
-      return badRequest().body(e.toString());
     }
   }
 
@@ -830,7 +827,7 @@ public class EmployeeController
       {
         try
         {
-          ADProfile_Basic userInQuestion = profileDAO.authenticateUserProfile(email);
+          ADProfile_Basic userInQuestion = employeeService.matchADWithMongoData((ADProfile_Advanced) profileDAO.authenticateUserProfile(email));
           Objective obj = new Objective(0, 0, title, description, completedBy);
           obj.setProposedBy(proposedBy);
           boolean inserted = employeeService.insertNewObjective(userInQuestion.getEmployeeID(), obj);
@@ -884,7 +881,7 @@ public class EmployeeController
       }
       return badRequest().body(result + e.getMessage() + ", ");
     }
-    catch (NamingException e)
+    catch (NamingException | ADConnectionException e)
     {
       if (!insertAccepted)
       {
