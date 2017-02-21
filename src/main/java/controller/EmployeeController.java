@@ -18,7 +18,6 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -42,7 +41,6 @@ import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
-import dataStructure.Note_OLD;
 import dataStructure.Note;
 import dataStructure.Objective;
 import services.EmployeeProfileDAO;
@@ -462,98 +460,7 @@ public class EmployeeController
       return badRequest().body(e.getMessage());
     }
   }
-
-  // /**
-  // *
-  // * This method allows the front-end to add a new note to a specific user
-  // *
-  // * @param employeeID the employee ID (>0)
-  // * @param from the author of the note (<150)
-  // * @param body the content of the note (<1000)
-  // * @return a message explaining if the note has been added or if there was an error while completing the task
-  // */
-  // @RequestMapping(value = "/addNote/{employeeID}", method = POST)
-  // public ResponseEntity<?> addNoteToAUser(@PathVariable("employeeID") long employeeID,
-  // @RequestParam(value = "noteType") int noteType, @RequestParam(value = "linkID") int linkID,
-  // @RequestParam(value = "from") String from, @RequestParam(value = "body") String body)
-  // {
-  // try
-  // {
-  // Note obj = new Note(1, noteType, linkID, body, from);
-  // boolean inserted = employeeService.insertNewNote(employeeID, obj);
-  // if (inserted)
-  // {
-  // return ok("Note inserted correctly");
-  //
-  // }
-  // else return badRequest().body("Error while adding the Note");
-  // }
-  // catch (MongoException me)
-  // {
-  // return badRequest().body("DataBase Connection Error");
-  // }
-  // catch (Exception e)
-  // {
-  // return badRequest().body(e.getMessage());
-  // }
-  // }
-
-  // /**
-  // * POST End Point - adds note to reportee
-  // *
-  // * @param employeeID
-  // * @param reporteeEmployeeID
-  // * @param body
-  // * @return
-  // */
-  // @RequestMapping(value = "/addNoteToReportee/{reporteeEmployeeID}", method = POST)
-  // public ResponseEntity<?> addNoteToReportee(@PathVariable long reporteeEmployeeID, @RequestParam String from,
-  // @RequestParam String body)
-  // {
-  // try
-  // {
-  // employeeService.insertNewNoteForReportee(reporteeEmployeeID, from, body);
-  // return ok("Note inserted correctly");
-  // }
-  // catch (InvalidAttributeValueException e)
-  // {
-  // return badRequest().body(e.getMessage());
-  // }
-  // }
-
-  // /**
-  // *
-  // * This method allows the front-end to edit a new version of a note currently stored within the system
-  // *
-  // * @param employeeID the employeeID (>0)
-  // * @param noteID the ID of the note to edit (>0)
-  // * @param from the author of the note (<150)
-  // * @param body the content of the note (<1000)
-  // * @return a message explaining if the note has been added or if there was an error while completing the task
-  // */
-  // @RequestMapping(value = "/editNote/{employeeID}", method = POST)
-  // public ResponseEntity<?> addNewVersionNoteToAUser(@PathVariable("employeeID") long employeeID,
-  // @RequestParam(value = "noteID") int noteID, @RequestParam(value = "noteType") int noteType,
-  // @RequestParam(value = "linkID") int linkID, @RequestParam(value = "from") String from,
-  // @RequestParam(value = "body") String body)
-  // {
-  // try
-  // {
-  // Note obj = new Note(noteID, noteType, linkID, body, from);
-  // boolean inserted = employeeService.addNewVersionNote(employeeID, noteID, obj);
-  // if (inserted) return ok("Note modified correctly");
-  // else return badRequest().body("Error while editing the Note");
-  // }
-  // catch (MongoException me)
-  // {
-  // return badRequest().body("DataBase Connection Error");
-  // }
-  // catch (Exception e)
-  // {
-  // return badRequest().body(e.getMessage());
-  // }
-  // }
-
+  
   /**
    * 
    * This method allows the front-end to insert a new development need in the system
@@ -891,27 +798,5 @@ public class EmployeeController
     }
   }
 
-  // /**
-  // * Gets all IDs and Titles for each Objective, Competency,Feedback, Development need,
-  // * and team member for this {@code employeeID}.
-  // *
-  // * @param employeeID
-  // */
-  // @RequestMapping(value="/getIDTitlePairs/{employeeID}", method = GET)
-  // public ResponseEntity<?> getIDTitlePairs(@PathVariable long employeeID){
-  // if(employeeID>0)
-  // try {
-  // //Retrieve and return the ID Title pairs from the system
-  // return ok(EmployeeDAO.getIDTitlePairsDataStructure(employeeID));
-  // }
-  // catch(MongoException me){
-  // return badRequest().body("DataBase Connection Error");
-  // }
-  // catch (Exception e) {
-  // return badRequest().body(e.getMessage());
-  // }
-  // else
-  // return badRequest().body("The given ID is invalid");
-  // }
 
 }
