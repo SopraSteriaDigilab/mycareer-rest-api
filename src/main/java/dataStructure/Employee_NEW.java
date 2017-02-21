@@ -37,7 +37,7 @@ public class Employee_NEW implements Serializable
   @Embedded
   private List<List<Objective>> objectives;
   @Embedded
-  private List<List<Note>> notes;
+  private List<List<Note_OLD>> notes;
   @Embedded
   private List<List<DevelopmentNeed>> developmentNeeds;
   @Embedded
@@ -47,7 +47,7 @@ public class Employee_NEW implements Serializable
 
   // Constructor with parameters
   public Employee_NEW(EmployeeProfile_NEW employeeData, List<Feedback> feeds, List<List<Objective>> objectives,
-      List<List<Note>> notes, List<List<DevelopmentNeed>> needs, List<FeedbackRequest> requests,
+      List<List<Note_OLD>> notes, List<List<DevelopmentNeed>> needs, List<FeedbackRequest> requests,
       List<List<Competency>> competencies, List<String> reportees) throws InvalidAttributeValueException
   {
     this(employeeData);
@@ -185,18 +185,18 @@ public class Employee_NEW implements Serializable
    * @param notes the list of notes to assign to an employee
    * @throws InvalidAttributeValueException
    */
-  public void setNoteList(List<List<Note>> notes) throws InvalidAttributeValueException
+  public void setNoteList(List<List<Note_OLD>> notes) throws InvalidAttributeValueException
   {
     if (notes != null)
     {
       // Counter that keeps tracks of the error while adding elements
       int errorCounter = 0;
-      this.notes = new ArrayList<List<Note>>();
+      this.notes = new ArrayList<List<Note_OLD>>();
       // Verify if each each objective is valid
       for (int i = 0; i < notes.size(); i++)
       {
         // Add a new List to the list of Objectives
-        this.notes.add(new ArrayList<Note>());
+        this.notes.add(new ArrayList<Note_OLD>());
         if (notes.get(i) != null)
         {
           for (int j = 0; j < notes.get(i).size(); j++)
@@ -214,7 +214,7 @@ public class Employee_NEW implements Serializable
     else throw new InvalidAttributeValueException(Constants.NULL_NOTELIST);
   }
 
-  public List<List<Note>> getNoteList()
+  public List<List<Note_OLD>> getNoteList()
   {
     return this.notes;
   }
@@ -223,15 +223,15 @@ public class Employee_NEW implements Serializable
    * 
    * @return a list containing the latest version of each note
    */
-  public List<Note> getLatestVersionNotes()
+  public List<Note_OLD> getLatestVersionNotes()
   {
-    List<Note> organisedList = new ArrayList<Note>();
+    List<Note_OLD> organisedList = new ArrayList<Note_OLD>();
     if (notes == null) return null;
     else
     {
       // If the list if not empty, retrieve all the elements and add them to the list
       // that is going to be returned
-      for (List<Note> subList : notes)
+      for (List<Note_OLD> subList : notes)
       {
         // The last element contains the latest version for the note
         organisedList.add(subList.get(subList.size() - 1));
@@ -247,12 +247,12 @@ public class Employee_NEW implements Serializable
    * @return the note data
    * @throws InvalidAttributeValueException
    */
-  public Note getLatestVersionOfSpecificNotee(int id) throws InvalidAttributeValueException
+  public Note_OLD getLatestVersionOfSpecificNotee(int id) throws InvalidAttributeValueException
   {
     // Verify if the id is valid
     if (id < 0) throw new InvalidAttributeValueException(Constants.INVALID_NOTEID);
     // Search for the note with the given ID
-    for (List<Note> subList : notes)
+    for (List<Note_OLD> subList : notes)
     {
       if ((subList.get(0)).getID() == id)
       {
@@ -615,16 +615,16 @@ public class Employee_NEW implements Serializable
    * @return
    * @throws InvalidAttributeValueException
    */
-  public boolean addNote(Note obj) throws InvalidAttributeValueException
+  public boolean addNote(Note_OLD obj) throws InvalidAttributeValueException
   {
-    if (notes == null) notes = new ArrayList<List<Note>>();
+    if (notes == null) notes = new ArrayList<List<Note_OLD>>();
     // Verify that the note is not null
     if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_NOTE);
     // At this point, the note hasn't got an ID, let's create one
     obj.setID(notes.size() + 1);
     if (obj.isNoteValid())
     {
-      List<Note> tempList = new ArrayList<Note>();
+      List<Note_OLD> tempList = new ArrayList<Note_OLD>();
       // add the first version of this note
       boolean res1 = tempList.add(obj);
       boolean res2 = notes.add(tempList);
@@ -642,7 +642,7 @@ public class Employee_NEW implements Serializable
    * @return
    * @throws InvalidAttributeValueException
    */
-  public boolean editNote(Note obj) throws InvalidAttributeValueException
+  public boolean editNote(Note_OLD obj) throws InvalidAttributeValueException
   {
     // Verify that the object is not null
     if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_NOTE);
@@ -652,7 +652,7 @@ public class Employee_NEW implements Serializable
       // Step 2: Verify that the ID contained within the note object is in the system
       for (int i = 0; i < notes.size(); i++)
       {
-        List<Note> listTemp = notes.get(i);
+        List<Note_OLD> listTemp = notes.get(i);
         // The elements within each list has all the same ID, so pick the first one and compare it
         if ((listTemp.get(0)).getID() == obj.getID())
           // Add the note to the end of the list
@@ -913,11 +913,11 @@ public class Employee_NEW implements Serializable
     // Add the Notes
     s += "Notes:\n";
     counter = 1;
-    for (List<Note> noteList : notes)
+    for (List<Note_OLD> noteList : notes)
     {
       s += "Note " + counter++ + "\n";
       int version = 1;
-      for (Note obj : noteList)
+      for (Note_OLD obj : noteList)
       {
         s += "Version " + version++ + "\n" + obj.toString() + "\n";
       }

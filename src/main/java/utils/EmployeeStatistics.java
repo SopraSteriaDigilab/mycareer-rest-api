@@ -30,7 +30,7 @@ public class EmployeeStatistics
   public final static String[] DEVELOPMENT_NEEDS_FIELDS = { "developmentNeeds" };
   
   /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
-  public final static String[] DEVELOPMENT_NEED_CATEGORIES = { "On Job Training", "Classroom Training", "Online or E-Learning", "Self-Study", "Other" };
+  public final static String[] DEVELOPMENT_NEED_CATEGORIES = { "On Job Training", "Classroom Training", "Online or E-Learning", "Self-Study", "Other", "INVALID" };
 
   /**
    * Statistics from my career.
@@ -135,6 +135,7 @@ public class EmployeeStatistics
    * @param employees
    * @return
    */
+  @SuppressWarnings("rawtypes")
   public Object getDevelopmentNeedBreakDown(List<Employee> employees)
   {
     List<Map> statistics = new ArrayList<>();
