@@ -43,7 +43,9 @@ public class Note implements Serializable
   /** String Property - Represents the timestamp of the note. */
   private String timestamp;
 
-  /** Default Constructor - Responsible for initialising this object. */
+  /** 
+   * Default Constructor - Responsible for initialising this object.
+   */
   public Note()
   {
   }
@@ -55,8 +57,8 @@ public class Note implements Serializable
    */
   public Note(Note note)
   {
-    this.setProviderName(note.providerName);
-    this.setNoteDescription(note.noteDescription);
+    this.setProviderName(note.getProviderName());
+    this.setNoteDescription(note.getNoteDescription());
     this.setTimestamp();
   }
 
