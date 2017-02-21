@@ -18,6 +18,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -40,8 +41,8 @@ import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
+import dataStructure.Note_OLD;
 import dataStructure.Note;
-import dataStructure.Note_NEW;
 import dataStructure.Objective;
 import services.EmployeeProfileDAO;
 import services.EmployeeService;
@@ -159,30 +160,23 @@ public class EmployeeController
 
   /**
    * 
-   * This method allows the front-end to retrieve all the notes associated to a specific user
+   * GET end point - gets all notes for a user
    * 
-   * @param employeeID the ID of an employee
-   * @return list of notes (only the latest version for each of them)
+   * @param employeeID the ID of the employee
+   * @return list of notes
    */
   @RequestMapping(value = "/getNotes/{employeeID}", method = GET)
-  public ResponseEntity<?> getNotes(@PathVariable long employeeID)
+  public ResponseEntity<?> getNotes(
+      @PathVariable @NotNull(message = ERROR_ID_EMPTY) @NotEmpty(message = ERROR_ID_EMPTY) long employeeID)
   {
-    if (employeeID > 0)
+    try
     {
-      try
-      {
-        return ok(employeeService.getNotesForUser(employeeID));
-      }
-      catch (MongoException me)
-      {
-        return badRequest().body("DataBase Connection Error");
-      }
-      catch (Exception e)
-      {
-        return badRequest().body(e.getMessage());
-      }
+      return ok(employeeService.getNotes(employeeID));
     }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
   }
 
   /**
@@ -430,12 +424,11 @@ public class EmployeeController
   @RequestMapping(value = "/addNote/{employeeID}", method = POST)
   public ResponseEntity<?> addNote(
       @PathVariable @NotNull(message = ERROR_ID_EMPTY) @NotEmpty(message = ERROR_ID_EMPTY) long employeeID,
-      @RequestBody @Valid Note_NEW note)
+      @RequestBody @Valid Note note)
   {
     try
     {
-      Note_NEW newNote = new Note_NEW(note);
-      employeeService.addNote(employeeID, newNote);
+      employeeService.addNote(employeeID, new Note(note));
       return ok("Note inserted");
     }
     catch (InvalidAttributeValueException e)
@@ -445,9 +438,27 @@ public class EmployeeController
 
   }
 
-  public void addNoteToReportee()
+  /**
+   * POST End point - Add note to reportee.
+   * 
+   * @return
+   *
+   */
+  @RequestMapping(value = "/addNoteToReportee/{employeeID}", method = POST)
+  public ResponseEntity<String> addNoteToReportee(
+      @PathVariable @NotNull(message = ERROR_ID_EMPTY) @NotEmpty(message = ERROR_ID_EMPTY) long employeeID,
+      @RequestParam @NotNull(message = ERROR_ID_EMPTY) @NotEmpty(message = ERROR_ID_EMPTY) long reporteeEmployeeID,
+      @RequestBody @Valid Note note)
   {
-    // TODO this method
+    try
+    {
+      employeeService.addNoteToReportee(reporteeEmployeeID, new Note(note));
+      return ok("Note inserted correctly");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
   }
 
   // /**

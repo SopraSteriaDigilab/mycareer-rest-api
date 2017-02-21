@@ -2,189 +2,104 @@ package dataStructure;
 
 import static dataStructure.Constants.UK_TIMEZONE;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-import javax.management.InvalidAttributeValueException;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-import org.mongodb.morphia.annotations.Embedded;
-
-import com.google.gson.Gson;
+import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * This class contains the definition of the Note object
  *
  */
-@Embedded
-public class Note implements Serializable
+public class Note
 {
 
-  private static final long serialVersionUID = 3232489026577284657L;
-  // Global Variables
-  private int id, noteType, linkID;
-  private String body, timeStamp, fromWho, linkTitle;
+  private static final String ERROR_NOTE_EMPTY = "Note feilds can not be empty.";
+  private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max character length is 1000.";
 
-  // Empty Constructor
+  /** int Property - Represents Unique ID for the object. */
+  private int id;
+
+  /** String Property - Represents name of the not provider. */
+  @NotNull(message = ERROR_NOTE_EMPTY)
+  @NotBlank(message = ERROR_NOTE_EMPTY)
+  private String providerName;
+
+  /** String Property - Represents the description of the note. */
+  @NotNull(message = ERROR_NOTE_EMPTY)
+  @NotBlank(message = ERROR_NOTE_EMPTY)
+  @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT)
+  private String noteDescription;
+
+  /** String Property - Represents the timestamp of the note. */
+  private String timestamp;
+
+  /** Default Constructor - Responsible for initialising this object. */
   public Note()
   {
-    this.id = Constants.INVALID_INT;
-    this.noteType = Constants.INVALID_INT;
-    this.linkID = Constants.INVALID_INT;
-    this.body = "";
-    this.timeStamp = null;
-    this.fromWho = "";
-    this.linkTitle = "";
-  }
-
-  // Constructor with Parameters
-  public Note(int id, int noteType, int linkID, String body, String from) throws InvalidAttributeValueException
-  {
-    this.setID(id);
-    this.setNoteType(noteType);
-    this.setLinkID(linkID);
-    this.setBody(body);
-    this.timeStamp = null;
-    this.setTimeStamp();
-    this.setFromWho(from);
-    this.linkTitle = "";
   }
 
   /**
-   * This method sets the ID of the note
-   * 
-   * @param id
-   * @throws InvalidAttributeValueException
+   * Note_NEW Constructor - Responsible for initialising this object.
+   *
+   * @param note
    */
-  public void setID(int id) throws InvalidAttributeValueException
+  public Note(Note note)
   {
-    if (id > 0) this.id = id;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
+    this.setProviderName(note.providerName);
+    this.setNoteDescription(note.noteDescription);
+    this.setTimestamp();
   }
 
-  public int getID()
+  /** @return the id */
+  public int getId()
   {
-    return this.id;
+    return id;
   }
 
-  /**
-   * 
-   * @param noteType This contains the type of note at int. 0 - General 1 - Objective 2 - Competency 3 - Feedback 4 -
-   *          Development 5 - Team
-   * @throws InvalidAttributeValueException
-   */
-  public void setNoteType(int noteType) throws InvalidAttributeValueException
+  /** @param id */
+  public void setId(int id)
   {
-    if (noteType >= 0 && noteType <= 6) this.noteType = noteType;
-    else throw new InvalidAttributeValueException(Constants.INVALID_NOTE_TYPE);
+    this.id = id;
   }
 
-  public int getNoteType()
+  /** @return the id */
+  public String getProviderName()
   {
-    return noteType;
+    return providerName;
   }
 
-  public void setLinkTitle(String linkTitle) throws InvalidAttributeValueException
+  /** @param providerName */
+  public void setProviderName(String providerName)
   {
-    if (linkTitle != null && linkTitle.length() > 0 && linkTitle.length() < Constants.MAX_TITLE_LENGTH)
-      this.linkTitle = linkTitle;
-    else throw new InvalidAttributeValueException(Constants.INVALID_NOTE_LINKTYTLE);
+    this.providerName = providerName;
   }
 
-  public String getLinkTitle()
+  /** @return the id */
+  public String getNoteDescription()
   {
-    return this.linkTitle;
+    return noteDescription;
   }
 
-  /**
-   * This method sets the linkID of the note
-   * 
-   * @param id
-   * @throws InvalidAttributeValueException
-   */
-  public void setLinkID(int linkID) throws InvalidAttributeValueException
+  /** @param noteDescription */
+  public void setNoteDescription(String noteDescription)
   {
-    if (id > 0) this.linkID = linkID;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
+    this.noteDescription = noteDescription;
   }
 
-  public int getLinkID()
+  /** @return the timestamp */
+  public String getTimestamp()
   {
-    return linkID;
+    return timestamp;
   }
 
-  /**
-   * 
-   * @param body This contains the notes of the user, but the text must not exceed the 1000 characters
-   */
-  public void setBody(String body) throws InvalidAttributeValueException
+  /** @param timestamp */
+  public void setTimestamp()
   {
-    if (body != null && body.length() > 0 && body.length() < 1001) this.body = body;
-    else throw new InvalidAttributeValueException(Constants.INVALID_NOTE_BODY);
-  }
-
-  public String getBody()
-  {
-    return this.body;
-  }
-
-  /**
-   * 
-   * @param from String containing the name of the author of the note
-   * @throws InvalidAttributeValueException
-   */
-  public void setFromWho(String from) throws InvalidAttributeValueException
-  {
-    if (from != null && from.length() > 0 && from.length() < 150) this.fromWho = from;
-    else throw new InvalidAttributeValueException(Constants.INVALID_NOTE_FROMWHO);
-  }
-
-  public String getFromWho()
-  {
-    return this.fromWho;
-  }
-
-  /**
-   * 
-   * This method saves the current DateTime inside the timeStamp object only if the object does not contain anything yet
-   */
-  private void setTimeStamp()
-  {
-    if (timeStamp == null)
-    {
-      timeStamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
-    }
-  }
-
-  public String getTimeStamp()
-  {
-    return this.timeStamp;
-  }
-
-  /**
-   * Method used to check if the Note object is valid
-   * 
-   * @return
-   */
-  public boolean isNoteValid()
-  {
-    return (this.getID() > 0 && !this.getBody().contains("Invalid") && !this.getFromWho().contains("Invalid"));
-  }
-
-  public String toGson()
-  {
-    Gson gsonData = new Gson();
-    return gsonData.toJson(this);
-  }
-
-  @Override
-  public String toString()
-  {
-    String s = "";
-    s += "ID " + this.id + "\n" + "Body " + this.body + "\n" + "From " + this.fromWho + "\n" + "Time "
-        + this.getTimeStamp() + "Note Type " + this.noteType + "\n" + "LinkID " + this.linkID + "\n" + "Link Title "
-        + this.linkTitle + "\n";
-    return s;
+    this.timestamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
   }
 
 }

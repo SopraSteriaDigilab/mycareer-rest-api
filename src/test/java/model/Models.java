@@ -11,7 +11,7 @@ import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
-import dataStructure.Note;
+import dataStructure.Note_OLD;
 import dataStructure.Objective;
 
 /**
@@ -154,8 +154,8 @@ public class Models
    * @return
    * @throws InvalidAttributeValueException
    */
-  public static Note getNote() throws InvalidAttributeValueException {
-    return new Note(ID, ID, ID, DESCRIPTION, FULL_NAME);
+  public static Note_OLD getNote() throws InvalidAttributeValueException {
+    return new Note_OLD(ID, ID, ID, DESCRIPTION, FULL_NAME);
   }
   
   /**
