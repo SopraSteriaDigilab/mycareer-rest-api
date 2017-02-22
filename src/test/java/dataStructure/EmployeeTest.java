@@ -44,7 +44,7 @@ public class EmployeeTest
   private final List<String> VALID_REPORTEE_LIST_2 = Arrays.asList("a");
 
   /** TYPE Property|Constant - Represents|Indicates... */
-  private ADProfile_Advanced adProfileAdvanced;
+  private ADProfile_Advanced_OLD adProfileAdvanced;
 
   /** TYPE Property|Constant - Represents|Indicates... */
   private List<Feedback> mockFeedbackList;

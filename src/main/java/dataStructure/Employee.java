@@ -31,7 +31,7 @@ public class Employee implements Serializable
   private ObjectId id;
 
   @Embedded
-  private EmployeeProfile_NEW profile;
+  private EmployeeProfile profile;
   @Embedded
   private List<Feedback> feedback;
   @Embedded
@@ -56,7 +56,7 @@ public class Employee implements Serializable
     this.competencies = new ArrayList<List<Competency>>();
   }
 
-  public Employee(final EmployeeProfile_NEW profile)
+  public Employee(final EmployeeProfile profile)
   {
     this.profile = profile;
     this.feedback = new ArrayList<Feedback>();
@@ -980,12 +980,12 @@ public class Employee implements Serializable
     return this.feedback.size() + 1;
   }
 
-  public EmployeeProfile_NEW getProfile()
+  public EmployeeProfile getProfile()
   {
     return profile;
   }
 
-  public void setProfile(EmployeeProfile_NEW profile)
+  public void setProfile(EmployeeProfile profile)
   {
     this.profile = profile;
   }

@@ -36,12 +36,12 @@ import org.springframework.stereotype.Component;
 
 import com.mongodb.MongoException;
 
-import dataStructure.ADProfile_Advanced;
-import dataStructure.ADProfile_Basic;
+import dataStructure.ADProfile_Advanced_OLD;
+import dataStructure.ADProfile_Basic_OLD;
 import dataStructure.Competency;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
-import dataStructure.EmployeeProfile_NEW;
+import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note;
@@ -65,15 +65,15 @@ public class EmployeeService
 
   private static final String ERROR_USER_NOT_FOUND = "The given user ID does not exist.";
 
-  /** String Constant - Represents Feedback Request */
-  public final static String FEEDBACK_REQUEST = "Feedback Request";
-
   /* Accesses the Active Directories */
   private static final EmployeeProfileDAO PROFILE_DAO = new EmployeeProfileDAO();
+  
+  /** String Constant - Represents Feedback Request */
+  public static final String FEEDBACK_REQUEST = "Feedback Request";
 
   // There is only 1 instance of the Datastore in the whole system
   private static Datastore dbConnection;
-
+  
   /** Environment Property - Reference to environment to get property details. */
   private static Environment env;
 
@@ -231,12 +231,12 @@ public class EmployeeService
    * @throws InvalidAttributeValueException
    * @throws NamingException
    */
-  public List<EmployeeProfile_NEW> getReporteesForUser(long employeeID)
+  public List<EmployeeProfile> getReporteesForUser(long employeeID)
       throws InvalidAttributeValueException, NamingException
   {
     Employee employee = getEmployee(employeeID);
 
-    List<EmployeeProfile_NEW> reporteeList = new ArrayList<>();
+    List<EmployeeProfile> reporteeList = new ArrayList<>();
 
     for (String str : employee.getProfile().getReporteeCNs())
     {
@@ -778,7 +778,7 @@ public class EmployeeService
    * @return
    * @throws InvalidAttributeValueException
    */
-  public EmployeeProfile_NEW matchADWithMongoData(EmployeeProfile_NEW profileFromAD) throws InvalidAttributeValueException
+  public EmployeeProfile matchADWithMongoData(EmployeeProfile profileFromAD) throws InvalidAttributeValueException
   {
     if (profileFromAD == null)
     {

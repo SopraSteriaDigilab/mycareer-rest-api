@@ -36,12 +36,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
-import dataStructure.ADProfile_Advanced;
-import dataStructure.ADProfile_Basic;
+import dataStructure.ADProfile_Advanced_OLD;
+import dataStructure.ADProfile_Basic_OLD;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
-import dataStructure.EmployeeProfile_NEW;
+import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
 import services.EmployeeProfileDAO;
@@ -251,24 +251,6 @@ public class EmployeeController
     {
       return badRequest().body(e.getMessage());
     }
-  }
-
-  @RequestMapping(value = "/management/retrieveAllUser_Data/employee/{employeeID}", method = GET)
-  public ResponseEntity<?> getAllUserData(@PathVariable long employeeID)
-  {
-    if (employeeID > 0) try
-    {
-      return ok(employeeService.getAllUserDataFromID(employeeID));
-    }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
-    }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
   }
 
   /**
@@ -735,7 +717,7 @@ public class EmployeeController
       {
         try
         {
-          EmployeeProfile_NEW userInQuestion = employeeService.matchADWithMongoData(profileDAO.authenticateUserProfile(email));
+          EmployeeProfile userInQuestion = employeeService.matchADWithMongoData(profileDAO.authenticateUserProfile(email));
           Objective obj = new Objective(0, 0, title, description, completedBy);
           obj.setProposedBy(proposedBy);
           boolean inserted = employeeService.insertNewObjective(userInQuestion.getEmployeeID(), obj);

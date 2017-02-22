@@ -17,8 +17,8 @@ public class EmployeeStatistics
 {
 
   /** String[] Constant - Indicates fields to be used in the employee statistics */
-  public final static String[] EMPLOYEE_FIELDS = { "employeeID", "forename", "surname", "company", "superSector",
-      "steriaDepartment" };
+  public final static String[] EMPLOYEE_FIELDS = { "profile.employeeID", "profile.forename", "profile.surname", "profile.company", "profile.superSector",
+      "profile.steriaDepartment" };
 
   /** String[] Constant - Represents fields to be used in the feedback statistics */
   public final static String[] FEEDBACK_FIELDS = { "feedback" };

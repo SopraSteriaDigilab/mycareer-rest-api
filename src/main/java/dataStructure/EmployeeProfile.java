@@ -10,7 +10,7 @@ import java.util.List;
 import javax.management.InvalidAttributeValueException;
 import com.google.gson.Gson;
 
-public class EmployeeProfile_NEW implements Serializable
+public class EmployeeProfile implements Serializable
 {
   private static final long serialVersionUID = 6335090383770271897L;
 
@@ -29,12 +29,12 @@ public class EmployeeProfile_NEW implements Serializable
   private String superSector;
   private List<String> reporteeCNs;
   
-  public EmployeeProfile_NEW() throws InvalidAttributeValueException
+  public EmployeeProfile() throws InvalidAttributeValueException
   {
     reporteeCNs = new ArrayList<>(); 
   }
 
-  public EmployeeProfile_NEW(long employeeId, String guid, String forename, String surname, String emailAddress,
+  public EmployeeProfile(long employeeId, String guid, String forename, String surname, String emailAddress,
       String username, String company, String superSector, String sector, String steriaDepartment,
       String sopraDepartment, boolean isManager, boolean hasHRDash, List<String> reporteesCNs)
           throws InvalidAttributeValueException
@@ -283,12 +283,12 @@ public class EmployeeProfile_NEW implements Serializable
   @Override
   public boolean equals(Object other)
   {
-    if (!(other instanceof EmployeeProfile_NEW))
+    if (!(other instanceof EmployeeProfile))
     {
       return false;
     }
     
-    EmployeeProfile_NEW otherEmployee = (EmployeeProfile_NEW) other;
+    EmployeeProfile otherEmployee = (EmployeeProfile) other;
 
     return employeeID == otherEmployee.employeeID
         && surname.equals(otherEmployee.surname)

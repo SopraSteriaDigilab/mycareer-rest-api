@@ -10,7 +10,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import dataStructure.EmployeeProfile_NEW;
+import dataStructure.EmployeeProfile;
 import dataStructure.Constants;
 
 /**
@@ -25,7 +25,7 @@ public class ADReporteesDAO_OLD
   private static DirContext ldapContext;
 
   @SuppressWarnings("unchecked")
-  public static EmployeeProfile_NEW findSteriaProfileAttributes(String username, EmployeeProfile_NEW userData)
+  public static EmployeeProfile findSteriaProfileAttributes(String username, EmployeeProfile userData)
       throws NamingException, InvalidAttributeValueException
   {
     // Verify the given string

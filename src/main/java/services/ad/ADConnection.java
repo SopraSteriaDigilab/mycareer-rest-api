@@ -79,13 +79,15 @@ public class ADConnection implements AutoCloseable
       final String searchTree, final String searchFilter) throws ADConnectionException, NamingException
   {
     Attributes attributes = null;
+    final SearchResult result;
     final NamingEnumeration<SearchResult> answer;
 
     searchCtls.setReturningAttributes(returningAttributes);
     searchCtls.setSearchScope(SUBTREE_SCOPE);
     establishConnection();
     answer = search(searchTree, searchFilter, searchCtls);
-    attributes = answer.next().getAttributes();
+    result = answer.next();
+    attributes = result.getAttributes();
 
     if (answer.hasMoreElements())
     {
