@@ -41,6 +41,7 @@ import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
+import dataStructure.EmployeeProfile_NEW;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note;
@@ -132,7 +133,7 @@ public class EmployeeService
    */
   public String getFullNameUser(long employeeID) throws InvalidAttributeValueException
   {
-    return getEmployee(employeeID).getFullName();
+    return getEmployee(employeeID).getProfile().getFullName();
   }
 
   /**
@@ -230,19 +231,19 @@ public class EmployeeService
    * @throws InvalidAttributeValueException
    * @throws NamingException
    */
-  public List<ADProfile_Basic> getReporteesForUser(long employeeID)
+  public List<EmployeeProfile_NEW> getReporteesForUser(long employeeID)
       throws InvalidAttributeValueException, NamingException
   {
     Employee employee = getEmployee(employeeID);
 
-    List<ADProfile_Basic> reporteeList = new ArrayList<>();
+    List<EmployeeProfile_NEW> reporteeList = new ArrayList<>();
 
-    for (String str : employee.getReporteeCNs())
+    for (String str : employee.getProfile().getReporteeCNs())
     {
       long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
       try
       {
-        reporteeList.add(matchADWithMongoData((ADProfile_Advanced) PROFILE_DAO.verifyIfUserExists(temp)));
+        reporteeList.add(matchADWithMongoData(PROFILE_DAO.verifyIfUserExists(temp)));
       }
       catch (Exception e)
       {
@@ -433,7 +434,7 @@ public class EmployeeService
   {
     addNote(reporteeEmployeeID, note);
 
-    String reporteeEmail = getEmployee(reporteeEmployeeID).getEmailAddress();
+    String reporteeEmail = getEmployee(reporteeEmployeeID).getProfile().getEmailAddress();
     String subject = String.format("Note added from %s", note.getProviderName());
     try
     {
@@ -611,12 +612,12 @@ public class EmployeeService
     Employee requester = getEmployee(employeeID);
     Set<String> recipientList = Utils.stringEmailsToHashSet(emailsString);
     List<String> errorRecipientList = new ArrayList<String>();
-    String requesterName = requester.getFullName();
+    String requesterName = requester.getProfile().getFullName();
 
     for (String recipient : recipientList)
     {
       String tempID = Utils.generateFeedbackRequestID(employeeID);
-      String subject = String.format("Feedback Request from %s - %s", requester.getFullName(), employeeID);
+      String subject = String.format("Feedback Request from %s - %s", requester.getProfile().getFullName(), employeeID);
       // String body = String.format("%s \n\n Feedback_Request: %s", notes, tempID);
       String body = Template.populateTemplate(env.getProperty("templates.feedback.request"), requesterName, notes,
           tempID);
@@ -672,7 +673,7 @@ public class EmployeeService
   {
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
 
-    long employeeID = matchADWithMongoData((ADProfile_Advanced) PROFILE_DAO.authenticateUserProfile(recipientEmail)).getEmployeeID();
+    long employeeID = matchADWithMongoData(PROFILE_DAO.authenticateUserProfile(recipientEmail)).getEmployeeID();
     Employee employee = getEmployee(employeeID);
 
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
@@ -726,7 +727,7 @@ public class EmployeeService
         employee.getFeedbackRequestsList());
     dbConnection.update(employee, ops);
 
-    addFeedback(providerEmail, employee.getEmailAddress(), feedbackDescription, true);
+    addFeedback(providerEmail, employee.getProfile().getEmailAddress(), feedbackDescription, true);
   }
 
   /**
@@ -773,52 +774,52 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param userData
+   * @param profileFromAD
    * @return
    * @throws InvalidAttributeValueException
    */
-  public ADProfile_Basic matchADWithMongoData(ADProfile_Advanced userData) throws InvalidAttributeValueException
+  public EmployeeProfile_NEW matchADWithMongoData(EmployeeProfile_NEW profileFromAD) throws InvalidAttributeValueException
   {
-    if (userData != null)
+    if (profileFromAD == null)
     {
-      // Establish a connection with the DB
-      // Search for a user GUID
-      // Retrieve Employee with the given GUID
-      if (!userData.getGUID().equals(""))
-      {
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("GUID =", userData.getGUID());
-
-        // If a user exists in our system, verify that his/hers data is up-to-date
-        if (querySearch.get() != null)
-        {
-          Employee e = querySearch.get();
-          boolean updated = e.matchAndUpdated(userData);
-          // If the method returns true, the data has been updated
-          if (updated)
-          {
-            // Reflect the changes to our system, updating the user data in the MongoDB
-            // Remove incorrect document
-            // dbConnection.findAndDelete(querySearch);
-            // Commit the changes to the DB
-            dbConnection.save(e);
-          }
-        }
-        // Else, Create the user in our system with the given data
-        else
-        {
-          // Create the Employee Object
-          Employee employeeNewData = new Employee(userData);
-          // Save the new user to the DB
-          dbConnection.save(employeeNewData);
-        }
-        // Return a smaller version of the current object to the user
-
-        return new ADProfile_Basic(userData.getEmployeeID(), userData.getSurname(), userData.getForename(),
-            userData.getIsManager(), userData.getUsername(), userData.getEmailAddress(), userData.getHasHRDash());
-      }
-      else throw new InvalidAttributeValueException(INVALID_USERGUID_NOTFOUND);
+      throw new InvalidAttributeValueException(NULL_USER_DATA);
     }
-    else throw new InvalidAttributeValueException(NULL_USER_DATA);
+    
+    if (profileFromAD.getGUID().equals(""))
+    {
+      throw new InvalidAttributeValueException(INVALID_USERGUID_NOTFOUND);
+    }
+    
+    Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("GUID =", profileFromAD.getGUID());
+
+    Employee e = querySearch.get();
+    // If a user exists in our system, verify that his/hers data is up-to-date
+    if (e != null)
+    {
+      boolean update = e.getProfile().equals(profileFromAD);
+      // If the method returns true, the data has been updated
+      if (update)
+      {
+        e.setProfile(profileFromAD);
+        
+        // Reflect the changes to our system, updating the user data in the MongoDB
+        // Remove incorrect document
+        // dbConnection.findAndDelete(querySearch);
+        // Commit the changes to the DB
+        dbConnection.save(e);
+      }
+    }
+    // Else, Create the user in our system with the given data
+    else
+    {
+      // Create the Employee Object
+      Employee employeeNewData = new Employee(profileFromAD);
+      // Save the new user to the DB
+      dbConnection.save(employeeNewData);
+    }
+    // Return a smaller version of the current object to the user
+    
+    return e.getProfile();
   }
 
 }

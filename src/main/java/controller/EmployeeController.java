@@ -41,6 +41,7 @@ import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
+import dataStructure.EmployeeProfile_NEW;
 import dataStructure.Note;
 import dataStructure.Objective;
 import services.EmployeeProfileDAO;
@@ -663,7 +664,7 @@ public class EmployeeController
     {
       if (userName != null && !userName.equals("") && userName.length() < 300)
       {
-        return ok(employeeService.matchADWithMongoData((ADProfile_Advanced) profileDAO.authenticateUserProfile(userName)));
+        return ok(employeeService.matchADWithMongoData(profileDAO.authenticateUserProfile(userName)));
       }
       else
       {
@@ -734,7 +735,7 @@ public class EmployeeController
       {
         try
         {
-          ADProfile_Basic userInQuestion = employeeService.matchADWithMongoData((ADProfile_Advanced) profileDAO.authenticateUserProfile(email));
+          EmployeeProfile_NEW userInQuestion = employeeService.matchADWithMongoData(profileDAO.authenticateUserProfile(email));
           Objective obj = new Objective(0, 0, title, description, completedBy);
           obj.setProposedBy(proposedBy);
           boolean inserted = employeeService.insertNewObjective(userInQuestion.getEmployeeID(), obj);

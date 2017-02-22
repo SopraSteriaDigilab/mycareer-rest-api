@@ -73,57 +73,57 @@ public class EmployeeTest
   @InjectMocks
   private Employee unitUnderTest;
 
-  /**
-   * Setup method that runs once before each test method.
-   * 
-   * @throws InvalidAttributeValueException
-   */
-  @SuppressWarnings("unchecked")
-  @Before
-  public void setup() throws InvalidAttributeValueException
-  {
-    // LOG.debug("AppControllerTest.setup()", true);
-    adProfileAdvanced = new ADProfile_Advanced(VALID_EMPLOYEE_ID, VALID_STRING, VALID_STRING, VALID_STRING, VALID_EMAIL,
-        VALID_STRING, VALID_STRING, VALID_STRING, VALID_EMAIL, VALID_EMAIL, VALID_EMAIL, VALID_EMAIL, false, false,
-        VALID_REPORTEE_LIST);
-    unitUnderTest = new Employee(adProfileAdvanced);
+//  /**
+//   * Setup method that runs once before each test method.
+//   * 
+//   * @throws InvalidAttributeValueException
+//   */
+//  @SuppressWarnings("unchecked")
+//  @Before
+//  public void setup() throws InvalidAttributeValueException
+//  {
+//    // LOG.debug("AppControllerTest.setup()", true);
+//    adProfileAdvanced = new ADProfile_Advanced(VALID_EMPLOYEE_ID, VALID_STRING, VALID_STRING, VALID_STRING, VALID_EMAIL,
+//        VALID_STRING, VALID_STRING, VALID_STRING, VALID_EMAIL, VALID_EMAIL, VALID_EMAIL, VALID_EMAIL, false, false,
+//        VALID_REPORTEE_LIST);
+//    unitUnderTest = new Employee(adProfileAdvanced);
+//
+//    MockitoAnnotations.initMocks(this);
+//  }
 
-    MockitoAnnotations.initMocks(this);
-  }
-
-  @Test
-  public void testMatchAndUpdate() throws InvalidAttributeValueException
-  {
-    boolean updated = unitUnderTest.matchAndUpdated(adProfileAdvanced);
-
-    // TODO User overridden equals method for employee...
-    assertFalse(updated);
-    assertEquals(adProfileAdvanced.getReporteeCNs(), unitUnderTest.getReporteeCNs());
-    assertEquals(adProfileAdvanced.getCompany(), unitUnderTest.getCompany());
-    assertEquals(adProfileAdvanced.getEmailAddress(), unitUnderTest.getEmailAddress());
-    assertEquals(adProfileAdvanced.getEmployeeID(), unitUnderTest.getEmployeeID());
-    assertEquals(adProfileAdvanced.getForename(), unitUnderTest.getForename());
-    assertEquals(adProfileAdvanced.getFullName(), unitUnderTest.getFullName());
-    assertEquals(adProfileAdvanced.getIsManager(), unitUnderTest.getIsManager());
-    assertEquals(adProfileAdvanced.getSurname(), unitUnderTest.getSurname());
-    assertEquals(adProfileAdvanced.getTeam(), unitUnderTest.getTeam());
-    assertEquals(adProfileAdvanced.getUsername(), unitUnderTest.getUsername());
-
-    unitUnderTest.setReporteeCNs(VALID_REPORTEE_LIST_2);
-    updated = unitUnderTest.matchAndUpdated(adProfileAdvanced);
-
-    assertTrue(updated);
-    assertEquals(adProfileAdvanced.getReporteeCNs(), unitUnderTest.getReporteeCNs());
-    assertEquals(adProfileAdvanced.getCompany(), unitUnderTest.getCompany());
-    assertEquals(adProfileAdvanced.getEmailAddress(), unitUnderTest.getEmailAddress());
-    assertEquals(adProfileAdvanced.getEmployeeID(), unitUnderTest.getEmployeeID());
-    assertEquals(adProfileAdvanced.getForename(), unitUnderTest.getForename());
-    assertEquals(adProfileAdvanced.getFullName(), unitUnderTest.getFullName());
-    assertEquals(adProfileAdvanced.getIsManager(), unitUnderTest.getIsManager());
-    assertEquals(adProfileAdvanced.getSurname(), unitUnderTest.getSurname());
-    assertEquals(adProfileAdvanced.getTeam(), unitUnderTest.getTeam());
-    assertEquals(adProfileAdvanced.getUsername(), unitUnderTest.getUsername());
-
-  }
+//  @Test
+//  public void testMatchAndUpdate() throws InvalidAttributeValueException
+//  {
+//    boolean updated = unitUnderTest.matchAndUpdated(adProfileAdvanced);
+//
+//    // TODO User overridden equals method for employee...
+//    assertFalse(updated);
+//    assertEquals(adProfileAdvanced.getReporteeCNs(), unitUnderTest.getReporteeCNs());
+//    assertEquals(adProfileAdvanced.getCompany(), unitUnderTest.getCompany());
+//    assertEquals(adProfileAdvanced.getEmailAddress(), unitUnderTest.getEmailAddress());
+//    assertEquals(adProfileAdvanced.getEmployeeID(), unitUnderTest.getEmployeeID());
+//    assertEquals(adProfileAdvanced.getForename(), unitUnderTest.getForename());
+//    assertEquals(adProfileAdvanced.getFullName(), unitUnderTest.getFullName());
+//    assertEquals(adProfileAdvanced.getIsManager(), unitUnderTest.getIsManager());
+//    assertEquals(adProfileAdvanced.getSurname(), unitUnderTest.getSurname());
+//    assertEquals(adProfileAdvanced.getTeam(), unitUnderTest.getTeam());
+//    assertEquals(adProfileAdvanced.getUsername(), unitUnderTest.getUsername());
+//
+//    unitUnderTest.setReporteeCNs(VALID_REPORTEE_LIST_2);
+//    updated = unitUnderTest.matchAndUpdated(adProfileAdvanced);
+//
+//    assertTrue(updated);
+//    assertEquals(adProfileAdvanced.getReporteeCNs(), unitUnderTest.getReporteeCNs());
+//    assertEquals(adProfileAdvanced.getCompany(), unitUnderTest.getCompany());
+//    assertEquals(adProfileAdvanced.getEmailAddress(), unitUnderTest.getEmailAddress());
+//    assertEquals(adProfileAdvanced.getEmployeeID(), unitUnderTest.getEmployeeID());
+//    assertEquals(adProfileAdvanced.getForename(), unitUnderTest.getForename());
+//    assertEquals(adProfileAdvanced.getFullName(), unitUnderTest.getFullName());
+//    assertEquals(adProfileAdvanced.getIsManager(), unitUnderTest.getIsManager());
+//    assertEquals(adProfileAdvanced.getSurname(), unitUnderTest.getSurname());
+//    assertEquals(adProfileAdvanced.getTeam(), unitUnderTest.getTeam());
+//    assertEquals(adProfileAdvanced.getUsername(), unitUnderTest.getUsername());
+//
+//  }
 
 }

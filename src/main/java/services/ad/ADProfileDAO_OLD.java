@@ -15,8 +15,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import dataStructure.ADProfile_Advanced;
-import dataStructure.ADProfile_Basic;
+import dataStructure.EmployeeProfile_NEW;
+import dataStructure.EmployeeProfile_NEW;
 import services.EmployeeService;
 
 import java.util.UUID;
@@ -25,6 +25,7 @@ import java.util.UUID;
  * This class contains the definition of the ADProfileDAO
  *
  */
+@Deprecated
 public class ADProfileDAO_OLD
 {
 
@@ -34,13 +35,13 @@ public class ADProfileDAO_OLD
   private static DirContext ldapContext;
   private static DirContext ldapSteriaContext;
 
-  public static ADProfile_Basic authenticateUserProfile(String usernameEmail)
+  public static EmployeeProfile_NEW authenticateUserProfile(String usernameEmail)
       throws NamingException, InvalidAttributeValueException
   {
     // Verify the given string
     if (usernameEmail == null || usernameEmail.equals("") || usernameEmail.length() < 1)
       throw new InvalidAttributeValueException(INVALID_EMAILORUSERNAME_AD);
-    ADProfile_Advanced adObj = new ADProfile_Advanced();
+    EmployeeProfile_NEW adObj = new EmployeeProfile_NEW();
     // specify the LDAP search filter
     if (usernameEmail.contains("@"))
     {
@@ -61,7 +62,7 @@ public class ADProfileDAO_OLD
     return employeeService.matchADWithMongoData(adObj);
   }
 
-  private static ADProfile_Advanced getProfileFromSopraAD(String email)
+  private static EmployeeProfile_NEW getProfileFromSopraAD(String email)
       throws NamingException, InvalidAttributeValueException
   {
 
@@ -78,7 +79,7 @@ public class ADProfileDAO_OLD
     else searchFilter = "(sAMAccountName=" + email + ")";
     // Search for objects using the filter
     NamingEnumeration<SearchResult> answer = ldapContext.search(AD_SOPRA_TREE, searchFilter, searchCtls);
-    ADProfile_Advanced adObj = new ADProfile_Advanced();
+    EmployeeProfile_NEW adObj = new EmployeeProfile_NEW();
 
     // Check the results retrieved
     try
@@ -136,10 +137,10 @@ public class ADProfileDAO_OLD
     return adObj;
   }
 
-  private static ADProfile_Advanced authenticateJVEmail(String email)
+  private static EmployeeProfile_NEW authenticateJVEmail(String email)
       throws NamingException, InvalidAttributeValueException
   {
-    ADProfile_Advanced adObj = new ADProfile_Advanced();
+    EmployeeProfile_NEW adObj = new EmployeeProfile_NEW();
     /// Instantiate the connection
     // Instantiate the connection
     if (ldapSteriaContext == null) ldapSteriaContext = getADSteriaConnectionJV();
@@ -197,10 +198,10 @@ public class ADProfileDAO_OLD
     return adObj;
   }
 
-  private static ADProfile_Advanced authenticateSSEmailUserName(String usernameEmail)
+  private static EmployeeProfile_NEW authenticateSSEmailUserName(String usernameEmail)
       throws NamingException, InvalidAttributeValueException
   {
-    ADProfile_Advanced adObj = new ADProfile_Advanced();
+    EmployeeProfile_NEW adObj = new EmployeeProfile_NEW();
     // Check the results retrieved
     try
     {
@@ -224,7 +225,7 @@ public class ADProfileDAO_OLD
     return adObj;
   }
 
-  public static ADProfile_Basic verifyIfUserExists(long employeeID)
+  public static EmployeeProfile_NEW verifyIfUserExists(long employeeID)
       throws NamingException, InvalidAttributeValueException
   {
     // Verify the long

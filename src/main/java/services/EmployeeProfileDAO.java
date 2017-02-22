@@ -18,6 +18,7 @@ import javax.naming.directory.SearchControls;
 
 import dataStructure.ADProfile_Advanced;
 import dataStructure.ADProfile_Basic;
+import dataStructure.EmployeeProfile_NEW;
 import services.ad.ADConnection;
 import services.ad.ADConnectionException;
 
@@ -87,13 +88,15 @@ public final class EmployeeProfileDAO
     STERIA_ENVIRONMENT_SETTINGS.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
   }
 
-  public ADProfile_Basic authenticateUserProfile(String usernameEmail)
+  public EmployeeProfile_NEW authenticateUserProfile(String usernameEmail)
       throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
     // Verify the given string
     if (usernameEmail == null || usernameEmail.equals("") || usernameEmail.length() < 1)
       throw new InvalidAttributeValueException(INVALID_EMAILORUSERNAME_AD);
-    ADProfile_Advanced adObj = new ADProfile_Advanced();
+    
+    
+    EmployeeProfile_NEW adObj = new EmployeeProfile_NEW();
     // specify the LDAP search filter
     if (usernameEmail.contains("@"))
     {
@@ -114,7 +117,7 @@ public final class EmployeeProfileDAO
     return adObj;
   }
 
-  public ADProfile_Basic verifyIfUserExists(long employeeID)
+  public EmployeeProfile_NEW verifyIfUserExists(long employeeID)
       throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
     if (employeeID < 1)
@@ -168,7 +171,7 @@ public final class EmployeeProfileDAO
     }
   }
 
-  private ADProfile_Advanced getProfileFromSopraAD(String email, ADProfile_Advanced adObj)
+  private EmployeeProfile_NEW getProfileFromSopraAD(String email, EmployeeProfile_NEW adObj)
       throws NamingException, InvalidAttributeValueException
   {
     // specify the LDAP search filter
@@ -238,10 +241,10 @@ public final class EmployeeProfileDAO
     return adObj;
   }
 
-  private ADProfile_Advanced authenticateJVEmail(String email)
+  private EmployeeProfile_NEW authenticateJVEmail(String email)
       throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
-    ADProfile_Advanced adObj = new ADProfile_Advanced();
+    EmployeeProfile_NEW adObj = new EmployeeProfile_NEW();
 
     final String searchFilter = "(targetAddress=" + email + ")";
 
@@ -263,10 +266,10 @@ public final class EmployeeProfileDAO
     return adObj;
   }
 
-  private ADProfile_Advanced authenticateSSEmailUserName(String usernameEmail)
+  private EmployeeProfile_NEW authenticateSSEmailUserName(String usernameEmail)
       throws NamingException, InvalidAttributeValueException
   {
-    final ADProfile_Advanced adObj = new ADProfile_Advanced();
+    final EmployeeProfile_NEW adObj = new EmployeeProfile_NEW();
     getProfileFromSopraAD(usernameEmail, adObj);
 
     try
@@ -282,7 +285,7 @@ public final class EmployeeProfileDAO
     return adObj;
   }
 
-  private ADProfile_Advanced getProfileFromSteriaAD(String username, ADProfile_Advanced userData)
+  private EmployeeProfile_NEW getProfileFromSteriaAD(String username, EmployeeProfile_NEW userData)
       throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
     if (username == null || username.length() < 2 || userData == null)

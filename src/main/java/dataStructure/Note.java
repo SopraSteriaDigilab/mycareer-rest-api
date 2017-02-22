@@ -21,7 +21,7 @@ public class Note implements Serializable
   /** long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = -7758646259468792018L;
   
-  private static final String ERROR_NOTE_EMPTY = "Note feilds can not be empty.";
+  private static final String ERROR_NOTE_EMPTY = "Note fields can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
   private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
 

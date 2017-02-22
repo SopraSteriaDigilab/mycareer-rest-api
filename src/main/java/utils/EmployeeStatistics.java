@@ -161,11 +161,11 @@ public class EmployeeStatistics
   private Map<String, Object> getBasicMap(Employee employee)
   {
     Map<String, Object> map = new HashMap<>();
-    map.put("employeeID", employee.getEmployeeID());
-    map.put("fullName", employee.getFullName());
-    map.put("company", employee.getCompany());
-    map.put("superSector", employee.getSuperSector());
-    map.put("department", employee.getSteriaDepartment());
+    map.put("employeeID", employee.getProfile().getEmployeeID());
+    map.put("fullName", employee.getProfile().getFullName());
+    map.put("company", employee.getProfile().getCompany());
+    map.put("superSector", employee.getProfile().getSuperSector());
+    map.put("department", employee.getProfile().getSteriaDepartment());
     return map;
   }
 

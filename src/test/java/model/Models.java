@@ -9,6 +9,7 @@ import dataStructure.ADProfile_Advanced;
 import dataStructure.Competency;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
+import dataStructure.EmployeeProfile_NEW;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note_OLD;
@@ -90,9 +91,9 @@ public class Models
    * @return
    * @throws InvalidAttributeValueException
    */
-  public static ADProfile_Advanced getProfile() throws InvalidAttributeValueException
+  public static EmployeeProfile_NEW getProfile() throws InvalidAttributeValueException
   {
-    return new ADProfile_Advanced(EMPLOYEE_ID, GUID, FIRST_NAME, LAST_NAME, EMAIL_ADRESS, USERNAME, COMPANY,
+    return new EmployeeProfile_NEW(EMPLOYEE_ID, GUID, FIRST_NAME, LAST_NAME, EMAIL_ADRESS, USERNAME, COMPANY,
         SUPER_SECTOR, SECTOR, STERIA_DEPARTMENT, SOPRA_DEPARTMENT, TEAM, IS_MANAGER, IS_HR, REPORTEES);
   }
 
