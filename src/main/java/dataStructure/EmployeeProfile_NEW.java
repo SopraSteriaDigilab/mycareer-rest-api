@@ -23,7 +23,6 @@ public class EmployeeProfile_NEW implements Serializable
   private boolean hasHRDash;
   private String GUID;
   private String company;
-  private String team;
   private String sopraDepartment;
   private String steriaDepartment;
   private String sector;
@@ -37,7 +36,7 @@ public class EmployeeProfile_NEW implements Serializable
 
   public EmployeeProfile_NEW(long employeeId, String guid, String forename, String surname, String emailAddress,
       String username, String company, String superSector, String sector, String steriaDepartment,
-      String sopraDepartment, String team, boolean isManager, boolean hasHRDash, List<String> reporteesCNs)
+      String sopraDepartment, boolean isManager, boolean hasHRDash, List<String> reporteesCNs)
           throws InvalidAttributeValueException
   {
     setEmployeeID(employeeID);
@@ -51,7 +50,6 @@ public class EmployeeProfile_NEW implements Serializable
     setSector(sector);
     setSteriaDepartment(steriaDepartment);
     setSopraDepartment(sopraDepartment);
-    setTeam(team);
     this.isManager = isManager;
     setHasHRDash(hasHRDash);
     setReporteeCNs(reporteesCNs);
@@ -169,22 +167,6 @@ public class EmployeeProfile_NEW implements Serializable
       }
     }
     else throw new InvalidAttributeValueException(Constants.INVALID_NULLREPORTEESLIST);
-  }
-
-  public String getTeam()
-  {
-    return this.team;
-  }
-
-  /**
-   * 
-   * @param team the team name which length must be less than 150 characters
-   * @throws InvalidAttributeValueException
-   */
-  public void setTeam(String team) throws InvalidAttributeValueException
-  {
-    if (team != null && team.length() > 0 && team.length() < 150) this.team = team;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_TEAM);
   }
 
   public String getCompany()
@@ -316,7 +298,6 @@ public class EmployeeProfile_NEW implements Serializable
         && isManager == otherEmployee.isManager
         && GUID.equals(otherEmployee.GUID)
         && company.equals(otherEmployee.company)
-        && team.equals(otherEmployee.team)
         && sopraDepartment.equals(otherEmployee.sopraDepartment)
         && steriaDepartment.equals(otherEmployee.steriaDepartment)
         && sector.equals(otherEmployee.sector)
@@ -329,7 +310,7 @@ public class EmployeeProfile_NEW implements Serializable
   {
     return "EmployeeProfile_NEW [employeeID=" + employeeID + ", surname=" + surname + ", forename=" + forename
         + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager=" + isManager + ", GUID=" + GUID
-        + ", company=" + company + ", team=" + team + ", sopraDepartment=" + sopraDepartment + ", steriaDepartment="
+        + ", company=" + company + ", sopraDepartment=" + sopraDepartment + ", steriaDepartment="
         + steriaDepartment + ", sector=" + sector + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs
         + "]";
   }

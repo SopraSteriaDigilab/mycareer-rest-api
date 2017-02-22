@@ -849,11 +849,11 @@ public class Employee_NEW implements Serializable
     }
 
     // Check the team
-    if (!employeeData.getTeam().equals(data.getTeam()))
+    if (!employeeData.getSopraDepartment().equals(data.getSopraDepartment()))
     {
       // Update the counter and the user data
       itemsUpdated++;
-      employeeData.setTeam(data.getTeam());
+      employeeData.setSopraDepartment(data.getSopraDepartment());
     }
 
     // Check the list of reportees

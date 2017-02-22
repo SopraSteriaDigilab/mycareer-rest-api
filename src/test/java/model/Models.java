@@ -94,7 +94,7 @@ public class Models
   public static EmployeeProfile_NEW getProfile() throws InvalidAttributeValueException
   {
     return new EmployeeProfile_NEW(EMPLOYEE_ID, GUID, FIRST_NAME, LAST_NAME, EMAIL_ADRESS, USERNAME, COMPANY,
-        SUPER_SECTOR, SECTOR, STERIA_DEPARTMENT, SOPRA_DEPARTMENT, TEAM, IS_MANAGER, IS_HR, REPORTEES);
+        SUPER_SECTOR, SECTOR, STERIA_DEPARTMENT, SOPRA_DEPARTMENT, IS_MANAGER, IS_HR, REPORTEES);
   }
 
   /**

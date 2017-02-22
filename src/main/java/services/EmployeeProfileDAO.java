@@ -225,7 +225,6 @@ public final class EmployeeProfileDAO
       adObj.setUsername((String) attrs.get("sAMAccountName").get());
       adObj.setCompany((String) attrs.get("company").get());
       adObj.setSopraDepartment((String) attrs.get("department").get());
-      adObj.setTeam((String) attrs.get("department").get());
 
     }
     catch (NoSuchElementException | NullPointerException e)

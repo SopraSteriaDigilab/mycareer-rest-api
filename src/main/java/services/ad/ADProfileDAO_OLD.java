@@ -121,7 +121,6 @@ public class ADProfileDAO_OLD
       adObj.setUsername((String) attrs.get("sAMAccountName").get());
       adObj.setCompany((String) attrs.get("company").get());
       adObj.setSopraDepartment((String) attrs.get("department").get());
-      adObj.setTeam((String) attrs.get("department").get());
     }
     catch (NoSuchElementException | NullPointerException e)
     { // There is no matching user in the Active Directory.
