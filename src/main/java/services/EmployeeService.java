@@ -121,7 +121,7 @@ public class EmployeeService
    */
   private Query<Employee> getEmployeeQuery(long employeeID)
   {
-    return dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+    return dbConnection.createQuery(Employee.class).filter("profile.employeeID =", employeeID);
   }
 
   /**
@@ -267,7 +267,7 @@ public class EmployeeService
       if (data != null && data instanceof Objective)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeID);
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
@@ -354,7 +354,7 @@ public class EmployeeService
       if (data != null && data instanceof Objective)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeID);
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
@@ -467,7 +467,7 @@ public class EmployeeService
       if (data != null && data instanceof DevelopmentNeed)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeID);
 
         if (querySearch.get() != null)
         {
@@ -555,7 +555,7 @@ public class EmployeeService
       if (data != null && data instanceof DevelopmentNeed)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeID);
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
@@ -748,7 +748,7 @@ public class EmployeeService
       if (data != null && data instanceof Competency && title != null && title.length() > 0)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeID);
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
@@ -790,7 +790,7 @@ public class EmployeeService
       throw new InvalidAttributeValueException(INVALID_USERGUID_NOTFOUND);
     }
     
-    Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("GUID =", profileFromAD.getGUID());
+    Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("profile.GUID =", profileFromAD.getGUID());
 
     Employee e = querySearch.get();
     // If a user exists in our system, verify that his/hers data is up-to-date

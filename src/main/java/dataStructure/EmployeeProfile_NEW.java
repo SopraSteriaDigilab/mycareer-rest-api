@@ -30,8 +30,9 @@ public class EmployeeProfile_NEW implements Serializable
   private String superSector;
   private List<String> reporteeCNs;
   
-  public EmployeeProfile_NEW()
+  public EmployeeProfile_NEW() throws InvalidAttributeValueException
   {
+    reporteeCNs = new ArrayList<>(); 
   }
 
   public EmployeeProfile_NEW(long employeeId, String guid, String forename, String surname, String emailAddress,
