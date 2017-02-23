@@ -44,7 +44,7 @@ import dataStructure.DevelopmentNeed;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
-import services.EmployeeProfileDAO;
+import services.EmployeeProfileService;
 import services.EmployeeService;
 import services.ad.ADConnectionException;
 import services.ews.EmailService;
@@ -67,8 +67,8 @@ public class EmployeeController
 
   private final EmployeeService employeeService = new EmployeeService();
 
-  /** TYPE Property|Constant - Represents|Indicates... */
-  private final EmployeeProfileDAO profileDAO = new EmployeeProfileDAO();
+//  /** TYPE Property|Constant - Represents|Indicates... */
+//  private final EmployeeProfileDAO profileDAO = new EmployeeProfileDAO();
 
   /** Environment Property - Reference to environment to get property details. */
   @Autowired
@@ -646,7 +646,7 @@ public class EmployeeController
     {
       if (userName != null && !userName.equals("") && userName.length() < 300)
       {
-        return ok(employeeService.matchADWithMongoData(profileDAO.authenticateUserProfile(userName)));
+        return ok(employeeService.matchADWithMongoData(employeeService.authenticateUserProfile(userName)));
       }
       else
       {
@@ -717,7 +717,7 @@ public class EmployeeController
       {
         try
         {
-          EmployeeProfile userInQuestion = employeeService.matchADWithMongoData(profileDAO.authenticateUserProfile(email));
+          EmployeeProfile userInQuestion = employeeService.matchADWithMongoData(employeeService.authenticateUserProfile(email));
           Objective obj = new Objective(0, 0, title, description, completedBy);
           obj.setProposedBy(proposedBy);
           boolean inserted = employeeService.insertNewObjective(userInQuestion.getEmployeeID(), obj);

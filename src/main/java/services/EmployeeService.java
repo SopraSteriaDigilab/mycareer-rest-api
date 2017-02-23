@@ -46,6 +46,7 @@ import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
+import services.ad.ADConnectionException;
 import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Template;
@@ -65,8 +66,6 @@ public class EmployeeService
 
   private static final String ERROR_USER_NOT_FOUND = "The given user ID does not exist.";
 
-  /* Accesses the Active Directories */
-  private static final EmployeeProfileDAO PROFILE_DAO = new EmployeeProfileDAO();
   
   /** String Constant - Represents Feedback Request */
   public static final String FEEDBACK_REQUEST = "Feedback Request";
@@ -76,6 +75,9 @@ public class EmployeeService
   
   /** Environment Property - Reference to environment to get property details. */
   private static Environment env;
+
+  /* Accesses the Active Directories */
+  private static EmployeeProfileService employeeProfileService;
 
   /**
    * EmployeeDAO Constructor - Needed for morphia?.
@@ -90,10 +92,11 @@ public class EmployeeService
    *
    * @param dbConnection
    */
-  public EmployeeService(Datastore dbConnection, Environment env)
+  public EmployeeService(Datastore dbConnection, EmployeeProfileService employeeProfileService, Environment env)
   {
     EmployeeService.dbConnection = dbConnection;
     EmployeeService.env = env;
+    EmployeeService.employeeProfileService = employeeProfileService;
   }
 
   /**
@@ -243,7 +246,7 @@ public class EmployeeService
       long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
       try
       {
-        reporteeList.add(matchADWithMongoData(PROFILE_DAO.verifyIfUserExists(temp)));
+        reporteeList.add(matchADWithMongoData(employeeProfileService.verifyIfUserExists(temp)));
       }
       catch (Exception e)
       {
@@ -673,14 +676,14 @@ public class EmployeeService
   {
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
 
-    long employeeID = matchADWithMongoData(PROFILE_DAO.authenticateUserProfile(recipientEmail)).getEmployeeID();
+    long employeeID = matchADWithMongoData(employeeProfileService.authenticateUserProfile(recipientEmail)).getEmployeeID();
     Employee employee = getEmployee(employeeID);
 
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
 
     try
     {
-      feedback.setProviderName(PROFILE_DAO.findEmployeeFullNameFromEmailAddress(providerEmail));
+      feedback.setProviderName(employeeProfileService.findEmployeeFullNameFromEmailAddress(providerEmail));
     }
     catch (InvalidAttributeValueException | NamingException e)
     {
@@ -820,6 +823,11 @@ public class EmployeeService
     // Return a smaller version of the current object to the user
     
     return e.getProfile();
+  }
+
+  public EmployeeProfile authenticateUserProfile(String usernameEmail) throws InvalidAttributeValueException, ADConnectionException, NamingException
+  {
+    return employeeProfileService.authenticateUserProfile(usernameEmail);
   }
 
 }
