@@ -95,7 +95,7 @@ public class DevelopmentNeed implements Serializable
 
   public void setCategory(int cat) throws InvalidAttributeValueException
   {
-    if (cat >= 0 && cat <= 5) this.category = cat;
+    if (cat >= 0 && cat <= 4) this.category = cat;
     else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_CATEGORY);
   }
 

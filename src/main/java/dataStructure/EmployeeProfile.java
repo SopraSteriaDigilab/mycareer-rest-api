@@ -1,7 +1,9 @@
 package dataStructure;
 
 import static dataStructure.Constants.INVALID_CONTEXT_COMPANY;
+import static dataStructure.Constants.INVALID_INT;
 import static dataStructure.Constants.INVALID_NULLREPORTEE;
+import static dataStructure.Constants.INVALID_STRING;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -31,7 +33,20 @@ public class EmployeeProfile implements Serializable
   
   public EmployeeProfile() throws InvalidAttributeValueException
   {
-    reporteeCNs = new ArrayList<>(); 
+    surname = "";
+    forename = "";
+    employeeID = INVALID_INT;
+    username = "";
+    emailAddress = "";
+    isManager = false;
+    hasHRDash = false;
+    company = "";
+    superSector = "";
+    sector = "";
+    steriaDepartment = "";
+    sopraDepartment = "";
+    GUID = "";
+    reporteeCNs = new ArrayList<String>();
   }
 
   public EmployeeProfile(long employeeId, String guid, String forename, String surname, String emailAddress,
