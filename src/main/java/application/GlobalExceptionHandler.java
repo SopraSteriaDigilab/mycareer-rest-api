@@ -25,7 +25,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @SuppressWarnings("rawtypes")
 public class GlobalExceptionHandler
 {
-
+  /** List of constants to represent error messages */
+  public static final String ERROR_EMPTY = "Please fill in all the required feilds.";
+  public static final String ERROR_DESCRIPTION_LIMIT_1000 = "Max Description length is 1000 characters.";
+  public static final String ERROR_DESCRIPTION_LIMIT_2000 = "Max Description length is 1000 characters.";
+  public static final String ERROR_NAME_LIMIT = "Max Name length is 150 characters.";
+  public static final String ERROR_TITLE_LIMIT = "Max Title is 150 characters.";
+  public static final String ERROR_PROGRESS_LIMIT = "Please enter a valid progress (Proposed, In-Progress, Complete).";
+  
   @ExceptionHandler
   @ResponseBody
   @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -48,4 +55,5 @@ public class GlobalExceptionHandler
   {
     return Collections.singletonMap("error", message);
   }
+  
 }

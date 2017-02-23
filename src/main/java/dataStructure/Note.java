@@ -1,5 +1,6 @@
 package dataStructure;
 
+import static application.GlobalExceptionHandler.*;
 import static dataStructure.Constants.UK_TIMEZONE;
 
 import java.io.Serializable;
@@ -20,24 +21,18 @@ public class Note implements Serializable
 
   /** long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = -7758646259468792018L;
-  
-  private static final String ERROR_NOTE_EMPTY = "Note feilds can not be empty.";
-  private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
-  private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
 
   /** int Property - Represents Unique ID for the object. */
   private int id;
 
   /** String Property - Represents name of the not provider. */
-  @NotNull(message = ERROR_NOTE_EMPTY)
-  @NotBlank(message = ERROR_NOTE_EMPTY)
-  @Size(max = 150, message = ERROR_PROVIDER_NAME_LIMIT)
+  @NotBlank(message = ERROR_EMPTY)
+  @Size(max = 150, message = ERROR_NAME_LIMIT)
   private String providerName;
 
   /** String Property - Represents the description of the note. */
-  @NotNull(message = ERROR_NOTE_EMPTY)
-  @NotBlank(message = ERROR_NOTE_EMPTY)
-  @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT)
+  @NotBlank(message = ERROR_EMPTY)
+  @Size(max = 1000, message = ERROR_DESCRIPTION_LIMIT_1000)
   private String noteDescription;
 
   /** String Property - Represents the timestamp of the note. */
