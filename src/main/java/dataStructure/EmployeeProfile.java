@@ -279,41 +279,6 @@ public class EmployeeProfile implements Serializable
     Gson gsonData = new Gson();
     return gsonData.toJson(this);
   }
-  
-  @Override
-  public boolean equals(Object other)
-  {
-    if (!(other instanceof EmployeeProfile))
-    {
-      return false;
-    }
-    
-    EmployeeProfile otherEmployee = (EmployeeProfile) other;
-
-    return employeeID == otherEmployee.employeeID
-        && surname.equals(otherEmployee.surname)
-        && forename.equals(otherEmployee.forename)
-        && username.equals(otherEmployee.username)
-        && emailAddress.equals(otherEmployee.emailAddress)
-        && isManager == otherEmployee.isManager
-        && GUID.equals(otherEmployee.GUID)
-        && company.equals(otherEmployee.company)
-        && sopraDepartment.equals(otherEmployee.sopraDepartment)
-        && steriaDepartment.equals(otherEmployee.steriaDepartment)
-        && sector.equals(otherEmployee.sector)
-        && superSector.equals(otherEmployee.superSector)
-        && reporteeCNs.equals(otherEmployee.reporteeCNs);
-  }
-
-  @Override
-  public String toString()
-  {
-    return "EmployeeProfile_NEW [employeeID=" + employeeID + ", surname=" + surname + ", forename=" + forename
-        + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager=" + isManager + ", GUID=" + GUID
-        + ", company=" + company + ", sopraDepartment=" + sopraDepartment + ", steriaDepartment="
-        + steriaDepartment + ", sector=" + sector + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs
-        + "]";
-  }
 
   /**
    * This method adds a reportee's CN to the list of reportees
@@ -327,5 +292,83 @@ public class EmployeeProfile implements Serializable
     if (this.reporteeCNs == null) this.reporteeCNs = new ArrayList<>();
     if (cn != null && cn.length() > 1) return reporteeCNs.add(cn);
     else throw new InvalidAttributeValueException(INVALID_NULLREPORTEE);
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    EmployeeProfile other = (EmployeeProfile) obj;
+    if (GUID == null)
+    {
+      if (other.GUID != null) return false;
+    }
+    else if (!GUID.equals(other.GUID)) return false;
+    if (company == null)
+    {
+      if (other.company != null) return false;
+    }
+    else if (!company.equals(other.company)) return false;
+    if (emailAddress == null)
+    {
+      if (other.emailAddress != null) return false;
+    }
+    else if (!emailAddress.equals(other.emailAddress)) return false;
+    if (employeeID != other.employeeID) return false;
+    if (forename == null)
+    {
+      if (other.forename != null) return false;
+    }
+    else if (!forename.equals(other.forename)) return false;
+    if (hasHRDash != other.hasHRDash) return false;
+    if (isManager != other.isManager) return false;
+    if (reporteeCNs == null)
+    {
+      if (other.reporteeCNs != null) return false;
+    }
+    else if (!reporteeCNs.equals(other.reporteeCNs)) return false;
+    if (sector == null)
+    {
+      if (other.sector != null) return false;
+    }
+    else if (!sector.equals(other.sector)) return false;
+    if (sopraDepartment == null)
+    {
+      if (other.sopraDepartment != null) return false;
+    }
+    else if (!sopraDepartment.equals(other.sopraDepartment)) return false;
+    if (steriaDepartment == null)
+    {
+      if (other.steriaDepartment != null) return false;
+    }
+    else if (!steriaDepartment.equals(other.steriaDepartment)) return false;
+    if (superSector == null)
+    {
+      if (other.superSector != null) return false;
+    }
+    else if (!superSector.equals(other.superSector)) return false;
+    if (surname == null)
+    {
+      if (other.surname != null) return false;
+    }
+    else if (!surname.equals(other.surname)) return false;
+    if (username == null)
+    {
+      if (other.username != null) return false;
+    }
+    else if (!username.equals(other.username)) return false;
+    return true;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "EmployeeProfile [employeeID=" + employeeID + ", surname=" + surname + ", forename=" + forename
+        + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager=" + isManager + ", GUID=" + GUID
+        + ", company=" + company + ", sopraDepartment=" + sopraDepartment + ", steriaDepartment="
+        + steriaDepartment + ", sector=" + sector + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs
+        + "]";
   }
 }
