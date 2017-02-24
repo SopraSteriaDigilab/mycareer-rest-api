@@ -25,10 +25,20 @@ import org.springframework.format.annotation.DateTimeFormat;
 public class Objective_NEW implements Serializable
 {
 
-  /** Represents progress of any Objecitve object. */
+  /** Represents progress of any Objective object. */
   public enum Progress
   {
-    Proposed, InProgress, Complete;
+    PROPOSED("Proposed"), IN_PROGRESS("In-Progress"), COMPLETE("Complete");
+    
+    private String progressStr;
+    
+    Progress(String progressStr){
+     this.progressStr = progressStr; 
+    }
+    
+    public String getProgressStr() {
+      return this.progressStr;
+    }
   }
 
   /** long Constant - Represents serialVersionUID... */
@@ -86,7 +96,7 @@ public class Objective_NEW implements Serializable
     this.setDescription(objective.getDescription());
     this.setDueDate(objective.getDueDate());
     this.setProposedBy(objective.getProposedBy());
-    this.setProgress(Progress.Proposed);
+    this.setProgress(Progress.PROPOSED);
     this.setArchived(false);
     this.setTimestamp();
   }
@@ -158,13 +168,16 @@ public class Objective_NEW implements Serializable
   /** @return the progress. */
   public String getProgress()
   {
-    return Progress.valueOf(this.progress).toString();
+    return Progress.valueOf(this.progress).getProgressStr();
   }
 
-  /** @param progress The value to set the named property to. */
+  /**
+   * @param progress The value to set the named property to. Must be one of the following: Proposed, InProgress,
+   * Complete;
+   */
   public void setProgress(Progress progress)
   {
-    this.progress = progress.toString();
+    this.progress = progress.getProgressStr();
   }
 
   /** @return the isArchived */
