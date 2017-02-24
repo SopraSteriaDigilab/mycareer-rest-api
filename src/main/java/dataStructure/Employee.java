@@ -35,7 +35,7 @@ public class Employee extends ADProfile_Advanced implements Serializable
   @Embedded
   private List<List<Objective>> objectives;
   @Embedded
-  private List<List<Note>> notes;
+  private List<Note> notes;
   @Embedded
   private List<List<DevelopmentNeed>> developmentNeeds;
   @Embedded
@@ -48,7 +48,7 @@ public class Employee extends ADProfile_Advanced implements Serializable
   {
     this.feedback = new ArrayList<Feedback>();
     this.objectives = new ArrayList<List<Objective>>();
-    this.notes = new ArrayList<List<Note>>();
+    this.notes = new ArrayList<Note>();
     this.developmentNeeds = new ArrayList<List<DevelopmentNeed>>();
     this.feedbackRequests = new ArrayList<FeedbackRequest>();
     this.competencies = new ArrayList<List<Competency>>();
@@ -58,14 +58,14 @@ public class Employee extends ADProfile_Advanced implements Serializable
   public Employee(long employeeID, String guid, String name, String surname, String email, String username,
       String company, String superSector, String sector, String steriaDepartment, String sopraDepartment, String team,
       boolean isManager, boolean hasHRDash, List<Feedback> feeds, List<List<Objective>> objectives,
-      List<List<Note>> notes, List<List<DevelopmentNeed>> needs, List<FeedbackRequest> requests,
+      List<Note> notes, List<List<DevelopmentNeed>> needs, List<FeedbackRequest> requests,
       List<List<Competency>> competencies, List<String> reportees) throws InvalidAttributeValueException
   {
     super(employeeID, guid, name, surname, email, username, company, superSector, sector, steriaDepartment,
         sopraDepartment, team, isManager, hasHRDash, reportees);
     this.setFeedback(feeds);
     this.setObjectiveList(objectives);
-    this.setNoteList(notes);
+    this.setNotes(notes);
     this.setDevelopmentNeedsList(needs);
     this.setFeedbackRequestsList(requests);
     this.setCompetenciesList(competencies);
@@ -79,7 +79,7 @@ public class Employee extends ADProfile_Advanced implements Serializable
         userData.getIsManager(), userData.getHasHRDash(), userData.getReporteeCNs());
     this.feedback = new ArrayList<Feedback>();
     this.objectives = new ArrayList<List<Objective>>();
-    this.notes = new ArrayList<List<Note>>();
+    this.notes = new ArrayList<Note>();
     this.developmentNeeds = new ArrayList<List<DevelopmentNeed>>();
     this.feedbackRequests = new ArrayList<FeedbackRequest>();
     this.competencies = new ArrayList<List<Competency>>();
@@ -226,89 +226,17 @@ public class Employee extends ADProfile_Advanced implements Serializable
     }
     throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVEIDNOTFOND);
   }
-
-  /**
-   * 
-   * @param notes the list of notes to assign to an employee
-   * @throws InvalidAttributeValueException
-   */
-  public void setNoteList(List<List<Note>> notes) throws InvalidAttributeValueException
+  
+  /** @return the notes */
+  public List<Note> getNotes()
   {
-    if (notes != null)
-    {
-      // Counter that keeps tracks of the error while adding elements
-      int errorCounter = 0;
-      this.notes = new ArrayList<List<Note>>();
-      // Verify if each each objective is valid
-      for (int i = 0; i < notes.size(); i++)
-      {
-        // Add a new List to the list of Objectives
-        this.notes.add(new ArrayList<Note>());
-        if (notes.get(i) != null)
-        {
-          for (int j = 0; j < notes.get(i).size(); j++)
-          {
-            // Check iof the current note is valid
-            if (notes.get(i).get(j).isNoteValid()) this.notes.get(this.notes.size() - 1).add(notes.get(i).get(j));
-            else errorCounter++;
-          }
-        }
-        else throw new InvalidAttributeValueException(Constants.NULL_NOTE);
-      }
-      // Verify if there were errors during the import of objectives
-      if (errorCounter != 0) throw new InvalidAttributeValueException(Constants.INVALID_NOTELIST);
-    }
-    else throw new InvalidAttributeValueException(Constants.NULL_NOTELIST);
+    return notes;
   }
 
-  public List<List<Note>> getNoteList()
+  /** @param newNotes */
+  public void setNotes(List<Note> notes)
   {
-    return this.notes;
-  }
-
-  /**
-   * 
-   * @return a list containing the latest version of each note
-   */
-  public List<Note> getLatestVersionNotes()
-  {
-    List<Note> organisedList = new ArrayList<Note>();
-    if (notes == null) return null;
-    else
-    {
-      // If the list if not empty, retrieve all the elements and add them to the list
-      // that is going to be returned
-      for (List<Note> subList : notes)
-      {
-        // The last element contains the latest version for the note
-        organisedList.add(subList.get(subList.size() - 1));
-      }
-      // Once the list if full, return it to the user
-      return organisedList;
-    }
-  }
-
-  /**
-   * 
-   * @param id id of the note
-   * @return the note data
-   * @throws InvalidAttributeValueException
-   */
-  public Note getLatestVersionOfSpecificNotee(int id) throws InvalidAttributeValueException
-  {
-    // Verify if the id is valid
-    if (id < 0) throw new InvalidAttributeValueException(Constants.INVALID_NOTEID);
-    // Search for the note with the given ID
-    for (List<Note> subList : notes)
-    {
-      if ((subList.get(0)).getID() == id)
-      {
-        // Now that the note has been found, return the latest version of it
-        // which is stored at the end of the List
-        return (subList.get(subList.size() - 1));
-      }
-    }
-    return null;
+    this.notes = notes;
   }
 
   /**
@@ -388,7 +316,7 @@ public class Employee extends ADProfile_Advanced implements Serializable
   /**
    * @throws InvalidAttributeValueException
    * 
-   * This method returns the latest version of a specific development need, given its ID
+   *           This method returns the latest version of a specific development need, given its ID
    * 
    * @param id development need ID @return the DevelopmentNeed data object @throws
    */
@@ -730,60 +658,67 @@ public class Employee extends ADProfile_Advanced implements Serializable
     throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE);
   }
 
-  /**
-   * 
-   * This method adds a new note to a specific user
-   * 
-   * @param obj note object
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public boolean addNote(Note obj) throws InvalidAttributeValueException
+  public boolean addNote(Note note)
   {
-    if (notes == null) notes = new ArrayList<List<Note>>();
-    // Verify that the note is not null
-    if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_NOTE);
-    // At this point, the note hasn't got an ID, let's create one
-    obj.setID(notes.size() + 1);
-    if (obj.isNoteValid())
-    {
-      List<Note> tempList = new ArrayList<Note>();
-      // add the first version of this note
-      boolean res1 = tempList.add(obj);
-      boolean res2 = notes.add(tempList);
-      // Action completed, verify the results
-      return (res1 && res2);
-    }
-    throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
+    note.setId(this.getNotes().size());
+    return this.notes.add(note);
   }
-
-  /**
-   * 
-   * This method adds a new version of the note
-   * 
-   * @param obj note data
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public boolean editNote(Note obj) throws InvalidAttributeValueException
-  {
-    // Verify that the object is not null
-    if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_NOTE);
-    // Step 1: Verify that the object contains valid data
-    if (obj.isNoteValid())
-    {
-      // Step 2: Verify that the ID contained within the note object is in the system
-      for (int i = 0; i < notes.size(); i++)
-      {
-        List<Note> listTemp = notes.get(i);
-        // The elements within each list has all the same ID, so pick the first one and compare it
-        if ((listTemp.get(0)).getID() == obj.getID())
-          // Add the note to the end of the list
-          return notes.get(i).add(obj);
-      }
-    }
-    throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
-  }
+  
+  
+  // /**
+  // *
+  // * This method adds a new note to a specific user
+  // *
+  // * @param obj note object
+  // * @return
+  // * @throws InvalidAttributeValueException
+  // */
+  // public boolean addNote(Note obj) throws InvalidAttributeValueException
+  // {
+  // if (notes == null) notes = new ArrayList<List<Note>>();
+  // // Verify that the note is not null
+  // if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_NOTE);
+  // // At this point, the note hasn't got an ID, let's create one
+  // obj.setID(notes.size() + 1);
+  // if (obj.isNoteValid())
+  // {
+  // List<Note> tempList = new ArrayList<Note>();
+  // // add the first version of this note
+  // boolean res1 = tempList.add(obj);
+  // boolean res2 = notes.add(tempList);
+  // // Action completed, verify the results
+  // return (res1 && res2);
+  // }
+  // throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
+  // }
+  //
+  // /**
+  // *
+  // * This method adds a new version of the note
+  // *
+  // * @param obj note data
+  // * @return
+  // * @throws InvalidAttributeValueException
+  // */
+  // public boolean editNote(Note obj) throws InvalidAttributeValueException
+  // {
+  // // Verify that the object is not null
+  // if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_NOTE);
+  // // Step 1: Verify that the object contains valid data
+  // if (obj.isNoteValid())
+  // {
+  // // Step 2: Verify that the ID contained within the note object is in the system
+  // for (int i = 0; i < notes.size(); i++)
+  // {
+  // List<Note> listTemp = notes.get(i);
+  // // The elements within each list has all the same ID, so pick the first one and compare it
+  // if ((listTemp.get(0)).getID() == obj.getID())
+  // // Add the note to the end of the list
+  // return notes.get(i).add(obj);
+  // }
+  // }
+  // throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
+  // }
 
   /**
    * 
@@ -1042,82 +977,82 @@ public class Employee extends ADProfile_Advanced implements Serializable
     return gsonData.toJson(this);
   }
 
-  @Override
-  public String toString()
-  {
-    String s = "";
-    s += super.toString();
-    // Add the feedback
-    s += "Feedback:\n";
-    for (Feedback temp : this.feedback)
-    {
-      s += temp.toString() + "\n";
-    }
-    // Add the objectives
-    s += "Objectives:\n";
-    int counter = 1;
-    for (List<Objective> objList : objectives)
-    {
-      s += "Objective " + counter++ + "\n";
-      int version = 1;
-      for (Objective obj : objList)
-      {
-        s += "Version " + version++ + "\n" + obj.toString() + "\n";
-      }
-    }
-    // Add the Notes
-    s += "Notes:\n";
-    counter = 1;
-    for (List<Note> noteList : notes)
-    {
-      s += "Note " + counter++ + "\n";
-      int version = 1;
-      for (Note obj : noteList)
-      {
-        s += "Version " + version++ + "\n" + obj.toString() + "\n";
-      }
-    }
-    // Add the Development needs
-    s += "Development Needs:\n";
-    counter = 1;
-    for (List<DevelopmentNeed> noteList : developmentNeeds)
-    {
-      s += "Development Need " + counter++ + "\n";
-      int version = 1;
-      for (DevelopmentNeed obj : noteList)
-      {
-        s += "Version " + version++ + "\n" + obj.toString() + "\n";
-      }
-    }
-    // //Add the Feedback requests
-    // s+="Group Feedback Requests:\n";
-    // counter=1;
-    // for(FeedbackRequest t:feedbackRequests){
-    // s+="Request "+counter++ +"\n";
-    // s+=t.toString();
-    // }
-    // Add the Competencies
-    s += "Competencies: ";
-    // Retrieve all the sublists
-    int indexSubList = 0;
-    for (List<Competency> subList : this.competencies)
-    {
-      // For each sublist, retrieve each element and add them to the s string including the title and description
-      int compCounter = 0;
-      try
-      {
-        for (Competency comp : subList)
-        {
-          s += "Competency: " + compCounter++ + "\n";
-          s += comp.toString(indexSubList++);
-        }
-      }
-      catch (Exception r)
-      {
-      }
-    }
-    return s;
-  }
+//  @Override
+//  public String toString()
+//  {
+//    String s = "";
+//    s += super.toString();
+//    // Add the feedback
+//    s += "Feedback:\n";
+//    for (Feedback temp : this.feedback)
+//    {
+//      s += temp.toString() + "\n";
+//    }
+//    // Add the objectives
+//    s += "Objectives:\n";
+//    int counter = 1;
+//    for (List<Objective> objList : objectives)
+//    {
+//      s += "Objective " + counter++ + "\n";
+//      int version = 1;
+//      for (Objective obj : objList)
+//      {
+//        s += "Version " + version++ + "\n" + obj.toString() + "\n";
+//      }
+//    }
+//    // Add the Notes
+//    s += "Notes:\n";
+//    counter = 1;
+//    for (List<Note_OLD> noteList : notes)
+//    {
+//      s += "Note " + counter++ + "\n";
+//      int version = 1;
+//      for (Note_OLD obj : noteList)
+//      {
+//        s += "Version " + version++ + "\n" + obj.toString() + "\n";
+//      }
+//    }
+//    // Add the Development needs
+//    s += "Development Needs:\n";
+//    counter = 1;
+//    for (List<DevelopmentNeed> noteList : developmentNeeds)
+//    {
+//      s += "Development Need " + counter++ + "\n";
+//      int version = 1;
+//      for (DevelopmentNeed obj : noteList)
+//      {
+//        s += "Version " + version++ + "\n" + obj.toString() + "\n";
+//      }
+//    }
+//    // //Add the Feedback requests
+//    // s+="Group Feedback Requests:\n";
+//    // counter=1;
+//    // for(FeedbackRequest t:feedbackRequests){
+//    // s+="Request "+counter++ +"\n";
+//    // s+=t.toString();
+//    // }
+//    // Add the Competencies
+//    s += "Competencies: ";
+//    // Retrieve all the sublists
+//    int indexSubList = 0;
+//    for (List<Competency> subList : this.competencies)
+//    {
+//      // For each sublist, retrieve each element and add them to the s string including the title and description
+//      int compCounter = 0;
+//      try
+//      {
+//        for (Competency comp : subList)
+//        {
+//          s += "Competency: " + compCounter++ + "\n";
+//          s += comp.toString(indexSubList++);
+//        }
+//      }
+//      catch (Exception r)
+//      {
+//      }
+//    }
+//    return s;
+//  }
 
   public int nextFeedbackID()
   {

@@ -15,35 +15,68 @@ import javax.naming.directory.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Represents a connection to an active directory.
+ * 
+ * ADConnection instances are created with specific environment settings which may not
+ * be changed once instantiated.  The connection is made in a lazy way, i.e. is only
+ * instantiated after the first call to {@code searchAD()}.
+ *
+ */
 public class ADConnection implements AutoCloseable
 {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(ADConnection.class);
+
   private static final String TOO_MANY_RESULTS = "More than one match was found in the Active Directory";
-  private static final String CONNECTION_ERROR = "Unable to connect to the Active Directory: ";
+  private static final String CONNECTION_EXCEPTION_MSG = "Unable to connect to the Active Directory: ";
+  private static final String SEARCH_EXCEPTION_MSG = "Exception occurred while trying to search the active directory: ";
+  private static final String CLOSE_EXCEPTION_MSG = "Exception encountered while closing a connection to the active directory: ";
 
   private DirContext connection;
   private final Hashtable<String, String> ldapEnvironmentSettings;
-
+  
+  /**
+   * Constructs a new {@code ADConnection} using the given environment settings.
+   *
+   * @param ldapEnvironmentSettings The environment settings to be used with this
+   * {@code ADConnection} instance.
+   */
   public ADConnection(final Hashtable<String, String> ldapEnvironmentSettings)
   {
-    this.ldapEnvironmentSettings = ldapEnvironmentSettings;
+    this.ldapEnvironmentSettings = new Hashtable<String, String>(ldapEnvironmentSettings);
   }
 
   /**
    * Constructor to be used for testing purposes only.
+   * 
+   * TODO: Move the test to this package in order to make this constructor package private?
    * 
    * @param ldapEnvironmentSettings
    * @param connection
    */
   public ADConnection(final Hashtable<String, String> ldapEnvironmentSettings, final DirContext connection)
   {
-    this(ldapEnvironmentSettings);
+    this.ldapEnvironmentSettings = ldapEnvironmentSettings;
     this.connection = connection;
   }
-
+  
+  /**
+   * Performs a search of the active directory.
+   *
+   * @param searchCtls The search controls to use for the search (note that if returning
+   * attributes and/or search scope are already set, they will be overridden by this method). 
+   * @param returningAttributes The attributes to return from the search.
+   * @param searchTree The directory/directories on the target AD to search.
+   * @param searchFilter A search filter.
+   * @return An {@code Attributes} instance containing the results of the search.
+   * @throws ADConnectionException If an exception occurred while trying to connect to or
+   * search the AD.
+   * @throws NamingException If an exception occurred while attempting to access the first
+   * result of the search.
+   * @throws NoSuchElementException If the search produced no results.
+   */
   public Attributes searchAD(final SearchControls searchCtls, final String[] returningAttributes,
-      final String searchTree, final String searchFilter) throws NamingException
+      final String searchTree, final String searchFilter) throws ADConnectionException, NamingException
   {
     Attributes attributes = null;
     final NamingEnumeration<SearchResult> answer;
@@ -51,7 +84,7 @@ public class ADConnection implements AutoCloseable
     searchCtls.setReturningAttributes(returningAttributes);
     searchCtls.setSearchScope(SUBTREE_SCOPE);
     establishConnection();
-    answer = connection.search(searchTree, searchFilter, searchCtls);
+    answer = search(searchTree, searchFilter, searchCtls);
     attributes = answer.next().getAttributes();
 
     if (answer.hasMoreElements())
@@ -62,7 +95,7 @@ public class ADConnection implements AutoCloseable
     return attributes;
   }
 
-  private void establishConnection() throws NamingException
+  private void establishConnection() throws ADConnectionException
   {
     if (connection != null)
     {
@@ -73,9 +106,24 @@ public class ADConnection implements AutoCloseable
     {
       connection = new InitialDirContext(ldapEnvironmentSettings);
     }
-    catch (final RuntimeException re)
+    catch (final NamingException | RuntimeException ex)
     {
-      LOGGER.error(CONNECTION_ERROR.concat(ldapEnvironmentSettings.toString()), re);
+      LOGGER.error(CONNECTION_EXCEPTION_MSG.concat(ldapEnvironmentSettings.toString()), ex);
+      throw new ADConnectionException(CONNECTION_EXCEPTION_MSG, ex);
+    }
+  }
+
+  private NamingEnumeration<SearchResult> search(final String searchTree, final String searchFilter,
+      final SearchControls searchCtls) throws ADConnectionException
+  {
+    try
+    {
+      return connection.search(searchTree, searchFilter, searchCtls);
+    }
+    catch (final NamingException | RuntimeException ex)
+    {
+      LOGGER.error(SEARCH_EXCEPTION_MSG.concat(ldapEnvironmentSettings.toString()), ex);
+      throw new ADConnectionException(SEARCH_EXCEPTION_MSG, ex);
     }
   }
 
@@ -86,9 +134,10 @@ public class ADConnection implements AutoCloseable
     {
       connection.close();
     }
-    catch (final NamingException | NullPointerException e)
+    catch (final NamingException | RuntimeException ex)
     {
-      LOGGER.info(e.getMessage());
+      final String msg = ex.getMessage();
+      LOGGER.warn(CLOSE_EXCEPTION_MSG + msg);
     }
   }
 }

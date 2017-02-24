@@ -125,7 +125,7 @@ public class DevelopmentNeed implements Serializable
    */
   public void setDescription(String description) throws InvalidAttributeValueException
   {
-    if (description != null && description.length() > 0 && description.length() < 1001) this.description = description;
+    if (description != null && description.length() > 0 && description.length() < 2001) this.description = description;
     else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_DESCRIPTION);
   }
 

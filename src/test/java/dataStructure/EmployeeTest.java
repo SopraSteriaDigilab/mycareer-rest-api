@@ -55,7 +55,7 @@ public class EmployeeTest
 
   /** TYPE Property|Constant - Represents|Indicates... */
   @Mock
-  private List<List<Note>> mockNotesList;
+  private List<List<Note_OLD>> mockNotesList;
 
   /** TYPE Property|Constant - Represents|Indicates... */
   @Mock
