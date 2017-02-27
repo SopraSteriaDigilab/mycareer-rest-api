@@ -86,7 +86,7 @@ public class Competency implements Serializable
    */
   public void setTitle(int compId) throws InvalidAttributeValueException
   {
-    if (compId == 0 | compId < Constants.COMPETENCY_NAMES.length) this.title = Constants.COMPETENCY_NAMES[compId];
+    if (compId >= 0 && compId < Constants.COMPETENCY_NAMES.length) this.title = Constants.COMPETENCY_NAMES[compId];
     else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_TITLE);
   }
 
