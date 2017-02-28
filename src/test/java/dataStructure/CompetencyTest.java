@@ -16,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.google.gson.Gson;
+
 
 /**
  * Unit tests for the CompetencyTest class.
@@ -40,8 +42,8 @@ public class CompetencyTest
   private final int INVALID_PERFORMANCE = 3;
  
   @InjectMocks
-  private Competency compTest;
-  
+  private Competency compTest, compTest2;
+    
   /**
    * Setup method that runs once before each test method.
    * 
@@ -51,10 +53,11 @@ public class CompetencyTest
   {
    initMocks(this);
    compTest = new Competency();
+   compTest2 = new Competency(VALID_ID , true);
   }
   
   /**
-   * Unit test for the setID method.
+   * Unit test for the setID method : invalid ID.
    * 
    * @throws InvalidAttributeValueException
    */
@@ -63,9 +66,9 @@ public class CompetencyTest
   {  
     compTest.setID(INVALID_ID);
   }
-  
+   
   /**
-   * Unit test for the setID method.
+   * Unit test for the setID method : valid ID.
    * 
    * @throws InvalidAttributeValueException
    */
@@ -77,7 +80,7 @@ public class CompetencyTest
   }
   
   /**
-   * Unit test for the setTitle method.
+   * Unit test for the setTitle method invalid title.
    * 
    * @throws InvalidAttributeValueException
    */
@@ -88,7 +91,7 @@ public class CompetencyTest
   }
   
   /**
-   * Unit test for the setTitle method.
+   * Unit test for the setTitle method : valid title.
    * 
    * @throws InvalidAttributeValueException
    */
@@ -102,18 +105,18 @@ public class CompetencyTest
   }
   
   /**
-   * Unit test for the setDescription method.
+   * Unit test for the setDescription method : invalid title.
    * 
    * @throws InvalidAttributeValueException
    */
-  @Test(expected= ArrayIndexOutOfBoundsException.class)
+  @Test(expected= InvalidAttributeValueException.class)
   public void testSetDescriptionWithInvalidTitle() throws InvalidAttributeValueException
   {
       compTest.setDescription(INVALID_ID);
   }
   
   /**
-   * Unit test for the setDescription method.
+   * Unit test for the setDescription method : valid title.
    * 
    * @throws InvalidAttributeValueException
    */
@@ -125,4 +128,26 @@ public class CompetencyTest
       assertTrue(Constants.COMPETENCY_DESCRIPTIONS[i]==compTest.getCompentencyDescription());
     }
   }
+   
+  /**
+   * Unit test for the toGson method.
+   * 
+   */
+  @Test
+  public void testToGson()
+  {
+    Gson gsonData = new Gson();
+    assertEquals(compTest.toGson(),gsonData.toJson(compTest));
+  }
+   
+  /**
+   * Unit test for the toString method.
+   * 
+   */
+  @Test
+  public void testToString()
+  {
+    int index=5;
+    assertEquals(compTest2.toString(index), "ID: " + compTest2.getID() + "\n"+ "Is Selected: " + compTest2.getIsSelected() + "\n" + "Title: " + Constants.COMPETENCY_NAMES[index] + "\n" + "Description: " + Constants.COMPETENCY_DESCRIPTIONS[index] + "\n" + "Time Stamp: " + compTest2.getTimeStamp() + "\n"); 
+   }
 }
