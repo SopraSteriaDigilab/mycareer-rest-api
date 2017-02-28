@@ -85,7 +85,7 @@ public class CompetencyTest
    * @throws InvalidAttributeValueException
    */
   @Test(expected= InvalidAttributeValueException.class)
-  public void testSetTitlewithInvalidTitle() throws InvalidAttributeValueException
+  public void testSetTitleWithInvalidTitle() throws InvalidAttributeValueException
   {
     compTest.setTitle(INVALID_ID);
   }
