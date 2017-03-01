@@ -95,7 +95,9 @@ public class Feedback implements Serializable
   public void setProviderEmail(String providerEmail) throws InvalidAttributeValueException
   {
     if (Validate.isValidEmailSyntax(providerEmail)) this.providerEmail = providerEmail;
-    throw new InvalidAttributeValueException("This email address is not valid syntax.");
+    else {
+      throw new InvalidAttributeValueException("This email address is not valid syntax.");
+    }
   }
 
   /** @return the providerName */
