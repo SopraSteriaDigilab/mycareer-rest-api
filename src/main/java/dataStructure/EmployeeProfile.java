@@ -31,7 +31,7 @@ public class EmployeeProfile implements Serializable
   private String superSector;
   private List<String> reporteeCNs;
   
-  public EmployeeProfile() throws InvalidAttributeValueException
+  public EmployeeProfile()
   {
     surname = "";
     forename = "";

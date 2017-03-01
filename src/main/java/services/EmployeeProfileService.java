@@ -1,26 +1,38 @@
 package services;
 
-import static javax.naming.Context.*;
 import static dataStructure.Constants.INVALID_IDNOTFOND;
 import static dataStructure.Constants.INVALID_IDMATCHUSERNAME;
 import static dataStructure.Constants.INVALID_CONTEXT_MAIL;
 import static dataStructure.Constants.INVALID_CONTEXT_USERNAME;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
+import javax.annotation.PostConstruct;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
-import dataStructure.ADProfile_Advanced_OLD;
-import dataStructure.ADProfile_Basic_OLD;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+
 import dataStructure.EmployeeProfile;
 import services.ad.ADConnection;
 import services.ad.ADConnectionException;
+import services.ad.ADConnectionImpl;
+import services.ad.ADSearchSettings;
 
 import java.util.UUID;
 
@@ -30,17 +42,18 @@ import java.util.UUID;
  */
 public final class EmployeeProfileService
 {
+  private final static Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileService.class);
+  
+  private static final String TOO_MANY_RESULTS = "More than one match was found in the Active Directory";
+  
   // Sopra AD Details
   private static final String AD_SOPRA_TREE = "ou=usersemea,DC=emea,DC=msad,DC=sopra";
+  private static final String AD_SOPRA_UK_TREE = "ou=uk,ou=users,ou=sopragroup,".concat(AD_SOPRA_TREE);
   private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
-  private static final String[] AD_SOPRA_ATTRIBUTES = { "sn", "givenName", "company", "sAMAccountName",
-      "extensionAttribute7", "objectGUID", "mail", "department", "targetAddress", "memberOf" };
-
+  
   // Steria AD Details
-  private static final String AD_STERIA_SEARCH_TREE = "DC=one,DC=steria,DC=dom";
-  private static final String[] AD_STERIA_ATTRIBUTES = { "directReports", "sn", "givenName", "mail", "targetAddress",
-      "company", "sAMAccountName", "department", "ou", "SteriaSectorUnit" };
-
+  private static final String AD_STERIA_TREE = "DC=one,DC=steria,DC=dom";
+  private static final String AD_STERIA_UK_TREE = "ou=UK,ou=Internal,ou=People,".concat(AD_STERIA_TREE);
   
   // AD errors
   private static final String NOTFOUND_EMAILORUSERNAME_AD = "The given 'username/email address' didn't match any valid employee: ";
@@ -48,13 +61,13 @@ public final class EmployeeProfileService
   private static final String INVALID_EMAIL_AD = "The given email address didn't match any employee: ";
   private static final String NOTFOUND_USERNAME_AD = "The given 'username' didn't match any valid employee: ";
   
-  private final Hashtable<String, String> sopraADSettings;
-  private final Hashtable<String, String> steriaADSettings;
+  private final ADSearchSettings sopraADSearchSettings;
+  private final ADSearchSettings steriaADSearchSettings;
   
-  public EmployeeProfileService(final Hashtable<String, String> sopraADSettings, final Hashtable<String, String> steriaADSettings)
+  public EmployeeProfileService(final ADSearchSettings sopraADSearchSettings, final ADSearchSettings steriaADSearchSettings)
   {
-    this.sopraADSettings = sopraADSettings;
-    this.steriaADSettings = steriaADSettings;
+    this.sopraADSearchSettings = sopraADSearchSettings;
+    this.steriaADSearchSettings = steriaADSearchSettings;
   }
 
   public EmployeeProfile authenticateUserProfile(String usernameEmail)
@@ -96,10 +109,16 @@ public final class EmployeeProfileService
 
     final String searchFilter = "(extensionAttribute7=s" + employeeID + ")";
 
-    try (final ADConnection connection = new ADConnection(sopraADSettings))
+    try (final ADConnection connection = new ADConnectionImpl(sopraADSearchSettings))
     {
-      final Attributes attrs = connection.searchAD(new SearchControls(), AD_SOPRA_ATTRIBUTES, AD_SOPRA_TREE,
-          searchFilter);
+      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_SOPRA_TREE, searchFilter);
+      final Attributes attrs = result.next().getAttributes();
+
+      if (result.hasMoreElements())
+      {
+        LOGGER.warn(TOO_MANY_RESULTS);
+      }
+      
       final String userName = (String) attrs.get("sAMAccountName").get();
 
       return authenticateUserProfile(userName);
@@ -121,10 +140,17 @@ public final class EmployeeProfileService
 
     final String searchFilter = "(mail=" + email + ")";
 
-    try (final ADConnection connection = new ADConnection(sopraADSettings))
+    try (final ADConnection connection = new ADConnectionImpl(sopraADSearchSettings))
     {
-      Attributes attrs = connection.searchAD(new SearchControls(), AD_SOPRA_ATTRIBUTES, AD_SOPRA_TREE, searchFilter);
+      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_SOPRA_TREE, searchFilter);
+      
+      final Attributes attrs = result.next().getAttributes();
 
+      if (result.hasMoreElements())
+      {
+        LOGGER.warn(TOO_MANY_RESULTS);
+      }
+      
       // Find and return the full name
       String surname = (String) attrs.get("sn").get();
       String forename = (String) attrs.get("givenName").get();
@@ -156,11 +182,15 @@ public final class EmployeeProfileService
     }
 
     // Check the results retrieved
-    try (final ADConnection connection = new ADConnection(sopraADSettings))
+    try (final ADConnection connection = new ADConnectionImpl(sopraADSearchSettings))
     {
-      final Attributes attrs = connection.searchAD(new SearchControls(), AD_SOPRA_ATTRIBUTES, AD_SOPRA_TREE,
-          searchFilter);
+      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_SOPRA_TREE, searchFilter);
+      final Attributes attrs = result.next().getAttributes();
 
+      if (result.hasMoreElements())
+      {
+        LOGGER.warn(TOO_MANY_RESULTS);
+      }
       // Get the employee ID from extensionAttribute7.
       // If this field doesn't exist then this email address cannot be handled
       Attribute extensionAttribute7 = attrs.get("extensionAttribute7");
@@ -217,11 +247,17 @@ public final class EmployeeProfileService
     final String searchFilter = "(targetAddress=" + email + ")";
 
     // Check the results retrieved
-    try (final ADConnection connection = new ADConnection(steriaADSettings))
+    try (final ADConnection connection = new ADConnectionImpl(steriaADSearchSettings))
     {
-      final Attributes attrs = connection.searchAD(new SearchControls(), AD_STERIA_ATTRIBUTES, AD_STERIA_SEARCH_TREE,
-          searchFilter);
+      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_STERIA_TREE, searchFilter);
+      
+      final Attributes attrs = result.next().getAttributes();
 
+      if (result.hasMoreElements())
+      {
+        LOGGER.warn(TOO_MANY_RESULTS);
+      }
+      
       getProfileFromSopraAD((String) attrs.get("sAMAccountName").get(), adObj);
       getProfileFromSteriaAD(adObj.getUsername(), adObj);
 
@@ -268,10 +304,16 @@ public final class EmployeeProfileService
     String steriaDepartment = null;
     boolean isManager = false;
 
-    try (final ADConnection connection = new ADConnection(steriaADSettings))
+    try (final ADConnection connection = new ADConnectionImpl(steriaADSearchSettings))
     {
-      final Attributes attrs = connection.searchAD(new SearchControls(), AD_STERIA_ATTRIBUTES, AD_STERIA_SEARCH_TREE,
-          searchFilter);
+      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_STERIA_TREE, searchFilter);
+      final Attributes attrs = result.next().getAttributes();
+
+      if (result.hasMoreElements())
+      {
+        LOGGER.warn(TOO_MANY_RESULTS);
+      }
+      
       directReports = attrs.get("directReports");
       superSector = (String) attrs.get("ou").get();
       sector = ((String) attrs.get("SteriaSectorUnit").get()).substring(3);

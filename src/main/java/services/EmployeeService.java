@@ -829,5 +829,4 @@ public class EmployeeService
   {
     return employeeProfileService.authenticateUserProfile(usernameEmail);
   }
-
 }

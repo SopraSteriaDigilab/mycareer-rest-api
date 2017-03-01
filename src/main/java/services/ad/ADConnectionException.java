@@ -6,11 +6,16 @@ package services.ad;
  * 
  * @see NamingException
  * @see RuntimeException
- * @see ADConnection
+ * @see ADConnectionImpl
  */
 public class ADConnectionException extends Exception
 {
   private static final long serialVersionUID = 4781800554919237698L;
+  
+  public ADConnectionException(Exception wrappedException)
+  {
+    super(wrappedException);
+  }
   
   public ADConnectionException(String message, Exception wrappedException)
   {
