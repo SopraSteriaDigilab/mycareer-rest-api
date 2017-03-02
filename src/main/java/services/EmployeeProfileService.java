@@ -1,25 +1,38 @@
 package services;
 
-import static javax.naming.Context.*;
 import static dataStructure.Constants.INVALID_IDNOTFOND;
 import static dataStructure.Constants.INVALID_IDMATCHUSERNAME;
 import static dataStructure.Constants.INVALID_CONTEXT_MAIL;
 import static dataStructure.Constants.INVALID_CONTEXT_USERNAME;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
+import javax.annotation.PostConstruct;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
-import dataStructure.ADProfile_Advanced;
-import dataStructure.ADProfile_Basic;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+
+import dataStructure.EmployeeProfile;
 import services.ad.ADConnection;
 import services.ad.ADConnectionException;
+import services.ad.ADConnectionImpl;
+import services.ad.ADSearchSettings;
 
 import java.util.UUID;
 
@@ -27,73 +40,45 @@ import java.util.UUID;
  * This class contains the definition of the ADProfileDAO
  *
  */
-public final class EmployeeProfileDAO
+public final class EmployeeProfileService
 {
+  private final static Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileService.class);
+  
+  private static final String TOO_MANY_RESULTS = "More than one match was found in the Active Directory";
+  
   // Sopra AD Details
-  private static final String AD_SOPRA_HOST = "ldap://duns.ldap-ad.dmsi.corp.sopra";
-  private static final String AD_SOPRA_URL = AD_SOPRA_HOST.concat(":389");
-  private static final String AD_SOPRA_USERNAME = "svc_mycareer@emea.msad.sopra";
-  private static final String AD_SOPRA_PASSWORD = "N9T$SiPSZ";
   private static final String AD_SOPRA_TREE = "ou=usersemea,DC=emea,DC=msad,DC=sopra";
-  private static final String AD_SOPRA_BINARY_ATTRIBUTES = "objectGUID";
-  private static final String AD_SOPRA_PRINCIPAL = AD_SOPRA_USERNAME;
+  private static final String AD_SOPRA_UK_TREE = "ou=uk,ou=users,ou=sopragroup,".concat(AD_SOPRA_TREE);
   private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
-  private static final String[] AD_SOPRA_ATTRIBUTES = { "sn", "givenName", "company", "sAMAccountName",
-      "extensionAttribute7", "objectGUID", "mail", "department", "targetAddress", "memberOf" };
-
+  
   // Steria AD Details
-  private static final String AD_STERIA_HOST = "ldap://one.steria.dom";
-  private static final String AD_STERIA_URL = AD_STERIA_HOST.concat(":389");
-  private static final String AD_STERIA_USERNAME = "UK-SVC-CAREER";
-  private static final String AD_STERIA_PASSWORD = "3I=AkSiGRr";
-  private static final String AD_STERIA_SEARCH_TREE = "DC=one,DC=steria,DC=dom";
-  private static final String AD_STERIA_LOGIN_TREE = "OU=Service Accounts,OU=UKCentral,OU=UK,OU=Resources,DC=one,DC=steria,DC=dom";
-  private static final String AD_STERIA_PRINCIPAL = new StringBuilder("cn=").append(AD_STERIA_USERNAME).append(",")
-      .append(AD_STERIA_LOGIN_TREE).toString();
-  private static final String[] AD_STERIA_ATTRIBUTES = { "directReports", "sn", "givenName", "mail", "targetAddress",
-      "company", "sAMAccountName", "department", "ou", "SteriaSectorUnit" };
-
-  // Other AD settings
-  private static final String AUTHENTICATION = "simple";
-  private static final String LDAP_CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
-  private static final String BINARY_ATTRIBUTES_KEY = "java.naming.ldap.attributes.binary";
-  private static final String TIMEOUT_ATTRIBUTE_KEY = "com.sun.jndi.ldap.read.timeout";
-  private static final String TIMEOUT_ATTRIBUTE = "10000";
-
+  private static final String AD_STERIA_TREE = "DC=one,DC=steria,DC=dom";
+  private static final String AD_STERIA_UK_TREE = "ou=UK,ou=Internal,ou=People,".concat(AD_STERIA_TREE);
+  
   // AD errors
   private static final String NOTFOUND_EMAILORUSERNAME_AD = "The given 'username/email address' didn't match any valid employee: ";
   private static final String INVALID_EMAILORUSERNAME_AD = "The given 'username/email address' is not valid in this context";
   private static final String INVALID_EMAIL_AD = "The given email address didn't match any employee: ";
   private static final String NOTFOUND_USERNAME_AD = "The given 'username' didn't match any valid employee: ";
-
-  private static final Hashtable<String, String> SOPRA_ENVIRONMENT_SETTINGS = new Hashtable<>();
-  private static final Hashtable<String, String> STERIA_ENVIRONMENT_SETTINGS = new Hashtable<>();;
-
-  static
+  
+  private final ADSearchSettings sopraADSearchSettings;
+  private final ADSearchSettings steriaADSearchSettings;
+  
+  public EmployeeProfileService(final ADSearchSettings sopraADSearchSettings, final ADSearchSettings steriaADSearchSettings)
   {
-    SOPRA_ENVIRONMENT_SETTINGS.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
-    SOPRA_ENVIRONMENT_SETTINGS.put(PROVIDER_URL, AD_SOPRA_URL);
-    SOPRA_ENVIRONMENT_SETTINGS.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
-    SOPRA_ENVIRONMENT_SETTINGS.put(BINARY_ATTRIBUTES_KEY, AD_SOPRA_BINARY_ATTRIBUTES);
-    SOPRA_ENVIRONMENT_SETTINGS.put(SECURITY_PRINCIPAL, AD_SOPRA_PRINCIPAL);
-    SOPRA_ENVIRONMENT_SETTINGS.put(SECURITY_CREDENTIALS, AD_SOPRA_PASSWORD);
-    SOPRA_ENVIRONMENT_SETTINGS.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
-
-    STERIA_ENVIRONMENT_SETTINGS.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
-    STERIA_ENVIRONMENT_SETTINGS.put(PROVIDER_URL, AD_STERIA_URL);
-    STERIA_ENVIRONMENT_SETTINGS.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
-    STERIA_ENVIRONMENT_SETTINGS.put(SECURITY_PRINCIPAL, AD_STERIA_PRINCIPAL);
-    STERIA_ENVIRONMENT_SETTINGS.put(SECURITY_CREDENTIALS, AD_STERIA_PASSWORD);
-    STERIA_ENVIRONMENT_SETTINGS.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
+    this.sopraADSearchSettings = sopraADSearchSettings;
+    this.steriaADSearchSettings = steriaADSearchSettings;
   }
 
-  public ADProfile_Basic authenticateUserProfile(String usernameEmail)
+  public EmployeeProfile authenticateUserProfile(String usernameEmail)
       throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
     // Verify the given string
     if (usernameEmail == null || usernameEmail.equals("") || usernameEmail.length() < 1)
       throw new InvalidAttributeValueException(INVALID_EMAILORUSERNAME_AD);
-    ADProfile_Advanced adObj = new ADProfile_Advanced();
+    
+    
+    EmployeeProfile adObj = new EmployeeProfile();
     // specify the LDAP search filter
     if (usernameEmail.contains("@"))
     {
@@ -114,7 +99,7 @@ public final class EmployeeProfileDAO
     return adObj;
   }
 
-  public ADProfile_Basic verifyIfUserExists(long employeeID)
+  public EmployeeProfile verifyIfUserExists(long employeeID)
       throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
     if (employeeID < 1)
@@ -124,10 +109,16 @@ public final class EmployeeProfileDAO
 
     final String searchFilter = "(extensionAttribute7=s" + employeeID + ")";
 
-    try (final ADConnection connection = new ADConnection(SOPRA_ENVIRONMENT_SETTINGS))
+    try (final ADConnection connection = new ADConnectionImpl(sopraADSearchSettings))
     {
-      final Attributes attrs = connection.searchAD(new SearchControls(), AD_SOPRA_ATTRIBUTES, AD_SOPRA_TREE,
-          searchFilter);
+      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_SOPRA_TREE, searchFilter);
+      final Attributes attrs = result.next().getAttributes();
+
+      if (result.hasMoreElements())
+      {
+        LOGGER.warn(TOO_MANY_RESULTS);
+      }
+      
       final String userName = (String) attrs.get("sAMAccountName").get();
 
       return authenticateUserProfile(userName);
@@ -149,10 +140,17 @@ public final class EmployeeProfileDAO
 
     final String searchFilter = "(mail=" + email + ")";
 
-    try (final ADConnection connection = new ADConnection(SOPRA_ENVIRONMENT_SETTINGS))
+    try (final ADConnection connection = new ADConnectionImpl(sopraADSearchSettings))
     {
-      Attributes attrs = connection.searchAD(new SearchControls(), AD_SOPRA_ATTRIBUTES, AD_SOPRA_TREE, searchFilter);
+      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_SOPRA_TREE, searchFilter);
+      
+      final Attributes attrs = result.next().getAttributes();
 
+      if (result.hasMoreElements())
+      {
+        LOGGER.warn(TOO_MANY_RESULTS);
+      }
+      
       // Find and return the full name
       String surname = (String) attrs.get("sn").get();
       String forename = (String) attrs.get("givenName").get();
@@ -168,7 +166,7 @@ public final class EmployeeProfileDAO
     }
   }
 
-  private ADProfile_Advanced getProfileFromSopraAD(String email, ADProfile_Advanced adObj)
+  private EmployeeProfile getProfileFromSopraAD(String email, EmployeeProfile adObj)
       throws NamingException, InvalidAttributeValueException
   {
     // specify the LDAP search filter
@@ -184,11 +182,15 @@ public final class EmployeeProfileDAO
     }
 
     // Check the results retrieved
-    try (final ADConnection connection = new ADConnection(SOPRA_ENVIRONMENT_SETTINGS))
+    try (final ADConnection connection = new ADConnectionImpl(sopraADSearchSettings))
     {
-      final Attributes attrs = connection.searchAD(new SearchControls(), AD_SOPRA_ATTRIBUTES, AD_SOPRA_TREE,
-          searchFilter);
+      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_SOPRA_TREE, searchFilter);
+      final Attributes attrs = result.next().getAttributes();
 
+      if (result.hasMoreElements())
+      {
+        LOGGER.warn(TOO_MANY_RESULTS);
+      }
       // Get the employee ID from extensionAttribute7.
       // If this field doesn't exist then this email address cannot be handled
       Attribute extensionAttribute7 = attrs.get("extensionAttribute7");
@@ -222,7 +224,6 @@ public final class EmployeeProfileDAO
       adObj.setUsername((String) attrs.get("sAMAccountName").get());
       adObj.setCompany((String) attrs.get("company").get());
       adObj.setSopraDepartment((String) attrs.get("department").get());
-      adObj.setTeam((String) attrs.get("department").get());
 
     }
     catch (NoSuchElementException | NullPointerException e)
@@ -238,19 +239,25 @@ public final class EmployeeProfileDAO
     return adObj;
   }
 
-  private ADProfile_Advanced authenticateJVEmail(String email)
+  private EmployeeProfile authenticateJVEmail(String email)
       throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
-    ADProfile_Advanced adObj = new ADProfile_Advanced();
+    EmployeeProfile adObj = new EmployeeProfile();
 
     final String searchFilter = "(targetAddress=" + email + ")";
 
     // Check the results retrieved
-    try (final ADConnection connection = new ADConnection(STERIA_ENVIRONMENT_SETTINGS))
+    try (final ADConnection connection = new ADConnectionImpl(steriaADSearchSettings))
     {
-      final Attributes attrs = connection.searchAD(new SearchControls(), AD_STERIA_ATTRIBUTES, AD_STERIA_SEARCH_TREE,
-          searchFilter);
+      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_STERIA_TREE, searchFilter);
+      
+      final Attributes attrs = result.next().getAttributes();
 
+      if (result.hasMoreElements())
+      {
+        LOGGER.warn(TOO_MANY_RESULTS);
+      }
+      
       getProfileFromSopraAD((String) attrs.get("sAMAccountName").get(), adObj);
       getProfileFromSteriaAD(adObj.getUsername(), adObj);
 
@@ -263,10 +270,10 @@ public final class EmployeeProfileDAO
     return adObj;
   }
 
-  private ADProfile_Advanced authenticateSSEmailUserName(String usernameEmail)
+  private EmployeeProfile authenticateSSEmailUserName(String usernameEmail)
       throws NamingException, InvalidAttributeValueException
   {
-    final ADProfile_Advanced adObj = new ADProfile_Advanced();
+    final EmployeeProfile adObj = new EmployeeProfile();
     getProfileFromSopraAD(usernameEmail, adObj);
 
     try
@@ -282,7 +289,7 @@ public final class EmployeeProfileDAO
     return adObj;
   }
 
-  private ADProfile_Advanced getProfileFromSteriaAD(String username, ADProfile_Advanced userData)
+  private EmployeeProfile getProfileFromSteriaAD(String username, EmployeeProfile userData)
       throws ADConnectionException, NamingException, InvalidAttributeValueException
   {
     if (username == null || username.length() < 2 || userData == null)
@@ -297,10 +304,16 @@ public final class EmployeeProfileDAO
     String steriaDepartment = null;
     boolean isManager = false;
 
-    try (final ADConnection connection = new ADConnection(STERIA_ENVIRONMENT_SETTINGS))
+    try (final ADConnection connection = new ADConnectionImpl(steriaADSearchSettings))
     {
-      final Attributes attrs = connection.searchAD(new SearchControls(), AD_STERIA_ATTRIBUTES, AD_STERIA_SEARCH_TREE,
-          searchFilter);
+      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_STERIA_TREE, searchFilter);
+      final Attributes attrs = result.next().getAttributes();
+
+      if (result.hasMoreElements())
+      {
+        LOGGER.warn(TOO_MANY_RESULTS);
+      }
+      
       directReports = attrs.get("directReports");
       superSector = (String) attrs.get("ou").get();
       sector = ((String) attrs.get("SteriaSectorUnit").get()).substring(3);

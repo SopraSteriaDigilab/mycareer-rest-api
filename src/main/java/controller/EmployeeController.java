@@ -36,14 +36,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
-import dataStructure.ADProfile_Advanced;
-import dataStructure.ADProfile_Basic;
+import dataStructure.ADProfile_Advanced_OLD;
+import dataStructure.ADProfile_Basic_OLD;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
+import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
-import services.EmployeeProfileDAO;
+import services.EmployeeProfileService;
 import services.EmployeeService;
 import services.ad.ADConnectionException;
 import services.ews.EmailService;
@@ -66,8 +67,8 @@ public class EmployeeController
 
   private final EmployeeService employeeService = new EmployeeService();
 
-  /** TYPE Property|Constant - Represents|Indicates... */
-  private final EmployeeProfileDAO profileDAO = new EmployeeProfileDAO();
+//  /** TYPE Property|Constant - Represents|Indicates... */
+//  private final EmployeeProfileDAO profileDAO = new EmployeeProfileDAO();
 
   /** Environment Property - Reference to environment to get property details. */
   @Autowired
@@ -99,7 +100,7 @@ public class EmployeeController
     }
 
   }
-
+  
   @RequestMapping(value = "/logMeIn", method = GET)
   public ResponseEntity<?> index(HttpServletRequest request)
   {
@@ -250,24 +251,6 @@ public class EmployeeController
     {
       return badRequest().body(e.getMessage());
     }
-  }
-
-  @RequestMapping(value = "/management/retrieveAllUser_Data/employee/{employeeID}", method = GET)
-  public ResponseEntity<?> getAllUserData(@PathVariable long employeeID)
-  {
-    if (employeeID > 0) try
-    {
-      return ok(employeeService.getAllUserDataFromID(employeeID));
-    }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
-    }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
   }
 
   /**
@@ -663,7 +646,7 @@ public class EmployeeController
     {
       if (userName != null && !userName.equals("") && userName.length() < 300)
       {
-        return ok(employeeService.matchADWithMongoData((ADProfile_Advanced) profileDAO.authenticateUserProfile(userName)));
+        return ok(employeeService.matchADWithMongoData(employeeService.authenticateUserProfile(userName)));
       }
       else
       {
@@ -734,7 +717,7 @@ public class EmployeeController
       {
         try
         {
-          ADProfile_Basic userInQuestion = employeeService.matchADWithMongoData((ADProfile_Advanced) profileDAO.authenticateUserProfile(email));
+          EmployeeProfile userInQuestion = employeeService.matchADWithMongoData(employeeService.authenticateUserProfile(email));
           Objective obj = new Objective(0, 0, title, description, completedBy);
           obj.setProposedBy(proposedBy);
           boolean inserted = employeeService.insertNewObjective(userInQuestion.getEmployeeID(), obj);

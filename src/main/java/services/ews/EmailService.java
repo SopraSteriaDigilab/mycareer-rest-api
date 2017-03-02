@@ -296,7 +296,7 @@ public class EmailService
     Employee employee = EMPLOYEE_SERVICE.getEmployee(employeeID);
     String intendedRecipient = Utils.getRecipientFromUndeliverableEmail(body);
 
-    String errorRecipient = employee.getEmailAddress();
+    String errorRecipient = employee.getProfile().getEmailAddress();
     String errorSubject = "Feedback Request Issue";
     // String errorBody = String.format("There was an issue proccessing your feedback to %s, please make sure the email
     // address is correct and try again",intendedRecipient);

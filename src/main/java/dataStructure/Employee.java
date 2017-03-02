@@ -23,13 +23,15 @@ import com.google.gson.Gson;
  *
  */
 @Entity("employeeDataDev")
-public class Employee extends ADProfile_Advanced implements Serializable
+public class Employee implements Serializable
 {
-
   private static final long serialVersionUID = 6218992334392107696L;
   // Global Variables
   @Id
   private ObjectId id;
+
+  @Embedded
+  private EmployeeProfile profile;
   @Embedded
   private List<Feedback> feedback;
   @Embedded
@@ -54,29 +56,9 @@ public class Employee extends ADProfile_Advanced implements Serializable
     this.competencies = new ArrayList<List<Competency>>();
   }
 
-  // Constructor with parameters
-  public Employee(long employeeID, String guid, String name, String surname, String email, String username,
-      String company, String superSector, String sector, String steriaDepartment, String sopraDepartment, String team,
-      boolean isManager, boolean hasHRDash, List<Feedback> feeds, List<List<Objective>> objectives,
-      List<Note> notes, List<List<DevelopmentNeed>> needs, List<FeedbackRequest> requests,
-      List<List<Competency>> competencies, List<String> reportees) throws InvalidAttributeValueException
+  public Employee(final EmployeeProfile profile)
   {
-    super(employeeID, guid, name, surname, email, username, company, superSector, sector, steriaDepartment,
-        sopraDepartment, team, isManager, hasHRDash, reportees);
-    this.setFeedback(feeds);
-    this.setObjectiveList(objectives);
-    this.setNotes(notes);
-    this.setDevelopmentNeedsList(needs);
-    this.setFeedbackRequestsList(requests);
-    this.setCompetenciesList(competencies);
-  }
-
-  public Employee(ADProfile_Advanced userData) throws InvalidAttributeValueException
-  {
-    super(userData.getEmployeeID(), userData.getGUID(), userData.getForename(), userData.getSurname(),
-        userData.getEmailAddress(), userData.getUsername(), userData.getCompany(), userData.getSuperSector(),
-        userData.getSector(), userData.getSteriaDepartment(), userData.getSopraDepartment(), userData.getTeam(),
-        userData.getIsManager(), userData.getHasHRDash(), userData.getReporteeCNs());
+    this.profile = profile;
     this.feedback = new ArrayList<Feedback>();
     this.objectives = new ArrayList<List<Objective>>();
     this.notes = new ArrayList<Note>();
@@ -910,67 +892,6 @@ public class Employee extends ADProfile_Advanced implements Serializable
     });
   }
 
-  /**
-   * Verifies if user details matches ad profile and updates fields that are not the same.
-   *
-   * @param adProfileAdvance
-   * @return True if nothing was updated, false otherwise
-   * @throws InvalidAttributeValueException
-   */
-  public boolean matchAndUpdated(ADProfile_Advanced adProfileAdvance) throws InvalidAttributeValueException
-  {
-    // TODO Probably a better way to do this.. Also maybe move this method to EmployeeDAO...?
-    // Override equals method.
-    boolean updated = false;
-
-    if (!this.getCompany().equals(adProfileAdvance.getCompany()))
-    {
-      this.setCompany(adProfileAdvance.getCompany());
-      updated = true;
-    }
-    if (!this.getEmailAddress().equals(adProfileAdvance.getEmailAddress()))
-    {
-      this.setEmailAddress(adProfileAdvance.getEmailAddress());
-      updated = true;
-    }
-    if (this.getEmployeeID() != (adProfileAdvance.getEmployeeID()))
-    {
-      this.setEmployeeID(adProfileAdvance.getEmployeeID());
-      updated = true;
-    }
-    if (!this.getForename().equals(adProfileAdvance.getForename()))
-    {
-      this.setForename(adProfileAdvance.getForename());
-      updated = true;
-    }
-    if (this.getIsManager() != adProfileAdvance.getIsManager())
-    {
-      this.setIsManager(adProfileAdvance.getIsManager());
-      updated = true;
-    }
-    if (!this.getReporteeCNs().equals(adProfileAdvance.getReporteeCNs()))
-    {
-      this.setReporteeCNs(adProfileAdvance.getReporteeCNs());
-      updated = true;
-    }
-    if (!this.getSurname().equals(adProfileAdvance.getSurname()))
-    {
-      this.setSurname(adProfileAdvance.getSurname());
-      updated = true;
-    }
-    if (!this.getTeam().equals(adProfileAdvance.getTeam()))
-    {
-      this.setTeam(adProfileAdvance.getTeam());
-      updated = true;
-    }
-    if (!this.getUsername().equals(adProfileAdvance.getUsername()))
-    {
-      this.setUsername(adProfileAdvance.getUsername());
-      updated = true;
-    }
-    return updated;
-  }
-
   public String toGson()
   {
     Gson gsonData = new Gson();
@@ -1057,6 +978,16 @@ public class Employee extends ADProfile_Advanced implements Serializable
   public int nextFeedbackID()
   {
     return this.feedback.size() + 1;
+  }
+
+  public EmployeeProfile getProfile()
+  {
+    return profile;
+  }
+
+  public void setProfile(EmployeeProfile profile)
+  {
+    this.profile = profile;
   }
 
 }

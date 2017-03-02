@@ -5,10 +5,11 @@ import java.util.List;
 
 import javax.management.InvalidAttributeValueException;
 
-import dataStructure.ADProfile_Advanced;
+import dataStructure.ADProfile_Advanced_OLD;
 import dataStructure.Competency;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
+import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note_OLD;
@@ -90,10 +91,10 @@ public class Models
    * @return
    * @throws InvalidAttributeValueException
    */
-  public static ADProfile_Advanced getProfile() throws InvalidAttributeValueException
+  public static EmployeeProfile getProfile() throws InvalidAttributeValueException
   {
-    return new ADProfile_Advanced(EMPLOYEE_ID, GUID, FIRST_NAME, LAST_NAME, EMAIL_ADRESS, USERNAME, COMPANY,
-        SUPER_SECTOR, SECTOR, STERIA_DEPARTMENT, SOPRA_DEPARTMENT, TEAM, IS_MANAGER, IS_HR, REPORTEES);
+    return new EmployeeProfile(EMPLOYEE_ID, GUID, FIRST_NAME, LAST_NAME, EMAIL_ADRESS, USERNAME, COMPANY,
+        SUPER_SECTOR, SECTOR, STERIA_DEPARTMENT, SOPRA_DEPARTMENT, IS_MANAGER, IS_HR, REPORTEES);
   }
 
   /**
