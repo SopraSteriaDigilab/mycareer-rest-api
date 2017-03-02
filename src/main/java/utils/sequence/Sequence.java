@@ -1,4 +1,4 @@
-package utils;
+package utils.sequence;
 
 public interface Sequence<E>
 {

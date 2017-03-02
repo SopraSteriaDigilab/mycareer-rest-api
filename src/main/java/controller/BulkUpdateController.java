@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import services.BulkUpdateService;
 import services.ad.ADConnectionException;
-import utils.SequenceException;
+import utils.sequence.SequenceException;
 
 /**
  * This class contains all the available roots of the web service
@@ -47,6 +47,6 @@ public class BulkUpdateController
   @RequestMapping(value = "/bulkUpdate", method = GET)
   public ResponseEntity<?> bulkUpdateEmployeeProfiles() throws ADConnectionException, NamingException, SequenceException
   {
-    return ResponseEntity.ok(bulkUpdateService.fetchAllEmployeeProfiles());
+    return ResponseEntity.ok(bulkUpdateService.syncDBWithADs());
   }
 }

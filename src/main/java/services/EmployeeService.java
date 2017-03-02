@@ -62,7 +62,7 @@ public class EmployeeService
 {
 
   /** TYPE Property|Constant - Represents|Indicates... */
-  private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeService.class);
 
   private static final String ERROR_USER_NOT_FOUND = "The given user ID does not exist.";
 
@@ -446,7 +446,7 @@ public class EmployeeService
     }
     catch (Exception e)
     {
-      logger.error("Email could not be sent for a proposed objective. Error: {}", e);
+      LOGGER.error("Email could not be sent for a proposed objective. Error: {}", e);
     }
 
     return true;
@@ -630,7 +630,7 @@ public class EmployeeService
       }
       catch (Exception e)
       {
-        logger.error(e.getMessage());
+        LOGGER.error(e.getMessage());
         errorRecipientList.add(recipient);
         continue;
       }
@@ -785,42 +785,35 @@ public class EmployeeService
   {
     if (profileFromAD == null)
     {
+      LOGGER.warn(NULL_USER_DATA);
       throw new InvalidAttributeValueException(NULL_USER_DATA);
     }
     
-    if (profileFromAD.getGUID().equals(""))
+    if (profileFromAD.getEmployeeID() < 0)
     {
-      throw new InvalidAttributeValueException(INVALID_USERGUID_NOTFOUND);
+      LOGGER.warn(INVALID_DEVNEED_OR_EMPLOYEEID);
+      throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
     }
-    
-    Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("profile.GUID =", profileFromAD.getGUID());
 
-    Employee e = querySearch.get();
-    // If a user exists in our system, verify that his/hers data is up-to-date
+    Employee e = getEmployeeQuery(profileFromAD.getEmployeeID()).get();
+    
     if (e != null)
     {
-      boolean update = e.getProfile().equals(profileFromAD);
-      // If the method returns true, the data has been updated
-      if (update)
+      final boolean needsUpdate = !e.getProfile().equals(profileFromAD);
+      LOGGER.debug("Employee (" + e.getProfile().getEmployeeID() + ") needs update: " + needsUpdate);
+      if (needsUpdate)
       {
         e.setProfile(profileFromAD);
-        
-        // Reflect the changes to our system, updating the user data in the MongoDB
-        // Remove incorrect document
-        // dbConnection.findAndDelete(querySearch);
-        // Commit the changes to the DB
+        LOGGER.debug("Updating employee: " + e.getProfile().getEmployeeID());
         dbConnection.save(e);
       }
     }
-    // Else, Create the user in our system with the given data
     else
     {
-      // Create the Employee Object
-      Employee employeeNewData = new Employee(profileFromAD);
-      // Save the new user to the DB
-      dbConnection.save(employeeNewData);
+      e = new Employee(profileFromAD);
+      LOGGER.debug("Inserting employee: " + e.getProfile().getEmployeeID());
+      dbConnection.save(e);
     }
-    // Return a smaller version of the current object to the user
     
     return e.getProfile();
   }
