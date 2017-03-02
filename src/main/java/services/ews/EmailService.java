@@ -105,12 +105,12 @@ public class EmailService
     {
       initiateEWSConnection(120000);
 
-      LOGGER.info("Finding unread Emails...");
+      LOGGER.debug("Finding unread Emails...");
       int unreadEmails = Folder.bind(emailService, Inbox).getUnreadCount();
 
       if (unreadEmails < 1)
       {
-        LOGGER.info("No unread Emails...", unreadEmails);
+        LOGGER.debug("No unread Emails...", unreadEmails);
         return;
       }
 
@@ -122,12 +122,12 @@ public class EmailService
 
       emailService.loadPropertiesForItems(findResults, propertySet);
 
-      LOGGER.info("Total number of items found {} ", findResults.getTotalCount());
+      LOGGER.debug("Total number of items found {} ", findResults.getTotalCount());
       for (Item item : findResults)
       {
         analyseAndSortEmail((EmailMessage) item);
       }
-      LOGGER.info("Find Emails task complete ");
+      LOGGER.debug("Find Emails task complete ");
     }
     catch (Exception e)
     {
@@ -194,7 +194,7 @@ public class EmailService
    */
   private static void requestedFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws Exception
   {
-    LOGGER.info("Requested Feedback found");
+    LOGGER.debug("Requested Feedback found");
 
     String requestID = Utils.getFeedbackRequestIDFromEmailBody(body);
     if (requestID.isEmpty())
@@ -218,7 +218,7 @@ public class EmailService
 
       LOGGER.info("Requested Feedback, email sent. Error: {}", e.getMessage());
     }
-    LOGGER.info("Requested Feedback processed");
+    LOGGER.debug("Requested Feedback processed");
   }
 
   /**
@@ -234,7 +234,7 @@ public class EmailService
    */
   private static void genericFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws Exception
   {
-    LOGGER.info("Generic Feedback found");
+    LOGGER.debug("Generic Feedback found");
     Set<EmailAddress> errorRecipients = new HashSet<>();
 
     if (recipients.size() == 1
@@ -258,27 +258,21 @@ public class EmailService
       {
         EMPLOYEE_SERVICE.addFeedback(from, recipient.getAddress(), body, false);
       }
-      catch (InvalidAttributeValueException | NamingException e)
+      catch (InvalidAttributeValueException | NamingException | RuntimeException e)
       {
         errorRecipients.add(recipient);
 
-        LOGGER.error("Error processing feedback from {} to {}, Error:{}", from, recipient, e.getMessage());
+        LOGGER.error("Exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e);
+      }
+      catch (Exception e)
+      {
+        errorRecipients.add(recipient);
+
+        LOGGER.error("Generic exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e);
       }
     }
-    if (!errorRecipients.isEmpty())
-    {
-      String errorRecipient = from;
-      String errorSubject = "Feedback Issue";
-      String errorBody = String.format(
-          "There was an issue proccessing your feedback to %s, please make sure the email address is correct and try again",
-          errorRecipients.toString());
 
-      sendEmail(errorRecipient, errorSubject, errorBody);
-
-      LOGGER.error("Email sent to {} regarding error feedback to {}", from, errorRecipients.toString());
-    }
-
-    LOGGER.info("Generic Feedback processed");
+    LOGGER.debug("Generic Feedback processed");
   }
 
   /**
@@ -290,7 +284,7 @@ public class EmailService
    */
   private static void undeliverableFeedbackFound(String subject, String body) throws Exception
   {
-    LOGGER.info("Undelivered Email found.");
+    LOGGER.debug("Undelivered Email found.");
 
     long employeeID = Utils.getEmployeeIDFromFeedbackRequestSubject(subject);
     Employee employee = EMPLOYEE_SERVICE.getEmployee(employeeID);
