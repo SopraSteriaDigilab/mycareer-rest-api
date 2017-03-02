@@ -20,6 +20,7 @@ public class ADConnection implements AutoCloseable
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ADConnection.class);
   private static final String TOO_MANY_RESULTS = "More than one match was found in the Active Directory";
+  private static final String SEARCH_EXCEPTION_MSG = "Exception occurred while trying to search the active directory: ";
   private static final String CONNECTION_ERROR = "Unable to connect to the Active Directory: ";
 
   private DirContext connection;
@@ -51,7 +52,7 @@ public class ADConnection implements AutoCloseable
     searchCtls.setReturningAttributes(returningAttributes);
     searchCtls.setSearchScope(SUBTREE_SCOPE);
     establishConnection();
-    answer = connection.search(searchTree, searchFilter, searchCtls);
+    answer = search(searchTree, searchFilter, searchCtls);
     attributes = answer.next().getAttributes();
 
     if (answer.hasMoreElements())
@@ -76,6 +77,20 @@ public class ADConnection implements AutoCloseable
     catch (final RuntimeException re)
     {
       LOGGER.error(CONNECTION_ERROR.concat(ldapEnvironmentSettings.toString()), re);
+    }
+  }
+  
+  private NamingEnumeration<SearchResult> search(final String searchTree, final String searchFilter,
+      final SearchControls searchCtls) throws NamingException
+  {
+    try
+    {
+      return connection.search(searchTree, searchFilter, searchCtls);
+    }
+    catch (final NamingException | RuntimeException ex)
+    {
+      LOGGER.error(SEARCH_EXCEPTION_MSG.concat(ldapEnvironmentSettings.toString()), ex);
+      throw ex;
     }
   }
 

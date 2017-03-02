@@ -7,7 +7,9 @@ import static microsoft.exchange.webservices.data.core.service.schema.EmailMessa
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -82,11 +84,23 @@ public class EmailService
    */
   public synchronized static void sendEmail(String recipient, String subject, String body) throws Exception
   {
+    List<String> recipients = Arrays.asList(recipient); 
+    sendEmail(recipients, subject, body);
+    //TODO Consider removing/redoing
+  }
+  
+  public synchronized static void sendEmail(List<String> recipients, String subject, String body) throws Exception
+  {
     initiateEWSConnection(20000);
     EmailMessage message = new EmailMessage(emailService);
     message.setSubject(subject);
     message.setBody(new MessageBody(Text, body));
-    message.getToRecipients().add(recipient);
+    
+    for (String recipient : recipients)
+    {
+      message.getToRecipients().add(recipient);
+    }
+    
     message.sendAndSaveCopy();
     // emailService.close();
     // TODO throws an error
@@ -270,6 +284,19 @@ public class EmailService
 
         LOGGER.error("Generic exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e);
       }
+    }
+    
+    if (!errorRecipients.isEmpty())
+    {
+      List<String> errorRecipient = Arrays.asList("mehmet.mehmet@soprasteria.com", "ridhwan.nacef@soprasteria.com");
+      String errorSubject = "Feedback Issue";
+      String errorBody = String.format(
+          "There was an issue proccessing your feedback to %s, please make sure the email address is correct and try again",
+          errorRecipients.toString());
+
+      sendEmail(errorRecipient, errorSubject, errorBody);
+
+      LOGGER.error("Email sent to {} regarding error feedback to {}", from, errorRecipients.toString());
     }
 
     LOGGER.debug("Generic Feedback processed");
