@@ -22,10 +22,10 @@ public class Validate
   {
     if (strings.length < 1)
       throw new InvalidAttributeValueException("No values have been given, please try again with values.");
-    
-    if(Arrays.stream(strings).anyMatch(s -> s == null || s.isEmpty()))
+
+    if (Arrays.stream(strings).anyMatch(s -> s == null || s.isEmpty()))
       throw new InvalidAttributeValueException("One or more of the values are empty. Please try again.");
-    
+
     return false;
   }
 
@@ -40,10 +40,10 @@ public class Validate
   {
     if (objects.length < 1)
       throw new InvalidAttributeValueException("No values have been given, please try again with values.");
-    
-    if(Arrays.stream(objects).anyMatch(o -> o == null))
+
+    if (Arrays.stream(objects).anyMatch(o -> o == null))
       throw new InvalidAttributeValueException("One or more of the values are empty. Please try again.");
-    
+
     return false;
   }
 

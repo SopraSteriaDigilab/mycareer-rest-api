@@ -23,11 +23,13 @@ import com.google.gson.Gson;
  *
  */
 @Entity("employeeDataDev")
-public class Employee extends ADProfile_Advanced implements Serializable
+public class Employee_NEW implements Serializable
 {
 
   private static final long serialVersionUID = 6218992334392107696L;
-  // Global Variables
+
+  private final EmployeeProfile_NEW employeeData;
+
   @Id
   private ObjectId id;
   @Embedded
@@ -43,26 +45,12 @@ public class Employee extends ADProfile_Advanced implements Serializable
   @Embedded
   private List<List<Competency>> competencies;
 
-  // Empty Constructor
-  public Employee()
-  {
-    this.feedback = new ArrayList<Feedback>();
-    this.objectives = new ArrayList<List<Objective>>();
-    this.notes = new ArrayList<List<Note>>();
-    this.developmentNeeds = new ArrayList<List<DevelopmentNeed>>();
-    this.feedbackRequests = new ArrayList<FeedbackRequest>();
-    this.competencies = new ArrayList<List<Competency>>();
-  }
-
   // Constructor with parameters
-  public Employee(long employeeID, String guid, String name, String surname, String email, String username,
-      String company, String superSector, String sector, String steriaDepartment, String sopraDepartment, String team,
-      boolean isManager, boolean hasHRDash, List<Feedback> feeds, List<List<Objective>> objectives,
+  public Employee_NEW(EmployeeProfile_NEW employeeData, List<Feedback> feeds, List<List<Objective>> objectives,
       List<List<Note>> notes, List<List<DevelopmentNeed>> needs, List<FeedbackRequest> requests,
       List<List<Competency>> competencies, List<String> reportees) throws InvalidAttributeValueException
   {
-    super(employeeID, guid, name, surname, email, username, company, superSector, sector, steriaDepartment,
-        sopraDepartment, team, isManager, hasHRDash, reportees);
+    this(employeeData);
     this.setFeedback(feeds);
     this.setObjectiveList(objectives);
     this.setNoteList(notes);
@@ -71,18 +59,9 @@ public class Employee extends ADProfile_Advanced implements Serializable
     this.setCompetenciesList(competencies);
   }
 
-  public Employee(ADProfile_Advanced userData) throws InvalidAttributeValueException
+  public Employee_NEW(EmployeeProfile_NEW employeeData) throws InvalidAttributeValueException
   {
-    super(userData.getEmployeeID(), userData.getGUID(), userData.getForename(), userData.getSurname(),
-        userData.getEmailAddress(), userData.getUsername(), userData.getCompany(), userData.getSuperSector(),
-        userData.getSector(), userData.getSteriaDepartment(), userData.getSopraDepartment(), userData.getTeam(),
-        userData.getIsManager(), userData.getHasHRDash(), userData.getReporteeCNs());
-    this.feedback = new ArrayList<Feedback>();
-    this.objectives = new ArrayList<List<Objective>>();
-    this.notes = new ArrayList<List<Note>>();
-    this.developmentNeeds = new ArrayList<List<DevelopmentNeed>>();
-    this.feedbackRequests = new ArrayList<FeedbackRequest>();
-    this.competencies = new ArrayList<List<Competency>>();
+    this.employeeData = employeeData;
   }
 
   /**
@@ -93,32 +72,6 @@ public class Employee extends ADProfile_Advanced implements Serializable
   {
     return id;
   }
-
-  // /**
-  // *
-  // * @param feeds the list of feedback to assign to an employee
-  // * @throws InvalidClassException
-  // * @throws InvalidAttributeValueException
-  // */
-  // public void setFeedbackList(List<Feedback> feeds) throws InvalidAttributeValueException{
-  // if(feeds!=null){
-  // //Create a counter that keeps count of the error produced
-  // int errorCounter=0;
-  // this.feedback=new ArrayList<Feedback>();
-  //// Check if the feedback objects inside the list are valid
-  // for(Feedback temp:feeds){
-  // if(temp.isFeedbackValid())
-  // this.feedback.add(temp);
-  // else
-  // errorCounter++;
-  // }
-  // //Verify if there has been any error
-  // if(errorCounter!=0)
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST);
-  // }
-  // else
-  // throw new InvalidAttributeValueException(Constants.NULL_FEEDBACKLIST);
-  // }
 
   public List<Feedback> getFeedback()
   {
@@ -453,34 +406,6 @@ public class Employee extends ADProfile_Advanced implements Serializable
     throw new InvalidAttributeValueException("Feedback Request does not exist.");
   }
 
-  // /**
-  // *
-  // * This method retrieves a specific feedback request based
-  // *
-  // * @param id
-  // * @return
-  // * @throws InvalidAttributeValueException
-  // */
-  // public String removeSpecificFeedbackRequest(String fbID) throws InvalidAttributeValueException{
-  // if(fbID!=null && !fbID.equals("")){
-  // for(int i=0; i<groupFeedbackRequests.size(); i++){
-  // if(groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID)!=null){
-  // //Remove the full group Request Feedback if it contains only 1 feedback request
-  // String emailRecipient=groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID).getRecipient();
-  // if(groupFeedbackRequests.get(i).getRequestList().size()==1)
-  // groupFeedbackRequests.remove(i);
-  // //Alternatively, remove the given feedback request
-  // else
-  // groupFeedbackRequests.get(i).removeFeedbackRequest(fbID);
-  // //Return the email address found
-  // return emailRecipient;
-  // }
-  // }
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_NOTFOUND_CONTEXT);
-  // }
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_ID_CONTEXT);
-  // }
-
   /**
    * 
    * This method inserts all the competencies from another list, validating each element before inserting
@@ -622,59 +547,11 @@ public class Employee extends ADProfile_Advanced implements Serializable
     throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCYTID_CONTEXT);
   }
 
-  // /**
-  // * @deprecated Since January 2016. Use {@linkplain #addFeedback(Feedback)}
-  // * @param obj This method adds a Generic feedback to the employee feedback list
-  // * @return It returns true when a feedback has been successfully added to the list, false otherwise
-  // * @throws InvalidAttributeValueException
-  // */
-  // public boolean addGenericFeedback(Feedback obj) throws InvalidAttributeValueException{
-  // if(feedback==null)
-  // feedback=new ArrayList<Feedback>();
-  // //Verify that the object is not null
-  // if(obj==null)
-  // throw new InvalidAttributeValueException(Constants.NULL_FEEDBACK);
-  // //At this point the Feedback hasn't got an ID, let's create it
-  // obj.setID((feedback.size()+1));
-  // if(obj.isFeedbackValid())
-  // return feedback.add(obj);
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
-  // }
-
   public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException
   {
     isNull(feedback);
     return this.feedback.add(feedback);
   }
-
-  // /**
-  // *
-  // * @param objectiveID
-  // * @param obj objective data
-  // * @return true if the objective has been added correctly
-  // * @throws InvalidAttributeValueException
-  // */
-  // public boolean addFeedbackToObjective(int objectiveID, Feedback obj) throws InvalidAttributeValueException{
-  // //Verify the data is valid
-  // if(objectiveID<0 && obj==null)
-  // throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACK_OBJECTIVEID_CONTEXT);
-  // //Search for the objective ID within the list of objectives
-  // //add the objective if the ID is found
-  // for(int i=0; i<this.objectives.size(); i++){
-  // //If the appropriate objective is found, add the feedback to its list
-  // if(this.objectives.get(i).get(0).getID()==objectiveID){
-  // //Now that the related objective is found, create an ID for this feedback
-  // obj.setID(this.objectives.get(i).size()+1);
-  // //Validate the data
-  // if(obj.isFeedbackValid())
-  // //Try to add the new feedback
-  // return this.objectives.get(i).get(this.objectives.get(i).size()-1).addFeedback(obj);
-  // else
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
-  // }
-  // }
-  // return false;
-  // }
 
   /**
    * 
@@ -854,58 +731,6 @@ public class Employee extends ADProfile_Advanced implements Serializable
     return this.feedbackRequests.add(feedbackRequest);
   }
 
-  // /**
-  // *
-  // * This method add a feedback request to a given user ID
-  // *
-  // * @param obj the feedback request object to insert
-  // * @return true if it completes correctly, false otherwise
-  // * @throws InvalidAttributeValueException
-  // */
-  // public boolean addGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
-  // if(groupFeedbackRequests==null)
-  // groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
-  // //Verify that the object is not null
-  // if(obj==null)
-  // throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
-  // //The object has now been validated and can be added to the list for this user
-  // return groupFeedbackRequests.add(obj);
-  // }
-
-  // /**
-  // *
-  // * This method updates the content of a feedback request
-  // *
-  // * @param obj the new feedback request object containing the right ID
-  // * @return true if it completes correctly, false otherwise
-  // * @throws InvalidAttributeValueException
-  // */
-  // public boolean updateGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
-  // if(obj!=null){
-  // for(int i=0; i<groupFeedbackRequests.size(); i++){
-  // if(groupFeedbackRequests.get(i).getID().equals(obj.getID()))
-  // //Remove the obsolete object and add the new one
-  // return (groupFeedbackRequests.remove(groupFeedbackRequests.get(i))) && (groupFeedbackRequests.add(obj));
-  // }
-  // }
-  // throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
-  // }
-
-  // /**
-  // *
-  // * This method verifies if the ID for the feedback request is unique to the user
-  // *
-  // * @param req the feedback request object
-  // * @return true if it completes correctly, false otherwise
-  // */
-  // public boolean isGroupFeedbackRequestUniqueToEmployee(GroupFeedbackRequest req){
-  // for(GroupFeedbackRequest t:groupFeedbackRequests){
-  // if(t.getID().equals(req.getID()))
-  // return false;
-  // }
-  // return true;
-  // }
-
   /**
    * 
    * This method adds a new version to an already existing Competency
@@ -976,64 +801,84 @@ public class Employee extends ADProfile_Advanced implements Serializable
   }
 
   /**
-   * Verifies if user details matches ad profile and updates fields that are not the same.
-   *
-   * @param adProfileAdvance
-   * @return True if nothing was updated, false otherwise
+   * 
+   * This method checks and update the user data with the new given information The only field that never changes and
+   * therefore it won't be checked is the GUID. The GUID is the AD value unique not only inside the enterprise, but in
+   * the entire globe
+   * 
+   * @param data The user data to compare with the corrent information
+   * @return True if the data had to be updated, false if the data didn't need changing
    * @throws InvalidAttributeValueException
    */
-  public boolean matchAndUpdated(ADProfile_Advanced adProfileAdvance) throws InvalidAttributeValueException
+  public boolean verifyDataIsUpToDate(EmployeeProfile_NEW data) throws InvalidAttributeValueException
   {
-    // TODO Probably a better way to do this.. Also maybe move this method to EmployeeDAO...?
-    // Override equals method.
-    boolean updated = false;
+    int itemsUpdated = 0;
 
-    if (!this.getCompany().equals(adProfileAdvance.getCompany()))
+    // Start checking the fields
+
+    // Check the employeeID
+    if (employeeData.getEmployeeID() != data.getEmployeeID())
     {
-      this.setCompany(adProfileAdvance.getCompany());
-      updated = true;
+      // Update the counter and the user data
+      itemsUpdated++;
+      employeeData.setEmployeeID(data.getEmployeeID());
     }
-    if (!this.getEmailAddress().equals(adProfileAdvance.getEmailAddress()))
+
+    // Check the Email address
+    if (!employeeData.getEmailAddress().equals(data.getEmailAddress()))
     {
-      this.setEmailAddress(adProfileAdvance.getEmailAddress());
-      updated = true;
+      // Update the counter and the user data
+      itemsUpdated++;
+      employeeData.setEmailAddress(data.getEmailAddress());
     }
-    if (this.getEmployeeID() != (adProfileAdvance.getEmployeeID()))
+
+    // Check the username
+    if (!employeeData.getUsername().equals(data.getUsername()))
     {
-      this.setEmployeeID(adProfileAdvance.getEmployeeID());
-      updated = true;
+      // Update the counter and the user data
+      itemsUpdated++;
+      employeeData.setUsername(data.getUsername());
     }
-    if (!this.getForename().equals(adProfileAdvance.getForename()))
+
+    // Check the company
+    if (!employeeData.getCompany().equals(data.getCompany()))
     {
-      this.setForename(adProfileAdvance.getForename());
-      updated = true;
+      // Update the counter and the user data
+      itemsUpdated++;
+      employeeData.setCompany(data.getCompany());
     }
-    if (this.getIsManager() != adProfileAdvance.getIsManager())
+
+    // Check the team
+    if (!employeeData.getTeam().equals(data.getTeam()))
     {
-      this.setIsManager(adProfileAdvance.getIsManager());
-      updated = true;
+      // Update the counter and the user data
+      itemsUpdated++;
+      employeeData.setTeam(data.getTeam());
     }
-    if (!this.getReporteeCNs().equals(adProfileAdvance.getReporteeCNs()))
+
+    // Check the list of reportees
+    int subCounter = 0;
+    List<String> repOldSubList = employeeData.getReporteeCNs();
+    List<String> repNewSubList = data.getReporteeCNs();
+    // TODO This doesnt work... Logic doesn't work.
+    // If repNewSubList is 0 (i.e. an employees reportee leaves the company) then this wont even check...
+    for (int i = 0; i < repNewSubList.size(); i++)
     {
-      this.setReporteeCNs(adProfileAdvance.getReporteeCNs());
-      updated = true;
+      if (!repOldSubList.contains(repNewSubList.get(i)))
+      {
+        subCounter++;
+      }
     }
-    if (!this.getSurname().equals(adProfileAdvance.getSurname()))
+    if (subCounter > 0)
     {
-      this.setSurname(adProfileAdvance.getSurname());
-      updated = true;
+      // Update the counter and the user data
+      itemsUpdated++;
+      employeeData.setReporteeCNs(repNewSubList);
     }
-    if (!this.getTeam().equals(adProfileAdvance.getTeam()))
-    {
-      this.setTeam(adProfileAdvance.getTeam());
-      updated = true;
-    }
-    if (!this.getUsername().equals(adProfileAdvance.getUsername()))
-    {
-      this.setUsername(adProfileAdvance.getUsername());
-      updated = true;
-    }
-    return updated;
+
+    // Return a value
+    if (itemsUpdated > 0) return true;
+    return false;
   }
 
   public String toGson()
