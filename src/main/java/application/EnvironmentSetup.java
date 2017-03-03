@@ -30,9 +30,9 @@ import com.mongodb.ServerAddress;
 import services.HRService;
 import services.ad.ADSearchSettings;
 import services.ad.ADSearchSettingsImpl;
-import utils.Sequence;
-import utils.SequenceException;
-import utils.StringSequence;
+import utils.sequence.Sequence;
+import utils.sequence.SequenceException;
+import utils.sequence.StringSequence;
 import services.BulkUpdateService;
 import services.EmployeeProfileService;
 import services.EmployeeService;
@@ -105,7 +105,7 @@ public class EnvironmentSetup
   }
 
   @Bean
-  public EmployeeService employeeDAO()
+  public EmployeeService employeeService()
   {
     return new EmployeeService(dBConnection(), employeeProfileService(), env);
   }
@@ -125,7 +125,7 @@ public class EnvironmentSetup
   @Bean
   public BulkUpdateService bulkUpdateService() throws SequenceException
   {
-    return new BulkUpdateService(dBConnection(), sopraADSearchSettings(), steriaADSearchSettings(), steriaFilterSequence());
+    return new BulkUpdateService(employeeService(), sopraADSearchSettings(), steriaADSearchSettings(), steriaFilterSequence());
   }
   
   @Bean ADSearchSettings sopraADSearchSettings()

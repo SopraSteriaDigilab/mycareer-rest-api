@@ -2,13 +2,15 @@ package services;
 
 import static services.ad.ADOperations.*;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import javax.naming.NamingEnumeration;
+import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchResult;
 
@@ -20,8 +22,8 @@ import dataStructure.EmployeeProfile;
 import services.ad.ADConnectionException;
 import services.ad.ADSearchSettings;
 import services.mappers.EmployeeProfileMapper;
-import utils.Sequence;
-import utils.SequenceException;
+import utils.sequence.Sequence;
+import utils.sequence.SequenceException;
 
 public class BulkUpdateService
 {
@@ -33,23 +35,63 @@ public class BulkUpdateService
   // Steria AD Details
   private static final String AD_STERIA_UK_TREE = "ou=UK,ou=Internal,ou=People,DC=one,DC=steria,DC=dom";
   
-  private final Datastore dbConnection; 
+  private final EmployeeService employeeService;
   private final ADSearchSettings sopraADSearchSettings;
   private final ADSearchSettings steriaADSearchSettings;
   private final Sequence<String> steriaFilterSequence;
   
-  public BulkUpdateService(final Datastore dbConnection, final ADSearchSettings sopraADSearchSettings, final ADSearchSettings steriaADSearchSettings, final Sequence<String> steriaFilterSequence)
+  public BulkUpdateService(final EmployeeService employeeService, final ADSearchSettings sopraADSearchSettings, final ADSearchSettings steriaADSearchSettings, final Sequence<String> steriaFilterSequence)
   {
-    this.dbConnection = dbConnection;
+    this.employeeService = employeeService;
     this.sopraADSearchSettings = sopraADSearchSettings;
     this.steriaADSearchSettings = steriaADSearchSettings;
     this.steriaFilterSequence = steriaFilterSequence;
   }
   
-  public void syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
+  public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
-    List<EmployeeProfile> allEmployeeProfiles = fetchAllEmployeeProfiles();
+    final Instant startADOps = Instant.now();
+    final List<EmployeeProfile> allEmployeeProfiles = fetchAllEmployeeProfiles();
+    final Instant endADOps = Instant.now();
     
+    final Instant startDBOps = Instant.now();
+    int updatedCount = 0;
+    int notUpdatedCount = 0;
+    
+    for (EmployeeProfile profile : allEmployeeProfiles)
+    {
+      try
+      {
+        employeeService.matchADWithMongoData(profile);
+        updatedCount++;
+      }
+      catch (InvalidAttributeValueException e)
+      {
+        /* swallow this exception as matchADWithMongoData already logs it 
+         * we are concerned with the hundreds, not the one 
+         */
+        notUpdatedCount++;
+      }
+      catch (Exception e)
+      {
+        LOGGER.warn("Bulk update error: " + e.getMessage());
+        notUpdatedCount++;
+      }
+    }
+    
+    final Instant endDBOps = Instant.now();
+    
+    final Duration adOpsTime = Duration.between(startADOps, endADOps);
+    final Duration dbOpsTime = Duration.between(startDBOps, endDBOps);
+    final Duration totalOpsTime = adOpsTime.plus(dbOpsTime);
+    
+    LOGGER.info("Updated: " + updatedCount);
+    LOGGER.info("Not updated: " + notUpdatedCount);
+    LOGGER.info("AD Operations time: " + adOpsTime);
+    LOGGER.info("DB Operations time: " + dbOpsTime);
+    LOGGER.info("Total time to sync: " + totalOpsTime);
+    
+    return updatedCount;
   }
   
   /**
@@ -91,40 +133,40 @@ public class BulkUpdateService
     
     // Some metadata.  TODO don't think this belongs here
     LOGGER.info("With company: " + allEmployeeProfiles.stream()
-        .filter(e -> e.getCompany() != null)
+        .filter(e -> !e.getCompany().isEmpty())
         .count());
     LOGGER.info("With email address: " + allEmployeeProfiles.stream()
-        .filter(e -> e.getEmailAddress() != null)
+        .filter(e -> !e.getEmailAddress().isEmpty())
         .count());
     LOGGER.info("With employee ID: " + allEmployeeProfiles.stream()
         .filter(e -> e.getEmployeeID() > 0)
         .count());
     LOGGER.info("With forename: " + allEmployeeProfiles.stream()
-        .filter(e -> e.getForename() != null)
+        .filter(e -> !e.getForename().isEmpty())
         .count());
     LOGGER.info("With GUID: " + allEmployeeProfiles.stream()
-        .filter(e -> e.getGUID() != null)
+        .filter(e -> !e.getGUID().isEmpty())
         .count());
     LOGGER.info("With Sopra department: " + allEmployeeProfiles.stream()
-        .filter(e -> e.getSopraDepartment() != null)
+        .filter(e -> !e.getSopraDepartment().isEmpty())
         .count());
     LOGGER.info("With surname: " + allEmployeeProfiles.stream()
-        .filter(e -> e.getSurname() != null)
+        .filter(e -> !e.getSurname().isEmpty())
         .count());
     LOGGER.info("With username: " + allEmployeeProfiles.stream()
-        .filter(e -> e.getUsername() != null)
+        .filter(e -> !e.getUsername().isEmpty())
         .count());
     LOGGER.info("With Steria department: " + allEmployeeProfiles.stream()
-        .filter(e -> e.getSteriaDepartment() != null)
+        .filter(e -> !e.getSteriaDepartment().isEmpty())
         .count());
     LOGGER.info("With sector: " + allEmployeeProfiles.stream()
-        .filter(e -> e.getSector() != null)
+        .filter(e -> !e.getSector().isEmpty())
         .count());
     LOGGER.info("With super sector: " + allEmployeeProfiles.stream()
-        .filter(e -> e.getSuperSector() != null)
+        .filter(e -> !e.getSuperSector().isEmpty())
         .count());
     LOGGER.info("With reportees: " + allEmployeeProfiles.stream()
-        .filter(e -> e.getReporteeCNs() != null)
+        .filter(e -> !e.getReporteeCNs().isEmpty())
         .count());
     
     

@@ -14,8 +14,8 @@ import javax.naming.directory.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import utils.Sequence;
-import utils.SequenceException;
+import utils.sequence.Sequence;
+import utils.sequence.SequenceException;
 
 public class ADOperations
 {

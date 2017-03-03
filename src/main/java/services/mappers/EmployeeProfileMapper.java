@@ -13,10 +13,23 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import dataStructure.EmployeeProfile;
 
 public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, EmployeeProfile>
 {
+  private static final Logger LOGGER =  LoggerFactory.getLogger(EmployeeProfileMapper.class);
+
+  private static final String INVALID_VALUE = "Exception while attempting to set a value: {}";
+  private static final String REPORTEES_NOT_FOUND = "Exception while fetching reportees: {}";
+  private static final String EMPLOYEE_NOT_FOUND = "Cannot create an EmployeeProfile: Exception thrown while fetching employeeID: {}";
+  private static final String GUID_NOT_FOUND = "Exception while fetching GUID: {}";
+  private static final String HR_PERMISSION_NOT_FOUND = "Exception while fetching HR Dashboard Permission: {}";
+  private static final String SECTOR_NOT_FOUND = "Exception while fetching sector: {}";
+  private static final String ATTRIBUTE_NOT_FOUND = "Exception while fetching a String attribute: {}";
+  
   private static final String SN = "sn";
   private static final String GIVEN_NAME = "givenName";
   private static final String MAIL = "mail";
@@ -34,7 +47,7 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
   private final EmployeeProfile profile = new EmployeeProfile();
   
   @Override
-  public EmployeeProfile apply(Optional<SearchResult> sopraEmployeeProfile, Optional<SearchResult> steriaEmployeeProfile)
+  public EmployeeProfile apply(Optional<SearchResult> sopraEmployeeProfile, Optional<SearchResult> steriaEmployeeProfile) throws InvalidEmployeeProfileException
   {
     sopraEmployeeProfile.ifPresent(this::setSopraDetails);
     steriaEmployeeProfile.ifPresent(this::setSteriaDetails);
@@ -42,7 +55,7 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
     return profile;
   }
 
-  private void setSopraDetails(SearchResult sopraEmployeeProfile)
+  private void setSopraDetails(SearchResult sopraEmployeeProfile) throws InvalidEmployeeProfileException
   {
     final Attributes attributes = sopraEmployeeProfile.getAttributes();
     
@@ -57,12 +70,10 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
       profile.setSopraDepartment(mapString(DEPARTMENT, attributes));
       profile.setSurname(mapString(SN, attributes));
       profile.setUsername(mapString(SAM_ACCOUNT_NAME, attributes));
-      
     }
     catch (InvalidAttributeValueException e)
     {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOGGER.warn(INVALID_VALUE, e.getMessage());
     }
   }
   
@@ -83,8 +94,7 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
     }
     catch (InvalidAttributeValueException e)
     {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOGGER.warn(INVALID_VALUE, e.getMessage());
     }
   }
 
@@ -121,14 +131,13 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
     }
     catch (NamingException e)
     {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOGGER.warn(REPORTEES_NOT_FOUND, e.getMessage());
     }
     
     return reporteeCNs;
   }
 
-  private Long mapEmployeeID(final Attributes attributes) throws InvalidAttributeValueException
+  private Long mapEmployeeID(final Attributes attributes) throws InvalidEmployeeProfileException
   {
     Long employeeID = null;
     
@@ -137,19 +146,15 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
       String employeeIDString = (String) attributes.get(EXTENSION_ATTRIBUTE_7).get();
       employeeID = Long.parseLong(employeeIDString.substring(1));
     }
-    catch (NamingException e)
+    catch (NamingException | NoSuchElementException | NullPointerException e)
     {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOGGER.error(EMPLOYEE_NOT_FOUND, e);
+      throw new InvalidEmployeeProfileException(EMPLOYEE_NOT_FOUND);
     }
     catch (ClassCastException e)
     {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    catch (NoSuchElementException | NullPointerException e)
-    { // There is no matching user in the Active Directory.
-      throw new InvalidAttributeValueException("Not found");
+      LOGGER.error(EMPLOYEE_NOT_FOUND, e);
+      throw new InvalidEmployeeProfileException(EMPLOYEE_NOT_FOUND);
     }
     
     return employeeID;
@@ -164,15 +169,9 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
       UUID uuid = UUID.nameUUIDFromBytes((byte[]) attributes.get(OBJECT_GUID).get());
       guid = uuid.toString();
     }
-    catch (NamingException e)
+    catch (NamingException | ClassCastException e)
     {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    catch (ClassCastException e)
-    {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOGGER.warn(GUID_NOT_FOUND, e.getMessage());
     }
     
     return guid;
@@ -198,15 +197,9 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
         }
       }
     }
-    catch (NamingException e)
+    catch (NamingException | ClassCastException e)
     {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    catch (ClassCastException e)
-    {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOGGER.warn(HR_PERMISSION_NOT_FOUND, e.getMessage());
     }
     
     return hasHRDash;
@@ -220,15 +213,9 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
     {
       mappedString = ((String) attributes.get(STERIA_SECTOR_UNIT).get()).substring(3);
     }
-    catch (NamingException e)
+    catch (NamingException | ClassCastException e)
     {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    catch (ClassCastException e)
-    {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOGGER.warn(SECTOR_NOT_FOUND, e.getMessage());
     }
     
     return mappedString;
@@ -242,15 +229,9 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
     {
       mappedString = (String) attributes.get(field).get();
     }
-    catch (NamingException e)
+    catch (NamingException | ClassCastException e)
     {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    catch (ClassCastException e)
-    {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOGGER.warn(ATTRIBUTE_NOT_FOUND, e.getMessage());
     }
     
     return mappedString;

@@ -1,4 +1,4 @@
-package utils;
+package utils.sequence;
 
 public class StringSequence implements Sequence<String>
 {
