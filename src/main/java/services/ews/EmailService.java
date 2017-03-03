@@ -7,7 +7,9 @@ import static microsoft.exchange.webservices.data.core.service.schema.EmailMessa
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -36,17 +38,13 @@ import microsoft.exchange.webservices.data.property.complex.MessageBody;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import microsoft.exchange.webservices.data.search.filter.SearchFilter;
-import services.EmployeeDAO;
+import services.EmployeeService;
 import utils.Template;
 import utils.Utils;
 
 /**
  * 
  * Class with static methods using the EWS Java API to handle Email functionality within the MyCareer project.
- * 
- * @author Ridhwan Nacef
- * @version 1.0
- * @since January 2017
  * @see <a href="https://github.com/OfficeDev/ews-java-api">EWS Java API</a>
  */
 @Component
@@ -54,7 +52,10 @@ import utils.Utils;
 public class EmailService
 {
   /** Logger Property - Represents an implementation of the Logger interface that may be used here.. */
-  private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
+
+  /** TYPE Property|Constant - Represents|Indicates... */
+  private static final EmployeeService EMPLOYEE_SERVICE = new EmployeeService();
 
   /** Environment Property - Reference to environment to get property details. */
   private static Environment env;
@@ -83,11 +84,23 @@ public class EmailService
    */
   public synchronized static void sendEmail(String recipient, String subject, String body) throws Exception
   {
+    List<String> recipients = Arrays.asList(recipient); 
+    sendEmail(recipients, subject, body);
+    //TODO Consider removing/redoing
+  }
+  
+  public synchronized static void sendEmail(List<String> recipients, String subject, String body) throws Exception
+  {
     initiateEWSConnection(20000);
     EmailMessage message = new EmailMessage(emailService);
     message.setSubject(subject);
     message.setBody(new MessageBody(Text, body));
-    message.getToRecipients().add(recipient);
+    
+    for (String recipient : recipients)
+    {
+      message.getToRecipients().add(recipient);
+    }
+    
     message.sendAndSaveCopy();
     // emailService.close();
     // TODO throws an error
@@ -106,12 +119,12 @@ public class EmailService
     {
       initiateEWSConnection(120000);
 
-      logger.info("Finding unread Emails...");
+      LOGGER.debug("Finding unread Emails...");
       int unreadEmails = Folder.bind(emailService, Inbox).getUnreadCount();
 
       if (unreadEmails < 1)
       {
-        logger.info("No unread Emails...", unreadEmails);
+        LOGGER.debug("No unread Emails...", unreadEmails);
         return;
       }
 
@@ -123,16 +136,16 @@ public class EmailService
 
       emailService.loadPropertiesForItems(findResults, propertySet);
 
-      logger.info("Total number of items found {} ", findResults.getTotalCount());
+      LOGGER.debug("Total number of items found {} ", findResults.getTotalCount());
       for (Item item : findResults)
       {
         analyseAndSortEmail((EmailMessage) item);
       }
-      logger.info("Find Emails task complete ");
+      LOGGER.debug("Find Emails task complete ");
     }
     catch (Exception e)
     {
-      logger.error(e.getMessage());
+      LOGGER.error(e.getMessage());
     }
     finally
     {
@@ -180,7 +193,7 @@ public class EmailService
     }
     catch (Exception e)
     {
-      logger.error(e.getMessage());
+      LOGGER.error(e.getMessage());
     }
   }
 
@@ -195,7 +208,7 @@ public class EmailService
    */
   private static void requestedFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws Exception
   {
-    logger.info("Requested Feedback found");
+    LOGGER.debug("Requested Feedback found");
 
     String requestID = Utils.getFeedbackRequestIDFromEmailBody(body);
     if (requestID.isEmpty())
@@ -205,7 +218,7 @@ public class EmailService
     }
     try
     {
-      EmployeeDAO.addRequestedFeedback(from, requestID, body);
+      EMPLOYEE_SERVICE.addRequestedFeedback(from, requestID, body);
     }
     catch (InvalidAttributeValueException | NamingException e)
     {
@@ -217,9 +230,9 @@ public class EmailService
 
       sendEmail(errorRecipient, errorSubject, errorBody);
 
-      logger.info("Requested Feedback, email sent. Error: {}", e.getMessage());
+      LOGGER.info("Requested Feedback, email sent. Error: {}", e.getMessage());
     }
-    logger.info("Requested Feedback processed");
+    LOGGER.debug("Requested Feedback processed");
   }
 
   /**
@@ -235,7 +248,7 @@ public class EmailService
    */
   private static void genericFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws Exception
   {
-    logger.info("Generic Feedback found");
+    LOGGER.debug("Generic Feedback found");
     Set<EmailAddress> errorRecipients = new HashSet<>();
 
     if (recipients.size() == 1
@@ -247,7 +260,7 @@ public class EmailService
 
       sendEmail(errorRecipient, errorSubject, errorBody);
 
-      logger.info("Incorrect Use of Feedback.uk found, email sent.");
+      LOGGER.info("Incorrect Use of Feedback.uk found, email sent.");
       return;
     }
 
@@ -257,18 +270,25 @@ public class EmailService
 
       try
       {
-        EmployeeDAO.addFeedback(from, recipient.getAddress(), body, false);
+        EMPLOYEE_SERVICE.addFeedback(from, recipient.getAddress(), body, false);
       }
-      catch (InvalidAttributeValueException | NamingException e)
+      catch (InvalidAttributeValueException | NamingException | RuntimeException e)
       {
         errorRecipients.add(recipient);
 
-        logger.error("Error processing feedback from {} to {}, Error:{}", from, recipient, e.getMessage());
+        LOGGER.error("Exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e);
+      }
+      catch (Exception e)
+      {
+        errorRecipients.add(recipient);
+
+        LOGGER.error("Generic exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e);
       }
     }
+    
     if (!errorRecipients.isEmpty())
     {
-      String errorRecipient = from;
+      List<String> errorRecipient = Arrays.asList("mehmet.mehmet@soprasteria.com", "ridhwan.nacef@soprasteria.com");
       String errorSubject = "Feedback Issue";
       String errorBody = String.format(
           "There was an issue proccessing your feedback to %s, please make sure the email address is correct and try again",
@@ -276,10 +296,10 @@ public class EmailService
 
       sendEmail(errorRecipient, errorSubject, errorBody);
 
-      logger.error("Email sent to {} regarding error feedback to {}", from, errorRecipients.toString());
+      LOGGER.error("Email sent to {} regarding error feedback to {}", from, errorRecipients.toString());
     }
 
-    logger.info("Generic Feedback processed");
+    LOGGER.debug("Generic Feedback processed");
   }
 
   /**
@@ -291,10 +311,10 @@ public class EmailService
    */
   private static void undeliverableFeedbackFound(String subject, String body) throws Exception
   {
-    logger.info("Undelivered Email found.");
+    LOGGER.debug("Undelivered Email found.");
 
     long employeeID = Utils.getEmployeeIDFromFeedbackRequestSubject(subject);
-    Employee employee = EmployeeDAO.getEmployee(employeeID);
+    Employee employee = EMPLOYEE_SERVICE.getEmployee(employeeID);
     String intendedRecipient = Utils.getRecipientFromUndeliverableEmail(body);
 
     String errorRecipient = employee.getEmailAddress();
@@ -305,7 +325,7 @@ public class EmailService
 
     sendEmail(errorRecipient, errorSubject, errorBody);
 
-    logger.info("Undelivered Email processed, error email sent.");
+    LOGGER.info("Undelivered Email processed, error email sent.");
   }
 
   /**

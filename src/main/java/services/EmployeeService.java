@@ -49,7 +49,6 @@ import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
-import services.ad.ADProfileDAO;
 import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Template;
@@ -57,36 +56,33 @@ import utils.Utils;
 
 /**
  * This class contains the definition of the EmployeeDAO object
- * 
- * @author Michael Piccoli
- * @author Christopher Kai
- * @author Ridhwan Nacef
- * @author Mehmet Mehmet
- * @version 1.0
- * @since 10th October 2016
  *
  */
 @Component
 @PropertySource("${ENVIRONMENT}.properties")
-public class EmployeeDAO
+public class EmployeeService
 {
 
-  private static final Logger logger = LoggerFactory.getLogger(EmployeeDAO.class);
+  /** TYPE Property|Constant - Represents|Indicates... */
+  private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+
+  /* Accesses the Active Directories */
+  private static final EmployeeProfileDAO PROFILE_DAO = new EmployeeProfileDAO();
 
   // There is only 1 instance of the Datastore in the whole system
   private static Datastore dbConnection;
 
   /** String Constant - Represents Feedback Request */
   public final static String FEEDBACK_REQUEST = "Feedback Request";
-  
+
   /** Environment Property - Reference to environment to get property details. */
   private static Environment env;
 
   /**
-   * EmployeeDAO Constructor - Needed for mongoDB.
+   * EmployeeDAO Constructor - Needed for morphia?.
    *
    */
-  public EmployeeDAO()
+  public EmployeeService()
   {
   }
 
@@ -95,10 +91,10 @@ public class EmployeeDAO
    *
    * @param dbConnection
    */
-  public EmployeeDAO(Datastore dbConnection, Environment env)
+  public EmployeeService(Datastore dbConnection, Environment env)
   {
-    EmployeeDAO.dbConnection = dbConnection;
-    EmployeeDAO.env = env;
+    EmployeeService.dbConnection = dbConnection;
+    EmployeeService.env = env;
   }
 
   /**
@@ -108,9 +104,9 @@ public class EmployeeDAO
    * @return the employee if exists
    * @throws InvalidAttributeValueException if employee is not found or is null.
    */
-  public static Employee getEmployee(long employeeID) throws InvalidAttributeValueException
+  public Employee getEmployee(long employeeID) throws InvalidAttributeValueException
   {
-    Employee employee = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID).get();
+    Employee employee = getEmployeeQuery(employeeID).get();
     if (employee == null)
     {
       throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
@@ -119,63 +115,125 @@ public class EmployeeDAO
   }
 
   /**
-   * 
-   * @deprecated Use the {@linkplain #getEmployee(long) getEmployee(long)} method instead.
+   * Get Employee query with the specified id
    *
    * @param employeeID
    * @return
    */
-  private static Query<Employee> getEmployeeQuery(long employeeID)
+  private Query<Employee> getEmployeeQuery(long employeeID)
   {
     return dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
   }
 
-  public static String getFullNameUser(long employeeID) throws InvalidAttributeValueException
+  /**
+   * Gets full name os a user from the database
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public String getFullNameUser(long employeeID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).getFullName();
   }
 
-  public static List<Objective> getObjectivesForUser(long employeeID) throws InvalidAttributeValueException
+  /**
+   * Get a list of the current objectives for a user.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public List<Objective> getObjectivesForUser(long employeeID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).getLatestVersionObjectives();
   }
 
-  public static Objective getSpecificObjectiveForUser(long employeeID, int objectiveID)
-      throws InvalidAttributeValueException
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param objectiveID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public Objective getSpecificObjectiveForUser(long employeeID, int objectiveID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).getLatestVersionOfSpecificObjective(objectiveID);
   }
 
-  public static List<Feedback> getFeedbackForUser(long employeeID) throws InvalidAttributeValueException
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public List<Feedback> getFeedbackForUser(long employeeID) throws InvalidAttributeValueException
   {
     List<Feedback> feedbackList = getEmployee(employeeID).getFeedback();
     Collections.reverse(feedbackList);
     return feedbackList;
   }
 
-  public static List<Note> getNotesForUser(long employeeID) throws InvalidAttributeValueException
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public List<Note> getNotesForUser(long employeeID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).getLatestVersionNotes();
   }
 
-  public static List<DevelopmentNeed> getDevelopmentNeedsForUser(long employeeID) throws InvalidAttributeValueException
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public List<DevelopmentNeed> getDevelopmentNeedsForUser(long employeeID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).getLatestVersionDevelopmentNeeds();
   }
 
-  public static String getAllUserDataFromID(long employeeID) throws InvalidAttributeValueException
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public String getAllUserDataFromID(long employeeID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).toString();
   }
 
-  // Returns list of Competencies for a user
-  public static List<Competency> getCompetenciesForUser(long employeeID) throws InvalidAttributeValueException
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public List<Competency> getCompetenciesForUser(long employeeID) throws InvalidAttributeValueException
   {
     return getEmployee(employeeID).getLatestVersionCompetencies();
   }
 
-  // Returns list of reportees for a user
-  public static List<ADProfile_Basic> getReporteesForUser(long employeeID)
+
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   * @throws InvalidAttributeValueException
+   * @throws NamingException
+   */
+  public List<ADProfile_Basic> getReporteesForUser(long employeeID)
       throws InvalidAttributeValueException, NamingException
   {
     Employee employee = getEmployee(employeeID);
@@ -187,7 +245,7 @@ public class EmployeeDAO
       long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
       try
       {
-        reporteeList.add(ADProfileDAO.verifyIfUserExists(temp));
+        reporteeList.add(PROFILE_DAO.verifyIfUserExists(temp));
       }
       catch (Exception e)
       {
@@ -203,8 +261,7 @@ public class EmployeeDAO
    * @return This method inserts a new objective for a specific employee given their ID
    * @throws InvalidAttributeValueException
    */
-  public static boolean insertNewObjective(long employeeID, Object data)
-      throws InvalidAttributeValueException, MongoException
+  public boolean insertNewObjective(long employeeID, Object data) throws InvalidAttributeValueException, MongoException
   {
     // Check the employeeID
     if (employeeID > 0)
@@ -235,7 +292,16 @@ public class EmployeeDAO
     else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
   }
 
-  public static boolean updateProgressObjective(long employeeID, int objectiveID, int progress)
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param objectiveID
+   * @param progress
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public boolean updateProgressObjective(long employeeID, int objectiveID, int progress)
       throws InvalidAttributeValueException
   {
     if (employeeID < 1 || objectiveID < 1)
@@ -272,7 +338,16 @@ public class EmployeeDAO
     return updated;
   }
 
-  public static boolean addNewVersionObjective(long employeeID, int objectiveID, Object data)
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param objectiveID
+   * @param data
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public boolean addNewVersionObjective(long employeeID, int objectiveID, Object data)
       throws InvalidAttributeValueException
   {
     // Check EmployeeID and ObjectiveID
@@ -326,8 +401,16 @@ public class EmployeeDAO
     return false;
   }
 
-  public static boolean insertNewNote(long employeeID, Object data)
-      throws InvalidAttributeValueException, MongoException
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param data
+   * @return
+   * @throws InvalidAttributeValueException
+   * @throws MongoException
+   */
+  public boolean insertNewNote(long employeeID, Object data) throws InvalidAttributeValueException, MongoException
   {
     // Check the employeeID
     if (employeeID > 0)
@@ -357,13 +440,22 @@ public class EmployeeDAO
     }
     else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
   }
-  
 
-  public static boolean insertNewNoteForReportee(long employeeID, String from, String noteDescription) throws InvalidAttributeValueException
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param from
+   * @param noteDescription
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public boolean insertNewNoteForReportee(long employeeID, String from, String noteDescription)
+      throws InvalidAttributeValueException
   {
-    if(employeeID < 1)
+    if (employeeID < 1)
       throw new InvalidAttributeValueException("The ID provided was not found. Please try again with valid ID");
-    
+
     insertNewNote(employeeID, new Note(1, 0, 0, noteDescription, from));
 
     String reporteeEmail = getEmployee(employeeID).getEmailAddress();
@@ -377,12 +469,20 @@ public class EmployeeDAO
     {
       logger.error("Email could not be sent for a proposed objective. Error: {}", e);
     }
-    
+
     return true;
   }
 
-  public static boolean addNewVersionNote(long employeeID, int noteID, Object data)
-      throws InvalidAttributeValueException
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param noteID
+   * @param data
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public boolean addNewVersionNote(long employeeID, int noteID, Object data) throws InvalidAttributeValueException
   {
     // Check EmployeeID and noteID
     if (employeeID > 0 && noteID > 0)
@@ -434,7 +534,16 @@ public class EmployeeDAO
     return false;
   }
 
-  public static boolean insertNewDevelopmentNeed(long employeeID, Object data)
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param data
+   * @return
+   * @throws InvalidAttributeValueException
+   * @throws MongoException
+   */
+  public boolean insertNewDevelopmentNeed(long employeeID, Object data)
       throws InvalidAttributeValueException, MongoException
   {
     // Check the employeeID
@@ -467,7 +576,16 @@ public class EmployeeDAO
     else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
   }
 
-  public static boolean updateProgressDevelopmentNeed(long employeeID, int devNeedID, int progress)
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param devNeedID
+   * @param progress
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public boolean updateProgressDevelopmentNeed(long employeeID, int devNeedID, int progress)
       throws InvalidAttributeValueException
   {
     if (employeeID < 1 || devNeedID < 1)
@@ -504,7 +622,16 @@ public class EmployeeDAO
     return updated;
   }
 
-  public static boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, Object data)
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param devNeedID
+   * @param data
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, Object data)
       throws InvalidAttributeValueException
   {
     // Check EmployeeID and noteID
@@ -565,9 +692,9 @@ public class EmployeeDAO
    * @param notes
    * @throws Exception
    */
-  public static void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception
+  public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception
   {
-    Employee requester = EmployeeDAO.getEmployee(employeeID);
+    Employee requester = getEmployee(employeeID);
     Set<String> recipientList = Utils.stringEmailsToHashSet(emailsString);
     List<String> errorRecipientList = new ArrayList<String>();
     String requesterName = requester.getFullName();
@@ -576,8 +703,9 @@ public class EmployeeDAO
     {
       String tempID = Utils.generateFeedbackRequestID(employeeID);
       String subject = String.format("Feedback Request from %s - %s", requester.getFullName(), employeeID);
-//      String body = String.format("%s \n\n Feedback_Request: %s", notes, tempID);
-      String body = Template.populateTemplate(env.getProperty("templates.feedback.request"), requesterName, notes, tempID);
+      // String body = String.format("%s \n\n Feedback_Request: %s", notes, tempID);
+      String body = Template.populateTemplate(env.getProperty("templates.feedback.request"), requesterName, notes,
+          tempID);
       try
       {
         EmailService.sendEmail(recipient, subject, body);
@@ -588,7 +716,7 @@ public class EmployeeDAO
         errorRecipientList.add(recipient);
         continue;
       }
-      EmployeeDAO.addFeedbackRequest(requester, new FeedbackRequest(tempID, recipient));
+      addFeedbackRequest(requester, new FeedbackRequest(tempID, recipient));
     }
 
     if (!errorRecipientList.isEmpty())
@@ -605,7 +733,7 @@ public class EmployeeDAO
    * @param feedbackRequest
    * @throws InvalidAttributeValueException
    */
-  public static void addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest)
+  public void addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest)
       throws InvalidAttributeValueException
   {
     Validate.isNull(employee, feedbackRequest);
@@ -622,22 +750,22 @@ public class EmployeeDAO
    * @param providerEmail
    * @param recipientEmail
    * @param feedbackDescription
-   * @throws Exception 
+   * @throws Exception
    */
-  public static void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription, boolean isFeedbackRequest)
-      throws Exception
+  public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
+      boolean isFeedbackRequest) throws Exception
 
   {
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
 
-    long employeeID = ADProfileDAO.authenticateUserProfile(recipientEmail).getEmployeeID();
+    long employeeID = PROFILE_DAO.authenticateUserProfile(recipientEmail).getEmployeeID();
     Employee employee = getEmployee(employeeID);
 
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
 
     try
     {
-      feedback.setProviderName(ADProfileDAO.findEmployeeFullNameFromEmailAddress(providerEmail));
+      feedback.setProviderName(PROFILE_DAO.findEmployeeFullNameFromEmailAddress(providerEmail));
     }
     catch (InvalidAttributeValueException | NamingException e)
     {
@@ -668,9 +796,9 @@ public class EmployeeDAO
    * @param providerEmail
    * @param feedbackRequestID
    * @param feedbackDescription
-   * @throws Exception 
+   * @throws Exception
    */
-  public static void addRequestedFeedback(String providerEmail, String feedbackRequestID, String feedbackDescription)
+  public void addRequestedFeedback(String providerEmail, String feedbackRequestID, String feedbackDescription)
       throws Exception
   {
     Validate.areStringsEmptyorNull(providerEmail, feedbackRequestID, feedbackDescription);
@@ -696,7 +824,7 @@ public class EmployeeDAO
    *         new version of competencies list
    * @throws InvalidAttributeValueException
    */
-  public static boolean addNewVersionCompetency(long employeeID, Object data, String title)
+  public boolean addNewVersionCompetency(long employeeID, Object data, String title)
       throws InvalidAttributeValueException
   {
     // Check EmployeeID and noteID
@@ -728,7 +856,14 @@ public class EmployeeDAO
     return false;
   }
 
-  public static ADProfile_Basic matchADWithMongoData(ADProfile_Advanced userData) throws InvalidAttributeValueException
+  /**
+   * TODO: Describe this method.
+   *
+   * @param userData
+   * @return
+   * @throws InvalidAttributeValueException
+   */
+  public ADProfile_Basic matchADWithMongoData(ADProfile_Advanced userData) throws InvalidAttributeValueException
   {
     if (userData != null)
     {
@@ -749,7 +884,7 @@ public class EmployeeDAO
           {
             // Reflect the changes to our system, updating the user data in the MongoDB
             // Remove incorrect document
-//            dbConnection.findAndDelete(querySearch);
+            // dbConnection.findAndDelete(querySearch);
             // Commit the changes to the DB
             dbConnection.save(e);
           }
@@ -763,13 +898,13 @@ public class EmployeeDAO
           dbConnection.save(employeeNewData);
         }
         // Return a smaller version of the current object to the user
+
         return new ADProfile_Basic(userData.getEmployeeID(), userData.getSurname(), userData.getForename(),
-            userData.getIsManager(), userData.getUsername(), userData.getEmailAddress());
+            userData.getIsManager(), userData.getUsername(), userData.getEmailAddress(), userData.getHasHRDash());
       }
       else throw new InvalidAttributeValueException(INVALID_USERGUID_NOTFOUND);
     }
     else throw new InvalidAttributeValueException(NULL_USER_DATA);
   }
-
 
 }

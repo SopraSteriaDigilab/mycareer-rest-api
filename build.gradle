@@ -24,7 +24,7 @@ apply plugin: 'org.springframework.boot'
 //Define the name of the JAR file created when the project is built as an executable archive
 jar {
     baseName = 'mycareer-web-service'
-    version =  '1.1.0-email-redo'
+    version =  '1.2.3'
 }
 
 //This defines the repositories where the dependencies can be found and downloaded

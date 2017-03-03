@@ -68,7 +68,8 @@ public class UtilsTest
   private final String INVALID_EMAILS_STRING_2 = "a@test.com, asdsadasd, c@test.com";
 
   /** TODO TYPE Property|Constant - Represents|Indicates... */
-  private final String VALID_UNDELIVERABLE_EMAIL = "[Office 365 picture] \n Your message to " + EMAIL_STRING_1  + " couldn't be delivered.";
+  private final String VALID_UNDELIVERABLE_EMAIL = "[Office 365 picture] \n Your message to " + EMAIL_STRING_1
+      + " couldn't be delivered.";
 
   /** TODO TYPE Property|Constant - Represents|Indicates... */
   private final String INVALID_UNDELIVERABLE_EMAIL = "[Office 365 picture] \n Some other text.";

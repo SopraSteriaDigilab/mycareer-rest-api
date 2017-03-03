@@ -18,8 +18,8 @@ public class Template
 {
 
   /**
-   * Takes in a template path and populates according to varargs after.
-   * Uses the {@linkplain java.text.MessageFormat.format MessageFormat.format} method for formating.
+   * Takes in a template path and populates according to varargs after. Uses the
+   * {@linkplain java.text.MessageFormat.format MessageFormat.format} method for formating.
    *
    * @param pathname
    * @param args
@@ -30,7 +30,7 @@ public class Template
   public static String populateTemplate(String pathname, String... args) throws FileNotFoundException, IOException
   {
     String templateString = Utils.readFile(new File(pathname));
-    
+
     return MessageFormat.format(templateString, (Object[]) args);
   }
 

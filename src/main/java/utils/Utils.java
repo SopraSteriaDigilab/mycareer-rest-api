@@ -21,7 +21,7 @@ import services.validate.Validate;
  */
 public class Utils
 {
-  
+
   /**
    * Generate a feedbackRequestID using an employeeID. Format will be dddddd_ddddddddddddddddd. Where 'd' is a number.
    * 
@@ -117,7 +117,7 @@ public class Utils
    */
   public static String getRecipientFromUndeliverableEmail(String body) throws InvalidAttributeValueException
   {
-    // TODO There must be a million better ways to do this. This was the quick fix, sorry. 
+    // TODO There must be a million better ways to do this. This was the quick fix, sorry.
     Validate.areStringsEmptyorNull(body);
     String searchStr = "your message to ";
 
@@ -157,7 +157,7 @@ public class Utils
     String employeeID = feedbackRequestID.substring(0, 6);
     return Long.parseLong(employeeID);
   }
-  
+
   /**
    * 
    * Reads a file an and outputs each line to a list.
@@ -167,19 +167,22 @@ public class Utils
    * @throws FileNotFoundException
    * @throws IOException
    */
-  public static String readFile(File source) throws FileNotFoundException, IOException {
-    //TODO Find a way to handle relative paths
-    
+  public static String readFile(File source) throws FileNotFoundException, IOException
+  {
+    // TODO Find a way to handle relative paths
+
     StringBuilder data = new StringBuilder();
-    try(BufferedReader reader = new BufferedReader(new FileReader(source))) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(source)))
+    {
       String s;
-      while((s = reader.readLine()) != null){
+      while ((s = reader.readLine()) != null)
+      {
         data.append(s).append(System.lineSeparator());
       }
     }
     return data.toString();
   }
-  
-  //TODO Page 492 - look into it.
+
+  // TODO Page 492 - look into it.
 
 }

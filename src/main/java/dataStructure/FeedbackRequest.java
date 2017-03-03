@@ -8,82 +8,89 @@ import java.time.ZoneId;
 
 /**
  * FeedbackRequest object for MyCareer.
- *
- * @author Ridhwan Nacef
- * @version 1.0
- * @since January 2016
  * 
  */
-public class FeedbackRequest implements Serializable {
+public class FeedbackRequest implements Serializable
+{
 
-	private static final long serialVersionUID = 5904650249033682895L;
-	
-	/** Unique ID for the object. */
-	private String id;
-	
-	/** Email of recipient */
-	private String recipient;
-	
-	/**	State of whether feedback has been given */
-	private boolean replyReceived;
-	
-	/** Time stamp of feedback request */
-	private String timestamp;
+  private static final long serialVersionUID = 5904650249033682895L;
 
-	/** Empty Constructor */
-	public FeedbackRequest(){}
+  /** Unique ID for the object. */
+  private String id;
 
-	/**
-	 * @param id
-	 * @param recipient
-	 */
-	public FeedbackRequest(String id, String recipient) {
-		super();
-		this.id = id;
-		this.recipient = recipient;
-		setReplyReceived(false);
-		setTimestamp();
-	}
+  /** Email of recipient */
+  private String recipient;
 
-	/** @return the id */
-	public String getId() {
-		return id;
-	}
+  /** State of whether feedback has been given */
+  private boolean replyReceived;
 
-	/** @param id the id to set */
-	public void setId(String id) {
-		this.id = id;
-	}
+  /** Time stamp of feedback request */
+  private String timestamp;
 
-	/** @return the recipient */
-	public String getRecipient() {
-		return recipient;
-	}
+  /** Empty Constructor */
+  public FeedbackRequest()
+  {
+  }
 
-	/** @param recipient the recipient to set */
-	public void setRecipient(String recipient) {
-		this.recipient = recipient;
-	}
+  /**
+   * @param id
+   * @param recipient
+   */
+  public FeedbackRequest(String id, String recipient)
+  {
+    super();
+    this.id = id;
+    this.recipient = recipient;
+    setReplyReceived(false);
+    setTimestamp();
+  }
 
-	/** @return the replyReceived */
-	public boolean isReplyReceived() {
-		return replyReceived;
-	}
+  /** @return the id */
+  public String getId()
+  {
+    return id;
+  }
 
-	/** @param replyReceived the replyReceived to set */
-	public void setReplyReceived(boolean replyReceived) {
-		this.replyReceived = replyReceived;
-	}
+  /** @param id the id to set */
+  public void setId(String id)
+  {
+    this.id = id;
+  }
 
-	/** @return the timestamp */
-	public String getTimestamp() {
-		return timestamp;
-	}
+  /** @return the recipient */
+  public String getRecipient()
+  {
+    return recipient;
+  }
 
-	/** Set timestamp to current time */
-	public void setTimestamp() {
-		this.timestamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
-	}
-	
+  /** @param recipient the recipient to set */
+  public void setRecipient(String recipient)
+  {
+    this.recipient = recipient;
+  }
+
+  /** @return the replyReceived */
+  public boolean isReplyReceived()
+  {
+    return replyReceived;
+  }
+
+  /** @param replyReceived the replyReceived to set */
+  public void setReplyReceived(boolean replyReceived)
+  {
+    this.replyReceived = replyReceived;
+  }
+
+  /** @return the timestamp */
+  public String getTimestamp()
+  {
+    return timestamp;
+  }
+
+  /** Set timestamp to current time */
+  public void setTimestamp()
+  {
+    this.timestamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+  }
+
 }
-

@@ -17,54 +17,61 @@ import net.sourceforge.spnego.SpnegoHttpFilter;
 
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
-public class WebConfiguration extends OncePerRequestFilter {
-	
-	private static final String SPNEGO_USERNAME="mycareersvc";
-	private static final String SPNEGO_PASSWORD="Czam2mc2!";
-	
-	@Autowired
-	private Environment env;
+public class WebConfiguration extends OncePerRequestFilter
+{
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-		
-		response.setHeader("Access-Control-Allow-Origin", env.getProperty("domain.url.full"));
-		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-		response.setHeader("Access-Control-Max-Age", "3600");
-		response.setHeader("Access-Control-Allow-Headers", "authorization, xsrf-token, Content-Type, Accept");
-		response.addHeader("Access-Control-Expose-Headers", "xsrf-token");
-		response.setHeader("Access-Control-Allow-Credentials", "true");
-		
-		if ("OPTIONS".equals(request.getMethod())) {
-			response.setStatus(HttpServletResponse.SC_OK);
-		} else { 
-			filterChain.doFilter(request, response);
-		}
-	}
+  private static final String SPNEGO_USERNAME = "mycareersvc";
+  private static final String SPNEGO_PASSWORD = "Czam2mc2!";
 
-	@Bean
-	public FilterRegistrationBean spnegoFilterRegistration() {
-		FilterRegistrationBean registration = new FilterRegistrationBean();
-		registration.setFilter(spnegoHttpFilter());
-		registration.setName("spnegoHttpFilter");
-		registration.addInitParameter("spnego.allow.basic", "true");
-		registration.addInitParameter("spnego.allow.localhost", "true");
-		registration.addInitParameter("spnego.allow.unsecure.basic", "true");
-		registration.addInitParameter("spnego.login.client.module", "spnego-client");
-		registration.addInitParameter("spnego.krb5.conf", "krb5.conf");
-		registration.addInitParameter("spnego.login.conf", "login.conf");
-		registration.addInitParameter("spnego.preauth.username", SPNEGO_USERNAME);
-		registration.addInitParameter("spnego.preauth.password", SPNEGO_PASSWORD);
-		registration.addInitParameter("spnego.login.server.module", "spnego-server");
-		registration.addInitParameter("spnego.prompt.ntlm", "true");
-		registration.addInitParameter("spnego.logger.level", "1");
+  @Autowired
+  private Environment env;
 
-		return registration;
-	}
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException
+  {
 
-	private Filter spnegoHttpFilter() {
-		return new SpnegoHttpFilter();
-	}
+    response.setHeader("Access-Control-Allow-Origin", env.getProperty("domain.url.full"));
+    response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.setHeader("Access-Control-Max-Age", "3600");
+    response.setHeader("Access-Control-Allow-Headers", "authorization, xsrf-token, Content-Type, Accept");
+    response.addHeader("Access-Control-Expose-Headers", "xsrf-token");
+    response.setHeader("Access-Control-Allow-Credentials", "true");
 
+    if ("OPTIONS".equals(request.getMethod()))
+    {
+      response.setStatus(HttpServletResponse.SC_OK);
+    }
+    else
+    {
+      filterChain.doFilter(request, response);
+    }
+  }
+
+  @Bean
+  public FilterRegistrationBean spnegoFilterRegistration()
+  {
+    FilterRegistrationBean registration = new FilterRegistrationBean();
+    registration.setFilter(spnegoHttpFilter());
+    registration.setName("spnegoHttpFilter");
+    registration.addInitParameter("spnego.allow.basic", "true");
+    registration.addInitParameter("spnego.allow.localhost", "true");
+    registration.addInitParameter("spnego.allow.unsecure.basic", "true");
+    registration.addInitParameter("spnego.login.client.module", "spnego-client");
+    registration.addInitParameter("spnego.krb5.conf", "krb5.conf");
+    registration.addInitParameter("spnego.login.conf", "login.conf");
+    registration.addInitParameter("spnego.preauth.username", SPNEGO_USERNAME);
+    registration.addInitParameter("spnego.preauth.password", SPNEGO_PASSWORD);
+    registration.addInitParameter("spnego.login.server.module", "spnego-server");
+    registration.addInitParameter("spnego.prompt.ntlm", "true");
+    registration.addInitParameter("spnego.logger.level", "1");
+
+    return registration;
+  }
+
+  private Filter spnegoHttpFilter()
+  {
+    return new SpnegoHttpFilter();
+  }
 
 }
