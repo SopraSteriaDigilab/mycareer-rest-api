@@ -1,10 +1,14 @@
 package dataStructure;
 
 import static org.mockito.MockitoAnnotations.*;
+import static dataStructure.Constants.UK_TIMEZONE;
 import static org.junit.Assert.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -22,7 +26,7 @@ public class FeedbackRequestTest
   private final String VALID_ID = "675590";
   
   @InjectMocks
-  private FeedbackRequest fbkReq, fbkReqEmpty;
+  private FeedbackRequest unitUnderTest, unitUnderTestEmpty;
   
   /**
    * Setup method that runs once before each test method.
@@ -32,8 +36,8 @@ public class FeedbackRequestTest
   public void setup()
   {
    initMocks(this);
-   fbkReq = new FeedbackRequest(VALID_ID, VALID_RECIPIENT);
-   fbkReqEmpty = new FeedbackRequest();
+   unitUnderTest = new FeedbackRequest(VALID_ID, VALID_RECIPIENT);
+   unitUnderTestEmpty = new FeedbackRequest();
   }
   
   
@@ -45,8 +49,8 @@ public class FeedbackRequestTest
   @Test
   public void testSetID() throws InvalidAttributeValueException
   {  
-    fbkReq.setId(VALID_ID);
-    assertEquals(fbkReq.getId(), VALID_ID);
+    unitUnderTest.setId(VALID_ID);
+    assertEquals(unitUnderTest.getId(), VALID_ID);
   }
   
   /**
@@ -57,8 +61,8 @@ public class FeedbackRequestTest
   @Test
   public void testSetRecipient() throws InvalidAttributeValueException
   {  
-    fbkReq.setRecipient(VALID_RECIPIENT);
-    assertEquals(fbkReq.getRecipient(), VALID_RECIPIENT);
+    unitUnderTest.setRecipient(VALID_RECIPIENT);
+    assertEquals(unitUnderTest.getRecipient(), VALID_RECIPIENT);
   }
   
   /**
@@ -69,7 +73,18 @@ public class FeedbackRequestTest
   @Test
   public void testReplyReceived() throws InvalidAttributeValueException
   {  
-    fbkReq.setReplyReceived(true);
-    assertEquals(fbkReq.isReplyReceived(), true);
+    unitUnderTest.setReplyReceived(true);
+    assertEquals(unitUnderTest.isReplyReceived(), true);
+  }
+  
+  /**
+   * Unit test for the getTimestamp method.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test
+  public void testGetTimestamp() throws InvalidAttributeValueException
+  {
+    assertEquals(unitUnderTest.getTimestamp(),LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString());
   }
 }

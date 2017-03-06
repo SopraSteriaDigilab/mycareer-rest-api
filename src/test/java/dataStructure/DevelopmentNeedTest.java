@@ -52,7 +52,7 @@ public class DevelopmentNeedTest
   private final String FUTURE_DATE = "3010-01";
   
   @InjectMocks
-  private DevelopmentNeed devNeed, devNeed2, devNeed3;
+  private DevelopmentNeed unitUnderTest, unitUnderTest2, unitUnderTest3;
   
   /**
    * Setup method that runs once before each test method.
@@ -63,9 +63,9 @@ public class DevelopmentNeedTest
   public void setup() throws InvalidAttributeValueException
   {
    initMocks(this);
-   devNeed = new DevelopmentNeed();
-   devNeed2 = new DevelopmentNeed(VALID_ID,VALID_PROGRESS,VALID_CATEGORY,VALID_TITLE,VALID_DESCRIPTION);
-   devNeed3 = new DevelopmentNeed(VALID_ID,VALID_PROGRESS,VALID_CATEGORY,VALID_TITLE,VALID_DESCRIPTION,FUTURE_DATE);
+   unitUnderTest = new DevelopmentNeed();
+   unitUnderTest2 = new DevelopmentNeed(VALID_ID,VALID_PROGRESS,VALID_CATEGORY,VALID_TITLE,VALID_DESCRIPTION);
+   unitUnderTest3 = new DevelopmentNeed(VALID_ID,VALID_PROGRESS,VALID_CATEGORY,VALID_TITLE,VALID_DESCRIPTION,FUTURE_DATE);
   }
   
   /**
@@ -76,7 +76,7 @@ public class DevelopmentNeedTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetIDwithInvalidID() throws InvalidAttributeValueException
   {  
-    devNeed.setID(INVALID_ID);
+    unitUnderTest.setID(INVALID_ID);
   }
   
   /**
@@ -87,8 +87,8 @@ public class DevelopmentNeedTest
   @Test
   public void testSetIDwithValidID() throws InvalidAttributeValueException
   {  
-    devNeed.setID(VALID_ID);
-    assertEquals(devNeed.getID(),VALID_ID);
+    unitUnderTest.setID(VALID_ID);
+    assertEquals(unitUnderTest.getID(),VALID_ID);
   }
   
   /**
@@ -99,7 +99,7 @@ public class DevelopmentNeedTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetProgressWithInvalidProgress() throws InvalidAttributeValueException
   {  
-    devNeed.setProgress(INVALID_PROGRESS);
+    unitUnderTest.setProgress(INVALID_PROGRESS);
   }
   
   /**
@@ -111,8 +111,8 @@ public class DevelopmentNeedTest
   public void testSetProgressWithValidProgress() throws InvalidAttributeValueException
   {  
     for (int i =0; i<=2; i++){
-      devNeed.setProgress(i);
-      assertEquals(devNeed.getProgress(), i);   
+      unitUnderTest.setProgress(i);
+      assertEquals(unitUnderTest.getProgress(), i);   
     }
   }
   
@@ -124,7 +124,7 @@ public class DevelopmentNeedTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetCategoryWithInvalidCategory() throws InvalidAttributeValueException
   {  
-    devNeed.setCategory(INVALID_CATEGORY);
+    unitUnderTest.setCategory(INVALID_CATEGORY);
   }
   
   /**
@@ -136,8 +136,8 @@ public class DevelopmentNeedTest
   public void testSetCategoryWithValidCategory() throws InvalidAttributeValueException
   {  
     for (int i =0; i<=5; i++){
-      devNeed.setCategory(i);
-      assertEquals(devNeed.getCategory(), i);   
+      unitUnderTest.setCategory(i);
+      assertEquals(unitUnderTest.getCategory(), i);   
     }
   }
   
@@ -149,7 +149,7 @@ public class DevelopmentNeedTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetTitlewithNull() throws InvalidAttributeValueException
   {
-    devNeed.setTitle(null);
+    unitUnderTest.setTitle(null);
   }
   
   /**
@@ -160,7 +160,7 @@ public class DevelopmentNeedTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetTitlewithInvalidTitle() throws InvalidAttributeValueException
   {
-    devNeed.setTitle(INVALID_TITLE);
+    unitUnderTest.setTitle(INVALID_TITLE);
   }
   
   /**
@@ -171,8 +171,8 @@ public class DevelopmentNeedTest
   @Test
   public void testSetTitleWithValidTitle() throws InvalidAttributeValueException
   {
-    devNeed.setTitle(VALID_TITLE);
-    assertEquals(devNeed.getTitle(), VALID_TITLE);
+    unitUnderTest.setTitle(VALID_TITLE);
+    assertEquals(unitUnderTest.getTitle(), VALID_TITLE);
   }
 
 
@@ -184,7 +184,7 @@ public class DevelopmentNeedTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetDescriptionWithNullDescription() throws InvalidAttributeValueException
   {
-    devNeed.setDescription(null);
+    unitUnderTest.setDescription(null);
   }
   
   /**
@@ -195,7 +195,7 @@ public class DevelopmentNeedTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetDescriptionWithInvalidDescription() throws InvalidAttributeValueException
   {
-    devNeed.setDescription(INVALID_DESCRIPTION);
+    unitUnderTest.setDescription(INVALID_DESCRIPTION);
   }
   
   /**
@@ -206,8 +206,8 @@ public class DevelopmentNeedTest
   @Test
   public void testSetDescriptionWithValidDescription() throws InvalidAttributeValueException
   {
-    devNeed.setDescription(VALID_DESCRIPTION);
-      assertEquals(devNeed.getDescription(),VALID_DESCRIPTION);
+    unitUnderTest.setDescription(VALID_DESCRIPTION);
+      assertEquals(unitUnderTest.getDescription(),VALID_DESCRIPTION);
   }
   
   /**
@@ -218,7 +218,7 @@ public class DevelopmentNeedTest
   @Test (expected= InvalidAttributeValueException.class)
   public void testSetTimeToCompleteByWithEmptyString() throws InvalidAttributeValueException
   {
-    devNeed.setTimeToCompleteBy("");
+    unitUnderTest.setTimeToCompleteBy("");
   }
   
   /**
@@ -229,7 +229,7 @@ public class DevelopmentNeedTest
   @Test (expected= InvalidAttributeValueException.class)
   public void testSetTimeToCompleteByWithPastDate() throws InvalidAttributeValueException
   {
-    devNeed.setTimeToCompleteBy(PAST_DATE);
+    unitUnderTest.setTimeToCompleteBy(PAST_DATE);
   }
   
   /**
@@ -240,8 +240,8 @@ public class DevelopmentNeedTest
   @Test
   public void testSetTimeToCompleteByWithFutureDate() throws InvalidAttributeValueException
   {
-    devNeed.setTimeToCompleteBy(FUTURE_DATE);
-    assertEquals(devNeed.getTimeToCompleteBy(),FUTURE_DATE);
+    unitUnderTest.setTimeToCompleteBy(FUTURE_DATE);
+    assertEquals(unitUnderTest.getTimeToCompleteBy(),FUTURE_DATE);
   }
   
   /**
@@ -252,8 +252,30 @@ public class DevelopmentNeedTest
   @Test
   public void testGetTimeToCompleteByYearMonth() throws InvalidAttributeValueException
   {
-    devNeed.setTimeToCompleteBy(FUTURE_DATE);
-    assertEquals(devNeed.getTimeToCompleteByYearMonth(),YearMonth.parse(FUTURE_DATE));
+    unitUnderTest.setTimeToCompleteBy(FUTURE_DATE);
+    assertEquals(unitUnderTest.getTimeToCompleteByYearMonth(),YearMonth.parse(FUTURE_DATE));
+  }
+  
+  /**
+   * Unit test for the isDevelopmentNeedValid : invalid development need.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test
+  public void testIsDevelopmentNeedValidWithInvalidDevelopmentNeed() throws InvalidAttributeValueException
+  {
+    assertEquals(unitUnderTest.isDevelopmentNeedValid(),false);
+  }
+  
+  /**
+   * Unit test for the isDevelopmentNeedValid : valid development need.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test
+  public void testIsDevelopmentNeedValidWithValidDevelopmentNeed() throws InvalidAttributeValueException
+  {
+    assertEquals(unitUnderTest2.isDevelopmentNeedValid(),true);
   }
   
   /**
@@ -264,7 +286,7 @@ public class DevelopmentNeedTest
   public void testToGson()
   {
     Gson gsonData = new Gson();
-    assertEquals(devNeed.toGson(),gsonData.toJson(devNeed));
+    assertEquals(unitUnderTest.toGson(),gsonData.toJson(unitUnderTest));
   }
    
   /**
@@ -274,8 +296,8 @@ public class DevelopmentNeedTest
   @Test
   public void testToString()
   {
-    assertEquals(devNeed2.toString(), "ID " + devNeed2.getID() + "\n" + "Category " + devNeed2.getCategory() + "\n" + "Title " + devNeed2.getTitle() + "\n" + "Description "
-        + devNeed2.getDescription() + "\n" + "TimeStamp " + devNeed2.getTimeStamp() + "\n" + "TimeToCompleteBy "
-        + devNeed2.getTimeToCompleteBy() + "\n"); 
+    assertEquals(unitUnderTest2.toString(), "ID " + unitUnderTest2.getID() + "\n" + "Category " + unitUnderTest2.getCategory() + "\n" + "Title " + unitUnderTest2.getTitle() + "\n" + "Description "
+        + unitUnderTest2.getDescription() + "\n" + "TimeStamp " + unitUnderTest2.getTimeStamp() + "\n" + "TimeToCompleteBy "
+        + unitUnderTest2.getTimeToCompleteBy() + "\n"); 
   }
 }

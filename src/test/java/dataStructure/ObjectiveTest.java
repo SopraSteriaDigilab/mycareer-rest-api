@@ -1,12 +1,17 @@
 package dataStructure;
 
+import static dataStructure.Constants.UK_TIMEZONE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -59,7 +64,7 @@ public class ObjectiveTest
   private final String FUTURE_DATE = "3010-01";
   
   @InjectMocks
-  private Objective objectiveTest, objectiveTest2, objectiveTest3, objectiveTest4;
+  private Objective unitUnderTest, unitUnderTest2, unitUnderTest3, unitUnderTest4;
   
   /**
    * Setup method that runs once before each test method.
@@ -70,10 +75,10 @@ public class ObjectiveTest
   public void setup() throws InvalidAttributeValueException
   {
    initMocks(this);
-   objectiveTest = new Objective();
-   objectiveTest2 = new Objective(VALID_EMPLOYEE_ID, VALID_PROGRESS, VALID_PERFORMANCE, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
-   objectiveTest3 = new Objective(objectiveTest2);
-   objectiveTest4 = new Objective(VALID_PROGRESS, VALID_PERFORMANCE, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
+   unitUnderTest = new Objective();
+   unitUnderTest2 = new Objective(VALID_EMPLOYEE_ID, VALID_PROGRESS, VALID_PERFORMANCE, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
+   unitUnderTest3 = new Objective(unitUnderTest2);
+   unitUnderTest4 = new Objective(VALID_PROGRESS, VALID_PERFORMANCE, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
   }
   
   /**
@@ -84,7 +89,7 @@ public class ObjectiveTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetIDwithInvalidID() throws InvalidAttributeValueException
   {  
-    objectiveTest.setID(INVALID_EMPLOYEE_ID);
+    unitUnderTest.setID(INVALID_EMPLOYEE_ID);
   }
       
   /**
@@ -95,8 +100,8 @@ public class ObjectiveTest
   @Test
   public void testSetIDwithValidID() throws InvalidAttributeValueException
   {  
-    objectiveTest.setID(VALID_EMPLOYEE_ID);
-    assertEquals(objectiveTest.getID(),VALID_EMPLOYEE_ID);
+    unitUnderTest.setID(VALID_EMPLOYEE_ID);
+    assertEquals(unitUnderTest.getID(),VALID_EMPLOYEE_ID);
   }
   
   /**
@@ -107,8 +112,8 @@ public class ObjectiveTest
   @Test
   public void testGetProgress() throws InvalidAttributeValueException
   {  
-    objectiveTest.setProgress(2);
-    assertEquals(objectiveTest.getProgress(),2);
+    unitUnderTest.setProgress(2);
+    assertEquals(unitUnderTest.getProgress(),2);
   }
   
   /**
@@ -119,7 +124,7 @@ public class ObjectiveTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetProgresswithInvalidProgress() throws InvalidAttributeValueException
   {
-    objectiveTest.setProgress(INVALID_PROGRESS);
+    unitUnderTest.setProgress(INVALID_PROGRESS);
   }
   
   /**
@@ -131,8 +136,8 @@ public class ObjectiveTest
   public void testSetProgresswithValidProgress() throws InvalidAttributeValueException
   {
     for (int i = -1 ; i < 3 ; i++){
-      objectiveTest.setProgress(i);
-      assertEquals(objectiveTest.getProgress(),i);
+      unitUnderTest.setProgress(i);
+      assertEquals(unitUnderTest.getProgress(),i);
     }
   }
   
@@ -144,7 +149,7 @@ public class ObjectiveTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetProposedBywithInvalidName() throws InvalidAttributeValueException
   {
-    objectiveTest.setProposedBy(null);
+    unitUnderTest.setProposedBy(null);
   }
    
   /**
@@ -155,8 +160,8 @@ public class ObjectiveTest
   @Test
   public void testSetProposedBywithValidName() throws InvalidAttributeValueException
   {
-    objectiveTest.setProposedBy(VALID_NAME);
-   assertEquals(objectiveTest.getProposedBy(),VALID_NAME);
+    unitUnderTest.setProposedBy(VALID_NAME);
+   assertEquals(unitUnderTest.getProposedBy(),VALID_NAME);
   }
    
   /**
@@ -167,7 +172,7 @@ public class ObjectiveTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetPerformancewithInvalidPerformance() throws InvalidAttributeValueException
   {
-    objectiveTest.setPerformance(INVALID_PERFORMANCE);
+    unitUnderTest.setPerformance(INVALID_PERFORMANCE);
   }
   
   /**
@@ -179,8 +184,8 @@ public class ObjectiveTest
   public void testSetPerformancewithValidPerformance() throws InvalidAttributeValueException
   {
     for (int i = 0 ; i < 3 ; i++){
-      objectiveTest.setPerformance(i);
-      assertEquals(objectiveTest.getPerformance(),i);
+      unitUnderTest.setPerformance(i);
+      assertEquals(unitUnderTest.getPerformance(),i);
     }
   }
   
@@ -191,8 +196,8 @@ public class ObjectiveTest
   @Test
   public void testGetIsArchived()
   {  
-    objectiveTest.setIsArchived(true);
-    assertEquals(objectiveTest.getIsArchived(),true);
+    unitUnderTest.setIsArchived(true);
+    assertEquals(unitUnderTest.getIsArchived(),true);
   }
   
   /**
@@ -203,7 +208,7 @@ public class ObjectiveTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetTitleWithNullTitle() throws InvalidAttributeValueException
   {
-    objectiveTest.setTitle(null);
+    unitUnderTest.setTitle(null);
   }
   
   /**
@@ -214,7 +219,7 @@ public class ObjectiveTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetTitleWithEmptyString() throws InvalidAttributeValueException
   {
-    objectiveTest.setTitle("");
+    unitUnderTest.setTitle("");
   }
   
   /**
@@ -225,7 +230,7 @@ public class ObjectiveTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetTitleWithInvalidTitle() throws InvalidAttributeValueException
   {
-    objectiveTest.setTitle(INVALID_TITLE);
+    unitUnderTest.setTitle(INVALID_TITLE);
   }
   
   /**
@@ -236,8 +241,8 @@ public class ObjectiveTest
   @Test
   public void testSetTitleWithValidTitle() throws InvalidAttributeValueException
   {
-    objectiveTest.setTitle(VALID_TITLE);
-      assertEquals(objectiveTest.getTitle(),VALID_TITLE);
+    unitUnderTest.setTitle(VALID_TITLE);
+      assertEquals(unitUnderTest.getTitle(),VALID_TITLE);
   }
   
   /**
@@ -248,7 +253,7 @@ public class ObjectiveTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetDescriptionWithNullDescription() throws InvalidAttributeValueException
   {
-    objectiveTest.setDescription(null);
+    unitUnderTest.setDescription(null);
   }
   
   /**
@@ -259,7 +264,7 @@ public class ObjectiveTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetDescriptionWithEmptyString() throws InvalidAttributeValueException
   {
-    objectiveTest.setDescription("");
+    unitUnderTest.setDescription("");
   }
   
   /**
@@ -270,7 +275,7 @@ public class ObjectiveTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetDescriptionWithInvalidDescription() throws InvalidAttributeValueException
   {
-    objectiveTest.setDescription(INVALID_DESCRIPTION);
+    unitUnderTest.setDescription(INVALID_DESCRIPTION);
   }
    
   /**
@@ -281,8 +286,20 @@ public class ObjectiveTest
   @Test
   public void testSetDescriptionWithValidDescription() throws InvalidAttributeValueException
   {
-    objectiveTest.setDescription(VALID_DESCRIPTION);
-    assertEquals(objectiveTest.getDescription(),VALID_DESCRIPTION);
+    unitUnderTest.setDescription(VALID_DESCRIPTION);
+    assertEquals(unitUnderTest.getDescription(),VALID_DESCRIPTION);
+  }
+  
+  /**
+   * Unit test for the updateArchiveStatus method.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test
+  public void testUpdateArchiveStatusTrue() throws InvalidAttributeValueException
+  {
+    unitUnderTest.updateArchiveStatus(true);
+    assertEquals(unitUnderTest.getIsArchived(),true);
   }
   
   /**
@@ -293,7 +310,7 @@ public class ObjectiveTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetTimeToCompleteByWithEmptyString() throws InvalidAttributeValueException
   {
-    objectiveTest.setTimeToCompleteBy("");
+    unitUnderTest.setTimeToCompleteBy("");
   }
    
   /**
@@ -304,7 +321,7 @@ public class ObjectiveTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetTimeToCompleteByWithPastDate() throws InvalidAttributeValueException
   {
-    objectiveTest.setTimeToCompleteBy(PAST_DATE);
+    unitUnderTest.setTimeToCompleteBy(PAST_DATE);
   }  
     
   /**
@@ -315,7 +332,7 @@ public class ObjectiveTest
   @Test
   public void testSetTimeToCompleteByWithValidDate() throws InvalidAttributeValueException
   {
-    objectiveTest.setTimeToCompleteBy(FUTURE_DATE);
+    unitUnderTest.setTimeToCompleteBy(FUTURE_DATE);
   }
    
   /**
@@ -326,10 +343,10 @@ public class ObjectiveTest
   @Test
   public void testGetTimeToCompleteByWithValidDate() throws InvalidAttributeValueException
   {
-    objectiveTest.setTimeToCompleteBy(FUTURE_DATE);
-    assertEquals(objectiveTest.getTimeToCompleteBy(),FUTURE_DATE);
+    unitUnderTest.setTimeToCompleteBy(FUTURE_DATE);
+    assertEquals(unitUnderTest.getTimeToCompleteBy(),FUTURE_DATE);
   }
-    
+  
   /**
    * Unit test for the getTimeToCompleteByYearMonth method.
    * 
@@ -338,10 +355,34 @@ public class ObjectiveTest
   @Test
   public void testGetTimeToCompleteByYearMonth() throws InvalidAttributeValueException
   {
-    objectiveTest.setTimeToCompleteBy(FUTURE_DATE);
-    assertEquals(objectiveTest.getTimeToCompleteByYearMonth(),YearMonth.parse(FUTURE_DATE));
+    unitUnderTest.setTimeToCompleteBy(FUTURE_DATE);
+    assertEquals(unitUnderTest.getTimeToCompleteByYearMonth(),YearMonth.parse(FUTURE_DATE));
   }
-   
+ 
+  /**
+   * Unit test for the isObjectiveValid and isObjectiveValidWithoutID  methods : valid objective.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test
+  public void testIsObjectiveValidWithValidObjective() throws InvalidAttributeValueException
+  {
+    assertEquals(unitUnderTest2.isObjectiveValid(),true);
+    assertEquals(unitUnderTest2.isObjectiveValidWithoutID(),false);
+  }
+  
+  /**
+   * Unit test for the isObjectiveValid and isObjectiveValidWithoutID methods : invalid objective.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test
+  public void testIsObjectiveValidWithInvalidObjective() throws InvalidAttributeValueException
+  {
+    assertEquals(unitUnderTest.isObjectiveValid(),false);
+    assertEquals(unitUnderTest.isObjectiveValidWithoutID(),false);
+  }
+  
   /**
    * Unit test for the toGson method.
    * 
@@ -350,7 +391,7 @@ public class ObjectiveTest
   public void testToGson()
   {
     Gson gsonData = new Gson();
-    assertEquals(objectiveTest.toGson(),gsonData.toJson(objectiveTest));
+    assertEquals(unitUnderTest.toGson(),gsonData.toJson(unitUnderTest));
   }
    
   /**
@@ -360,9 +401,9 @@ public class ObjectiveTest
   @Test
   public void testToString()
   {
-    assertEquals(objectiveTest2.toString(), "ID " + objectiveTest2.getID() + "\n" + "Progress " + objectiveTest2.getProgress() + "\n" + "Performance " + objectiveTest2.getPerformance() + "\n"
-        + "Is Archived  " + objectiveTest2.getIsArchived() + "\n" + "Title " + objectiveTest2.getTitle() + "\n" + "Description " + objectiveTest2.getDescription()
-        + "\n" + "TimeStamp " + objectiveTest2.getTimeStamp() + "\n" + "TimeToCompleteBy " + objectiveTest2.getTimeToCompleteBy() + "\n"
-        + "ProposedBy " + objectiveTest2.getProposedBy() + "\n");
+    assertEquals(unitUnderTest2.toString(), "ID " + unitUnderTest2.getID() + "\n" + "Progress " + unitUnderTest2.getProgress() + "\n" + "Performance " + unitUnderTest2.getPerformance() + "\n"
+        + "Is Archived  " + unitUnderTest2.getIsArchived() + "\n" + "Title " + unitUnderTest2.getTitle() + "\n" + "Description " + unitUnderTest2.getDescription()
+        + "\n" + "TimeStamp " + unitUnderTest2.getTimeStamp() + "\n" + "TimeToCompleteBy " + unitUnderTest2.getTimeToCompleteBy() + "\n"
+        + "ProposedBy " + unitUnderTest2.getProposedBy() + "\n");
   }
 }

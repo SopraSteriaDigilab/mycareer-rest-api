@@ -42,7 +42,7 @@ public class CompetencyTest
   private final int INVALID_PERFORMANCE = 3;
  
   @InjectMocks
-  private Competency compTest, compTest2;
+  private Competency unitUnderTest, unitUnderTest2;
     
   /**
    * Setup method that runs once before each test method.
@@ -52,8 +52,8 @@ public class CompetencyTest
   public void setup()
   {
    initMocks(this);
-   compTest = new Competency();
-   compTest2 = new Competency(VALID_ID , true);
+   unitUnderTest = new Competency();
+   unitUnderTest2 = new Competency(VALID_ID , true);
   }
   
   /**
@@ -64,7 +64,7 @@ public class CompetencyTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetIDwithInvalidID() throws InvalidAttributeValueException
   {  
-    compTest.setID(INVALID_ID);
+    unitUnderTest.setID(INVALID_ID);
   }
    
   /**
@@ -75,8 +75,8 @@ public class CompetencyTest
   @Test
   public void testSetIDwithValidID() throws InvalidAttributeValueException
   {  
-    compTest.setID(VALID_ID);
-    assertEquals(compTest.getID(),VALID_ID);
+    unitUnderTest.setID(VALID_ID);
+    assertEquals(unitUnderTest.getID(),VALID_ID);
   }
   
   /**
@@ -87,7 +87,7 @@ public class CompetencyTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetTitleWithInvalidTitle() throws InvalidAttributeValueException
   {
-    compTest.setTitle(INVALID_ID);
+    unitUnderTest.setTitle(INVALID_ID);
   }
   
   /**
@@ -99,8 +99,8 @@ public class CompetencyTest
   public void testSetTitleWithValidTitle() throws InvalidAttributeValueException
   {
     for(int i=0; i<Constants.COMPETENCY_NAMES.length; i++){
-      compTest.setTitle(i);
-      assertTrue(compTest.getTitle()==Constants.COMPETENCY_NAMES[i]);
+      unitUnderTest.setTitle(i);
+      assertTrue(unitUnderTest.getTitle()==Constants.COMPETENCY_NAMES[i]);
     }
   }
   
@@ -112,7 +112,7 @@ public class CompetencyTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetDescriptionWithInvalidTitle() throws InvalidAttributeValueException
   {
-      compTest.setDescription(INVALID_ID);
+      unitUnderTest.setDescription(INVALID_ID);
   }
   
   /**
@@ -124,9 +124,31 @@ public class CompetencyTest
   public void testSetDescriptionWithValidTitle() throws InvalidAttributeValueException
   {
     for(int i = 0 ; i < Constants.COMPETENCY_NAMES.length ; i++){
-      compTest.setDescription(i);
-      assertTrue(Constants.COMPETENCY_DESCRIPTIONS[i]==compTest.getCompentencyDescription());
+      unitUnderTest.setDescription(i);
+      assertTrue(Constants.COMPETENCY_DESCRIPTIONS[i]==unitUnderTest.getCompentencyDescription());
     }
+  }
+  
+  /**
+   * Unit test for the isValid method : invalid competency.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test
+  public void testIsValidWithInvalidCompetency() throws InvalidAttributeValueException
+  {
+    assertEquals(unitUnderTest.isValid(),false);
+  }
+  
+  /**
+   * Unit test for the isValid method : valid competency.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test
+  public void testIsValidWithValidCompetency() throws InvalidAttributeValueException
+  {
+    assertEquals(unitUnderTest2.isValid(),true);
   }
    
   /**
@@ -137,7 +159,7 @@ public class CompetencyTest
   public void testToGson()
   {
     Gson gsonData = new Gson();
-    assertEquals(compTest.toGson(),gsonData.toJson(compTest));
+    assertEquals(unitUnderTest.toGson(),gsonData.toJson(unitUnderTest));
   }
    
   /**
@@ -148,6 +170,6 @@ public class CompetencyTest
   public void testToString()
   {
     int index=5;
-    assertEquals(compTest2.toString(index), "ID: " + compTest2.getID() + "\n"+ "Is Selected: " + compTest2.getIsSelected() + "\n" + "Title: " + Constants.COMPETENCY_NAMES[index] + "\n" + "Description: " + Constants.COMPETENCY_DESCRIPTIONS[index] + "\n" + "Time Stamp: " + compTest2.getTimeStamp() + "\n"); 
+    assertEquals(unitUnderTest2.toString(index), "ID: " + unitUnderTest2.getID() + "\n"+ "Is Selected: " + unitUnderTest2.getIsSelected() + "\n" + "Title: " + Constants.COMPETENCY_NAMES[index] + "\n" + "Description: " + Constants.COMPETENCY_DESCRIPTIONS[index] + "\n" + "Time Stamp: " + unitUnderTest2.getTimeStamp() + "\n"); 
    }
 }
