@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
@@ -17,8 +18,8 @@ public class EmployeeStatistics
 {
 
   /** String[] Constant - Indicates fields to be used in the employee statistics */
-  public final static String[] EMPLOYEE_FIELDS = { "profile.employeeID", "profile.forename", "profile.surname", "profile.company", "profile.superSector",
-      "profile.steriaDepartment" };
+  public final static String[] EMPLOYEE_FIELDS = { "profile.employeeID", "profile.forename", "profile.surname",
+      "profile.company", "profile.superSector", "profile.steriaDepartment" };
 
   /** String[] Constant - Represents fields to be used in the feedback statistics */
   public final static String[] FEEDBACK_FIELDS = { "feedback" };
@@ -28,14 +29,13 @@ public class EmployeeStatistics
 
   /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
   public final static String[] DEVELOPMENT_NEEDS_FIELDS = { "developmentNeeds" };
-  
-  /** String[] Constant - Represents fields to be used in the sector statistics */
-  public final static String[] SECTOR_FIELDS = { "profile.superSector", "objectives", "developmentNeeds"};
-  
-  /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
-  public final static String[] DEVELOPMENT_NEED_CATEGORIES = { "On Job Training", "Classroom Training", "Online or E-Learning", "Self-Study", "Other", "INVALID" };
-  
 
+  /** String[] Constant - Represents fields to be used in the sector statistics */
+  public final static String[] SECTOR_FIELDS = { "profile.superSector", "objectives", "developmentNeeds" };
+
+  /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
+  public final static String[] DEVELOPMENT_NEED_CATEGORIES = { "On Job Training", "Classroom Training",
+      "Online or E-Learning", "Self-Study", "Other", "INVALID" };
 
   /**
    * Statistics from my career.
@@ -146,16 +146,15 @@ public class EmployeeStatistics
     List<Map> statistics = new ArrayList<>();
     employees.forEach(e -> {
       e.getLatestVersionDevelopmentNeeds().forEach(d -> {
-        if(d.getProgress() == 2) return;
+        if (d.getProgress() == 2) return;
         Map<String, Object> map = getBasicMap(e);
-        map.put("title" , d.getTitle());
-        map.put("category" , DEVELOPMENT_NEED_CATEGORIES[d.getCategory()]);
+        map.put("title", d.getTitle());
+        map.put("category", DEVELOPMENT_NEED_CATEGORIES[d.getCategory()]);
         statistics.add(map);
       });
     });
     return statistics;
   }
-  
 
   /**
    * Details of sector break down details
@@ -163,54 +162,13 @@ public class EmployeeStatistics
    * @param employees
    * @return A List<Map> with the statistics
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({ "rawtypes" })
   public List<Map> getSectorBreakDown(List<Employee> employees)
   {
     List<Map> statistics = new ArrayList<>();
-    Map<String, Object> map = new HashMap<>();
-    String sector = "";
-    boolean addMap = false;
-    
-    for(Employee e : employees){
-      boolean createMap = true;
-      sector = e.getProfile().getSuperSector();
-      
-      if(statistics.isEmpty()){
-        map.put("sector", sector);
-        map.put("employees", 1);
-        map.put("nowithobjs", 1);
-        map.put("nowithdevneeds", 1);
-        addMap = true;
-      } else {
-        for(Map<String, Object> m : statistics){
-          if(m.get("sector").equals(sector)){
-            createMap = false;
-            m.put("employees", (Integer)m.get("employees")+1);
-            if(!e.getLatestVersionObjectives().isEmpty())
-              m.put("nowithobjs", (Integer)m.get("nowithobjs")+1);
-            if(!e.getLatestVersionDevelopmentNeeds().isEmpty())
-              m.put("nowithdevneeds", (Integer)m.get("nowithdevneeds")+1);
-            break;
-          }
-        }
-        if(createMap){
-          map = new HashMap<>();
-          map.put("sector", sector);
-          map.put("employees", 1);
-          map.put("nowithobjs", 1);
-          map.put("nowithdevneeds", 1);
-          addMap = true;
-        }
-      }
-      
-      if(addMap) {
-        statistics.add(map);
-        addMap = false;
-      }
-    }
+    employees.forEach(e -> groupSector(statistics, e));
     return statistics;
   }
-
 
   /**
    * Gets the standard employee details.
@@ -289,6 +247,40 @@ public class EmployeeStatistics
     map.put("proposed", proposed);
     map.put("inProgress", inProgress);
     map.put("complete", complete);
+  }
+
+  /**
+   * Add the employee to a list of maps grouped by super sector
+   *
+   * @param statistics
+   * @param employee
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private void groupSector(List<Map> statistics, Employee employee)
+  {
+    Map<String, Object> map = new HashMap<>();
+    String sector = employee.getProfile().getSuperSector();
+    Optional<Map> optionalMap = statistics.stream().filter(m -> m.get("sector").equals(sector)).findFirst();
+    if (optionalMap.isPresent())
+    {
+      optionalMap.get().put("employees", (Integer) optionalMap.get().get("employees") + 1);
+      if (!employee.getLatestVersionObjectives().isEmpty())
+      {
+        optionalMap.get().put("nowithobjs", (Integer) optionalMap.get().get("nowithobjs") + 1);
+      }
+      if (!employee.getLatestVersionDevelopmentNeeds().isEmpty())
+      {
+        optionalMap.get().put("nowithdevneeds", (Integer) optionalMap.get().get("nowithdevneeds") + 1);
+      }
+    }
+    else
+    {
+      map.put("sector", sector);
+      map.put("employees", 1);
+      map.put("nowithobjs", 1);
+      map.put("nowithdevneeds", 1);
+      statistics.add(map);
+    }
   }
 
 }
