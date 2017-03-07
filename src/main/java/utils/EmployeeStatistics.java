@@ -29,8 +29,13 @@ public class EmployeeStatistics
   /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
   public final static String[] DEVELOPMENT_NEEDS_FIELDS = { "developmentNeeds" };
   
+  /** String[] Constant - Represents fields to be used in the sector statistics */
+  public final static String[] SECTOR_FIELDS = { "profile.superSector", "objectives", "developmentNeeds"};
+  
   /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
   public final static String[] DEVELOPMENT_NEED_CATEGORIES = { "On Job Training", "Classroom Training", "Online or E-Learning", "Self-Study", "Other", "INVALID" };
+  
+
 
   /**
    * Statistics from my career.
@@ -42,7 +47,7 @@ public class EmployeeStatistics
    * @param competencies
    * @param feedbackRequests
    * @param feedbacks
-   * @return
+   * @return A Map<String, Object> with the statistics
    */
   public Map<String, Object> getMyCareerStats(long users, long objectives, long devNeeds, long notes, long competencies,
       long feedbackRequests, long feedbacks)
@@ -62,7 +67,7 @@ public class EmployeeStatistics
    * Statistics for employees given a list of employees.
    *
    * @param employees
-   * @return
+   * @return A List<Map> with the statistics
    */
   @SuppressWarnings("rawtypes")
   public List<Map> getEmployeeStats(List<Employee> employees)
@@ -79,7 +84,7 @@ public class EmployeeStatistics
    * Statistics for feedback given a list of employees.
    *
    * @param employees
-   * @return
+   * @return A List<Map> with the statistics
    */
   @SuppressWarnings("rawtypes")
   public List<Map> getFeedbackStats(List<Employee> employees)
@@ -97,10 +102,10 @@ public class EmployeeStatistics
    * Statistics for objectives given employees
    *
    * @param employees
-   * @return
+   * @return A List<Map> with the statistics
    */
   @SuppressWarnings("rawtypes")
-  public Object getObjectiveStats(List<Employee> employees)
+  public List<Map> getObjectiveStats(List<Employee> employees)
   {
     List<Map> statistics = new ArrayList<>();
     employees.forEach(e -> {
@@ -115,10 +120,10 @@ public class EmployeeStatistics
    * Statistics for development needs given employees
    *
    * @param employees
-   * @return
+   * @return A List<Map> with the statistics
    */
   @SuppressWarnings("rawtypes")
-  public Object getDevelopmentNeedStats(List<Employee> employees)
+  public List<Map> getDevelopmentNeedStats(List<Employee> employees)
   {
     List<Map> statistics = new ArrayList<>();
     employees.forEach(e -> {
@@ -133,10 +138,10 @@ public class EmployeeStatistics
    * Details of development needs per employee with category and title
    *
    * @param employees
-   * @return
+   * @return A List<Map> with the statistics
    */
   @SuppressWarnings("rawtypes")
-  public Object getDevelopmentNeedBreakDown(List<Employee> employees)
+  public List<Map> getDevelopmentNeedBreakDown(List<Employee> employees)
   {
     List<Map> statistics = new ArrayList<>();
     employees.forEach(e -> {
@@ -150,13 +155,68 @@ public class EmployeeStatistics
     });
     return statistics;
   }
+  
+
+  /**
+   * Details of sector break down details
+   *
+   * @param employees
+   * @return A List<Map> with the statistics
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public List<Map> getSectorBreakDown(List<Employee> employees)
+  {
+    List<Map> statistics = new ArrayList<>();
+    Map<String, Object> map = new HashMap<>();
+    String sector = "";
+    boolean addMap = false;
+    
+    for(Employee e : employees){
+      boolean createMap = true;
+      sector = e.getProfile().getSuperSector();
+      
+      if(statistics.isEmpty()){
+        map.put("sector", sector);
+        map.put("employees", 1);
+        map.put("nowithobjs", 1);
+        map.put("nowithdevneeds", 1);
+        addMap = true;
+      } else {
+        for(Map<String, Object> m : statistics){
+          if(m.get("sector").equals(sector)){
+            createMap = false;
+            m.put("employees", (Integer)m.get("employees")+1);
+            if(!e.getLatestVersionObjectives().isEmpty())
+              m.put("nowithobjs", (Integer)m.get("nowithobjs")+1);
+            if(!e.getLatestVersionDevelopmentNeeds().isEmpty())
+              m.put("nowithdevneeds", (Integer)m.get("nowithdevneeds")+1);
+            break;
+          }
+        }
+        if(createMap){
+          map = new HashMap<>();
+          map.put("sector", sector);
+          map.put("employees", 1);
+          map.put("nowithobjs", 1);
+          map.put("nowithdevneeds", 1);
+          addMap = true;
+        }
+      }
+      
+      if(addMap) {
+        statistics.add(map);
+        addMap = false;
+      }
+    }
+    return statistics;
+  }
 
 
   /**
    * Gets the standard employee details.
    *
    * @param employee
-   * @return
+   * @return A List<Map> with the statistics
    */
   private Map<String, Object> getBasicMap(Employee employee)
   {
@@ -231,38 +291,4 @@ public class EmployeeStatistics
     map.put("complete", complete);
   }
 
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 }
