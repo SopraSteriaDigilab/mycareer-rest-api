@@ -230,7 +230,7 @@ public class Employee implements Serializable
    */
   public void setDevelopmentNeedsList(List<List<DevelopmentNeed>> developments) throws InvalidAttributeValueException
   {
-    if (developments != null)
+    if (developments != null) 
     {
       // Counter that keeps tracks of the error while adding elements
       int errorCounter = 0;
@@ -361,7 +361,7 @@ public class Employee implements Serializable
       if (feedbackRequest.getId().equals(id)) return feedbackRequest;
     }
     throw new InvalidAttributeValueException("Feedback Request does not exist.");
-  }
+  } 
 
   // /**
   // *
@@ -422,6 +422,7 @@ public class Employee implements Serializable
       // Verify if there have been any error during the insertion of competencies
       if (errorCounter > 0) throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCYLIST_CONTEXT);
     }
+    else throw new InvalidAttributeValueException(Constants.INVALID_NULLCOMPETENECYLIST_CONTEXT);
   }
 
   /**
@@ -451,7 +452,7 @@ public class Employee implements Serializable
    * 
    * @return List<Competencies>
    */
-  public List<Competency> getLatestVersionCompetencies()
+  public List<Competency> getLatestVersionCompetencies() 
   {
     List<Competency> organisedList = new ArrayList<Competency>();
     if (this.competencies.size() == 0)
