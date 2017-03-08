@@ -12,11 +12,11 @@ import static dataStructure.Constants.INVALID_IDNOTFOND;
 import static dataStructure.Constants.INVALID_OBJECTIVE;
 import static dataStructure.Constants.INVALID_OBJECTIVEID;
 import static dataStructure.Constants.INVALID_OBJECTIVE_OR_EMPLOYEEID;
-import static dataStructure.Constants.INVALID_USERGUID_NOTFOUND;
 import static dataStructure.Constants.NULL_OBJECTIVE;
 import static dataStructure.Constants.NULL_USER_DATA;
 import static dataStructure.Constants.OBJECTIVE_NOTADDED_ERROR;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,8 +36,6 @@ import org.springframework.stereotype.Component;
 
 import com.mongodb.MongoException;
 
-import dataStructure.ADProfile_Advanced_OLD;
-import dataStructure.ADProfile_Basic_OLD;
 import dataStructure.Competency;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
@@ -66,13 +64,12 @@ public class EmployeeService
 
   private static final String ERROR_USER_NOT_FOUND = "The given user ID does not exist.";
 
-  
   /** String Constant - Represents Feedback Request */
   public static final String FEEDBACK_REQUEST = "Feedback Request";
 
   // There is only 1 instance of the Datastore in the whole system
   private static Datastore dbConnection;
-  
+
   /** Environment Property - Reference to environment to get property details. */
   private static Environment env;
 
@@ -676,7 +673,8 @@ public class EmployeeService
   {
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
 
-    long employeeID = matchADWithMongoData(employeeProfileService.authenticateUserProfile(recipientEmail)).getEmployeeID();
+    long employeeID = matchADWithMongoData(employeeProfileService.authenticateUserProfile(recipientEmail))
+        .getEmployeeID();
     Employee employee = getEmployee(employeeID);
 
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
@@ -788,7 +786,7 @@ public class EmployeeService
       LOGGER.warn(NULL_USER_DATA);
       throw new InvalidAttributeValueException(NULL_USER_DATA);
     }
-    
+
     if (profileFromAD.getEmployeeID() < 0)
     {
       LOGGER.warn(INVALID_DEVNEED_OR_EMPLOYEEID);
@@ -796,7 +794,7 @@ public class EmployeeService
     }
 
     Employee e = getEmployeeQuery(profileFromAD.getEmployeeID()).get();
-    
+
     if (e != null)
     {
       final boolean needsUpdate = !e.getProfile().equals(profileFromAD);
@@ -814,12 +812,23 @@ public class EmployeeService
       LOGGER.debug("Inserting employee: " + e.getProfile().getEmployeeID());
       dbConnection.save(e);
     }
-    
+
     return e.getProfile();
   }
 
-  public EmployeeProfile authenticateUserProfile(String usernameEmail) throws InvalidAttributeValueException, ADConnectionException, NamingException
+  public EmployeeProfile authenticateUserProfile(String usernameEmail)
+      throws InvalidAttributeValueException, ADConnectionException, NamingException
   {
     return employeeProfileService.authenticateUserProfile(usernameEmail);
+  }
+
+  public void updateLastLoginDate(EmployeeProfile profile) throws InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(profile.getEmployeeID());
+    employee.setLastLogon(Utils.localDateTimetoDate(LocalDateTime.now()));
+
+    UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("lastLogon",
+        employee.getLastLogon());
+    dbConnection.update(employee, ops);
   }
 }
