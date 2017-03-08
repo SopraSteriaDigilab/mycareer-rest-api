@@ -40,7 +40,7 @@ import java.util.UUID;
  * This class contains the definition of the ADProfileDAO
  *
  */
-public final class EmployeeProfileService
+public class EmployeeProfileService
 {
   private final static Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileService.class);
   

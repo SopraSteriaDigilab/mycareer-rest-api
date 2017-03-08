@@ -52,10 +52,14 @@ public class EmployeeServiceTest
   /** Environment Property - Mocked by Mockito. */
   @Mock
   private Environment mockEnvironment;
+  
+  /** EmployeeProfileSerivce Property - Mocked by Mockito. */
+  @Mock
+  private EmployeeProfileService mockEmployeeProfileService;
 
   /** EmployeeDAO Property - Mocked by Mockito. */
   @Mock
-  private EmployeeService mockEmployeeDao;
+  private EmployeeService mockEmployeeService;
 
   /** Employee Property - Mocked by Mockito. */
   @Mock
@@ -70,23 +74,23 @@ public class EmployeeServiceTest
   @InjectMocks
   private EmployeeService unitUnderTest;
 
-//  /**
-//   * Setup method that runs once before each test method.
-//   * @throws InvalidAttributeValueException 
-//   */
-//  @SuppressWarnings("unchecked")
-//  @Before
-//  public void setup() throws InvalidAttributeValueException
-//  {
-//    MockitoAnnotations.initMocks(this);
-//    unitUnderTest = new EmployeeService(mockDatastore, mockEnvironment);
-//    employee = getEmployee();
-//    
-//    when(mockDatastore.createQuery(Mockito.any())).thenReturn(mockQuery);
-//    when(mockQuery.filter(Mockito.anyString(), Mockito.any())).thenReturn(mockQuery);
-//    when(mockQuery.get()).thenReturn(mockEmployee);
-//
-//  }
+  /**
+   * Setup method that runs once before each test method.
+   * @throws InvalidAttributeValueException 
+   */
+  @SuppressWarnings("unchecked")
+  @Before
+  public void setup() throws InvalidAttributeValueException
+  {
+    MockitoAnnotations.initMocks(this);
+    unitUnderTest = new EmployeeService(mockDatastore, mockEmployeeProfileService, mockEnvironment);
+    employee = getEmployee();
+    
+    when(mockDatastore.createQuery(Mockito.any())).thenReturn(mockQuery);
+    when(mockQuery.filter(Mockito.anyString(), Mockito.any())).thenReturn(mockQuery);
+    when(mockQuery.get()).thenReturn(mockEmployee);
+
+  }
 
   /**
    * Unit test for the getEmployee method.
