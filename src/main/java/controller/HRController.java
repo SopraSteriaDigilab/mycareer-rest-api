@@ -87,4 +87,16 @@ public class HRController
     return ResponseEntity.ok(hrService.getDevelopmentNeedBreakDown());
   }
 
+  /**
+   * GET End Point - Gets list of sectors and statistics about employees, objectives and development needs in each
+   * sector.
+   *
+   * @return
+   */
+  @RequestMapping(value = "/getSectorBreakDown", method = GET)
+  public ResponseEntity<?> getSectorBreakDown()
+  {
+    return ResponseEntity.ok(hrService.getSectorBreakDown());
+  }
+
 }

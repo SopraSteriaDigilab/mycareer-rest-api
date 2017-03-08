@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
@@ -17,8 +18,8 @@ public class EmployeeStatistics
 {
 
   /** String[] Constant - Indicates fields to be used in the employee statistics */
-  public final static String[] EMPLOYEE_FIELDS = { "profile.employeeID", "profile.forename", "profile.surname", "profile.company", "profile.superSector",
-      "profile.steriaDepartment" };
+  public final static String[] EMPLOYEE_FIELDS = { "profile.employeeID", "profile.forename", "profile.surname",
+      "profile.company", "profile.superSector", "profile.steriaDepartment" };
 
   /** String[] Constant - Represents fields to be used in the feedback statistics */
   public final static String[] FEEDBACK_FIELDS = { "feedback" };
@@ -28,9 +29,13 @@ public class EmployeeStatistics
 
   /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
   public final static String[] DEVELOPMENT_NEEDS_FIELDS = { "developmentNeeds" };
-  
+
+  /** String[] Constant - Represents fields to be used in the sector statistics */
+  public final static String[] SECTOR_FIELDS = { "profile.superSector", "objectives", "developmentNeeds" };
+
   /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
-  public final static String[] DEVELOPMENT_NEED_CATEGORIES = { "On Job Training", "Classroom Training", "Online or E-Learning", "Self-Study", "Other", "INVALID" };
+  public final static String[] DEVELOPMENT_NEED_CATEGORIES = { "On Job Training", "Classroom Training",
+      "Online or E-Learning", "Self-Study", "Other", "INVALID" };
 
   /**
    * Statistics from my career.
@@ -42,7 +47,7 @@ public class EmployeeStatistics
    * @param competencies
    * @param feedbackRequests
    * @param feedbacks
-   * @return
+   * @return A Map<String, Object> with the statistics
    */
   public Map<String, Object> getMyCareerStats(long users, long objectives, long devNeeds, long notes, long competencies,
       long feedbackRequests, long feedbacks)
@@ -62,7 +67,7 @@ public class EmployeeStatistics
    * Statistics for employees given a list of employees.
    *
    * @param employees
-   * @return
+   * @return A List<Map> with the statistics
    */
   @SuppressWarnings("rawtypes")
   public List<Map> getEmployeeStats(List<Employee> employees)
@@ -79,7 +84,7 @@ public class EmployeeStatistics
    * Statistics for feedback given a list of employees.
    *
    * @param employees
-   * @return
+   * @return A List<Map> with the statistics
    */
   @SuppressWarnings("rawtypes")
   public List<Map> getFeedbackStats(List<Employee> employees)
@@ -97,10 +102,10 @@ public class EmployeeStatistics
    * Statistics for objectives given employees
    *
    * @param employees
-   * @return
+   * @return A List<Map> with the statistics
    */
   @SuppressWarnings("rawtypes")
-  public Object getObjectiveStats(List<Employee> employees)
+  public List<Map> getObjectiveStats(List<Employee> employees)
   {
     List<Map> statistics = new ArrayList<>();
     employees.forEach(e -> {
@@ -115,10 +120,10 @@ public class EmployeeStatistics
    * Statistics for development needs given employees
    *
    * @param employees
-   * @return
+   * @return A List<Map> with the statistics
    */
   @SuppressWarnings("rawtypes")
-  public Object getDevelopmentNeedStats(List<Employee> employees)
+  public List<Map> getDevelopmentNeedStats(List<Employee> employees)
   {
     List<Map> statistics = new ArrayList<>();
     employees.forEach(e -> {
@@ -133,30 +138,50 @@ public class EmployeeStatistics
    * Details of development needs per employee with category and title
    *
    * @param employees
-   * @return
+   * @return A List<Map> with the statistics
    */
   @SuppressWarnings("rawtypes")
-  public Object getDevelopmentNeedBreakDown(List<Employee> employees)
+  public List<Map> getDevelopmentNeedBreakDown(List<Employee> employees)
   {
     List<Map> statistics = new ArrayList<>();
     employees.forEach(e -> {
       e.getLatestVersionDevelopmentNeeds().forEach(d -> {
-        if(d.getProgress() == 2) return;
+        if (d.getProgress() == 2) return;
         Map<String, Object> map = getBasicMap(e);
-        map.put("title" , d.getTitle());
-        map.put("category" , DEVELOPMENT_NEED_CATEGORIES[d.getCategory()]);
+        map.put("title", d.getTitle());
+        map.put("category", DEVELOPMENT_NEED_CATEGORIES[d.getCategory()]);
         statistics.add(map);
       });
     });
     return statistics;
   }
 
+  /**
+   * Details of sector break down details
+   *
+   * @param employees
+   * @return A List<Map> with the statistics
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public List<Map> getSectorBreakDown(List<Employee> employees)
+  {
+    List<Map> statistics = new ArrayList<>();
+    employees.forEach(e -> groupSector(statistics, e));
+    statistics.forEach(m -> {
+      double e = ((Integer) m.get("employees"));
+      double o = ((Integer) m.get("noWithObjs"));
+      double dn = ((Integer) m.get("noWithDevNeeds"));
+      m.put("percentObjs", (Math.ceil((o / e) * 100)));
+      m.put("percentDevNeeds", (Math.ceil((dn / e) * 100)));
+    });
+    return statistics;
+  }
 
   /**
    * Gets the standard employee details.
    *
    * @param employee
-   * @return
+   * @return A List<Map> with the statistics
    */
   private Map<String, Object> getBasicMap(Employee employee)
   {
@@ -231,38 +256,38 @@ public class EmployeeStatistics
     map.put("complete", complete);
   }
 
+  /**
+   * Add the employee to a list of maps grouped by super sector
+   *
+   * @param statistics
+   * @param employee
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private void groupSector(List<Map> statistics, Employee employee)
+  {
+    Map<String, Object> map = new HashMap<>();
+    String sector = employee.getProfile().getSuperSector();
+    Optional<Map> optionalMap = statistics.stream().filter(m -> m.get("sector").equals(sector)).findFirst();
+    if (optionalMap.isPresent())
+    {
+      optionalMap.get().put("employees", (Integer) optionalMap.get().get("employees") + 1);
+      if (!employee.getLatestVersionObjectives().isEmpty())
+      {
+        optionalMap.get().put("noWithObjs", (Integer) optionalMap.get().get("noWithObjs") + 1);
+      }
+      if (!employee.getLatestVersionDevelopmentNeeds().isEmpty())
+      {
+        optionalMap.get().put("noWithDevNeeds", (Integer) optionalMap.get().get("noWithDevNeeds") + 1);
+      }
+    }
+    else
+    {
+      map.put("sector", sector);
+      map.put("employees", 1);
+      map.put("noWithObjs", 1);
+      map.put("noWithDevNeeds", 1);
+      statistics.add(map);
+    }
+  }
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 }

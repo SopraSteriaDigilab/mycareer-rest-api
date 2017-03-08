@@ -1,12 +1,3 @@
-/*
-The Spring Boot gradle plugin provides many convenient features:
-
-It collects all the jars on the classpath and builds a single, runnable "�ber-jar", which makes it more convenient to execute and transport your service.
-It searches for the public static void main() method to flag as a runnable class.
-It provides a built-in dependency resolver that sets the version number to match Spring Boot dependencies. You can override any version you wish, but it will default to Boot�s chosen set of versions.
-*/
-
-//This will is necessary for when the script is built. Do not change it
 buildscript {
     repositories {
         mavenCentral()
@@ -24,7 +15,7 @@ apply plugin: 'org.springframework.boot'
 //Define the name of the JAR file created when the project is built as an executable archive
 jar {
     baseName = 'mycareer-web-service'
-    version =  '1.2.2'
+    version =  '1.2.3'
 }
 
 //This defines the repositories where the dependencies can be found and downloaded
@@ -68,7 +59,7 @@ dependencies {
 	compile files('libs/local_policy.jar')
 	compile files('libs/US_export_policy.jar')
 	
-	    //Test suits
+	//Test suits
     testCompile("junit:junit")
     //testCompile("org.springframework.boot:spring-boot-starter-test")
 }
