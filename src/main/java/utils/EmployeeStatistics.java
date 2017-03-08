@@ -168,12 +168,11 @@ public class EmployeeStatistics
     List<Map> statistics = new ArrayList<>();
     employees.forEach(e -> groupSector(statistics, e));
     statistics.forEach(m -> {
-
-      double e = ((Integer)m.get("employees"));
-      double o = ((Integer)m.get("noWithObjs"));
-      double dn = ((Integer)m.get("noWithDevNeeds"));
-      m.put("percentObjs", (Math.ceil((o/e)*100)));
-      m.put("percentDevNeeds", (Math.ceil((dn/e)*100)));
+      double e = ((Integer) m.get("employees"));
+      double o = ((Integer) m.get("noWithObjs"));
+      double dn = ((Integer) m.get("noWithDevNeeds"));
+      m.put("percentObjs", (Math.ceil((o / e) * 100)));
+      m.put("percentDevNeeds", (Math.ceil((dn / e) * 100)));
     });
     return statistics;
   }
