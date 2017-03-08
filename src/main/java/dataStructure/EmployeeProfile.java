@@ -35,7 +35,7 @@ public class EmployeeProfile implements Serializable
   {
     surname = "";
     forename = "";
-    employeeID = INVALID_INT;
+    employeeID = INVALID_INT; 
     username = "";
     emailAddress = "";
     isManager = false;
@@ -95,7 +95,7 @@ public class EmployeeProfile implements Serializable
   {
     if (id > 0) this.employeeID = id;
     else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
-  }
+  } 
 
   public String getUsername()
   {
@@ -310,7 +310,7 @@ public class EmployeeProfile implements Serializable
   }
 
   @Override
-  public boolean equals(Object obj)
+  public boolean equals(Object obj) 
   {
     if (this == obj) return true;
     if (obj == null) return false;

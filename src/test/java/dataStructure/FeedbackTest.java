@@ -1,12 +1,16 @@
 package dataStructure;
 
 import static org.mockito.MockitoAnnotations.*;
+import static dataStructure.Constants.UK_TIMEZONE;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -37,7 +41,7 @@ public class FeedbackTest
   private final String VALID_DESCRIPTION = "a valid description";
   
   @InjectMocks
-  private Feedback fbk, fbk2;
+  private Feedback unitUnderTest, unitUnderTest2;
   
   /**
    * Setup method that runs once before each test method.
@@ -47,8 +51,8 @@ public class FeedbackTest
   public void setup()
   {
    initMocks(this);
-   fbk = new Feedback(VALID_EMPLOYEE_ID, VALID_EMAIL_ADDRESS, VALID_DESCRIPTION);
-   fbk2 = new Feedback(VALID_EMPLOYEE_ID, VALID_EMAIL_ADDRESS, VALID_NAME, VALID_DESCRIPTION);
+   unitUnderTest = new Feedback(VALID_EMPLOYEE_ID, VALID_EMAIL_ADDRESS, VALID_DESCRIPTION);
+   unitUnderTest2 = new Feedback(VALID_EMPLOYEE_ID, VALID_EMAIL_ADDRESS, VALID_NAME, VALID_DESCRIPTION);
   }
   
   
@@ -60,8 +64,8 @@ public class FeedbackTest
   @Test
   public void testSetID() throws InvalidAttributeValueException
   {  
-    fbk.setId(VALID_EMPLOYEE_ID);
-    assertEquals(fbk.getId(), VALID_EMPLOYEE_ID);
+    unitUnderTest.setId(VALID_EMPLOYEE_ID);
+    assertEquals(unitUnderTest.getId(), VALID_EMPLOYEE_ID);
   }
   
   /**
@@ -72,8 +76,8 @@ public class FeedbackTest
   @Test
   public void testGetProviderEmail() throws InvalidAttributeValueException
   {  
-    fbk.setProviderEmail(VALID_EMAIL_ADDRESS);
-    assertEquals(fbk.getProviderEmail(),VALID_EMAIL_ADDRESS);
+    unitUnderTest.setProviderEmail(VALID_EMAIL_ADDRESS);
+    assertEquals(unitUnderTest.getProviderEmail(),VALID_EMAIL_ADDRESS);
   }
   
   /**
@@ -84,8 +88,8 @@ public class FeedbackTest
   @Test
   public void testGetProviderName() throws InvalidAttributeValueException
   {  
-    fbk.setProviderName(VALID_NAME);
-    assertEquals(fbk.getProviderName(),VALID_NAME);
+    unitUnderTest.setProviderName(VALID_NAME);
+    assertEquals(unitUnderTest.getProviderName(),VALID_NAME);
   }
   
   /**
@@ -96,7 +100,7 @@ public class FeedbackTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetProviderEmailWithInvalidEmailAddress() throws InvalidAttributeValueException
   {
-    fbk.setProviderEmail(INVALID_EMAIL_ADDRESS);
+    unitUnderTest.setProviderEmail(INVALID_EMAIL_ADDRESS);
   }
   
   /**
@@ -107,8 +111,8 @@ public class FeedbackTest
   @Test
   public void testSetProviderEmailWithValidEmailAddress() throws InvalidAttributeValueException
   { 
-    fbk.setProviderEmail(VALID_EMAIL_ADDRESS);
-    assertEquals(fbk.getProviderEmail(),VALID_EMAIL_ADDRESS);
+    unitUnderTest.setProviderEmail(VALID_EMAIL_ADDRESS);
+    assertEquals(unitUnderTest.getProviderEmail(),VALID_EMAIL_ADDRESS);
   }
   
   /**
@@ -119,8 +123,19 @@ public class FeedbackTest
   @Test
   public void testGetFeedbackDescription() throws InvalidAttributeValueException
   {  
-    fbk.setFeedbackDescription(VALID_DESCRIPTION);
-    assertEquals(fbk.getFeedbackDescription(),VALID_DESCRIPTION);
-  }  
+    unitUnderTest.setFeedbackDescription(VALID_DESCRIPTION);
+    assertEquals(unitUnderTest.getFeedbackDescription(),VALID_DESCRIPTION);
+  }
+  
+  /**
+   * Unit test for the getTimestamp method.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test
+  public void testGetTimestamp() throws InvalidAttributeValueException
+  {
+    assertEquals(unitUnderTest.getTimeStamp(),LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString());
+  }
 }
 
