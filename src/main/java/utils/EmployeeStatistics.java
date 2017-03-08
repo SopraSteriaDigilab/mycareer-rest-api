@@ -162,11 +162,19 @@ public class EmployeeStatistics
    * @param employees
    * @return A List<Map> with the statistics
    */
-  @SuppressWarnings({ "rawtypes" })
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public List<Map> getSectorBreakDown(List<Employee> employees)
   {
     List<Map> statistics = new ArrayList<>();
     employees.forEach(e -> groupSector(statistics, e));
+    statistics.forEach(m -> {
+
+      double e = ((Integer)m.get("employees"));
+      double o = ((Integer)m.get("noWithObjs"));
+      double dn = ((Integer)m.get("noWithDevNeeds"));
+      m.put("percentObjs", (Math.ceil((o/e)*100)));
+      m.put("percentDevNeeds", (Math.ceil((dn/e)*100)));
+    });
     return statistics;
   }
 
@@ -266,19 +274,19 @@ public class EmployeeStatistics
       optionalMap.get().put("employees", (Integer) optionalMap.get().get("employees") + 1);
       if (!employee.getLatestVersionObjectives().isEmpty())
       {
-        optionalMap.get().put("nowithobjs", (Integer) optionalMap.get().get("nowithobjs") + 1);
+        optionalMap.get().put("noWithObjs", (Integer) optionalMap.get().get("noWithObjs") + 1);
       }
       if (!employee.getLatestVersionDevelopmentNeeds().isEmpty())
       {
-        optionalMap.get().put("nowithdevneeds", (Integer) optionalMap.get().get("nowithdevneeds") + 1);
+        optionalMap.get().put("noWithDevNeeds", (Integer) optionalMap.get().get("noWithDevNeeds") + 1);
       }
     }
     else
     {
       map.put("sector", sector);
       map.put("employees", 1);
-      map.put("nowithobjs", 1);
-      map.put("nowithdevneeds", 1);
+      map.put("noWithObjs", 1);
+      map.put("noWithDevNeeds", 1);
       statistics.add(map);
     }
   }
