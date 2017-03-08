@@ -3,9 +3,13 @@ package dataStructure;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
+
 
 import javax.management.InvalidAttributeValueException;
 import java.lang.ArrayIndexOutOfBoundsException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -70,16 +74,16 @@ public class EmployeeProfileTest
   private final String INVALID_DEPARTMENT = "astringwithmorethan150charactersastringwithmorethan150charactersastringwithmorethan150charactersastringwithmorethan150charactersastringwithmorethan150characters";
   
   /** TYPE Property|Constant - Represents|Indicates... */
-  private final boolean HAS_HRDASH = false;
+  private final boolean HAS_HRDASH = true;
   
   /** TYPE Property|Constant - Represents|Indicates... */
-  private final boolean IS_MANAGER = false;
+  private final boolean IS_MANAGER = true;
 
   /** TYPE Property|Constant - Represents|Indicates... */
   private final List<String> VALID_REPORTEE_LIST = Arrays.asList("a");
   
   @InjectMocks
-  private EmployeeProfile employeeProfile, employeeProfileEmpty;
+  private EmployeeProfile unitUnderTest, unitUnderTestEmpty;
     
   /**
    * Setup method that runs once before each test method.
@@ -89,10 +93,44 @@ public class EmployeeProfileTest
   @Before
   public void setup() throws InvalidAttributeValueException
   {
-   employeeProfileEmpty = new EmployeeProfile();
-   employeeProfile = new EmployeeProfile(VALID_EMPLOYEE_ID,VALID_GUID,VALID_NAME,VALID_NAME,VALID_EMAIL_ADDRESS,VALID_USERNAME,VALID_COMPANY,VALID_SECTOR_SUPERSECTOR,VALID_SECTOR_SUPERSECTOR,VALID_DEPARTMENT,VALID_DEPARTMENT,IS_MANAGER,HAS_HRDASH,VALID_REPORTEE_LIST);
+   unitUnderTestEmpty = new EmployeeProfile();
+   unitUnderTest = new EmployeeProfile(VALID_EMPLOYEE_ID,VALID_GUID,VALID_NAME,VALID_NAME,VALID_EMAIL_ADDRESS,VALID_USERNAME,VALID_COMPANY,VALID_SECTOR_SUPERSECTOR,VALID_SECTOR_SUPERSECTOR,VALID_DEPARTMENT,VALID_DEPARTMENT,IS_MANAGER,HAS_HRDASH,VALID_REPORTEE_LIST);
    initMocks(this);
   }
+  
+  /**
+   * For unit tests.
+   * 
+   */
+  public void setPrivateField(String field, Object obj, Object newValue) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException 
+  {
+    Field f = obj.getClass().getDeclaredField(field);
+    f.setAccessible(true);
+    f.set(obj,newValue);
+  }
+  
+  /**
+   * For unit tests.
+   * 
+   */
+  public void setEveryPrivateFieldsToNullOrDefault(Object obj) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException 
+  {
+    setPrivateField("GUID", obj, null);
+    setPrivateField("company", obj, null);
+    setPrivateField("emailAddress", obj, null);
+    setPrivateField("employeeID", obj, 0);
+    setPrivateField("forename", obj, null);
+    setPrivateField("reporteeCNs", obj, null);
+    setPrivateField("isManager", obj, true);
+    setPrivateField("hasHRDash", obj, true);
+    setPrivateField("sector", obj, null);
+    setPrivateField("superSector", obj, null);
+    setPrivateField("sopraDepartment", obj, null);
+    setPrivateField("steriaDepartment", obj, null);
+    setPrivateField("reporteeCNs", obj, null);
+    setPrivateField("username", obj, null);
+    setPrivateField("surname", obj, null);
+  }  
   
   /**
    * Unit test for the setEmailAddress method : null.
@@ -102,7 +140,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetEmailAddressWithNull() throws InvalidAttributeValueException
   {  
-    employeeProfile.setEmailAddress(null);
+    unitUnderTest.setEmailAddress(null);
   }
   
   /**
@@ -113,7 +151,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetEmailAddressWithEmptyString() throws InvalidAttributeValueException
   {  
-    employeeProfile.setEmailAddress("");
+    unitUnderTest.setEmailAddress("");
   }
   
   /**
@@ -124,7 +162,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetEmailAddressWithInvalidEmailAddress() throws InvalidAttributeValueException
   {  
-    employeeProfile.setEmailAddress(INVALID_EMAIL_ADDRESS);
+    unitUnderTest.setEmailAddress(INVALID_EMAIL_ADDRESS);
   }
   
   /**
@@ -135,8 +173,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetEmailAddressWithValidEmailAddress() throws InvalidAttributeValueException
   {  
-    employeeProfile.setEmailAddress(VALID_EMAIL_ADDRESS);
-    assertEquals(employeeProfile.getEmailAddress(),VALID_EMAIL_ADDRESS);
+    unitUnderTest.setEmailAddress(VALID_EMAIL_ADDRESS);
+    assertEquals(unitUnderTest.getEmailAddress(),VALID_EMAIL_ADDRESS);
   }
   
   /**
@@ -147,7 +185,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetEmployeeIDWithInvalidEmployeeID() throws InvalidAttributeValueException
   {  
-    employeeProfile.setEmployeeID(INVALID_EMPLOYEE_ID);
+    unitUnderTest.setEmployeeID(INVALID_EMPLOYEE_ID);
   }
   
   /**
@@ -158,8 +196,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetEmployeeIDWithValidEmployeeID() throws InvalidAttributeValueException
   {  
-    employeeProfile.setEmployeeID(VALID_EMPLOYEE_ID);
-    assertEquals(employeeProfile.getEmployeeID(),VALID_EMPLOYEE_ID);
+    unitUnderTest.setEmployeeID(VALID_EMPLOYEE_ID);
+    assertEquals(unitUnderTest.getEmployeeID(),VALID_EMPLOYEE_ID);
   }
 
   /**
@@ -170,7 +208,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetUsernameWithNull() throws InvalidAttributeValueException
   {  
-    employeeProfile.setUsername(null);
+    unitUnderTest.setUsername(null);
   }
   
   /**
@@ -181,7 +219,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetUsernamesWithEmptyString() throws InvalidAttributeValueException
   {  
-    employeeProfile.setUsername("");
+    unitUnderTest.setUsername("");
   }
   
   /**
@@ -192,7 +230,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetUsernameWithInvalidEmployeeID() throws InvalidAttributeValueException
   {  
-    employeeProfile.setUsername(INVALID_USERNAME);
+    unitUnderTest.setUsername(INVALID_USERNAME);
   }
   
   /**
@@ -203,8 +241,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetUsernameWithValidEmployeeID() throws InvalidAttributeValueException
   {  
-    employeeProfile.setUsername(VALID_USERNAME);
-    assertEquals(employeeProfile.getUsername(),VALID_USERNAME);
+    unitUnderTest.setUsername(VALID_USERNAME);
+    assertEquals(unitUnderTest.getUsername(),VALID_USERNAME);
   }
   
   /**
@@ -215,7 +253,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSurnameWithNull() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSurname(null);
+    unitUnderTest.setSurname(null);
   }
   
   /**
@@ -226,7 +264,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSurnameWithEmptyString() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSurname("");
+    unitUnderTest.setSurname("");
   }
   
   /**
@@ -237,7 +275,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSurnameWithInvalidName() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSurname(INVALID_NAME);
+    unitUnderTest.setSurname(INVALID_NAME);
   }
   
   /**
@@ -248,8 +286,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetSurnameWithValidName() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSurname(VALID_NAME);
-    assertEquals(employeeProfile.getSurname(),VALID_NAME);
+    unitUnderTest.setSurname("A");
+    assertEquals(unitUnderTest.getSurname(),"A");
   }
   
   /**
@@ -260,7 +298,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetForenameWithNull() throws InvalidAttributeValueException
   {  
-    employeeProfile.setForename(null);
+    unitUnderTest.setForename(null);
   }
   
   /**
@@ -271,7 +309,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetForenameWithEmptyString() throws InvalidAttributeValueException
   {  
-    employeeProfile.setForename("");
+    unitUnderTest.setForename("");
   }
   
   /**
@@ -282,7 +320,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetForenameWithInvalidName() throws InvalidAttributeValueException
   {  
-    employeeProfile.setForename(INVALID_NAME);
+    unitUnderTest.setForename(INVALID_NAME);
   }
   
   /**
@@ -293,8 +331,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetForenameWithValidName() throws InvalidAttributeValueException
   {  
-    employeeProfile.setForename(VALID_NAME);
-    assertEquals(employeeProfile.getForename(),VALID_NAME);
+    unitUnderTest.setForename(VALID_NAME);
+    assertEquals(unitUnderTest.getForename(),VALID_NAME);
   }
   
   /**
@@ -305,8 +343,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetIsManager() throws InvalidAttributeValueException
   {  
-    employeeProfile.setIsManager(true);
-    assertEquals(employeeProfile.getIsManager(),true);
+    unitUnderTest.setIsManager(true);
+    assertEquals(unitUnderTest.getIsManager(),true);
   }
   
   /**
@@ -317,8 +355,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetHasHRDash() throws InvalidAttributeValueException
   {  
-    employeeProfile.setHasHRDash(true);
-    assertEquals(employeeProfile.getHasHRDash(),true);
+    unitUnderTest.setHasHRDash(true);
+    assertEquals(unitUnderTest.getHasHRDash(),true);
   }
   
   /**
@@ -329,8 +367,10 @@ public class EmployeeProfileTest
   @Test
   public void testSetReporteeCNs() throws InvalidAttributeValueException
   {
-    employeeProfile.setReporteeCNs(VALID_REPORTEE_LIST);
-    assertEquals(employeeProfile.getReporteeCNs(),VALID_REPORTEE_LIST);
+    List<String> list = unitUnderTest.getReporteeCNs();
+    unitUnderTest.setReporteeCNs(Arrays.asList("a"));
+    list.add("a");
+    assertEquals(unitUnderTest.getReporteeCNs(), list);
   }
   
   /**
@@ -341,7 +381,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetReporteeCNsWithNull() throws InvalidAttributeValueException
   {
-    employeeProfile.setReporteeCNs(null);
+    unitUnderTest.setReporteeCNs(null);
   }
   
   /**
@@ -352,7 +392,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetCompanyWithNull() throws InvalidAttributeValueException
   {  
-    employeeProfile.setCompany(null);
+    unitUnderTest.setCompany(null);
   }
    
   /**
@@ -363,7 +403,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetCompanyWithEmptyString() throws InvalidAttributeValueException
   {  
-    employeeProfile.setCompany("");
+    unitUnderTest.setCompany("");
   }
   
   /**
@@ -374,7 +414,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetCompanyWithInvalidCompany() throws InvalidAttributeValueException
   {  
-    employeeProfile.setCompany(INVALID_COMPANY);
+    unitUnderTest.setCompany(INVALID_COMPANY);
   }
   
   /**
@@ -385,8 +425,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetCompanyWithValidCompany() throws InvalidAttributeValueException
   {  
-    employeeProfile.setCompany(VALID_COMPANY);
-    assertEquals(employeeProfile.getCompany(),VALID_COMPANY);
+    unitUnderTest.setCompany(VALID_COMPANY);
+    assertEquals(unitUnderTest.getCompany(),VALID_COMPANY);
   }
   
   /**
@@ -397,7 +437,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSopraDepartmentWithNull() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSopraDepartment(null);
+    unitUnderTest.setSopraDepartment(null);
   }
    
   /**
@@ -408,7 +448,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSopraDepartmentWithEmptyString() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSopraDepartment("");
+    unitUnderTest.setSopraDepartment("");
   }
   
   /**
@@ -419,7 +459,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSopraDepartmentWithInvalidCompany() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSopraDepartment(INVALID_DEPARTMENT);
+    unitUnderTest.setSopraDepartment(INVALID_DEPARTMENT);
   }
   
   /**
@@ -430,8 +470,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetSopraDepartmentWithValidCompany() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSopraDepartment(VALID_DEPARTMENT);
-    assertEquals(employeeProfile.getSopraDepartment(),VALID_DEPARTMENT);
+    unitUnderTest.setSopraDepartment(VALID_DEPARTMENT);
+    assertEquals(unitUnderTest.getSopraDepartment(),VALID_DEPARTMENT);
   }
   
   /**
@@ -442,7 +482,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSteriaDepartmentWithNull() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSteriaDepartment(null);
+    unitUnderTest.setSteriaDepartment(null);
   }
    
   /**
@@ -453,7 +493,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSteriaDepartmentWithEmptyString() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSteriaDepartment("");
+    unitUnderTest.setSteriaDepartment("");
   }
   
   /**
@@ -464,7 +504,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSteriaDepartmentWithInvalidDepartment() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSteriaDepartment(INVALID_DEPARTMENT);
+    unitUnderTest.setSteriaDepartment(INVALID_DEPARTMENT);
   }
   
   /**
@@ -475,8 +515,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetSteriaDepartmentWithValidDepartment() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSteriaDepartment(VALID_DEPARTMENT);
-    assertEquals(employeeProfile.getSteriaDepartment(),VALID_DEPARTMENT);
+    unitUnderTest.setSteriaDepartment(VALID_DEPARTMENT);
+    assertEquals(unitUnderTest.getSteriaDepartment(),VALID_DEPARTMENT);
   }
   
   /**
@@ -487,7 +527,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSectorWithNull() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSector(null);
+    unitUnderTest.setSector(null);
   }
    
   /**
@@ -498,7 +538,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSectorWithEmptyString() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSector("");
+    unitUnderTest.setSector("");
   }
   
   /**
@@ -509,7 +549,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSectorWithInvalidSector() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSector(INVALID_SECTOR);
+    unitUnderTest.setSector(INVALID_SECTOR);
   }
   
   /**
@@ -520,8 +560,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetSectorWithValidSector() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSector(VALID_SECTOR_SUPERSECTOR);
-    assertEquals(employeeProfile.getSector(),VALID_SECTOR_SUPERSECTOR);
+    unitUnderTest.setSector(VALID_SECTOR_SUPERSECTOR);
+    assertEquals(unitUnderTest.getSector(),VALID_SECTOR_SUPERSECTOR);
   }
   
   /**
@@ -532,7 +572,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSuperSectorWithNull() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSuperSector(null);
+    unitUnderTest.setSuperSector(null);
   }
    
   /**
@@ -543,7 +583,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSuperSectorWithEmptyString() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSuperSector("");
+    unitUnderTest.setSuperSector("");
   }
   
   /**
@@ -554,7 +594,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetSuperSectorWithInvalidSuperSector() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSuperSector(INVALID_SUPERSECTOR);
+    unitUnderTest.setSuperSector(INVALID_SUPERSECTOR);
   }
   
   /**
@@ -565,8 +605,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetSuperSectorWithValidSuperSector() throws InvalidAttributeValueException
   {  
-    employeeProfile.setSuperSector(VALID_SECTOR_SUPERSECTOR);
-    assertEquals(employeeProfile.getSuperSector(),VALID_SECTOR_SUPERSECTOR);
+    unitUnderTest.setSuperSector(VALID_SECTOR_SUPERSECTOR);
+    assertEquals(unitUnderTest.getSuperSector(),VALID_SECTOR_SUPERSECTOR);
   }
   
   /**
@@ -577,7 +617,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetGUIDWithNull() throws InvalidAttributeValueException
   {  
-    employeeProfile.setGUID(null);
+    unitUnderTest.setGUID(null);
   }
   
   /**
@@ -588,7 +628,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetGUIDWithEmptyString() throws InvalidAttributeValueException
   {  
-    employeeProfile.setGUID("");
+    unitUnderTest.setGUID("");
   }
   
   /**
@@ -599,8 +639,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetGUIDWithValidGUID() throws InvalidAttributeValueException
   {  
-    employeeProfile.setGUID(VALID_GUID);
-    assertEquals(employeeProfile.getGUID(),VALID_GUID);
+    unitUnderTest.setGUID(VALID_GUID);
+    assertEquals(unitUnderTest.getGUID(),VALID_GUID);
   }
   
   /**
@@ -611,7 +651,7 @@ public class EmployeeProfileTest
   public void testToGson()
   {
     Gson gsonData = new Gson();
-    assertEquals(employeeProfile.toGson(),gsonData.toJson(employeeProfile));
+    assertEquals(unitUnderTest.toGson(),gsonData.toJson(unitUnderTest));
   }
   
   /**
@@ -622,9 +662,25 @@ public class EmployeeProfileTest
   @Test
   public void testGetFullName() throws InvalidAttributeValueException
   {  
-    employeeProfile.setForename("a");
-    employeeProfile.setSurname("b");
-    assertEquals(employeeProfile.getFullName(),"a B");
+    unitUnderTest.setForename("a");
+    unitUnderTest.setSurname("b");
+    assertEquals(unitUnderTest.getFullName(),"a B");
+  }
+  
+  
+  /**
+   * Unit test for the addReportee method : check if reporteeCNs is null.
+   * @throws SecurityException 
+   * @throws NoSuchFieldException 
+   * @throws IllegalAccessException 
+   * @throws IllegalArgumentException 
+   * 
+   */
+  @Test
+  public void testAddReporteeCheckIfReporteeCNsIsNull() throws InvalidAttributeValueException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
+  {
+    setPrivateField("reporteeCNs", unitUnderTest, null);
+    assertTrue(unitUnderTest.addReportee("test"));
   }
   
   /**
@@ -634,7 +690,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testAddReporteeWithNull() throws InvalidAttributeValueException
   {
-    employeeProfile.addReportee(null);
+    unitUnderTest.addReportee(null);
   }
   
   /**
@@ -644,7 +700,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testAddReporteeWithEmptyString() throws InvalidAttributeValueException
   {
-    employeeProfile.addReportee("");
+    unitUnderTest.addReportee("");
   }
   
   /**
@@ -654,7 +710,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testAddReporteeWithSingleElementString() throws InvalidAttributeValueException
   {
-    employeeProfile.addReportee("1");
+    assertTrue(unitUnderTest.addReportee("1"));
   }
   
   /**
@@ -664,7 +720,7 @@ public class EmployeeProfileTest
   @Test
   public void testAddReporteeWithValidString() throws InvalidAttributeValueException
   {
-    employeeProfile.addReportee("Alex");
+    assertTrue(unitUnderTest.addReportee("Alex"));
   }
   
   /**
@@ -674,7 +730,7 @@ public class EmployeeProfileTest
   @Test
   public void testEqualsSameObject() throws InvalidAttributeValueException
   {
-    assertEquals(employeeProfile.equals(employeeProfile),true);
+    assertEquals(unitUnderTest.equals(unitUnderTest),true);
   }
   
   /**
@@ -684,7 +740,7 @@ public class EmployeeProfileTest
   @Test
   public void testEqualsNull() throws InvalidAttributeValueException
   {
-    assertEquals(employeeProfile.equals(null),false);
+    assertEquals(unitUnderTest.equals(null),false);
   }
   
   /**
@@ -695,19 +751,138 @@ public class EmployeeProfileTest
   public void testEqualsDifferentClasses() throws InvalidAttributeValueException
   {
     String a="String class";
-    assertEquals(employeeProfile.equals(a),false);
-  }
+    assertEquals(unitUnderTest.equals(a),false);
+  } 
   
   /**
-   * Unit test for the equals method : different classes.
+   * Unit test for the equals method : null fields for both classes.
    * 
    */
   @Test
-  public void testEqualsDifferentFields() throws InvalidAttributeValueException
+  public void testEqualsNullFieldsForBothClasses() throws InvalidAttributeValueException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
   {
-    String a="String class";
-    EmployeeProfile employeeProfile2 = new EmployeeProfile();
-    assertEquals(employeeProfile.equals(employeeProfile2),false);
+    EmployeeProfile employeeProfile = new EmployeeProfile();
+    setEveryPrivateFieldsToNullOrDefault(unitUnderTest);
+    setEveryPrivateFieldsToNullOrDefault(employeeProfile);
+    assertEquals(unitUnderTest.equals(employeeProfile),true);
+  }
+  
+  /**
+   * Unit test for the equals method :null field.
+   * @throws SecurityException 
+   * @throws NoSuchFieldException 
+   * @throws IllegalAccessException 
+   * @throws IllegalArgumentException 
+   * 
+   */
+  @Test
+  public void testEqualsOneOfTheTwoClassesHasANullField() throws InvalidAttributeValueException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
+  {
+    EmployeeProfile employeeProfile = new EmployeeProfile();
+    
+    setEveryPrivateFieldsToNullOrDefault(unitUnderTest);    //One GUID is null
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("GUID", employeeProfile, null);     //Same GUID, one company is null
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("company", employeeProfile, null);     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("emailAddress", employeeProfile, null);     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("employeeID", employeeProfile, 0);     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("forename", employeeProfile, null);     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("hasHRDash", employeeProfile, true);     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("isManager", employeeProfile, true);     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("reporteeCNs", employeeProfile, null);     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("sector", employeeProfile, null);     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("sopraDepartment", employeeProfile, null);     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("steriaDepartment", employeeProfile, null);    
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("superSector", employeeProfile, null);     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("surname", employeeProfile, null);    
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("username", employeeProfile, null);
+    assertEquals(unitUnderTest.equals(employeeProfile),true);
+  }
+  
+  /**
+   * Unit test for the equals method :null field.
+   * @throws SecurityException 
+   * @throws NoSuchFieldException 
+   * @throws IllegalAccessException 
+   * @throws IllegalArgumentException 
+   * 
+   */
+  @Test
+  public void testEqualsFieldNotNullButDifferentValues() throws InvalidAttributeValueException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
+  {
+    EmployeeProfile employeeProfile = new EmployeeProfile();
+
+    
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    employeeProfile.setGUID(unitUnderTest.getGUID());     //Same GUID, one company is null
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    employeeProfile.setCompany(unitUnderTest.getCompany());     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    employeeProfile.setEmailAddress(unitUnderTest.getEmailAddress());     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    employeeProfile.setEmployeeID(unitUnderTest.getEmployeeID());     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    employeeProfile.setForename(unitUnderTest.getForename()); 
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    employeeProfile.setHasHRDash(unitUnderTest.getHasHRDash()); 
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    employeeProfile.setIsManager(unitUnderTest.getIsManager()); 
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    employeeProfile.setReporteeCNs(unitUnderTest.getReporteeCNs());     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("sector", employeeProfile, unitUnderTest.getSector());     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("sopraDepartment", employeeProfile, unitUnderTest.getSopraDepartment());     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("steriaDepartment", employeeProfile, unitUnderTest.getSteriaDepartment());    
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("superSector", employeeProfile, unitUnderTest.getSuperSector());     
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("surname", employeeProfile, unitUnderTest.getSurname());    
+    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    
+    setPrivateField("username", employeeProfile, unitUnderTest.getUsername());
+    assertEquals(unitUnderTest.equals(employeeProfile),true);
   }
 
   /**
@@ -717,10 +892,10 @@ public class EmployeeProfileTest
   @Test
   public void testToString()
   {
-    assertEquals(employeeProfile.toString() , "EmployeeProfile [employeeID=" + employeeProfile.getEmployeeID() + ", surname=" + employeeProfile.getSurname() + ", forename=" + employeeProfile.getForename()
-    + ", username=" + employeeProfile.getUsername() + ", emailAddress=" + employeeProfile.getEmailAddress() + ", isManager=" + employeeProfile.getIsManager() + ", GUID=" + employeeProfile.getGUID()
-    + ", company=" + employeeProfile.getCompany() + ", sopraDepartment=" + employeeProfile.getSopraDepartment() + ", steriaDepartment="
-    + employeeProfile.getSteriaDepartment() + ", sector=" + employeeProfile.getSector() + ", superSector=" + employeeProfile.getSuperSector() + ", reporteeCNs=" + employeeProfile.getReporteeCNs()
+    assertEquals(unitUnderTest.toString() , "EmployeeProfile [employeeID=" + unitUnderTest.getEmployeeID() + ", surname=" + unitUnderTest.getSurname() + ", forename=" + unitUnderTest.getForename()
+    + ", username=" + unitUnderTest.getUsername() + ", emailAddress=" + unitUnderTest.getEmailAddress() + ", isManager=" + unitUnderTest.getIsManager() + ", GUID=" + unitUnderTest.getGUID()
+    + ", company=" + unitUnderTest.getCompany() + ", sopraDepartment=" + unitUnderTest.getSopraDepartment() + ", steriaDepartment="
+    + unitUnderTest.getSteriaDepartment() + ", sector=" + unitUnderTest.getSector() + ", superSector=" + unitUnderTest.getSuperSector() + ", reporteeCNs=" + unitUnderTest.getReporteeCNs()
     + "]" );
   }
 }
