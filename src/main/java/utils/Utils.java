@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -15,7 +16,6 @@ import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchResult;
 
 import org.slf4j.Logger;
@@ -28,7 +28,13 @@ import services.validate.Validate;
  */
 public class Utils
 {
+  
+  /** Logger Constant - Represents logger to use */
   private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
+  
+  /** ZoneId Constant - Represents system default zone. */
+  private static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
+  
 
   /**
    * Generate a feedbackRequestID using an employeeID. Format will be dddddd_ddddddddddddddddd. Where 'd' is a number.
@@ -226,7 +232,19 @@ public class Utils
    * @return
    */
   public static Date localDateTimetoDate(LocalDateTime localDateTime){
-    return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    return Date.from(localDateTime.atZone(DEFAULT_ZONE_ID).toInstant());
   }
+  
+  /**
+   * Converts LocalDateTime to a java.util.Date
+   *
+   * @param localDateTime
+   * @return
+   */
+  public static LocalDateTime DateToLocalDateTime(Date date){
+    Instant instant = date.toInstant();
+    return instant.atZone(DEFAULT_ZONE_ID).toLocalDateTime();
+  }
+ 
 
 }
