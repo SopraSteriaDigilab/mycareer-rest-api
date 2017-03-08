@@ -6,7 +6,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -14,14 +13,15 @@ import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchResult;
 
-import org.mongodb.morphia.Datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import dataStructure.EmployeeProfile;
 import services.ad.ADConnectionException;
 import services.ad.ADSearchSettings;
 import services.mappers.EmployeeProfileMapper;
+import services.mappers.InvalidEmployeeProfileException;
 import utils.sequence.Sequence;
 import utils.sequence.SequenceException;
 
@@ -29,25 +29,21 @@ public class BulkUpdateService
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(BulkUpdateService.class);
   
-  // Sopra AD Details
-  private static final String AD_SOPRA_UK_TREE = "ou=uk,ou=users,ou=sopragroup,ou=usersemea,DC=emea,DC=msad,DC=sopra";
-  
   // Steria AD Details
   private static final String AD_STERIA_UK_TREE = "ou=UK,ou=Internal,ou=People,DC=one,DC=steria,DC=dom";
   
   private final EmployeeService employeeService;
-  private final ADSearchSettings sopraADSearchSettings;
   private final ADSearchSettings steriaADSearchSettings;
   private final Sequence<String> steriaFilterSequence;
   
-  public BulkUpdateService(final EmployeeService employeeService, final ADSearchSettings sopraADSearchSettings, final ADSearchSettings steriaADSearchSettings, final Sequence<String> steriaFilterSequence)
+  public BulkUpdateService(final EmployeeService employeeService, final ADSearchSettings steriaADSearchSettings, final Sequence<String> steriaFilterSequence)
   {
     this.employeeService = employeeService;
-    this.sopraADSearchSettings = sopraADSearchSettings;
     this.steriaADSearchSettings = steriaADSearchSettings;
     this.steriaFilterSequence = steriaFilterSequence;
   }
   
+  @Scheduled(cron = "0 30 23 * * ?")
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
     final Instant startADOps = Instant.now();
@@ -68,7 +64,7 @@ public class BulkUpdateService
       catch (InvalidAttributeValueException e)
       {
         /* swallow this exception as matchADWithMongoData already logs it 
-         * we are concerned with the hundreds, not the one 
+         * besides, we are concerned with the hundreds, not the one 
          */
         notUpdatedCount++;
       }
@@ -105,33 +101,39 @@ public class BulkUpdateService
    */
   public List<EmployeeProfile> fetchAllEmployeeProfiles() throws ADConnectionException, NamingException, SequenceException
   {
-    // There are approximately 7800 employees, hence initial capacity of 10,000 
+    // There are approximately 6,100 employees, hence initial capacity of 10,000 
     final List<EmployeeProfile> allEmployeeProfiles = new ArrayList<>(10_000);
-    final String sopraFilter = "extensionAttribute7=*";
-    final List<SearchResult> sopraList = searchADAsList(sopraADSearchSettings, AD_SOPRA_UK_TREE, sopraFilter);
     final List<SearchResult> steriaList = searchAD(steriaADSearchSettings, AD_STERIA_UK_TREE, steriaFilterSequence);
-    final Map<SearchResult, Optional<SearchResult>> pairedResults = SearchResultsMappingService.getResultsPairs(sopraList, steriaList);
     
-    for (Map.Entry<SearchResult, Optional<SearchResult>> entry : pairedResults.entrySet())
+    for (final SearchResult result : steriaList)
     {
       try
       {
-        EmployeeProfile profile = new EmployeeProfileMapper().apply(Optional.of(entry.getKey()), entry.getValue());
+        EmployeeProfile profile = new EmployeeProfileMapper().apply(Optional.empty(), Optional.ofNullable(result));
         allEmployeeProfiles.add(profile);
+      }
+      catch (InvalidEmployeeProfileException e)
+      {
+        LOGGER.warn(e.getMessage());
       }
       catch (NoSuchElementException | NullPointerException e)
       {
-        e.printStackTrace();
+        LOGGER.error("Exception occurred: ", e);
       }
-      
     }
     
-    LOGGER.info("Sopra list size: " + sopraList.size());
-    LOGGER.info("Steria list size: " + steriaList.size());
-    LOGGER.info("Paired results size: " + pairedResults.size());
-    LOGGER.info("EmployeeProfiles generated: " + allEmployeeProfiles.size());
+    logMetadata(steriaList, allEmployeeProfiles);
     
-    // Some metadata.  TODO don't think this belongs here
+    return allEmployeeProfiles;
+  }
+
+  private void logMetadata(final List<SearchResult> resultsList, final List<EmployeeProfile> allEmployeeProfiles)
+  {
+    // Some metadata.  
+    // TODO don't think this belongs here
+    
+    LOGGER.info("Steria list size: " + resultsList.size());
+    LOGGER.info("EmployeeProfiles generated: " + allEmployeeProfiles.size());
     LOGGER.info("With company: " + allEmployeeProfiles.stream()
         .filter(e -> !e.getCompany().isEmpty())
         .count());
@@ -168,8 +170,5 @@ public class BulkUpdateService
     LOGGER.info("With reportees: " + allEmployeeProfiles.stream()
         .filter(e -> !e.getReporteeCNs().isEmpty())
         .count());
-    
-    
-    return allEmployeeProfiles;
   }
 }

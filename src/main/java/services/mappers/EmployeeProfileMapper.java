@@ -33,11 +33,13 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
   private static final String SN = "sn";
   private static final String GIVEN_NAME = "givenName";
   private static final String MAIL = "mail";
+  private static final String TARGET_ADDRESS = "targetAddress";
   private static final String SAM_ACCOUNT_NAME = "sAMAccountName";
   private static final String COMPANY = "company";
   private static final String DEPARTMENT = "department";
   private static final String MEMBER_OF = "memberOf";
   private static final String EXTENSION_ATTRIBUTE_7 = "extensionAttribute7";
+  private static final String EXTENSION_ATTRIBUTE_2 = "extensionAttribute2";
   private static final String OBJECT_GUID = "objectGUID";
   private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
   private static final String DIRECT_REPORTS = "directReports";
@@ -63,7 +65,7 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
     {
       profile.setCompany(mapString(COMPANY, attributes));
       profile.setEmailAddress(mapString(MAIL, attributes));
-      profile.setEmployeeID(mapEmployeeID(attributes));
+      profile.setEmployeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_7));
       profile.setForename(mapString(GIVEN_NAME, attributes));
       profile.setGUID(mapGUID(attributes));
       profile.setHasHRDash(mapHRPermission(attributes));
@@ -83,9 +85,15 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
     
     try
     { 
-      profile.setSteriaDepartment(mapString(DEPARTMENT, attributes));
-      profile.setSector(mapSector(attributes));
+      profile.setEmployeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_2));
+      profile.setForename(mapString(GIVEN_NAME, attributes));
+      profile.setSurname(mapString(SN, attributes));
+      profile.setUsername(mapString(SAM_ACCOUNT_NAME, attributes));
+      profile.setEmailAddress(mapString(MAIL, attributes));
+      profile.setCompany(mapString(COMPANY, attributes));
       profile.setSuperSector(mapString(OU, attributes));
+      profile.setSector(mapSector(attributes));
+      profile.setSteriaDepartment(mapString(DEPARTMENT, attributes));
       profile.setIsManager(mapIsManager(attributes));
       if (mapIsManager(attributes))
       {
@@ -137,24 +145,24 @@ public class EmployeeProfileMapper implements BiMapper<Optional<SearchResult>, E
     return reporteeCNs;
   }
 
-  private Long mapEmployeeID(final Attributes attributes) throws InvalidEmployeeProfileException
+  private Long mapEmployeeID(final Attributes attributes, final String employeeIDAttribute) throws InvalidEmployeeProfileException
   {
     Long employeeID = null;
     
     try
     {
-      String employeeIDString = (String) attributes.get(EXTENSION_ATTRIBUTE_7).get();
+      String employeeIDString = (String) attributes.get(employeeIDAttribute).get();
       employeeID = Long.parseLong(employeeIDString.substring(1));
     }
     catch (NamingException | NoSuchElementException | NullPointerException e)
     {
       LOGGER.error(EMPLOYEE_NOT_FOUND, e);
-      throw new InvalidEmployeeProfileException(EMPLOYEE_NOT_FOUND);
+      throw new InvalidEmployeeProfileException(e);
     }
     catch (ClassCastException e)
     {
       LOGGER.error(EMPLOYEE_NOT_FOUND, e);
-      throw new InvalidEmployeeProfileException(EMPLOYEE_NOT_FOUND);
+      throw new InvalidEmployeeProfileException(e);
     }
     
     return employeeID;

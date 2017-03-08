@@ -9,6 +9,11 @@ public class InvalidEmployeeProfileException extends RuntimeException
     super(msg);
   }
   
+  public InvalidEmployeeProfileException(final Exception wrappedException)
+  {
+    super(wrappedException);
+  }
+  
   public InvalidEmployeeProfileException(final String msg, final Exception wrappedException)
   {
     super(msg, wrappedException);

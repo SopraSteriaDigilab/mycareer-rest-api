@@ -125,7 +125,7 @@ public class EnvironmentSetup
   @Bean
   public BulkUpdateService bulkUpdateService() throws SequenceException
   {
-    return new BulkUpdateService(employeeService(), sopraADSearchSettings(), steriaADSearchSettings(), steriaFilterSequence());
+    return new BulkUpdateService(employeeService(), steriaADSearchSettings(), steriaFilterSequence());
   }
   
   @Bean ADSearchSettings sopraADSearchSettings()
