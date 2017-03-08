@@ -281,7 +281,7 @@ public class EmailService
       {
         errorRecipients.add(recipient);
 
-        LOGGER.error("Generic exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e);
+        LOGGER.error("Generic exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e.getMessage(), e);
       }
     }
     
