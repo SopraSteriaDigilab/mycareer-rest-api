@@ -93,8 +93,8 @@ public class HRService
   @SuppressWarnings("rawtypes")
   public List<Map> getObjectiveStats()
   {
-    List<Employee> employees = employeeQuery().field("objectives").exists()
-        .retrievedFields(true, addAll(EMPLOYEE_FIELDS, OBJECTIVES_FIELDS)).asList();
+    List<Employee> employees = employeeQuery().retrievedFields(true, addAll(EMPLOYEE_FIELDS, OBJECTIVES_FIELDS))
+        .asList();
     return employeeStats.getObjectiveStats(employees);
   }
 

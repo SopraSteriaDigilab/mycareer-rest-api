@@ -86,7 +86,7 @@ public class Models
   public static final boolean STATUS = true;
 
   /**
-   * Get an advanced profile.
+   * Get an employee profile object.
    *
    * @return
    * @throws InvalidAttributeValueException
