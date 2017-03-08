@@ -233,22 +233,24 @@ public class EmployeeStatistics
   private void addObjectivesCounts(Map<String, Object> map, List<Objective> objectives)
   {
     int proposed = 0, inProgress = 0, complete = 0, total = 0;
-    for (Objective objective : objectives)
-    {
-      if (objective.getIsArchived()) continue;
-      switch (objective.getProgress())
+    if(!objectives.isEmpty()){
+      for (Objective objective : objectives)
       {
-        case 0:
-          proposed++;
-          break;
-        case 1:
-          inProgress++;
-          break;
-        case 2:
-          complete++;
-          break;
+        if (objective.getIsArchived()) continue;
+        switch (objective.getProgress())
+        {
+          case 0:
+            proposed++;
+            break;
+          case 1:
+            inProgress++;
+            break;
+          case 2:
+            complete++;
+            break;
+        }
+        total++;
       }
-      total++;
     }
     map.put("totalObjectives", total);
     map.put("proposed", proposed);

@@ -49,7 +49,7 @@ public class EmployeeProfile implements Serializable
     reporteeCNs = new ArrayList<String>();
   }
 
-  public EmployeeProfile(long employeeId, String guid, String forename, String surname, String emailAddress,
+  public EmployeeProfile(long employeeID, String guid, String forename, String surname, String emailAddress,
       String username, String company, String superSector, String sector, String steriaDepartment,
       String sopraDepartment, boolean isManager, boolean hasHRDash, List<String> reporteesCNs)
           throws InvalidAttributeValueException
