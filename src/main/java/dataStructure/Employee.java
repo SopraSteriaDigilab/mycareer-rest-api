@@ -3,11 +3,17 @@ package dataStructure;
 import static services.validate.Validate.isNull;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -15,8 +21,6 @@ import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
-
-import com.google.gson.Gson;
 
 /**
  * This class contains the definition of the Employee object
@@ -32,20 +36,28 @@ public class Employee implements Serializable
 
   @Embedded
   private EmployeeProfile profile;
+
   @Embedded
   private List<Feedback> feedback;
+
   @Embedded
   private List<List<Objective>> objectives;
+
   @Embedded
   private List<Note> notes;
+
   @Embedded
   private List<List<DevelopmentNeed>> developmentNeeds;
+
   @Embedded
   private List<FeedbackRequest> feedbackRequests;
+
   @Embedded
   private List<List<Competency>> competencies;
 
-  // Empty Constructor
+  private Date lastLogon;
+
+  /** Default Constructor - Responsible for initialising this object. */
   public Employee()
   {
     this.feedback = new ArrayList<Feedback>();
@@ -56,6 +68,7 @@ public class Employee implements Serializable
     this.competencies = new ArrayList<List<Competency>>();
   }
 
+  /** Default Constructor - Responsible for initialising this object. */
   public Employee(final EmployeeProfile profile)
   {
     this.profile = profile;
@@ -67,59 +80,46 @@ public class Employee implements Serializable
     this.competencies = new ArrayList<List<Competency>>();
   }
 
-  /**
-   * 
-   * @return This return the _id created by MongoDB when inserting this object in the Collection
-   */
+  /** @return The _id created by MongoDB when inserting this object in the Collection */
   public ObjectId getId()
   {
     return id;
   }
+  
 
-  // /**
-  // *
-  // * @param feeds the list of feedback to assign to an employee
-  // * @throws InvalidClassException
-  // * @throws InvalidAttributeValueException
-  // */
-  // public void setFeedbackList(List<Feedback> feeds) throws InvalidAttributeValueException{
-  // if(feeds!=null){
-  // //Create a counter that keeps count of the error produced
-  // int errorCounter=0;
-  // this.feedback=new ArrayList<Feedback>();
-  //// Check if the feedback objects inside the list are valid
-  // for(Feedback temp:feeds){
-  // if(temp.isFeedbackValid())
-  // this.feedback.add(temp);
-  // else
-  // errorCounter++;
-  // }
-  // //Verify if there has been any error
-  // if(errorCounter!=0)
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST);
-  // }
-  // else
-  // throw new InvalidAttributeValueException(Constants.NULL_FEEDBACKLIST);
-  // }
+  /** @return the profile */
+  public EmployeeProfile getProfile()
+  {
+    return profile;
+  }
 
+  /** @param profile The profile to set. */
+  public void setProfile(EmployeeProfile profile)
+  {
+    this.profile = profile;
+  }
+
+  /** @return the feedback */
   public List<Feedback> getFeedback()
   {
     return this.feedback;
   }
-
+  
+  /** @param feedback The feedback to set. */
   public void setFeedback(List<Feedback> feedback)
   {
     this.feedback = feedback;
   }
+//
 
-  public Feedback getSpecificFeedback(int id) throws InvalidAttributeValueException
-  {
-    if (id > 0)
-    {
-      return feedback.stream().filter(f -> f.getId() == id).findFirst().get();
-    }
-    throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKID);
-  }
+//  public Feedback getSpecificFeedback(int id) throws InvalidAttributeValueException
+//  {
+//    if (id > 0)
+//    {
+//      return feedback.stream().filter(f -> f.getId() == id).findFirst().get();
+//    }
+//    throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKID);
+//  }
 
   /**
    * 
@@ -208,7 +208,7 @@ public class Employee implements Serializable
     }
     throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVEIDNOTFOND);
   }
-  
+
   /** @return the notes */
   public List<Note> getNotes()
   {
@@ -532,59 +532,24 @@ public class Employee implements Serializable
     throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCYTID_CONTEXT);
   }
 
-  // /**
-  // * @deprecated Since January 2016. Use {@linkplain #addFeedback(Feedback)}
-  // * @param obj This method adds a Generic feedback to the employee feedback list
-  // * @return It returns true when a feedback has been successfully added to the list, false otherwise
-  // * @throws InvalidAttributeValueException
-  // */
-  // public boolean addGenericFeedback(Feedback obj) throws InvalidAttributeValueException{
-  // if(feedback==null)
-  // feedback=new ArrayList<Feedback>();
-  // //Verify that the object is not null
-  // if(obj==null)
-  // throw new InvalidAttributeValueException(Constants.NULL_FEEDBACK);
-  // //At this point the Feedback hasn't got an ID, let's create it
-  // obj.setID((feedback.size()+1));
-  // if(obj.isFeedbackValid())
-  // return feedback.add(obj);
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
-  // }
+  /** @return the last login*/
+  public Date getLastLogon()
+  {
+    return this.lastLogon;
+  }
+
+  /** @param lastLoginDate The value to set the named property to. */
+  public void setLastLogon(Date lastLogon)
+  {
+    this.lastLogon = lastLogon;
+  }
+
 
   public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException
   {
     isNull(feedback);
     return this.feedback.add(feedback);
   }
-
-  // /**
-  // *
-  // * @param objectiveID
-  // * @param obj objective data
-  // * @return true if the objective has been added correctly
-  // * @throws InvalidAttributeValueException
-  // */
-  // public boolean addFeedbackToObjective(int objectiveID, Feedback obj) throws InvalidAttributeValueException{
-  // //Verify the data is valid
-  // if(objectiveID<0 && obj==null)
-  // throw new InvalidAttributeValueException(Constants.INVALID_NULLFEEDBACK_OBJECTIVEID_CONTEXT);
-  // //Search for the objective ID within the list of objectives
-  // //add the objective if the ID is found
-  // for(int i=0; i<this.objectives.size(); i++){
-  // //If the appropriate objective is found, add the feedback to its list
-  // if(this.objectives.get(i).get(0).getID()==objectiveID){
-  // //Now that the related objective is found, create an ID for this feedback
-  // obj.setID(this.objectives.get(i).size()+1);
-  // //Validate the data
-  // if(obj.isFeedbackValid())
-  // //Try to add the new feedback
-  // return this.objectives.get(i).get(this.objectives.get(i).size()-1).addFeedback(obj);
-  // else
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
-  // }
-  // }
-  // return false;
-  // }
 
   /**
    * 
@@ -645,63 +610,6 @@ public class Employee implements Serializable
     note.setId(this.getNotes().size());
     return this.notes.add(note);
   }
-  
-  
-  // /**
-  // *
-  // * This method adds a new note to a specific user
-  // *
-  // * @param obj note object
-  // * @return
-  // * @throws InvalidAttributeValueException
-  // */
-  // public boolean addNote(Note obj) throws InvalidAttributeValueException
-  // {
-  // if (notes == null) notes = new ArrayList<List<Note>>();
-  // // Verify that the note is not null
-  // if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_NOTE);
-  // // At this point, the note hasn't got an ID, let's create one
-  // obj.setID(notes.size() + 1);
-  // if (obj.isNoteValid())
-  // {
-  // List<Note> tempList = new ArrayList<Note>();
-  // // add the first version of this note
-  // boolean res1 = tempList.add(obj);
-  // boolean res2 = notes.add(tempList);
-  // // Action completed, verify the results
-  // return (res1 && res2);
-  // }
-  // throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
-  // }
-  //
-  // /**
-  // *
-  // * This method adds a new version of the note
-  // *
-  // * @param obj note data
-  // * @return
-  // * @throws InvalidAttributeValueException
-  // */
-  // public boolean editNote(Note obj) throws InvalidAttributeValueException
-  // {
-  // // Verify that the object is not null
-  // if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_NOTE);
-  // // Step 1: Verify that the object contains valid data
-  // if (obj.isNoteValid())
-  // {
-  // // Step 2: Verify that the ID contained within the note object is in the system
-  // for (int i = 0; i < notes.size(); i++)
-  // {
-  // List<Note> listTemp = notes.get(i);
-  // // The elements within each list has all the same ID, so pick the first one and compare it
-  // if ((listTemp.get(0)).getID() == obj.getID())
-  // // Add the note to the end of the list
-  // return notes.get(i).add(obj);
-  // }
-  // }
-  // throw new InvalidAttributeValueException(Constants.INVALID_NOTE);
-  // }
-
   /**
    * 
    * This method inserts a development need inside the list of developmentneeds
@@ -770,58 +678,6 @@ public class Employee implements Serializable
 
     return this.feedbackRequests.add(feedbackRequest);
   }
-
-  // /**
-  // *
-  // * This method add a feedback request to a given user ID
-  // *
-  // * @param obj the feedback request object to insert
-  // * @return true if it completes correctly, false otherwise
-  // * @throws InvalidAttributeValueException
-  // */
-  // public boolean addGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
-  // if(groupFeedbackRequests==null)
-  // groupFeedbackRequests=new ArrayList<GroupFeedbackRequest>();
-  // //Verify that the object is not null
-  // if(obj==null)
-  // throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
-  // //The object has now been validated and can be added to the list for this user
-  // return groupFeedbackRequests.add(obj);
-  // }
-
-  // /**
-  // *
-  // * This method updates the content of a feedback request
-  // *
-  // * @param obj the new feedback request object containing the right ID
-  // * @return true if it completes correctly, false otherwise
-  // * @throws InvalidAttributeValueException
-  // */
-  // public boolean updateGroupFeedbackRequest(GroupFeedbackRequest obj) throws InvalidAttributeValueException{
-  // if(obj!=null){
-  // for(int i=0; i<groupFeedbackRequests.size(); i++){
-  // if(groupFeedbackRequests.get(i).getID().equals(obj.getID()))
-  // //Remove the obsolete object and add the new one
-  // return (groupFeedbackRequests.remove(groupFeedbackRequests.get(i))) && (groupFeedbackRequests.add(obj));
-  // }
-  // }
-  // throw new InvalidAttributeValueException(Constants.INVALID_NULLGROUPFEEDBACKREQUEST_CONTEXT);
-  // }
-
-  // /**
-  // *
-  // * This method verifies if the ID for the feedback request is unique to the user
-  // *
-  // * @param req the feedback request object
-  // * @return true if it completes correctly, false otherwise
-  // */
-  // public boolean isGroupFeedbackRequestUniqueToEmployee(GroupFeedbackRequest req){
-  // for(GroupFeedbackRequest t:groupFeedbackRequests){
-  // if(t.getID().equals(req.getID()))
-  // return false;
-  // }
-  // return true;
-  // }
 
   /**
    * 
@@ -892,102 +748,10 @@ public class Employee implements Serializable
     });
   }
 
-  public String toGson()
-  {
-    Gson gsonData = new Gson();
-    return gsonData.toJson(this);
-  }
-
-//  @Override
-//  public String toString()
-//  {
-//    String s = "";
-//    s += super.toString();
-//    // Add the feedback
-//    s += "Feedback:\n";
-//    for (Feedback temp : this.feedback)
-//    {
-//      s += temp.toString() + "\n";
-//    }
-//    // Add the objectives
-//    s += "Objectives:\n";
-//    int counter = 1;
-//    for (List<Objective> objList : objectives)
-//    {
-//      s += "Objective " + counter++ + "\n";
-//      int version = 1;
-//      for (Objective obj : objList)
-//      {
-//        s += "Version " + version++ + "\n" + obj.toString() + "\n";
-//      }
-//    }
-//    // Add the Notes
-//    s += "Notes:\n";
-//    counter = 1;
-//    for (List<Note_OLD> noteList : notes)
-//    {
-//      s += "Note " + counter++ + "\n";
-//      int version = 1;
-//      for (Note_OLD obj : noteList)
-//      {
-//        s += "Version " + version++ + "\n" + obj.toString() + "\n";
-//      }
-//    }
-//    // Add the Development needs
-//    s += "Development Needs:\n";
-//    counter = 1;
-//    for (List<DevelopmentNeed> noteList : developmentNeeds)
-//    {
-//      s += "Development Need " + counter++ + "\n";
-//      int version = 1;
-//      for (DevelopmentNeed obj : noteList)
-//      {
-//        s += "Version " + version++ + "\n" + obj.toString() + "\n";
-//      }
-//    }
-//    // //Add the Feedback requests
-//    // s+="Group Feedback Requests:\n";
-//    // counter=1;
-//    // for(FeedbackRequest t:feedbackRequests){
-//    // s+="Request "+counter++ +"\n";
-//    // s+=t.toString();
-//    // }
-//    // Add the Competencies
-//    s += "Competencies: ";
-//    // Retrieve all the sublists
-//    int indexSubList = 0;
-//    for (List<Competency> subList : this.competencies)
-//    {
-//      // For each sublist, retrieve each element and add them to the s string including the title and description
-//      int compCounter = 0;
-//      try
-//      {
-//        for (Competency comp : subList)
-//        {
-//          s += "Competency: " + compCounter++ + "\n";
-//          s += comp.toString(indexSubList++);
-//        }
-//      }
-//      catch (Exception r)
-//      {
-//      }
-//    }
-//    return s;
-//  }
-
   public int nextFeedbackID()
   {
     return this.feedback.size() + 1;
   }
 
-  public EmployeeProfile getProfile()
-  {
-    return profile;
-  }
-
-  public void setProfile(EmployeeProfile profile)
-  {
-    this.profile = profile;
-  }
 
 }

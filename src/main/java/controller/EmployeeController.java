@@ -5,6 +5,7 @@ import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.http.HttpStatus.OK;
 import static services.validate.ValidateAppController.isValidCreateFeedbackRequest;
 
 import java.io.IOException;
@@ -67,8 +68,8 @@ public class EmployeeController
 
   private final EmployeeService employeeService = new EmployeeService();
 
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final EmployeeProfileDAO profileDAO = new EmployeeProfileDAO();
+  // /** TYPE Property|Constant - Represents|Indicates... */
+  // private final EmployeeProfileDAO profileDAO = new EmployeeProfileDAO();
 
   /** Environment Property - Reference to environment to get property details. */
   @Autowired
@@ -100,12 +101,25 @@ public class EmployeeController
     }
 
   }
-  
+
   @RequestMapping(value = "/logMeIn", method = GET)
   public ResponseEntity<?> index(HttpServletRequest request)
   {
     String username = request.getRemoteUser();
-    return authenticateUserProfile(username);
+    ResponseEntity<?> response = authenticateUserProfile(username);
+    try
+    {
+      if (response.getStatusCode().equals(OK))
+      {
+        employeeService.updateLastLoginDate((EmployeeProfile) response.getBody());
+      }
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e);
+    }
+
+    return response;
   }
 
   /**
@@ -443,7 +457,7 @@ public class EmployeeController
       return badRequest().body(e.getMessage());
     }
   }
-  
+
   /**
    * 
    * This method allows the front-end to insert a new development need in the system
@@ -717,7 +731,8 @@ public class EmployeeController
       {
         try
         {
-          EmployeeProfile userInQuestion = employeeService.matchADWithMongoData(employeeService.authenticateUserProfile(email));
+          EmployeeProfile userInQuestion = employeeService
+              .matchADWithMongoData(employeeService.authenticateUserProfile(email));
           Objective obj = new Objective(0, 0, title, description, completedBy);
           obj.setProposedBy(proposedBy);
           boolean inserted = employeeService.insertNewObjective(userInQuestion.getEmployeeID(), obj);
@@ -780,6 +795,5 @@ public class EmployeeController
       return badRequest().body(result + e.getMessage() + ", ");
     }
   }
-
 
 }

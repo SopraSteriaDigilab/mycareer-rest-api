@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -216,6 +217,16 @@ public class Utils
     }
     
     return retVal;
+  }
+  
+  /**
+   * Converts LocalDateTime to a java.util.Date
+   *
+   * @param localDateTime
+   * @return
+   */
+  public static Date localDateTimetoDate(LocalDateTime localDateTime){
+    return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
   }
 
 }
