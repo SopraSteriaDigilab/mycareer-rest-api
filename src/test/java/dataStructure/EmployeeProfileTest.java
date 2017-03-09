@@ -643,16 +643,16 @@ public class EmployeeProfileTest
     assertEquals(unitUnderTest.getGUID(),VALID_GUID);
   }
   
-  /**
-   * Unit test for the toGson method.
-   * 
-   */
-  @Test
-  public void testToGson()
-  {
-    Gson gsonData = new Gson();
-    assertEquals(unitUnderTest.toGson(),gsonData.toJson(unitUnderTest));
-  }
+//  /**
+//   * Unit test for the toGson method.
+//   * 
+//   */
+//  @Test
+//  public void testToGson()
+//  {
+//    Gson gsonData = new Gson();
+//    assertEquals(unitUnderTest.toGson(),gsonData.toJson(unitUnderTest));
+//  }
   
   /**
    * Unit test for the getFullName method.
