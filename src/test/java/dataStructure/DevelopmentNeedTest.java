@@ -135,7 +135,7 @@ public class DevelopmentNeedTest
   @Test
   public void testSetCategoryWithValidCategory() throws InvalidAttributeValueException
   {  
-    for (int i =0; i<=5; i++){
+    for (int i =0; i<=4; i++){
       unitUnderTest.setCategory(i);
       assertEquals(unitUnderTest.getCategory(), i);   
     }
