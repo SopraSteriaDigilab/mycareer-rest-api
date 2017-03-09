@@ -70,7 +70,7 @@ public class Competency implements Serializable
    */
   private void setTimeStamp()
   {
-    if (this.timeStamp == null) this.timeStamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+    if (this.timeStamp == null) this.timeStamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
   public String getTimeStamp()

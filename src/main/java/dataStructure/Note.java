@@ -13,7 +13,6 @@ import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * This class contains the definition of the Note object
- *
  */
 public class Note implements Serializable
 {
@@ -105,7 +104,7 @@ public class Note implements Serializable
   /** @param timestamp */
   public void setTimestamp()
   {
-    this.timestamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+    this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
 }
