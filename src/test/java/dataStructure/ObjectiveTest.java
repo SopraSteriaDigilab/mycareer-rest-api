@@ -82,6 +82,17 @@ public class ObjectiveTest
   }
   
   /**
+   * For unit tests.
+   * 
+   */
+  public void setPrivateField(String field, Object obj, Object newValue) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException 
+  {
+    Field f = obj.getClass().getDeclaredField(field);
+    f.setAccessible(true);
+    f.set(obj,newValue);
+  }
+  
+  /**
    * Unit test for the setID method : Invalid ID
    * 
    * @throws InvalidAttributeValueException

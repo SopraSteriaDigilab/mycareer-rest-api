@@ -12,6 +12,7 @@ import static org.mockito.Matchers.any;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.lang.reflect.Field;
 import org.bson.types.ObjectId;
@@ -85,7 +86,10 @@ public class EmployeeTest
   private final boolean HAS_HRDASH = false;
   
   /** TYPE Property|Constant - Represents|Indicates... */
+  
   private final boolean IS_MANAGER = false;
+  /** TYPE Property|Constant - Represents|Indicates... */
+  private Date date = new Date();
 
   /** TYPE Property|Constant - Represents|Indicates... */
   private final List<String> VALID_REPORTEE_LIST = Arrays.asList("a");
@@ -192,6 +196,31 @@ public class EmployeeTest
   */
   
   /**
+   * For unit tests.
+   * 
+   */
+  public void setPrivateField(String field, Object obj, Object newValue) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException 
+  {
+    Field f = obj.getClass().getDeclaredField(field);
+    f.setAccessible(true);
+    f.set(obj,newValue);
+  }
+  
+  /**
+   * For unit tests.
+   * 
+   */
+  public void setEveryPrivateFieldsToNullOrDefault(Object obj) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException 
+  {
+    setPrivateField("feedback", obj, null);
+    setPrivateField("objectives", obj, null);
+    setPrivateField("notes", obj, null);
+    setPrivateField("developmentNeeds", obj, null);
+    setPrivateField("feedbackRequests", obj, null);
+    setPrivateField("competencies", obj, null);
+  }  
+  
+  /**
    * Unit test for the setFeedback method.
    * 
    * @throws InvalidAttributeValueException
@@ -250,30 +279,20 @@ public class EmployeeTest
     unitUnderTest.setObjectiveList(unitUnderTest.getObjectiveList());
   }
   
-//  /**
-//   * Unit test for the setObjectiveList method :invalid objective.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetObjectiveListWithInvalidObjective() throws InvalidAttributeValueException
-//  {
-//    Objective invalidObj=new Objective();
-//    unitUnderTest.setObjectiveList(mockObjectiveList);
-//  }
-  
-//  /**
-//   * Unit test for the setObjectiveList method : valid objectives.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testSetObjectiveListWithValidObjective() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setObjectiveList(mockObjectiveList);
-//    assertEquals(unitUnderTest.getObjectiveList(),mockObjectiveList);
-//  }
-  
+  /**
+   * Unit test for the setObjectiveList method :invalid objective.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test(expected= InvalidAttributeValueException.class)
+  public void testSetObjectiveListWithInvalidObjective() throws InvalidAttributeValueException
+  {
+    Objective invalidObj=new Objective();
+    List<Objective> invalidObjList = Arrays.asList(invalidObj);
+    List<List<Objective>> invalidObjListList = Arrays.asList(invalidObjList);
+    unitUnderTest.setObjectiveList(invalidObjListList);
+  }
+    
   /**
    * Unit test for the getLatestVersionObjectives method : null objectives.
    * 
@@ -535,18 +554,36 @@ public class EmployeeTest
   }
   
   /**
-   * Unit test for the setCompetenciesList method : invalid competency.
+   * Unit test for the getLatestVersionCompetencies method.
    * 
    * @throws InvalidAttributeValueException
    */
-  @Test(expected= InvalidAttributeValueException.class)
-  public void testSetCompetenciesListWithInvalidCompetency() throws InvalidAttributeValueException
+  @Test
+  public void testGetLatestVersionCompetenciesEmptyCompetencies() throws InvalidAttributeValueException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
   {
-    Competency comp = new Competency();
-    List<Competency> compList = Arrays.asList(comp);
-    unitUnderTest.getCompetenciesList().add(compList);
-    unitUnderTest.setCompetenciesList(unitUnderTest.getCompetenciesList());
+    List<List<Competency>> compListList  = new ArrayList<List<Competency>>();
+    
+    Field f = unitUnderTest.getClass().getDeclaredField("competencies");
+    f.setAccessible(true);
+    f.set(unitUnderTest,compListList);
+    assertEquals(unitUnderTest.getLatestVersionCompetencies(),compListList.get(0));
   }
+  
+  /**
+   * Unit test for the getLatestVersionCompetencies method. valid competency.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test
+  public void testGetLatestVersionCompetenciesValidCompetencies() throws InvalidAttributeValueException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
+  {
+    Competency comp = new Competency(1,true);
+    List<Competency> compList  = Arrays.asList(comp);
+    List<List<Competency>> compListList  = Arrays.asList(compList);
+    unitUnderTest.setCompetenciesList(compListList);
+    assertEquals(unitUnderTest.getLatestVersionCompetencies(),compList);
+  }
+  
   
   /**
    * Unit test for the getLatestVersionOfSpecificCompetency method : invalid ID.
@@ -583,6 +620,18 @@ public class EmployeeTest
     List<List<Competency>> compListList  = Arrays.asList(compList);
     unitUnderTest.setCompetenciesList(compListList);
     assertEquals(unitUnderTest.getLatestVersionOfSpecificCompetency(1),comp);
+  }
+  
+  /**
+   * Unit test for the setLastLogon method.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test
+  public void testSetLastLogon() throws InvalidAttributeValueException
+  {  
+    unitUnderTest.setLastLogon(date);
+    assertEquals(unitUnderTest.getLastLogon(),date);
   }
   
   /**
@@ -640,6 +689,22 @@ public class EmployeeTest
   {
    Objective obj = new Objective(1,1,1,"1","1","3010-01");
    assertEquals(unitUnderTest.addObjective(obj),true);
+  }
+  
+  /**
+   * Unit test for the addObjective method : check if objectives is null.
+   * @throws SecurityException 
+   * @throws NoSuchFieldException 
+   * @throws IllegalAccessException 
+   * @throws IllegalArgumentException 
+   * 
+   */
+  @Test
+  public void testAddObjectiveCheckIfObjectivesIsNull() throws InvalidAttributeValueException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
+  {
+    Objective obj = new Objective(1,1,1,"1","1","3010-01");
+    setPrivateField("objectives", unitUnderTest, null);
+    assertTrue(unitUnderTest.addObjective(obj));
   }
   
   /**
@@ -723,8 +788,24 @@ public class EmployeeTest
   @Test
   public void testAddDevelopmentNeedWithValidObjective() throws InvalidAttributeValueException
   {
-    DevelopmentNeed dev = new DevelopmentNeed(1,1,1,"1","1");
+   DevelopmentNeed dev = new DevelopmentNeed(1,1,1,"1","1");
    assertEquals(unitUnderTest.addDevelopmentNeed(dev),true);
+  }
+  
+  /**
+   * Unit test for the addDevelopmentNeed method : check if developmentNeeds is null.
+   * @throws SecurityException 
+   * @throws NoSuchFieldException 
+   * @throws IllegalAccessException 
+   * @throws IllegalArgumentException 
+   * 
+   */
+  @Test
+  public void testAddDevelopmentNeedCheckIfDevelopmentNeedsIsNull() throws InvalidAttributeValueException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
+  {
+    DevelopmentNeed dev = new DevelopmentNeed(1,1,1,"1","1");
+    setPrivateField("developmentNeeds", unitUnderTest, null);
+    assertTrue(unitUnderTest.addDevelopmentNeed(dev));
   }
   
   /**
