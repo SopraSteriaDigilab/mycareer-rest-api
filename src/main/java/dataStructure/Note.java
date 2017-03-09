@@ -13,7 +13,6 @@ import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * This class contains the definition of the Note object
- *
  */
 public class Note implements Serializable
 {
