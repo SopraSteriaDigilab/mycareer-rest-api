@@ -26,6 +26,7 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoDatabase;
 
 import services.HRService;
 import services.ad.ADSearchSettings;
@@ -34,6 +35,7 @@ import utils.sequence.Sequence;
 import utils.sequence.SequenceException;
 import utils.sequence.StringSequence;
 import services.BulkUpdateService;
+import services.DataService;
 import services.EmployeeProfileService;
 import services.EmployeeService;
 
@@ -69,10 +71,23 @@ public class EnvironmentSetup
   private Environment env;
 
   @Bean
-  public Datastore dBConnection() throws MongoException
+  public Datastore dBConnection(final MongoClient client) throws MongoException
   {
     Datastore dbConnection;
-    // This currently doesn't fully work. the waitTime is not taken by the DB
+    
+    final Morphia morphia = new Morphia();
+    // Add packages to Morphia and open the connection
+    morphia.mapPackage("dataStructure.Employee");
+    dbConnection = morphia.createDatastore(client, env.getProperty("db.name"));
+    dbConnection.ensureIndexes();
+
+    return dbConnection;
+  }
+  
+  @Bean
+  public MongoClient mongoClient()
+  {
+ // This currently doesn't fully work. the waitTime is not taken by the DB
     MongoClientOptions options = MongoClientOptions.builder().maxWaitTime(10000)
         // .maxConnectionIdleTime(1000)
         .connectTimeout(10000)
@@ -95,25 +110,20 @@ public class EnvironmentSetup
     credentialList.add(credentials);
     // Instantiate mongo client and Morphia
     MongoClient client = new MongoClient(serverList, credentialList, options);
-    final Morphia morphia = new Morphia();
-    // Add packages to Morphia and open the connection
-    morphia.mapPackage("dataStructure.Employee");
-    dbConnection = morphia.createDatastore(client, env.getProperty("db.name"));
-    dbConnection.ensureIndexes();
-
-    return dbConnection;
+    
+    return client;
   }
 
   @Bean
   public EmployeeService employeeService()
   {
-    return new EmployeeService(dBConnection(), employeeProfileService(), env);
+    return new EmployeeService(dBConnection(mongoClient()), employeeProfileService(), env);
   }
 
   @Bean
   public HRService hrDataDAO()
   {
-    return new HRService(dBConnection());
+    return new HRService(dBConnection(mongoClient()));
   }
   
   @Bean
@@ -204,5 +214,11 @@ public class EnvironmentSetup
                               .increment(1) // increment by one character
                               .size(26) // 26 Strings in the sequence
                               .build();
+  }
+  
+  @Bean
+  public DataService dataService()
+  {
+    return new DataService(mongoClient());
   }
 }
