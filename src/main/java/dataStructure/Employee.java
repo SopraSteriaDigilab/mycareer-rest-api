@@ -55,6 +55,7 @@ public class Employee implements Serializable
   @Embedded
   private List<List<Competency>> competencies;
 
+  /** Date Property - Represents the date of the last logon for the user */
   private Date lastLogon;
 
   /** Default Constructor - Responsible for initialising this object. */
@@ -85,7 +86,6 @@ public class Employee implements Serializable
   {
     return id;
   }
-  
 
   /** @return the profile */
   public EmployeeProfile getProfile()
@@ -104,22 +104,22 @@ public class Employee implements Serializable
   {
     return this.feedback;
   }
-  
+
   /** @param feedback The feedback to set. */
   public void setFeedback(List<Feedback> feedback)
   {
     this.feedback = feedback;
   }
-//
+  //
 
-//  public Feedback getSpecificFeedback(int id) throws InvalidAttributeValueException
-//  {
-//    if (id > 0)
-//    {
-//      return feedback.stream().filter(f -> f.getId() == id).findFirst().get();
-//    }
-//    throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKID);
-//  }
+  // public Feedback getSpecificFeedback(int id) throws InvalidAttributeValueException
+  // {
+  // if (id > 0)
+  // {
+  // return feedback.stream().filter(f -> f.getId() == id).findFirst().get();
+  // }
+  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKID);
+  // }
 
   /**
    * 
@@ -532,7 +532,7 @@ public class Employee implements Serializable
     throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCYTID_CONTEXT);
   }
 
-  /** @return the last login*/
+  /** @return the last login */
   public Date getLastLogon()
   {
     return this.lastLogon;
@@ -543,7 +543,6 @@ public class Employee implements Serializable
   {
     this.lastLogon = lastLogon;
   }
-
 
   public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException
   {
@@ -610,6 +609,7 @@ public class Employee implements Serializable
     note.setId(this.getNotes().size());
     return this.notes.add(note);
   }
+
   /**
    * 
    * This method inserts a development need inside the list of developmentneeds
@@ -752,6 +752,5 @@ public class Employee implements Serializable
   {
     return this.feedback.size() + 1;
   }
-
 
 }

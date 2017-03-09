@@ -717,7 +717,7 @@ public class EmployeeController
 
       // check date is not in the past
       YearMonth temp = YearMonth.parse(completedBy, Constants.YEAR_MONTH_FORMAT);
-      if (temp.isBefore(YearMonth.now(ZoneId.of(UK_TIMEZONE))))
+      if (temp.isBefore(YearMonth.now(UK_TIMEZONE)))
       {
         throw new InvalidAttributeValueException("Date can not be in the past");
       }

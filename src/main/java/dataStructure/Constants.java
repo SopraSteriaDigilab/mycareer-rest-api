@@ -1,5 +1,6 @@
 package dataStructure;
 
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -9,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 public final class Constants
 {
 
-  public static final String UK_TIMEZONE = "Europe/London";
+  public static final ZoneId UK_TIMEZONE = ZoneId.of("Europe/London");
 
   // Constants for the DataStructure package
   public static final int INVALID_INT = -1;
