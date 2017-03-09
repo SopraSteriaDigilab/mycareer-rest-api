@@ -19,7 +19,7 @@ public class EmployeeStatistics
 
   /** String[] Constant - Indicates fields to be used in the employee statistics */
   public final static String[] EMPLOYEE_FIELDS = { "profile.employeeID", "profile.forename", "profile.surname",
-      "profile.company", "profile.superSector", "profile.steriaDepartment" };
+      "profile.company", "profile.superSector", "profile.steriaDepartment", "lastLogon" };
 
   /** String[] Constant - Represents fields to be used in the feedback statistics */
   public final static String[] FEEDBACK_FIELDS = { "feedback" };
@@ -75,6 +75,8 @@ public class EmployeeStatistics
     List<Map> statistics = new ArrayList<>();
     employees.forEach(e -> {
       Map<String, Object> map = getBasicMap(e);
+      map.put("lastLogon",
+          (e.getLastLogon() == null) ? "Never" : Utils.DateToLocalDateTime(e.getLastLogon()).toString());
       statistics.add(map);
     });
     return statistics;
@@ -233,7 +235,8 @@ public class EmployeeStatistics
   private void addObjectivesCounts(Map<String, Object> map, List<Objective> objectives)
   {
     int proposed = 0, inProgress = 0, complete = 0, total = 0;
-    if(!objectives.isEmpty()){
+    if (!objectives.isEmpty())
+    {
       for (Objective objective : objectives)
       {
         if (objective.getIsArchived()) continue;

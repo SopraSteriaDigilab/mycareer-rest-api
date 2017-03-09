@@ -1,10 +1,15 @@
 package dataStructure;
 
 import static org.mockito.MockitoAnnotations.*;
+import static dataStructure.Constants.UK_TIMEZONE;
 import static org.junit.Assert.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -26,10 +31,10 @@ public class NoteTest
   private final String NOTE_DESCRIPTION = "note description";
    
   @Mock
-  private Note noteTestEmpty;
+  private Note unitUnderTestEmpty;
   
   @InjectMocks
-  private Note noteTest;
+  private Note unitUnderTest;
   
   /**
    * Setup method that runs once before each test method.
@@ -39,12 +44,12 @@ public class NoteTest
   public void setup()
   {
    initMocks(this);
-   noteTestEmpty = new Note();
-   noteTestEmpty.setId(NOTE_ID);
-   noteTestEmpty.setProviderName(PROVIDER_NAME);
-   noteTestEmpty.setNoteDescription(NOTE_DESCRIPTION);   
-   noteTestEmpty.setTimestamp();   
-   noteTest = new Note(noteTestEmpty);
+   unitUnderTestEmpty = new Note();
+   unitUnderTestEmpty.setId(NOTE_ID);
+   unitUnderTestEmpty.setProviderName(PROVIDER_NAME);
+   unitUnderTestEmpty.setNoteDescription(NOTE_DESCRIPTION);   
+   unitUnderTestEmpty.setTimestamp();   
+   unitUnderTest = new Note(unitUnderTestEmpty);
   }
    
   
@@ -56,8 +61,8 @@ public class NoteTest
   @Test
   public void testSetID() throws InvalidAttributeValueException
   {  
-    noteTest.setId(NOTE_ID);
-    assertEquals(noteTest.getId(), NOTE_ID);
+    unitUnderTest.setId(NOTE_ID);
+    assertEquals(unitUnderTest.getId(), NOTE_ID);
   }
   
   /**
@@ -68,8 +73,8 @@ public class NoteTest
   @Test
   public void testSetProviderName() throws InvalidAttributeValueException
   {  
-    noteTest.setProviderName(PROVIDER_NAME);
-    assertEquals(noteTest.getProviderName(), PROVIDER_NAME);
+    unitUnderTest.setProviderName(PROVIDER_NAME);
+    assertEquals(unitUnderTest.getProviderName(), PROVIDER_NAME);
   }
   
   /**
@@ -80,8 +85,19 @@ public class NoteTest
   @Test
   public void testSetNoteDescription() throws InvalidAttributeValueException
   {  
-    noteTest.setNoteDescription(NOTE_DESCRIPTION);
-    assertEquals(noteTest.getNoteDescription(), NOTE_DESCRIPTION);
+    unitUnderTest.setNoteDescription(NOTE_DESCRIPTION);
+    assertEquals(unitUnderTest.getNoteDescription(), NOTE_DESCRIPTION);
+  }
+  
+  /**
+   * Unit test for the getTimestamp method.
+   * 
+   * @throws InvalidAttributeValueException
+   */
+  @Test
+  public void testGetTimestamp() throws InvalidAttributeValueException
+  {
+    assertEquals(unitUnderTest.getTimestamp(),LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString());
   }
 
 }
