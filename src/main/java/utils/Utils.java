@@ -28,13 +28,9 @@ import services.validate.Validate;
  */
 public class Utils
 {
-  
+
   /** Logger Constant - Represents logger to use */
   private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
-  
-  /** ZoneId Constant - Represents system default zone. */
-  private static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
-  
 
   /**
    * Generate a feedbackRequestID using an employeeID. Format will be dddddd_ddddddddddddddddd. Where 'd' is a number.
@@ -44,7 +40,7 @@ public class Utils
    */
   public static String generateFeedbackRequestID(long id)
   {
-    LocalDateTime localDateTime = LocalDateTime.now(ZoneId.of(UK_TIMEZONE));
+    LocalDateTime localDateTime = LocalDateTime.now(UK_TIMEZONE);
     String stringDate = localDateTime.toString().replace("-", "").replace("T", "").replace(":", "").replace(".", "");
     String generatedId = id + "_" + stringDate;
     return generatedId;
@@ -198,7 +194,6 @@ public class Utils
   }
 
   // TODO Page 492 - look into it.
-  
 
   /**
    * Returns the {@code String} attribute value from an {@code SearchResult} object.
@@ -212,7 +207,7 @@ public class Utils
   public static String getAttribute(SearchResult result, String attribute)
   {
     String retVal = null;
-    
+
     try
     {
       retVal = result.getAttributes().get(attribute).get().toString();
@@ -221,30 +216,31 @@ public class Utils
     {
       LOGGER.warn("Unable to obtain attribute value");
     }
-    
+
     return retVal;
   }
-  
+
   /**
    * Converts LocalDateTime to a java.util.Date
    *
    * @param localDateTime
    * @return
    */
-  public static Date localDateTimetoDate(LocalDateTime localDateTime){
-    return Date.from(localDateTime.atZone(DEFAULT_ZONE_ID).toInstant());
+  public static Date localDateTimetoDate(LocalDateTime localDateTime)
+  {
+    return Date.from(localDateTime.atZone(UK_TIMEZONE).toInstant());
   }
-  
+
   /**
    * Converts LocalDateTime to a java.util.Date
    *
    * @param localDateTime
    * @return
    */
-  public static LocalDateTime DateToLocalDateTime(Date date){
+  public static LocalDateTime DateToLocalDateTime(Date date)
+  {
     Instant instant = date.toInstant();
-    return instant.atZone(DEFAULT_ZONE_ID).toLocalDateTime();
+    return instant.atZone(UK_TIMEZONE).toLocalDateTime();
   }
- 
 
 }

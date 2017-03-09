@@ -152,7 +152,7 @@ public class Note_OLD implements Serializable
   {
     if (timeStamp == null)
     {
-      timeStamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+      timeStamp = LocalDateTime.now(UK_TIMEZONE).toString();
     }
   }
 

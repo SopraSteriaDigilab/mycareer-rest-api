@@ -85,6 +85,6 @@ public class FeedbackRequestTest
   @Test
   public void testGetTimestamp() throws InvalidAttributeValueException
   {
-    assertEquals(unitUnderTest.getTimestamp(),LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString());
+    assertEquals(unitUnderTest.getTimestamp(),LocalDateTime.now(UK_TIMEZONE).toString());
   }
 }

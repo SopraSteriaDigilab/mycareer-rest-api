@@ -90,7 +90,7 @@ public class FeedbackRequest implements Serializable
   /** Set timestamp to current time */
   public void setTimestamp()
   {
-    this.timestamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+    this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
 }

@@ -190,7 +190,7 @@ public class Objective implements Serializable
   private void setTimeStamp()
   {
     // Check if the timeStamp has already a value assigned
-    if (timeStamp == null) this.timeStamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+    if (timeStamp == null) this.timeStamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
   public String getTimeStamp()
@@ -200,7 +200,7 @@ public class Objective implements Serializable
 
   public boolean updateArchiveStatus(boolean isArchived)
   {
-    timeStamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+    timeStamp = LocalDateTime.now(UK_TIMEZONE).toString();
     this.isArchived = isArchived;
 
     return this.isArchived;
@@ -219,7 +219,7 @@ public class Objective implements Serializable
     }
 
     YearMonth temp = YearMonth.parse(date, Constants.YEAR_MONTH_FORMAT);
-    YearMonth now = YearMonth.now(ZoneId.of(UK_TIMEZONE));
+    YearMonth now = YearMonth.now(UK_TIMEZONE);
     boolean pastDate = temp.isBefore(now);
 
     if (!pastDate)
