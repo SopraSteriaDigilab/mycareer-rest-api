@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import com.mongodb.Block;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 
 public class DataService
 {
@@ -44,7 +43,7 @@ public class DataService
     
     mongoCollection.find(exists(PROFILE_EMAIL_ADDRESS))
                   .projection(fields(include(PROFILE_EMAIL_ADDRESS), excludeId()))
-                  .sort(descending(PROFILE_EMAIL_ADDRESS))
+                  .sort(ascending(PROFILE_EMAIL_ADDRESS))
                   .forEach((Block<Document>) d -> emails.add(d.get(PROFILE, Document.class).getString(EMAIL_ADDRESS)));
     
     LOGGER.debug("Email address count is {}", emails.size());
