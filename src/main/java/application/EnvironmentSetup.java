@@ -63,7 +63,7 @@ public class EnvironmentSetup
   private static final String AD_STERIA_PRINCIPAL = new StringBuilder("cn=").append(AD_STERIA_USERNAME).append(",")
       .append(AD_STERIA_LOGIN_TREE).toString();
   private static final String[] AD_STERIA_ATTRIBUTES = { "directReports", "extensionAttribute2", "sn", "givenName", "mail", "targetAddress",
-      "company", "sAMAccountName", "department", "ou", "SteriaSectorUnit" };
+      "company", "sAMAccountName", "department", "ou", "SteriaSectorUnit", "accountExpires" };
 
   @Autowired
   private Environment env;

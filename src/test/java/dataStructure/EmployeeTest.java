@@ -151,7 +151,11 @@ public class EmployeeTest
   public void setup() throws InvalidAttributeValueException
   {
    // LOG.debug("AppControllerTest.setup()", true);
-   profile = new EmployeeProfile(VALID_ID,VALID_GUID,VALID_NAME,VALID_NAME,VALID_EMAIL_ADDRESS,VALID_USERNAME,VALID_COMPANY,VALID_SECTOR_SUPERSECTOR,VALID_SECTOR_SUPERSECTOR,VALID_DEPARTMENT,VALID_DEPARTMENT,IS_MANAGER,HAS_HRDASH,VALID_REPORTEE_LIST);
+   profile = new EmployeeProfile.Builder().employeeID(VALID_ID).guid(VALID_GUID).forename(VALID_NAME)
+       .surname(VALID_NAME).emailAddress(VALID_EMAIL_ADDRESS).username(VALID_USERNAME).company(VALID_COMPANY)
+       .superSector(VALID_SECTOR_SUPERSECTOR).sector(VALID_SECTOR_SUPERSECTOR).steriaDepartment(VALID_DEPARTMENT)
+       .sopraDepartment(VALID_DEPARTMENT).manager(IS_MANAGER).hasHRDash(HAS_HRDASH).reporteeCNs(VALID_REPORTEE_LIST)
+       .build();
    unitUnderTest = new Employee(profile);
    unitUnderTestEmpty = new Employee();
    MockitoAnnotations.initMocks(this);
