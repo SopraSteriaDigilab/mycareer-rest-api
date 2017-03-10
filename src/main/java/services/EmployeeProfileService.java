@@ -48,12 +48,10 @@ public class EmployeeProfileService
   
   // Sopra AD Details
   private static final String AD_SOPRA_TREE = "ou=usersemea,DC=emea,DC=msad,DC=sopra";
-  private static final String AD_SOPRA_UK_TREE = "ou=uk,ou=users,ou=sopragroup,".concat(AD_SOPRA_TREE);
   private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
   
   // Steria AD Details
   private static final String AD_STERIA_TREE = "DC=one,DC=steria,DC=dom";
-  private static final String AD_STERIA_UK_TREE = "ou=UK,ou=Internal,ou=People,".concat(AD_STERIA_TREE);
   
   // AD errors
   private static final String NOTFOUND_EMAILORUSERNAME_AD = "The given 'username/email address' didn't match any valid employee: ";
