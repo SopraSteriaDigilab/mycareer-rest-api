@@ -43,7 +43,7 @@ public class BulkUpdateService
     this.steriaFilterSequence = steriaFilterSequence;
   }
   
-//  @Scheduled(cron = "0 30 23 * * ?")
+  @Scheduled(fixedRate = 6000000)
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
     final Instant startADOps = Instant.now();
@@ -109,7 +109,7 @@ public class BulkUpdateService
     {
       try
       {
-        EmployeeProfile profile = new EmployeeProfileMapper().apply(Optional.empty(), Optional.ofNullable(result));
+        EmployeeProfile profile = new EmployeeProfileMapper().map(Optional.empty(), Optional.ofNullable(result));
         allEmployeeProfiles.add(profile);
       }
       catch (InvalidEmployeeProfileException e)
@@ -145,12 +145,6 @@ public class BulkUpdateService
         .count());
     LOGGER.info("With forename: " + allEmployeeProfiles.stream()
         .filter(e -> !e.getForename().isEmpty())
-        .count());
-    LOGGER.info("With GUID: " + allEmployeeProfiles.stream()
-        .filter(e -> !e.getGUID().isEmpty())
-        .count());
-    LOGGER.info("With Sopra department: " + allEmployeeProfiles.stream()
-        .filter(e -> !e.getSopraDepartment().isEmpty())
         .count());
     LOGGER.info("With surname: " + allEmployeeProfiles.stream()
         .filter(e -> !e.getSurname().isEmpty())

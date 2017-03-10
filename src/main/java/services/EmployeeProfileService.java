@@ -40,6 +40,7 @@ import java.util.UUID;
  * This class contains the definition of the ADProfileDAO
  *
  */
+//TODO user EmployeeProfileMapper for all employeeProfile creations.
 public class EmployeeProfileService
 {
   private final static Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileService.class);
@@ -214,8 +215,8 @@ public class EmployeeProfileService
         }
       }
 
-      adObj.setGUID(uid.toString());
-      adObj.setHasHRDash(hasHRDash);
+      adObj.setGuid(uid.toString());
+      adObj.setHRDash(hasHRDash);
       adObj.setSurname((String) attrs.get("sn").get());
       adObj.setForename((String) attrs.get("givenName").get());
       adObj.setEmailAddress((String) attrs.get("mail").get());
@@ -339,7 +340,7 @@ public class EmployeeProfileService
       }
     }
 
-    userData.setIsManager(isManager);
+    userData.setManager(isManager);
     userData.setSuperSector(superSector);
     userData.setSector(sector);
     userData.setSteriaDepartment(steriaDepartment);
