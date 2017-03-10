@@ -43,7 +43,7 @@ public class BulkUpdateService
     this.steriaFilterSequence = steriaFilterSequence;
   }
   
-  @Scheduled(fixedRate = 6000000)
+  @Scheduled(cron = "0 30 23 * * ?")
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
     final Instant startADOps = Instant.now();

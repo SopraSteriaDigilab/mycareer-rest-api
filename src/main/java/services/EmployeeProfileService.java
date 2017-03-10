@@ -1,32 +1,23 @@
 package services;
 
-import static dataStructure.Constants.INVALID_IDNOTFOND;
+import static services.ad.ADOperations.*;
+
+import static dataStructure.Constants.INVALID_ID_NOT_FOUND;
 import static dataStructure.Constants.INVALID_IDMATCHUSERNAME;
 import static dataStructure.Constants.INVALID_CONTEXT_MAIL;
 import static dataStructure.Constants.INVALID_CONTEXT_USERNAME;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
-import javax.annotation.PostConstruct;
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import dataStructure.EmployeeProfile;
 import services.ad.ADConnection;
@@ -40,87 +31,68 @@ import java.util.UUID;
  * This class contains the definition of the ADProfileDAO
  *
  */
-//TODO user EmployeeProfileMapper for all employeeProfile creations.
+// TODO user EmployeeProfileMapper for all employeeProfile creations.
 public class EmployeeProfileService
 {
   private final static Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileService.class);
-  
+
   private static final String TOO_MANY_RESULTS = "More than one match was found in the Active Directory";
-  
+
   // Sopra AD Details
   private static final String AD_SOPRA_TREE = "ou=usersemea,DC=emea,DC=msad,DC=sopra";
   private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
-  
+
   // Steria AD Details
   private static final String AD_STERIA_TREE = "DC=one,DC=steria,DC=dom";
-  
+
   // AD errors
   private static final String NOTFOUND_EMAILORUSERNAME_AD = "The given 'username/email address' didn't match any valid employee: ";
   private static final String INVALID_EMAILORUSERNAME_AD = "The given 'username/email address' is not valid in this context";
   private static final String INVALID_EMAIL_AD = "The given email address didn't match any employee: ";
   private static final String NOTFOUND_USERNAME_AD = "The given 'username' didn't match any valid employee: ";
-  
+
   private final ADSearchSettings sopraADSearchSettings;
   private final ADSearchSettings steriaADSearchSettings;
-  
-  public EmployeeProfileService(final ADSearchSettings sopraADSearchSettings, final ADSearchSettings steriaADSearchSettings)
+
+  public EmployeeProfileService(final ADSearchSettings sopraADSearchSettings,
+      final ADSearchSettings steriaADSearchSettings)
   {
     this.sopraADSearchSettings = sopraADSearchSettings;
     this.steriaADSearchSettings = steriaADSearchSettings;
   }
 
-  public EmployeeProfile authenticateUserProfile(String usernameEmail)
-      throws ADConnectionException, NamingException, InvalidAttributeValueException
-  {
-    // Verify the given string
-    if (usernameEmail == null || usernameEmail.equals("") || usernameEmail.length() < 1)
-      throw new InvalidAttributeValueException(INVALID_EMAILORUSERNAME_AD);
-    
-    
-    EmployeeProfile adObj = new EmployeeProfile();
-    // specify the LDAP search filter
-    if (usernameEmail.contains("@"))
-    {
-      if (usernameEmail.toString().contains("@soprasteria.com"))
-      {
-        adObj = authenticateSSEmailUserName(usernameEmail);
-      }
-      else
-      {
-        adObj = authenticateJVEmail(usernameEmail);
-      }
-    }
-    else
-    {
-      adObj = authenticateSSEmailUserName(usernameEmail);
-    }
-
-    return adObj;
-  }
-
-  public EmployeeProfile verifyIfUserExists(long employeeID)
-      throws ADConnectionException, NamingException, InvalidAttributeValueException
+  /**
+   * Fetches an {@code EmployeeProfile} object using the given employee ID.
+   *
+   * @param employeeID
+   * @return the {@code EmployeeProfile} for the given employee ID
+   * @throws InvalidAttributeValueException if the employee ID is not valid
+   * @throws NamingException
+   * @throws ADConnectionException
+   */
+  public EmployeeProfile fetchEmployeeProfile(final long employeeID)
+      throws InvalidAttributeValueException, ADConnectionException, NamingException
   {
     if (employeeID < 1)
     {
-      throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+      throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
     }
 
-    final String searchFilter = "(extensionAttribute7=s" + employeeID + ")";
+    final String searchFilter = "(extensionAttribute2=s" + employeeID + ")";
 
-    try (final ADConnection connection = new ADConnectionImpl(sopraADSearchSettings))
+    try
     {
-      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_SOPRA_TREE, searchFilter);
+      final NamingEnumeration<SearchResult> result = searchAD(steriaADSearchSettings, AD_STERIA_TREE, searchFilter);
       final Attributes attrs = result.next().getAttributes();
 
       if (result.hasMoreElements())
       {
         LOGGER.warn(TOO_MANY_RESULTS);
       }
-      
+
       final String userName = (String) attrs.get("sAMAccountName").get();
 
-      return authenticateUserProfile(userName);
+      return fetchEmployeeProfileFromUsername(userName);
     }
     catch (final NoSuchElementException nsee)
     {
@@ -128,28 +100,125 @@ public class EmployeeProfileService
     }
   }
 
-  // find full name using sopra steria email
-  public String findEmployeeFullNameFromEmailAddress(String email)
-      throws ADConnectionException, NamingException, InvalidAttributeValueException
+  /**
+   * Fetches an {@code EmployeeProfile} object using the given employee username or email address.
+   *
+   * This is a convenience method to allow an employee profile to be fetched when it is unknown whether a username or
+   * email address has been provided.
+   * 
+   * @param usernameEmail The given username or email address
+   * @return the {@code EmployeeProfile} relating to the given username or email address
+   * @throws InvalidAttributeValueException if the given username or email address could not be matched to an employee
+   * @throws NamingException
+   * @throws ADConnectionException
+   */
+  // TODO See if this method can be removed. We should know whether an email address or username is being
+  // used for authentication. If not, handle ADConnectionException and NamingException instead of throw?
+  public EmployeeProfile fetchEmployeeProfile(String usernameEmail)
+      throws InvalidAttributeValueException, NamingException, ADConnectionException
   {
-    if (email == null || email.length() < 1)
+    if (usernameEmail == null || usernameEmail.equals("") || usernameEmail.length() < 1)
+    {
+      throw new InvalidAttributeValueException(INVALID_EMAILORUSERNAME_AD);
+    }
+
+    EmployeeProfile profile;
+
+    if (usernameEmail.contains("@"))
+    {
+      profile = fetchEmployeeProfileFromEmailAddress(usernameEmail);
+    }
+    else
+    {
+      profile = fetchEmployeeProfileFromUsername(usernameEmail);
+    }
+
+    return profile;
+  }
+
+  /**
+   * Fetches an {@code EmployeeProfile} object using the given employee username.
+   *
+   * @param username
+   * @return the {@code EmployeeProfile} relating to the given username
+   * @throws InvalidAttributeValueException if the given username could not be matched to an employee
+   * @throws NamingException
+   */
+  // TODO handle NamingException instead of throw?
+  public EmployeeProfile fetchEmployeeProfileFromUsername(final String username)
+      throws InvalidAttributeValueException, NamingException
+  {
+    // Verify the given string
+    if (username == null || username.equals("") || username.length() < 1)
+    {
+      throw new InvalidAttributeValueException(INVALID_EMAILORUSERNAME_AD);
+    }
+
+    return authenticateSSEmailUserName(username);
+  }
+
+  /**
+   * Fetches an {@code EmployeeProfile} object using the given employee email address.
+   *
+   * @param emailAddress
+   * @return the {@code EmployeeProfile} relating to the given email address
+   * @throws InvalidAttributeValueException if the given email address could not be matched to an employee
+   * @throws NamingException
+   * @throws ADConnectionException
+   */
+  // TODO Handle ADConnectionException and NamingException instead of throw?
+  public EmployeeProfile fetchEmployeeProfileFromEmailAddress(final String emailAddress)
+      throws InvalidAttributeValueException, NamingException, ADConnectionException
+  {
+    if (emailAddress == null || emailAddress.equals("") || emailAddress.length() < 1)
+    {
+      throw new InvalidAttributeValueException(INVALID_EMAILORUSERNAME_AD);
+    }
+
+    EmployeeProfile adObj = new EmployeeProfile();
+
+    if (emailAddress.toString().contains("@soprasteria.com"))
+    {
+      adObj = authenticateSSEmailUserName(emailAddress);
+    }
+    else
+    {
+      adObj = authenticateJVEmail(emailAddress);
+    }
+
+    return adObj;
+  }
+
+  /**
+   * Builds an employee's full name using the given email address.
+   *
+   * @param emailAddress
+   * @return the employee's full name
+   * @throws InvalidAttributeValueException If the given email address could not be matched to an employee
+   * @throws NamingException
+   * @throws ADConnectionException
+   */
+  // TODO: this method doesn't belong in this class
+  public String fetchEmployeeFullNameFromEmailAddress(final String emailAddress)
+      throws InvalidAttributeValueException, ADConnectionException, NamingException
+  {
+    if (emailAddress == null || emailAddress.length() < 1)
     {
       throw new InvalidAttributeValueException(INVALID_CONTEXT_MAIL);
     }
 
-    final String searchFilter = "(mail=" + email + ")";
+    final String searchFilter = "(mail=" + emailAddress + ")";
 
-    try (final ADConnection connection = new ADConnectionImpl(sopraADSearchSettings))
+    try
     {
-      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_SOPRA_TREE, searchFilter);
-      
+      final NamingEnumeration<SearchResult> result = searchAD(steriaADSearchSettings, AD_STERIA_TREE, searchFilter);
       final Attributes attrs = result.next().getAttributes();
 
       if (result.hasMoreElements())
       {
         LOGGER.warn(TOO_MANY_RESULTS);
       }
-      
+
       // Find and return the full name
       String surname = (String) attrs.get("sn").get();
       String forename = (String) attrs.get("givenName").get();
@@ -161,7 +230,7 @@ public class EmployeeProfileService
     }
     catch (final NoSuchElementException nsee)
     {
-      throw new InvalidAttributeValueException(INVALID_EMAIL_AD.concat(email));
+      throw new InvalidAttributeValueException(INVALID_EMAIL_AD.concat(emailAddress));
     }
   }
 
@@ -249,14 +318,14 @@ public class EmployeeProfileService
     try (final ADConnection connection = new ADConnectionImpl(steriaADSearchSettings))
     {
       final NamingEnumeration<SearchResult> result = connection.searchAD(AD_STERIA_TREE, searchFilter);
-      
+
       final Attributes attrs = result.next().getAttributes();
 
       if (result.hasMoreElements())
       {
         LOGGER.warn(TOO_MANY_RESULTS);
       }
-      
+
       getProfileFromSopraAD((String) attrs.get("sAMAccountName").get(), adObj);
       getProfileFromSteriaAD(adObj.getUsername(), adObj);
 
@@ -312,7 +381,7 @@ public class EmployeeProfileService
       {
         LOGGER.warn(TOO_MANY_RESULTS);
       }
-      
+
       directReports = attrs.get("directReports");
       superSector = (String) attrs.get("ou").get();
       sector = ((String) attrs.get("SteriaSectorUnit").get()).substring(3);

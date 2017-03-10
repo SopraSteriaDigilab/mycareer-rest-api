@@ -55,24 +55,24 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
 
   private EmployeeProfile profile = new EmployeeProfile();
 
-  public EmployeeProfile map(Optional<SearchResult> sopraEmployeeProfile, Optional<SearchResult> steriaEmployeeProfile)
+  public EmployeeProfile map(Optional<SearchResult> steriaEmployeeProfile, Optional<SearchResult> sopraEmployeeProfile)
   {
-//    sopraEmployeeProfile.ifPresent(this::setSopraDetails);
+    // sopraEmployeeProfile.ifPresent(this::setSopraDetails);
     steriaEmployeeProfile.ifPresent(this::setSteriaDetails);
 
     return profile;
   }
 
-//  private void setSopraDetails(SearchResult sopraEmployeeProfile) throws InvalidEmployeeProfileException
-//  {
-//    final Attributes attributes = sopraEmployeeProfile.getAttributes();
-//
-//    profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_7))
-//        .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
-//        .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddress(mapString(MAIL, attributes))
-//        .company(mapString(COMPANY, attributes)).sopraDepartment(mapString(DEPARTMENT, attributes))
-//        .guid(mapGUID(attributes)).hasHRDash(mapHRPermission(attributes)).build();
-//  }
+  // private void setSopraDetails(SearchResult sopraEmployeeProfile) throws InvalidEmployeeProfileException
+  // {
+  // final Attributes attributes = sopraEmployeeProfile.getAttributes();
+  //
+  // profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_7))
+  // .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
+  // .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddress(mapString(MAIL, attributes))
+  // .company(mapString(COMPANY, attributes)).sopraDepartment(mapString(DEPARTMENT, attributes))
+  // .guid(mapGUID(attributes)).hasHRDash(mapHRPermission(attributes)).build();
+  // }
 
   private void setSteriaDetails(SearchResult steriaEmployeeProfile) throws InvalidEmployeeProfileException
   {
@@ -179,18 +179,7 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
 
   private String mapSector(final Attributes attributes)
   {
-    String mappedString = null;
-
-    try
-    {
-      mappedString = ((String) attributes.get(STERIA_SECTOR_UNIT).get()).substring(3);
-    }
-    catch (NamingException | ClassCastException e)
-    {
-      LOGGER.warn(SECTOR_NOT_FOUND, e.getMessage());
-    }
-
-    return mappedString;
+    return mapString(STERIA_SECTOR_UNIT, attributes).substring(3);
   }
 
   private Date mapAccountExpires(final Attributes attributes)

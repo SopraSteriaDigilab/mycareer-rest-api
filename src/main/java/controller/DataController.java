@@ -17,6 +17,7 @@ import services.DataService;
 
 @CrossOrigin
 @RestController
+@RequestMapping("/data")
 public class DataController
 {
   /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
@@ -30,7 +31,7 @@ public class DataController
     this.dataService = dataService;
   }
   
-  @RequestMapping(value = "/data/getAllEmailAddresses", method = GET)
+  @RequestMapping(value = "/getAllEmailAddresses", method = GET)
   public ResponseEntity<List<String>> getAllEmailAddresses()
   {
     LOGGER.debug("Retrieving all email addresses");

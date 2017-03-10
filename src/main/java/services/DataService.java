@@ -5,9 +5,7 @@ import static com.mongodb.client.model.Sorts.*;
 import static com.mongodb.client.model.Projections.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.bson.Document;
 import org.slf4j.Logger;

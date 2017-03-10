@@ -8,7 +8,7 @@ import static dataStructure.Constants.INVALID_CONTEXT_USERID;
 import static dataStructure.Constants.INVALID_DEVNEEDID_CONTEXT;
 import static dataStructure.Constants.INVALID_DEVNEED_CONTEXT;
 import static dataStructure.Constants.INVALID_DEVNEED_OR_EMPLOYEEID;
-import static dataStructure.Constants.INVALID_IDNOTFOND;
+import static dataStructure.Constants.INVALID_ID_NOT_FOUND;
 import static dataStructure.Constants.INVALID_OBJECTIVE;
 import static dataStructure.Constants.INVALID_OBJECTIVEID;
 import static dataStructure.Constants.INVALID_OBJECTIVE_OR_EMPLOYEEID;
@@ -108,7 +108,7 @@ public class EmployeeService
     Employee employee = getEmployeeQuery(employeeID).get();
     if (employee == null)
     {
-      throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+      throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
     }
     return employee;
   }
@@ -243,7 +243,7 @@ public class EmployeeService
       long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
       try
       {
-        reporteeList.add(matchADWithMongoData(employeeProfileService.verifyIfUserExists(temp)));
+        reporteeList.add(matchADWithMongoData(employeeProfileService.fetchEmployeeProfile(temp)));
       }
       catch (Exception e)
       {
@@ -283,7 +283,7 @@ public class EmployeeService
           }
           else throw new InvalidAttributeValueException(OBJECTIVE_NOTADDED_ERROR);
         }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
       }
       else throw new InvalidAttributeValueException(NULL_OBJECTIVE);
     }
@@ -390,7 +390,7 @@ public class EmployeeService
           // exception
           else throw new InvalidAttributeValueException(INVALID_OBJECTIVEID);
         }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
       }
       else throw new InvalidAttributeValueException(INVALID_OBJECTIVE);
     }
@@ -484,7 +484,7 @@ public class EmployeeService
           }
           else throw new InvalidAttributeValueException(DEVELOPMENTNEED_NOTADDED_ERROR);
         }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
       }
       else throw new InvalidAttributeValueException(INVALID_DEVNEED_CONTEXT);
     }
@@ -591,7 +591,7 @@ public class EmployeeService
           // throw and exception
           else throw new InvalidAttributeValueException(INVALID_DEVNEEDID_CONTEXT);
         }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
       }
       else throw new InvalidAttributeValueException(INVALID_DEVNEED_CONTEXT);
     }
@@ -673,7 +673,7 @@ public class EmployeeService
   {
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
 
-    long employeeID = matchADWithMongoData(employeeProfileService.authenticateUserProfile(recipientEmail))
+    long employeeID = matchADWithMongoData(employeeProfileService.fetchEmployeeProfileFromEmailAddress(recipientEmail))
         .getEmployeeID();
     Employee employee = getEmployee(employeeID);
 
@@ -681,7 +681,7 @@ public class EmployeeService
 
     try
     {
-      feedback.setProviderName(employeeProfileService.findEmployeeFullNameFromEmailAddress(providerEmail));
+      feedback.setProviderName(employeeProfileService.fetchEmployeeFullNameFromEmailAddress(providerEmail));
     }
     catch (InvalidAttributeValueException | NamingException e)
     {
@@ -764,7 +764,7 @@ public class EmployeeService
             return true;
           }
         }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
       }
       else throw new InvalidAttributeValueException(INVALID_COMPETENCY_CONTEXT);
     }
@@ -819,7 +819,7 @@ public class EmployeeService
   public EmployeeProfile authenticateUserProfile(String usernameEmail)
       throws InvalidAttributeValueException, ADConnectionException, NamingException
   {
-    return employeeProfileService.authenticateUserProfile(usernameEmail);
+    return employeeProfileService.fetchEmployeeProfile(usernameEmail);
   }
 
   public void updateLastLoginDate(EmployeeProfile profile) throws InvalidAttributeValueException
