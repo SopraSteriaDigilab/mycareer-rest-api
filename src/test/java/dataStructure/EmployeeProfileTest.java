@@ -3,25 +3,17 @@ package dataStructure;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
 
-
-import javax.management.InvalidAttributeValueException;
-import java.lang.ArrayIndexOutOfBoundsException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.management.InvalidAttributeValueException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-
-import com.google.gson.Gson;
  
 public class EmployeeProfileTest
 {
@@ -93,9 +85,13 @@ public class EmployeeProfileTest
   @Before
   public void setup() throws InvalidAttributeValueException
   {
-   unitUnderTestEmpty = new EmployeeProfile();
-   unitUnderTest = new EmployeeProfile(VALID_EMPLOYEE_ID,VALID_GUID,VALID_NAME,VALID_NAME,VALID_EMAIL_ADDRESS,VALID_USERNAME,VALID_COMPANY,VALID_SECTOR_SUPERSECTOR,VALID_SECTOR_SUPERSECTOR,VALID_DEPARTMENT,VALID_DEPARTMENT,IS_MANAGER,HAS_HRDASH,VALID_REPORTEE_LIST);
-   initMocks(this);
+    unitUnderTestEmpty = new EmployeeProfile();
+    unitUnderTest = new EmployeeProfile.Builder().employeeID(VALID_EMPLOYEE_ID).guid(VALID_GUID).forename(VALID_NAME)
+        .surname(VALID_NAME).emailAddress(VALID_EMAIL_ADDRESS).username(VALID_USERNAME).company(VALID_COMPANY)
+        .superSector(VALID_SECTOR_SUPERSECTOR).sector(VALID_SECTOR_SUPERSECTOR).steriaDepartment(VALID_DEPARTMENT)
+        .sopraDepartment(VALID_DEPARTMENT).manager(IS_MANAGER).hasHRDash(HAS_HRDASH).reporteeCNs(new ArrayList<>(VALID_REPORTEE_LIST))
+        .build();
+    initMocks(this);
   }
   
   /**
@@ -115,7 +111,7 @@ public class EmployeeProfileTest
    */
   public void setEveryPrivateFieldsToNullOrDefault(Object obj) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException 
   {
-    setPrivateField("GUID", obj, null);
+    setPrivateField("guid", obj, null);
     setPrivateField("company", obj, null);
     setPrivateField("emailAddress", obj, null);
     setPrivateField("employeeID", obj, 0);
@@ -343,8 +339,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetIsManager() throws InvalidAttributeValueException
   {  
-    unitUnderTest.setIsManager(true);
-    assertEquals(unitUnderTest.getIsManager(),true);
+    unitUnderTest.setManager(true);
+    assertEquals(unitUnderTest.isManager(),true);
   }
   
   /**
@@ -355,8 +351,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetHasHRDash() throws InvalidAttributeValueException
   {  
-    unitUnderTest.setHasHRDash(true);
-    assertEquals(unitUnderTest.getHasHRDash(),true);
+    unitUnderTest.setHRDash(true);
+    assertEquals(unitUnderTest.hasHRDash(),true);
   }
   
   /**
@@ -617,7 +613,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetGUIDWithNull() throws InvalidAttributeValueException
   {  
-    unitUnderTest.setGUID(null);
+    unitUnderTest.setGuid(null);
   }
   
   /**
@@ -628,7 +624,7 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetGUIDWithEmptyString() throws InvalidAttributeValueException
   {  
-    unitUnderTest.setGUID("");
+    unitUnderTest.setGuid("");
   }
   
   /**
@@ -639,8 +635,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetGUIDWithValidGUID() throws InvalidAttributeValueException
   {  
-    unitUnderTest.setGUID(VALID_GUID);
-    assertEquals(unitUnderTest.getGUID(),VALID_GUID);
+    unitUnderTest.setGuid(VALID_GUID);
+    assertEquals(unitUnderTest.getGuid(),VALID_GUID);
   }
   
 //  /**
@@ -783,7 +779,7 @@ public class EmployeeProfileTest
     setEveryPrivateFieldsToNullOrDefault(unitUnderTest);    //One GUID is null
     assertEquals(unitUnderTest.equals(employeeProfile),false);
     
-    setPrivateField("GUID", employeeProfile, null);     //Same GUID, one company is null
+    setPrivateField("guid", employeeProfile, null);     //Same GUID, one company is null
     assertEquals(unitUnderTest.equals(employeeProfile),false);
     
     setPrivateField("company", employeeProfile, null);     
@@ -805,7 +801,7 @@ public class EmployeeProfileTest
     assertEquals(unitUnderTest.equals(employeeProfile),false);
     
     setPrivateField("reporteeCNs", employeeProfile, null);     
-    assertEquals(unitUnderTest.equals(employeeProfile),false);
+    assertEquals(unitUnderTest.equals(employeeProfile), false);
     
     setPrivateField("sector", employeeProfile, null);     
     assertEquals(unitUnderTest.equals(employeeProfile),false);
@@ -842,7 +838,7 @@ public class EmployeeProfileTest
     
     assertEquals(unitUnderTest.equals(employeeProfile),false);
     
-    employeeProfile.setGUID(unitUnderTest.getGUID());     //Same GUID, one company is null
+    employeeProfile.setGuid(unitUnderTest.getGuid());     //Same GUID, one company is null
     assertEquals(unitUnderTest.equals(employeeProfile),false);
     
     employeeProfile.setCompany(unitUnderTest.getCompany());     
@@ -857,10 +853,10 @@ public class EmployeeProfileTest
     employeeProfile.setForename(unitUnderTest.getForename()); 
     assertEquals(unitUnderTest.equals(employeeProfile),false);
     
-    employeeProfile.setHasHRDash(unitUnderTest.getHasHRDash()); 
+    employeeProfile.setHRDash(unitUnderTest.hasHRDash()); 
     assertEquals(unitUnderTest.equals(employeeProfile),false);
     
-    employeeProfile.setIsManager(unitUnderTest.getIsManager()); 
+    employeeProfile.setManager(unitUnderTest.isManager()); 
     assertEquals(unitUnderTest.equals(employeeProfile),false);
     
     employeeProfile.setReporteeCNs(unitUnderTest.getReporteeCNs());     
@@ -893,7 +889,7 @@ public class EmployeeProfileTest
   public void testToString()
   {
     assertEquals(unitUnderTest.toString() , "EmployeeProfile [employeeID=" + unitUnderTest.getEmployeeID() + ", surname=" + unitUnderTest.getSurname() + ", forename=" + unitUnderTest.getForename()
-    + ", username=" + unitUnderTest.getUsername() + ", emailAddress=" + unitUnderTest.getEmailAddress() + ", isManager=" + unitUnderTest.getIsManager() + ", GUID=" + unitUnderTest.getGUID()
+    + ", username=" + unitUnderTest.getUsername() + ", emailAddress=" + unitUnderTest.getEmailAddress() + ", isManager=" + unitUnderTest.isManager() + ", GUID=" + unitUnderTest.getGuid()
     + ", company=" + unitUnderTest.getCompany() + ", sopraDepartment=" + unitUnderTest.getSopraDepartment() + ", steriaDepartment="
     + unitUnderTest.getSteriaDepartment() + ", sector=" + unitUnderTest.getSector() + ", superSector=" + unitUnderTest.getSuperSector() + ", reporteeCNs=" + unitUnderTest.getReporteeCNs()
     + "]" );

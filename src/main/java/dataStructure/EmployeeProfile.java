@@ -1,20 +1,22 @@
 package dataStructure;
 
 import static dataStructure.Constants.INVALID_CONTEXT_COMPANY;
-import static dataStructure.Constants.INVALID_INT;
 import static dataStructure.Constants.INVALID_NULLREPORTEE;
-import static dataStructure.Constants.INVALID_STRING;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import javax.management.InvalidAttributeValueException;
-import com.google.gson.Gson;
+
+import services.mappers.InvalidEmployeeProfileException;
 
 /**
  * This class contains the definition of the EmployeeProfile object
  */
+// TODO remove validation on all setters.
 public class EmployeeProfile implements Serializable
 {
   private static final long serialVersionUID = 6335090383770271897L;
@@ -41,7 +43,7 @@ public class EmployeeProfile implements Serializable
   private boolean hasHRDash;
 
   /** String Property - Represents the GUID from the AD. */
-  private String GUID;
+  private String guid;
 
   /** String Property - Represents the employee company. */
   private String company;
@@ -61,50 +63,13 @@ public class EmployeeProfile implements Serializable
   /** List<String> Property - Represents the list of the employees reportees. */
   private List<String> reporteeCNs;
 
+  /** Date Property - Represents the date the employees account expires. */
+  private Date accountExpires;
+
   /** Default Constructor - Responsible for initialising this object. */
   public EmployeeProfile()
   {
-    surname = "";
-    forename = "";
-    employeeID = INVALID_INT; 
-    username = "";
-    emailAddress = "";
-    isManager = false;
-    hasHRDash = false;
-    company = "";
-    superSector = "";
-    sector = "";
-    steriaDepartment = "";
-    sopraDepartment = "";
-    GUID = "";
     reporteeCNs = new ArrayList<String>();
-  }
-
-  /**
-   * Constructor - Responsible for initialising this object.
-   *
-   * @param employeeID
-   * @throws InvalidAttributeValueException
-   */
-  public EmployeeProfile(long employeeID, String guid, String forename, String surname, String emailAddress,
-      String username, String company, String superSector, String sector, String steriaDepartment,
-      String sopraDepartment, boolean isManager, boolean hasHRDash, List<String> reporteesCNs)
-      throws InvalidAttributeValueException
-  {
-    setEmployeeID(employeeID);
-    setGUID(guid);
-    setForename(forename);
-    setSurname(surname);
-    setEmailAddress(emailAddress);
-    setUsername(username);
-    setCompany(company);
-    setSuperSector(superSector);
-    setSector(sector);
-    setSteriaDepartment(steriaDepartment);
-    setSopraDepartment(sopraDepartment);
-    this.isManager = isManager;
-    setHasHRDash(hasHRDash);
-    setReporteeCNs(reporteesCNs);
   }
 
   /**
@@ -122,263 +87,194 @@ public class EmployeeProfile implements Serializable
     this.emailAddress = builder.emailAddress;
     this.isManager = builder.isManager;
     this.hasHRDash = builder.hasHRDash;
-    this.GUID = builder.GUID;
+    this.guid = builder.guid;
     this.company = builder.company;
     this.sopraDepartment = builder.sopraDepartment;
     this.steriaDepartment = builder.steriaDepartment;
     this.sector = builder.sector;
     this.superSector = builder.superSector;
     this.reporteeCNs = builder.reporteeCNs;
+    this.accountExpires = builder.accountExpires;
   }
 
-  /** @return the employee ID. */
+  /** @return the employeeID */
   public long getEmployeeID()
   {
-    return this.employeeID;
+    return employeeID;
   }
 
-  /**
-   * @param id the ID to set.
-   * @throws InvalidAttributeValueException
-   */
-  public void setEmployeeID(long id) throws InvalidAttributeValueException
+  /** @param employeeID The value to set. */
+  public void setEmployeeID(long employeeID)
   {
-    if (id > 0) this.employeeID = id;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
-  } 
-
-  /** @return the employee username. */
-  public String getUsername()
-  {
-    return this.username;
+    this.employeeID = employeeID;
   }
 
-  /**
-   * @param user the user to set
-   * @throws InvalidAttributeValueException
-   */
-  public void setUsername(String user) throws InvalidAttributeValueException
-  {
-    if (user != null && user.length() > 0 && user.length() < 50) this.username = user;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERNAME);
-  }
-
-  /** @return the employee email address. */
-  public String getEmailAddress()
-  {
-    return this.emailAddress;
-  }
-
-  /**
-   * @param email The user email address
-   * @throws InvalidAttributeValueException
-   */
-  public void setEmailAddress(String email) throws InvalidAttributeValueException
-  {
-    if (email != null && email.length() > 0 && email.contains("@")) this.emailAddress = email;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_GUID);
-  }
-
-  /** @return the employee surname. */
+  /** @return the surname */
   public String getSurname()
   {
-    return this.surname;
+    return surname;
   }
 
-  /**
-   * @param name the surname to set
-   * @throws InvalidAttributeValueException
-   */
-  public void setSurname(String name) throws InvalidAttributeValueException
+  /** @param surname The value to set. */
+  public void setSurname(String surname)
   {
-    if (name != null && !name.equals("") && name.length() < 300)
-      this.surname = name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_SURNAME);
+    this.surname = surname;
   }
 
-  /** @return the employee forename. */
+  /** @return the forename */
   public String getForename()
   {
-    return this.forename;
+    return forename;
   }
 
-  /**
-   * @param name the forename to set
-   * @throws InvalidAttributeValueException
-   */
-  public void setForename(String name) throws InvalidAttributeValueException
+  /** @param forename The value to set. */
+  public void setForename(String forename)
   {
-    if (name != null && !name.equals("") && name.length() < 300) this.forename = name;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_FORENAME);
+    this.forename = forename;
   }
 
-  /** @return true if the employee is manager, false otherwise. */
-  public boolean getIsManager()
+  /** @return the username */
+  public String getUsername()
+  {
+    return username;
+  }
+
+  /** @param username The value to set. */
+  public void setUsername(String username)
+  {
+    this.username = username;
+  }
+
+  /** @return the emailAddress */
+  public String getEmailAddress()
+  {
+    return emailAddress;
+  }
+
+  /** @param emailAddress The value to set. */
+  public void setEmailAddress(String emailAddress)
+  {
+    this.emailAddress = emailAddress;
+  }
+
+  /** @return the isManager */
+  public boolean isManager()
   {
     return isManager;
   }
 
-  /** @param value the value of whether the employee is a manager */
-  public void setIsManager(boolean value)
+  /** @param isManager The value to set. */
+  public void setManager(boolean isManager)
   {
-    this.isManager = value;
+    this.isManager = isManager;
   }
 
-  /** @return true if the employee has access to the hr dashboard, false otherwise. */
-  public boolean getHasHRDash()
+  /** @return the hasHRDash */
+  public boolean hasHRDash()
   {
     return hasHRDash;
   }
 
-  /** @param value the value of whether the employee has access to the hr dashboard */
-  public void setHasHRDash(boolean hasHRDash)
+  /** @param hasHRDash The value to set. */
+  public void setHRDash(boolean hasHRDash)
   {
     this.hasHRDash = hasHRDash;
   }
 
-  /** @return the list of the employees reportees . */
-  public List<String> getReporteeCNs()
+  /** @return the guid */
+  public String getGuid()
   {
-    return new ArrayList<String>(reporteeCNs);
+    return guid;
   }
 
-  /**
-   * @param reportees the reportees to set
-   * @throws InvalidAttributeValueException
-   */
-  public void setReporteeCNs(List<String> reportees) throws InvalidAttributeValueException
+  /** @param guid The value to set. */
+  public void setGuid(String guid)
   {
-    // Instantiate the list if it hasn't been already done so
-    if (this.reporteeCNs == null) this.reporteeCNs = new ArrayList<String>();
-    // Add each elements inside the list
-    if (reportees != null)
-    {
-      for (String temp : reportees)
-      {
-        reporteeCNs.add(temp);
-      }
-    }
-    else throw new InvalidAttributeValueException(Constants.INVALID_NULLREPORTEESLIST);
+    this.guid = guid;
   }
 
-  /** @return the employee company. */
+  /** @return the company */
   public String getCompany()
   {
-    return this.company;
+    return company;
   }
 
-  /**
-   * @param com the company name which length must be less than 150 characters
-   * @throws InvalidAttributeValueException
-   */
-  public void setCompany(String com) throws InvalidAttributeValueException
+  /** @param company The value to set. */
+  public void setCompany(String company)
   {
-    if (com != null && com.length() > 0 && com.length() < 150) this.company = com;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_COMPANY);
+    this.company = company;
   }
 
-  /** @return the employee sopra department. */
+  /** @return the sopraDepartment */
   public String getSopraDepartment()
   {
     return sopraDepartment;
   }
 
-  /**
-   * @param sopraDepartment the sopra department to set
-   * @throws InvalidAttributeValueException
-   */
-  public void setSopraDepartment(String sopraDepartment) throws InvalidAttributeValueException
+  /** @param sopraDepartment The value to set. */
+  public void setSopraDepartment(String sopraDepartment)
   {
-    if (sopraDepartment != null && sopraDepartment.length() > 0 && sopraDepartment.length() < 150)
-    {
-      this.sopraDepartment = sopraDepartment;
-    }
-    else
-    {
-      throw new InvalidAttributeValueException(INVALID_CONTEXT_COMPANY);
-    }
+    this.sopraDepartment = sopraDepartment;
   }
 
-  /** @return the employee steria department. */
+  /** @return the steriaDepartment */
   public String getSteriaDepartment()
   {
     return steriaDepartment;
   }
 
-  /**
-   * @param steriaDepartment the steria department to set
-   * @throws InvalidAttributeValueException
-   */
-  public void setSteriaDepartment(String steriaDepartment) throws InvalidAttributeValueException
+  /** @param steriaDepartment The value to set. */
+  public void setSteriaDepartment(String steriaDepartment)
   {
-    if (steriaDepartment != null && steriaDepartment.length() > 0 && steriaDepartment.length() < 150)
-    {
-      this.steriaDepartment = steriaDepartment;
-    }
-    else
-    {
-      throw new InvalidAttributeValueException(INVALID_CONTEXT_COMPANY);
-    }
+    this.steriaDepartment = steriaDepartment;
   }
 
-  /** @return the employee sector. */
+  /** @return the sector */
   public String getSector()
   {
     return sector;
   }
 
-  /**
-   * @param sector the sector to set
-   * @throws InvalidAttributeValueException
-   */
-  public void setSector(String sector) throws InvalidAttributeValueException
+  /** @param sector The value to set. */
+  public void setSector(String sector)
   {
-    if (sector != null && sector.length() > 0 && sector.length() < 15)
-    {
-      this.sector = sector;
-    }
-    else
-    {
-      throw new InvalidAttributeValueException(INVALID_CONTEXT_COMPANY);
-    }
+    this.sector = sector;
   }
 
-  /** @return the employee super sector. */
+  /** @return the superSector */
   public String getSuperSector()
   {
     return superSector;
   }
 
-  /**
-   * @param superSector the super sector to set
-   * @throws InvalidAttributeValueException
-   */
-  public void setSuperSector(String superSector) throws InvalidAttributeValueException
+  /** @param superSector The value to set. */
+  public void setSuperSector(String superSector)
   {
-    if (superSector != null && superSector.length() > 0 && superSector.length() < 150)
-    {
-      this.superSector = superSector;
-    }
-    else
-    {
-      throw new InvalidAttributeValueException(INVALID_CONTEXT_COMPANY);
-    }
+    this.superSector = superSector;
   }
 
-  /** @return the employee GUID. */
-  public String getGUID()
+  /** @return the reporteeCNs */
+  public List<String> getReporteeCNs()
   {
-    return GUID;
+    return reporteeCNs;
   }
 
-  /**
-   * @param guid the guid to set. this will be a unique value for each employee.
-   * @throws InvalidAttributeValueException
-   */
-  public void setGUID(String guid) throws InvalidAttributeValueException
+  /** @param reporteeCNs The value to set. */
+  public void setReporteeCNs(List<String> reporteeCNs)
   {
-    if (guid != null && guid.length() > 0) this.GUID = guid;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_GUID);
+    this.reporteeCNs = reporteeCNs;
+  }
+
+  /** @return the accountExpires */
+  public Date getAccountExpires()
+  {
+    return accountExpires;
+  }
+
+  /** @param accountExpires The value to set. */
+  public void setAccountExpires(Date accountExpires)
+  {
+    this.accountExpires = accountExpires;
   }
 
   /** @return the employees full name */
@@ -386,12 +282,6 @@ public class EmployeeProfile implements Serializable
   {
     return this.forename + " " + this.surname;
   }
-
-  // public String toGson()
-  // {
-  // Gson gsonData = new Gson();
-  // return gsonData.toJson(this);
-  // }
 
   /**
    * This method adds a reportee's CN to the list of reportees
@@ -403,84 +293,55 @@ public class EmployeeProfile implements Serializable
   public boolean addReportee(String cn) throws InvalidAttributeValueException
   {
     if (this.reporteeCNs == null) this.reporteeCNs = new ArrayList<>();
-    if (cn != null && cn.length() > 1) return reporteeCNs.add(cn);
+    if (cn != null && cn.length() > 1) return this.reporteeCNs.add(cn);
     else throw new InvalidAttributeValueException(INVALID_NULLREPORTEE);
   }
 
+  /**
+   * Override of equals method.
+   *
+   * @see java.lang.Object#equals(java.lang.Object)
+   *
+   * @param o
+   * @return
+   */
   @Override
-  public boolean equals(Object obj) 
+  public boolean equals(Object o)
   {
-    // TODO update this to use Objects.equals
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    EmployeeProfile other = (EmployeeProfile) obj;
-    if (GUID == null)
-    {
-      if (other.GUID != null) return false;
-    }
-    else if (!GUID.equals(other.GUID)) return false;
-    if (company == null)
-    {
-      if (other.company != null) return false;
-    }
-    else if (!company.equals(other.company)) return false;
-    if (emailAddress == null)
-    {
-      if (other.emailAddress != null) return false;
-    }
-    else if (!emailAddress.equals(other.emailAddress)) return false;
-    if (employeeID != other.employeeID) return false;
-    if (forename == null)
-    {
-      if (other.forename != null) return false;
-    }
-    else if (!forename.equals(other.forename)) return false;
-    if (hasHRDash != other.hasHRDash) return false;
-    if (isManager != other.isManager) return false;
-    if (reporteeCNs == null)
-    {
-      if (other.reporteeCNs != null) return false;
-    }
-    else if (!reporteeCNs.equals(other.reporteeCNs)) return false;
-    if (sector == null)
-    {
-      if (other.sector != null) return false;
-    }
-    else if (!sector.equals(other.sector)) return false;
-    if (sopraDepartment == null)
-    {
-      if (other.sopraDepartment != null) return false;
-    }
-    else if (!sopraDepartment.equals(other.sopraDepartment)) return false;
-    if (steriaDepartment == null)
-    {
-      if (other.steriaDepartment != null) return false;
-    }
-    else if (!steriaDepartment.equals(other.steriaDepartment)) return false;
-    if (superSector == null)
-    {
-      if (other.superSector != null) return false;
-    }
-    else if (!superSector.equals(other.superSector)) return false;
-    if (surname == null)
-    {
-      if (other.surname != null) return false;
-    }
-    else if (!surname.equals(other.surname)) return false;
-    if (username == null)
-    {
-      if (other.username != null) return false;
-    }
-    else if (!username.equals(other.username)) return false;
-    return true;
+    if (o == this) return true;
+    if (!(o instanceof EmployeeProfile)) return false;
+    EmployeeProfile employeeProfile = (EmployeeProfile) o;
+
+    return employeeID == employeeProfile.employeeID && isManager == employeeProfile.isManager
+        && hasHRDash == employeeProfile.hasHRDash && Objects.equals(surname, employeeProfile.surname)
+        && Objects.equals(forename, employeeProfile.forename) && Objects.equals(username, employeeProfile.username)
+        && Objects.equals(emailAddress, employeeProfile.emailAddress) && Objects.equals(guid, employeeProfile.guid)
+        && Objects.equals(company, employeeProfile.company)
+        && Objects.equals(sopraDepartment, employeeProfile.sopraDepartment)
+        && Objects.equals(steriaDepartment, employeeProfile.steriaDepartment)
+        && Objects.equals(sector, employeeProfile.sector) && Objects.equals(superSector, employeeProfile.superSector)
+        && Objects.deepEquals(reporteeCNs, employeeProfile.reporteeCNs);
+  }
+
+  /**
+   * Override of hashCode method.
+   *
+   * @see java.lang.Object#hashCode()
+   *
+   * @return int hashCode value
+   */
+  @Override
+  public int hashCode()
+  {
+    return Objects.hash(employeeID, surname, forename, username, emailAddress, isManager, hasHRDash, guid, company,
+        sopraDepartment, steriaDepartment, sector, superSector, reporteeCNs);
   }
 
   @Override
   public String toString()
   {
     return "EmployeeProfile [employeeID=" + employeeID + ", surname=" + surname + ", forename=" + forename
-        + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager=" + isManager + ", GUID=" + GUID
+        + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager=" + isManager + ", GUID=" + guid
         + ", company=" + company + ", sopraDepartment=" + sopraDepartment + ", steriaDepartment=" + steriaDepartment
         + ", sector=" + sector + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + "]";
   }
@@ -510,7 +371,7 @@ public class EmployeeProfile implements Serializable
     private boolean hasHRDash;
 
     /** String Property - Represents the GUID from the AD. */
-    private String GUID;
+    private String guid;
 
     /** String Property - Represents the employee company. */
     private String company;
@@ -529,6 +390,9 @@ public class EmployeeProfile implements Serializable
 
     /** List<String> Property - Represents the list of the employees reportees. */
     private List<String> reporteeCNs;
+
+    /** Date Property - Represents the date the employees account expires. */
+    private Date accountExpires;
 
     /** @param employeeID The value to set. */
     public Builder employeeID(long employeeID)
@@ -580,9 +444,9 @@ public class EmployeeProfile implements Serializable
     }
 
     /** @param gUID The value to set. */
-    public Builder GUID(String GUID)
+    public Builder guid(String guid)
     {
-      this.GUID = GUID;
+      this.guid = guid;
       return this;
     }
 
@@ -628,13 +492,37 @@ public class EmployeeProfile implements Serializable
       return this;
     }
 
+    /** @param accountExpires The date to set. */
+    public Builder accountExpires(Date accountExpires)
+    {
+      this.accountExpires = accountExpires;
+      return this;
+    }
+
     /**
      * Builds an Employee Profile
+     * 
      * @return the EmployeeProfile
      */
     public EmployeeProfile build()
     {
+      if (!validate()) throw new InvalidEmployeeProfileException("Invalid ID");
+
       return new EmployeeProfile(this);
+    }
+
+    /**
+     * Validates the builder properties
+     * 
+     * @return true if valid, false otherwise.
+     */
+    private boolean validate()
+    {
+      if (this.reporteeCNs == null)
+      {
+        this.reporteeCNs = new ArrayList<>();
+      }
+      return (this.employeeID > 0);
     }
 
   }
