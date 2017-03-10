@@ -1,6 +1,7 @@
 package utils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.naming.NamingEnumeration;
@@ -25,5 +26,13 @@ public class Conversions
     }
     
     return result;
+  }
+  
+  public static Date ldapTimestampToDate(final String ldapTimestamp)
+  {
+    long ldapTime = Long.parseLong(ldapTimestamp);
+    long unixTime = (ldapTime - 0x19db1ded53e8000L) / 10_000L;
+    
+    return new Date(unixTime);
   }
 }

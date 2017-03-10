@@ -70,6 +70,7 @@ public class EmployeeProfileService
    * @throws NamingException
    * @throws ADConnectionException
    */
+  // TODO handle NamingException and ADConnectionException instead of throw?
   public EmployeeProfile fetchEmployeeProfile(final long employeeID)
       throws InvalidAttributeValueException, ADConnectionException, NamingException
   {
@@ -234,6 +235,118 @@ public class EmployeeProfileService
     }
   }
 
+  private EmployeeProfile authenticateSSEmailUserName(String usernameEmail)
+      throws NamingException, InvalidAttributeValueException
+  {
+    final EmployeeProfile adObj = new EmployeeProfile();
+    getProfileFromSopraAD(usernameEmail, adObj);
+
+    try
+    {
+      getProfileFromSteriaAD(adObj.getUsername(), adObj);
+    }
+    catch (Exception e)
+    {
+      // TODO handle!
+      System.err.println(e.getMessage());
+    }
+
+    return adObj;
+  }
+
+  private EmployeeProfile authenticateJVEmail(String email)
+      throws ADConnectionException, NamingException, InvalidAttributeValueException
+  {
+    EmployeeProfile adObj = new EmployeeProfile();
+
+    final String searchFilter = "(targetAddress=" + email + ")";
+
+    // Check the results retrieved
+    try (final ADConnection connection = new ADConnectionImpl(steriaADSearchSettings))
+    {
+      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_STERIA_TREE, searchFilter);
+
+      final Attributes attrs = result.next().getAttributes();
+
+      if (result.hasMoreElements())
+      {
+        LOGGER.warn(TOO_MANY_RESULTS);
+      }
+
+      getProfileFromSopraAD((String) attrs.get("sAMAccountName").get(), adObj);
+      getProfileFromSteriaAD(adObj.getUsername(), adObj);
+
+    }
+    catch (NoSuchElementException | NullPointerException | NamingException e)
+    {
+      throw new InvalidAttributeValueException(NOTFOUND_EMAILORUSERNAME_AD.concat(email));
+    }
+
+    return adObj;
+  }
+
+  // TODO Use the ADOperations and EmployeeProfileMapper classes
+  private EmployeeProfile getProfileFromSteriaAD(String username, EmployeeProfile userData)
+      throws ADConnectionException, NamingException, InvalidAttributeValueException
+  {
+    if (username == null || username.length() < 2 || userData == null)
+    {
+      throw new InvalidAttributeValueException(INVALID_CONTEXT_USERNAME);
+    }
+
+    final String searchFilter = "(sAMAccountName=" + username + ")";
+    Attribute directReports = null;
+    String superSector = null;
+    String sector = null;
+    String steriaDepartment = null;
+    boolean isManager = false;
+
+    try (final ADConnection connection = new ADConnectionImpl(steriaADSearchSettings))
+    {
+      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_STERIA_TREE, searchFilter);
+      final Attributes attrs = result.next().getAttributes();
+
+      if (result.hasMoreElements())
+      {
+        LOGGER.warn(TOO_MANY_RESULTS);
+      }
+
+      directReports = attrs.get("directReports");
+      superSector = (String) attrs.get("ou").get();
+      sector = ((String) attrs.get("SteriaSectorUnit").get()).substring(3);
+      steriaDepartment = (String) attrs.get("department").get();
+    }
+    catch (final NoSuchElementException nsee)
+    {
+      throw new InvalidAttributeValueException(NOTFOUND_USERNAME_AD.concat(username));
+    }
+
+    isManager = directReports != null;
+
+    if (isManager)
+    {
+      @SuppressWarnings("unchecked")
+      final NamingEnumeration<String> reportees = (NamingEnumeration<String>) directReports.getAll();
+
+      while (reportees.hasMoreElements())
+      {
+        final String s = reportees.next().toString();
+        final String[] t = s.split(",");
+
+        // We need to extract only the 1st element of the array, removing the first 3 chars (cn=)
+        userData.addReportee(t[0].substring(3));
+      }
+    }
+
+    userData.setManager(isManager);
+    userData.setSuperSector(superSector);
+    userData.setSector(sector);
+    userData.setSteriaDepartment(steriaDepartment);
+
+    return userData;
+  }
+
+  // TODO Use the ADOperations and EmployeeProfileMapper classes
   private EmployeeProfile getProfileFromSopraAD(String email, EmployeeProfile adObj)
       throws NamingException, InvalidAttributeValueException
   {
@@ -305,115 +418,5 @@ public class EmployeeProfileService
     }
 
     return adObj;
-  }
-
-  private EmployeeProfile authenticateJVEmail(String email)
-      throws ADConnectionException, NamingException, InvalidAttributeValueException
-  {
-    EmployeeProfile adObj = new EmployeeProfile();
-
-    final String searchFilter = "(targetAddress=" + email + ")";
-
-    // Check the results retrieved
-    try (final ADConnection connection = new ADConnectionImpl(steriaADSearchSettings))
-    {
-      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_STERIA_TREE, searchFilter);
-
-      final Attributes attrs = result.next().getAttributes();
-
-      if (result.hasMoreElements())
-      {
-        LOGGER.warn(TOO_MANY_RESULTS);
-      }
-
-      getProfileFromSopraAD((String) attrs.get("sAMAccountName").get(), adObj);
-      getProfileFromSteriaAD(adObj.getUsername(), adObj);
-
-    }
-    catch (NoSuchElementException | NullPointerException | NamingException e)
-    {
-      throw new InvalidAttributeValueException(NOTFOUND_EMAILORUSERNAME_AD.concat(email));
-    }
-
-    return adObj;
-  }
-
-  private EmployeeProfile authenticateSSEmailUserName(String usernameEmail)
-      throws NamingException, InvalidAttributeValueException
-  {
-    final EmployeeProfile adObj = new EmployeeProfile();
-    getProfileFromSopraAD(usernameEmail, adObj);
-
-    try
-    {
-      getProfileFromSteriaAD(adObj.getUsername(), adObj);
-    }
-    catch (Exception e)
-    {
-      // TODO handle!
-      System.err.println(e.getMessage());
-    }
-
-    return adObj;
-  }
-
-  private EmployeeProfile getProfileFromSteriaAD(String username, EmployeeProfile userData)
-      throws ADConnectionException, NamingException, InvalidAttributeValueException
-  {
-    if (username == null || username.length() < 2 || userData == null)
-    {
-      throw new InvalidAttributeValueException(INVALID_CONTEXT_USERNAME);
-    }
-
-    final String searchFilter = "(sAMAccountName=" + username + ")";
-    Attribute directReports = null;
-    String superSector = null;
-    String sector = null;
-    String steriaDepartment = null;
-    boolean isManager = false;
-
-    try (final ADConnection connection = new ADConnectionImpl(steriaADSearchSettings))
-    {
-      final NamingEnumeration<SearchResult> result = connection.searchAD(AD_STERIA_TREE, searchFilter);
-      final Attributes attrs = result.next().getAttributes();
-
-      if (result.hasMoreElements())
-      {
-        LOGGER.warn(TOO_MANY_RESULTS);
-      }
-
-      directReports = attrs.get("directReports");
-      superSector = (String) attrs.get("ou").get();
-      sector = ((String) attrs.get("SteriaSectorUnit").get()).substring(3);
-      steriaDepartment = (String) attrs.get("department").get();
-    }
-    catch (final NoSuchElementException nsee)
-    {
-      throw new InvalidAttributeValueException(NOTFOUND_USERNAME_AD.concat(username));
-    }
-
-    isManager = directReports != null;
-
-    if (isManager)
-    {
-      @SuppressWarnings("unchecked")
-      final NamingEnumeration<String> reportees = (NamingEnumeration<String>) directReports.getAll();
-
-      while (reportees.hasMoreElements())
-      {
-        final String s = reportees.next().toString();
-        final String[] t = s.split(",");
-
-        // We need to extract only the 1st element of the array, removing the first 3 chars (cn=)
-        userData.addReportee(t[0].substring(3));
-      }
-    }
-
-    userData.setManager(isManager);
-    userData.setSuperSector(superSector);
-    userData.setSector(sector);
-    userData.setSteriaDepartment(steriaDepartment);
-
-    return userData;
   }
 }

@@ -1,13 +1,13 @@
 package services.mappers;
 
-import java.text.ParseException;
+import static utils.Conversions.*;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.UUID;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -27,13 +27,11 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
   private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileMapper.class);
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
-  private static final String INVALID_VALUE = "Exception while attempting to set a value: {}";
   private static final String REPORTEES_NOT_FOUND = "Exception while fetching reportees: {}";
-  private static final String EMPLOYEE_NOT_FOUND = "Cannot create an EmployeeProfile: Exception thrown while fetching employeeID: {}";
-  private static final String GUID_NOT_FOUND = "Exception while fetching GUID: {}";
+  private static final String EMPLOYEE_NOT_FOUND = "Cannot create an EmployeeProfile: Exception thrown while fetching employeeID: ";
   private static final String HR_PERMISSION_NOT_FOUND = "Exception while fetching HR Dashboard Permission: {}";
   private static final String SECTOR_NOT_FOUND = "Exception while fetching sector: {}";
-  private static final String ATTRIBUTE_NOT_FOUND = "Exception while fetching a String attribute: {}";
+  private static final String ATTRIBUTE_NOT_FOUND = "Exception while fetching attribute, {}: {}";
   private static final String ACCOUNT_EXPIRES_NOT_FOUND = "Exception while fetching account expires: {}";
 
   private static final String SN = "sn";
@@ -46,7 +44,6 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
   private static final String MEMBER_OF = "memberOf";
   private static final String EXTENSION_ATTRIBUTE_7 = "extensionAttribute7";
   private static final String EXTENSION_ATTRIBUTE_2 = "extensionAttribute2";
-  private static final String OBJECT_GUID = "objectGUID";
   private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
   private static final String DIRECT_REPORTS = "directReports";
   private static final String OU = "ou";
@@ -184,22 +181,16 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
 
   private Date mapAccountExpires(final Attributes attributes)
   {
-    Date date = null;
-    String result = mapString(ACCOUNT_EXPIRES, attributes);
-
-    try
+    final String result = mapString(ACCOUNT_EXPIRES, attributes);
+    
+    // the date is returned as micros since unix epoch in String form
+    // the leaving date should be recent
+    if (result.length() < 18)
     {
-      date = DATE_FORMAT.parse(result);
+      return null;
     }
-    catch (ParseException e)
-    {
-      /**
-       * If this error is thrown, then the date cannot be parsed. This is fine as the ad will provide either a date in
-       * string format or the String literal "undefined", in which case we should set the date to be null.
-       */
-    }
-
-    return date;
+    
+    return ldapTimestampToDate(result);
   }
 
   private String mapString(final String field, final Attributes attributes)
@@ -210,9 +201,9 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
     {
       mappedString = (String) attributes.get(field).get();
     }
-    catch (NamingException | ClassCastException e)
+    catch (NamingException | ClassCastException | NullPointerException e)
     {
-      LOGGER.warn(ATTRIBUTE_NOT_FOUND, e.getMessage());
+      LOGGER.warn(ATTRIBUTE_NOT_FOUND, field, e.getMessage());
     }
 
     return mappedString;

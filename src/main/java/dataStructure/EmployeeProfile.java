@@ -1,6 +1,5 @@
 package dataStructure;
 
-import static dataStructure.Constants.INVALID_CONTEXT_COMPANY;
 import static dataStructure.Constants.INVALID_NULLREPORTEE;
 
 import java.io.Serializable;
@@ -320,7 +319,8 @@ public class EmployeeProfile implements Serializable
         && Objects.equals(sopraDepartment, employeeProfile.sopraDepartment)
         && Objects.equals(steriaDepartment, employeeProfile.steriaDepartment)
         && Objects.equals(sector, employeeProfile.sector) && Objects.equals(superSector, employeeProfile.superSector)
-        && Objects.deepEquals(reporteeCNs, employeeProfile.reporteeCNs);
+        && Objects.deepEquals(reporteeCNs, employeeProfile.reporteeCNs)
+        && Objects.equals(accountExpires, employeeProfile.accountExpires);
   }
 
   /**
@@ -334,7 +334,7 @@ public class EmployeeProfile implements Serializable
   public int hashCode()
   {
     return Objects.hash(employeeID, surname, forename, username, emailAddress, isManager, hasHRDash, guid, company,
-        sopraDepartment, steriaDepartment, sector, superSector, reporteeCNs);
+        sopraDepartment, steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
   }
 
   @Override
@@ -343,7 +343,8 @@ public class EmployeeProfile implements Serializable
     return "EmployeeProfile [employeeID=" + employeeID + ", surname=" + surname + ", forename=" + forename
         + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager=" + isManager + ", GUID=" + guid
         + ", company=" + company + ", sopraDepartment=" + sopraDepartment + ", steriaDepartment=" + steriaDepartment
-        + ", sector=" + sector + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + "]";
+        + ", sector=" + sector + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + ", accountExpires="
+        + accountExpires + "]";
   }
 
   public static class Builder

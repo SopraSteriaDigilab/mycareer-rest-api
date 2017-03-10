@@ -47,7 +47,7 @@ public class ADConfig
   private static final String AD_STERIA_PRINCIPAL = new StringBuilder("cn=").append(AD_STERIA_USERNAME).append(",")
       .append(AD_STERIA_LOGIN_TREE).toString();
   private static final String[] AD_STERIA_ATTRIBUTES = { "sn", "givenName", "mail", "targetAddress", "extensionAttribute2",
-      "sAMAccountName", "directReports", "department", "SteriaSectorUnit", "ou", "company" };
+      "sAMAccountName", "directReports", "department", "SteriaSectorUnit", "ou", "company", "accountExpires" };
   
   @Bean ADSearchSettings sopraADSearchSettings()
   {

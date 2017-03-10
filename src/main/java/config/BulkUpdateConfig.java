@@ -27,17 +27,6 @@ public class BulkUpdateConfig
   @Bean
   public BulkUpdateService bulkUpdateService() throws SequenceException
   {
-    return new BulkUpdateService(employeeService, steriaADSearchSettings, steriaFilterSequence());
-  }
-  
-  @Bean
-  public Sequence<String> steriaFilterSequence() throws SequenceException
-  {
-    return new StringSequence.StringSequenceBuilder()
-                              .initial("CN=A*") // first call to next() will return this
-                              .characterToChange(3) // 'A'
-                              .increment(1) // increment by one character
-                              .size(26) // 26 Strings in the sequence
-                              .build();
+    return new BulkUpdateService(employeeService, steriaADSearchSettings);
   }
 }
