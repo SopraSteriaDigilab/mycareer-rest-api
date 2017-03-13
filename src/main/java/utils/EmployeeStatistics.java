@@ -31,7 +31,7 @@ public class EmployeeStatistics
   public final static String[] DEVELOPMENT_NEEDS_FIELDS = { "developmentNeeds" };
 
   /** String[] Constant - Represents fields to be used in the sector statistics */
-  public final static String[] SECTOR_FIELDS = { "profile.superSector", "objectives", "developmentNeeds" };
+  public final static String[] SECTOR_FIELDS = { "profile.employeeID", "profile.superSector", "objectives", "developmentNeeds" };
 
   /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
   public final static String[] DEVELOPMENT_NEED_CATEGORIES = { "On Job Training", "Classroom Training",
@@ -262,7 +262,7 @@ public class EmployeeStatistics
    * @param employee
    */
   private void groupSector(List<Map<String, Object>> statistics, Employee employee)
-  {
+  { 
     Map<String, Object> map = new HashMap<>();
     
     String profileSector = employee.getProfile().getSuperSector();
@@ -286,8 +286,8 @@ public class EmployeeStatistics
       
       map.put("sector", sector);
       map.put("employees", 1);
-      map.put("noWithObjs", 1);
-      map.put("noWithDevNeeds", 1);
+      map.put("noWithObjs", (employee.getLatestVersionObjectives().isEmpty()) ? 0 : 1 );
+      map.put("noWithDevNeeds", (employee.getLatestVersionDevelopmentNeeds().isEmpty()) ? 0 : 1 );
       statistics.add(map);
     }
   }

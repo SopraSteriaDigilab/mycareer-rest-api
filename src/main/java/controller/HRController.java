@@ -31,6 +31,14 @@ public class HRController
   {
     return ResponseEntity.ok(hrService.getMyCareerStats());
   }
+  
+  
+  @RequestMapping(value = "/testDevNeeds", method = GET)
+  public ResponseEntity<?> testDevNeeds()
+  {
+    return ResponseEntity.ok(hrService.testDevNeeds());
+  }
+
 
   /**
    * GET End Point - Gets lists of employees with department data
