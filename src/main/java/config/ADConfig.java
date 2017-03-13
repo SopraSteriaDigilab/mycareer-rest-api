@@ -29,6 +29,7 @@ public class ADConfig
 
   private static final String AUTHENTICATION = "simple";
   private static final String LDAP_CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
+  private static final String BINARY_ATTRIBUTES_KEY = "java.naming.ldap.attributes.binary";
   private static final String TIMEOUT_ATTRIBUTE_KEY = "com.sun.jndi.ldap.read.timeout";
   private static final String TIMEOUT_ATTRIBUTE = "30000";
 
