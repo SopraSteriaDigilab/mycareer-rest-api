@@ -48,8 +48,7 @@ public class NoteTest
    unitUnderTestEmpty.setId(NOTE_ID);
    unitUnderTestEmpty.setProviderName(PROVIDER_NAME);
    unitUnderTestEmpty.setNoteDescription(NOTE_DESCRIPTION);   
-   unitUnderTestEmpty.setTimestamp();   
-   unitUnderTest = new Note(unitUnderTestEmpty);
+   unitUnderTestEmpty.setTimestamp();
   }
    
   

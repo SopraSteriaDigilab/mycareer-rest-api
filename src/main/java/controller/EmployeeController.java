@@ -1,16 +1,15 @@
 package controller;
 
 import static dataStructure.Constants.UK_TIMEZONE;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.http.HttpStatus.OK;
 import static services.validate.ValidateAppController.isValidCreateFeedbackRequest;
 
 import java.io.IOException;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,9 +17,11 @@ import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,24 +29,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
-import dataStructure.ADProfile_Advanced_OLD;
-import dataStructure.ADProfile_Basic_OLD;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
-import services.EmployeeProfileService;
 import services.EmployeeService;
 import services.ad.ADConnectionException;
 import services.ews.EmailService;
@@ -58,18 +56,21 @@ import utils.Template;
 @CrossOrigin
 @RestController
 @PropertySource("${ENVIRONMENT}.properties")
+@Validated
 public class EmployeeController
 {
 
   /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
   private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 
-  private static final String ERROR_ID_EMPTY = "ID must not be empty";
+  private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
+
+  private static final String ERROR_NOTE_PROVIDER_NAME_EMPTY = "Provider name can not be empty.";
+  private static final String ERROR_NOTE_DESCRIPTION_EMPTY = "Note description can not be empty.";
+  private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
+  private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
 
   private final EmployeeService employeeService = new EmployeeService();
-
-  // /** TYPE Property|Constant - Represents|Indicates... */
-  // private final EmployeeProfileDAO profileDAO = new EmployeeProfileDAO();
 
   /** Environment Property - Reference to environment to get property details. */
   @Autowired
@@ -182,7 +183,7 @@ public class EmployeeController
    */
   @RequestMapping(value = "/getNotes/{employeeID}", method = GET)
   public ResponseEntity<?> getNotes(
-      @PathVariable @NotNull(message = ERROR_ID_EMPTY) @NotEmpty(message = ERROR_ID_EMPTY) long employeeID)
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
   {
     try
     {
@@ -419,13 +420,13 @@ public class EmployeeController
    *
    */
   @RequestMapping(value = "/addNote/{employeeID}", method = POST)
-  public ResponseEntity<?> addNote(
-      @PathVariable @NotNull(message = ERROR_ID_EMPTY) @NotEmpty(message = ERROR_ID_EMPTY) long employeeID,
-      @RequestBody @Valid Note note)
+  public ResponseEntity<String> addNote(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @NotBlank(message = ERROR_NOTE_PROVIDER_NAME_EMPTY) @Size(max = 150, message = ERROR_PROVIDER_NAME_LIMIT) String providerName,
+      @RequestParam @NotBlank(message = ERROR_NOTE_DESCRIPTION_EMPTY) @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT) String noteDescription)
   {
     try
     {
-      employeeService.addNote(employeeID, new Note(note));
+      employeeService.addNote(employeeID, new Note(providerName, noteDescription));
       return ok("Note inserted");
     }
     catch (InvalidAttributeValueException e)
@@ -443,13 +444,14 @@ public class EmployeeController
    */
   @RequestMapping(value = "/addNoteToReportee/{employeeID}", method = POST)
   public ResponseEntity<String> addNoteToReportee(
-      @PathVariable @NotNull(message = ERROR_ID_EMPTY) @NotEmpty(message = ERROR_ID_EMPTY) long employeeID,
-      @RequestParam @NotNull(message = ERROR_ID_EMPTY) @NotEmpty(message = ERROR_ID_EMPTY) long reporteeEmployeeID,
-      @RequestBody @Valid Note note)
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeEmployeeID,
+      @NotBlank(message = ERROR_NOTE_PROVIDER_NAME_EMPTY) @Size(max = 150, message = ERROR_PROVIDER_NAME_LIMIT) String providerName,
+      @NotBlank(message = ERROR_NOTE_DESCRIPTION_EMPTY) @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT) String noteDescription)
   {
     try
     {
-      employeeService.addNoteToReportee(reporteeEmployeeID, new Note(note));
+      employeeService.addNoteToReportee(reporteeEmployeeID, new Note(providerName, noteDescription));
       return ok("Note inserted correctly");
     }
     catch (InvalidAttributeValueException e)
