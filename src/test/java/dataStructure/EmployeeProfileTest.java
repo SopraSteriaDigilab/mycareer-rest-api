@@ -339,8 +339,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetIsManager() throws InvalidAttributeValueException
   {  
-    unitUnderTest.setManager(true);
-    assertEquals(unitUnderTest.isManager(),true);
+    unitUnderTest.setIsManager(true);
+    assertEquals(unitUnderTest.getIsManager(),true);
   }
   
   /**
@@ -351,8 +351,8 @@ public class EmployeeProfileTest
   @Test
   public void testSetHasHRDash() throws InvalidAttributeValueException
   {  
-    unitUnderTest.setHRDash(true);
-    assertEquals(unitUnderTest.hasHRDash(),true);
+    unitUnderTest.setHasHRDash(true);
+    assertEquals(unitUnderTest.getHasHRDash(),true);
   }
   
   /**
@@ -853,10 +853,10 @@ public class EmployeeProfileTest
     employeeProfile.setForename(unitUnderTest.getForename()); 
     assertEquals(unitUnderTest.equals(employeeProfile),false);
     
-    employeeProfile.setHRDash(unitUnderTest.hasHRDash()); 
+    employeeProfile.setHasHRDash(unitUnderTest.getHasHRDash()); 
     assertEquals(unitUnderTest.equals(employeeProfile),false);
     
-    employeeProfile.setManager(unitUnderTest.isManager()); 
+    employeeProfile.setIsManager(unitUnderTest.getIsManager()); 
     assertEquals(unitUnderTest.equals(employeeProfile),false);
     
     employeeProfile.setReporteeCNs(unitUnderTest.getReporteeCNs());     
@@ -889,7 +889,7 @@ public class EmployeeProfileTest
   public void testToString()
   {
     assertEquals(unitUnderTest.toString() , "EmployeeProfile [employeeID=" + unitUnderTest.getEmployeeID() + ", surname=" + unitUnderTest.getSurname() + ", forename=" + unitUnderTest.getForename()
-    + ", username=" + unitUnderTest.getUsername() + ", emailAddress=" + unitUnderTest.getEmailAddress() + ", isManager=" + unitUnderTest.isManager() + ", GUID=" + unitUnderTest.getGuid()
+    + ", username=" + unitUnderTest.getUsername() + ", emailAddress=" + unitUnderTest.getEmailAddress() + ", isManager=" + unitUnderTest.getIsManager() + ", GUID=" + unitUnderTest.getGuid()
     + ", company=" + unitUnderTest.getCompany() + ", sopraDepartment=" + unitUnderTest.getSopraDepartment() + ", steriaDepartment="
     + unitUnderTest.getSteriaDepartment() + ", sector=" + unitUnderTest.getSector() + ", superSector=" + unitUnderTest.getSuperSector() + ", reporteeCNs=" + unitUnderTest.getReporteeCNs()
     + "]" );

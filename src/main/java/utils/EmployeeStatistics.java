@@ -271,7 +271,10 @@ public class EmployeeStatistics
   private void groupSector(List<Map> statistics, Employee employee)
   {
     Map<String, Object> map = new HashMap<>();
-    String sector = employee.getProfile().getSuperSector();
+    
+    String profileSector = employee.getProfile().getSuperSector();
+    String sector = (profileSector == null) ? "unknown" : profileSector;
+    
     Optional<Map> optionalMap = statistics.stream().filter(m -> m.get("sector").equals(sector)).findFirst();
     if (optionalMap.isPresent())
     {
@@ -287,6 +290,7 @@ public class EmployeeStatistics
     }
     else
     {
+      
       map.put("sector", sector);
       map.put("employees", 1);
       map.put("noWithObjs", 1);

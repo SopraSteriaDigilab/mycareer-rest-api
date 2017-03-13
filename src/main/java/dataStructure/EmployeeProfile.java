@@ -157,25 +157,25 @@ public class EmployeeProfile implements Serializable
   }
 
   /** @return the isManager */
-  public boolean isManager()
+  public boolean getIsManager()
   {
     return isManager;
   }
 
   /** @param isManager The value to set. */
-  public void setManager(boolean isManager)
+  public void setIsManager(boolean isManager)
   {
     this.isManager = isManager;
   }
 
   /** @return the hasHRDash */
-  public boolean hasHRDash()
+  public boolean getHasHRDash()
   {
     return hasHRDash;
   }
 
   /** @param hasHRDash The value to set. */
-  public void setHRDash(boolean hasHRDash)
+  public void setHasHRDash(boolean hasHRDash)
   {
     this.hasHRDash = hasHRDash;
   }

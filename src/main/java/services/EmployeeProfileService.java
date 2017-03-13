@@ -338,7 +338,7 @@ public class EmployeeProfileService
       }
     }
 
-    userData.setManager(isManager);
+    userData.setIsManager(isManager);
     userData.setSuperSector(superSector);
     userData.setSector(sector);
     userData.setSteriaDepartment(steriaDepartment);
@@ -398,7 +398,7 @@ public class EmployeeProfileService
       }
 
       adObj.setGuid(uid.toString());
-      adObj.setHRDash(hasHRDash);
+      adObj.setHasHRDash(hasHRDash);
       adObj.setSurname((String) attrs.get("sn").get());
       adObj.setForename((String) attrs.get("givenName").get());
       adObj.setEmailAddress((String) attrs.get("mail").get());
