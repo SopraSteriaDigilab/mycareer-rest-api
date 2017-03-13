@@ -49,10 +49,10 @@ public class EmployeeStatistics
    * @param feedbacks
    * @return A Map<String, Object> with the statistics
    */
-  public Map<String, Object> getMyCareerStats(long users, long objectives, long devNeeds, long notes, long competencies,
+  public Map<String, Long> getMyCareerStats(long users, long objectives, long devNeeds, long notes, long competencies,
       long feedbackRequests, long feedbacks)
   {
-    Map<String, Object> map = new HashMap<>();
+    Map<String, Long> map = new HashMap<>();
     map.put("totalAccounts", users);
     map.put("usersWithObjectives", objectives);
     map.put("usersWithDevNeeds", devNeeds);
@@ -69,10 +69,9 @@ public class EmployeeStatistics
    * @param employees
    * @return A List<Map> with the statistics
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getEmployeeStats(List<Employee> employees)
+  public List<Map<String, Object>> getEmployeeStats(List<Employee> employees)
   {
-    List<Map> statistics = new ArrayList<>();
+    List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> {
       Map<String, Object> map = getBasicMap(e);
       map.put("lastLogon",
@@ -88,10 +87,9 @@ public class EmployeeStatistics
    * @param employees
    * @return A List<Map> with the statistics
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getFeedbackStats(List<Employee> employees)
+  public List<Map<String, Object>> getFeedbackStats(List<Employee> employees)
   {
-    List<Map> statistics = new ArrayList<>();
+    List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> {
       Map<String, Object> map = getBasicMap(e);
       map.put("totalFeedback", e.getFeedback().size());
@@ -106,10 +104,9 @@ public class EmployeeStatistics
    * @param employees
    * @return A List<Map> with the statistics
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getObjectiveStats(List<Employee> employees)
+  public List<Map<String, Object>> getObjectiveStats(List<Employee> employees)
   {
-    List<Map> statistics = new ArrayList<>();
+    List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> {
       Map<String, Object> map = getBasicMap(e);
       addObjectivesCounts(map, e.getLatestVersionObjectives());
@@ -124,10 +121,9 @@ public class EmployeeStatistics
    * @param employees
    * @return A List<Map> with the statistics
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getDevelopmentNeedStats(List<Employee> employees)
+  public List<Map<String, Object>> getDevelopmentNeedStats(List<Employee> employees)
   {
-    List<Map> statistics = new ArrayList<>();
+    List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> {
       Map<String, Object> map = getBasicMap(e);
       addDevNeedsCounts(map, e.getLatestVersionDevelopmentNeeds());
@@ -142,10 +138,9 @@ public class EmployeeStatistics
    * @param employees
    * @return A List<Map> with the statistics
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getDevelopmentNeedBreakDown(List<Employee> employees)
+  public List<Map<String, Object>> getDevelopmentNeedBreakDown(List<Employee> employees)
   {
-    List<Map> statistics = new ArrayList<>();
+    List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> {
       e.getLatestVersionDevelopmentNeeds().forEach(d -> {
         if (d.getProgress() == 2) return;
@@ -164,10 +159,9 @@ public class EmployeeStatistics
    * @param employees
    * @return A List<Map> with the statistics
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public List<Map> getSectorBreakDown(List<Employee> employees)
+  public List<Map<String, Object>> getSectorBreakDown(List<Employee> employees)
   {
-    List<Map> statistics = new ArrayList<>();
+    List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> groupSector(statistics, e));
     statistics.forEach(m -> {
       double e = ((Integer) m.get("employees"));
@@ -267,15 +261,14 @@ public class EmployeeStatistics
    * @param statistics
    * @param employee
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private void groupSector(List<Map> statistics, Employee employee)
+  private void groupSector(List<Map<String, Object>> statistics, Employee employee)
   {
     Map<String, Object> map = new HashMap<>();
     
     String profileSector = employee.getProfile().getSuperSector();
     String sector = (profileSector == null) ? "unknown" : profileSector;
     
-    Optional<Map> optionalMap = statistics.stream().filter(m -> m.get("sector").equals(sector)).findFirst();
+    Optional<Map<String, Object>> optionalMap = statistics.stream().filter(m -> m.get("sector").equals(sector)).findFirst();
     if (optionalMap.isPresent())
     {
       optionalMap.get().put("employees", (Integer) optionalMap.get().get("employees") + 1);

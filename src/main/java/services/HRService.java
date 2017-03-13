@@ -52,7 +52,7 @@ public class HRService
    *
    * @return A Map<String, Object> with the Statistics for MyCareer
    */
-  public Map<String, Object> getMyCareerStats()
+  public Map<String, Long> getMyCareerStats()
   {
     Query<Employee> empQuery = employeeQuery();
     return employeeStats.getMyCareerStats(empQuery.countAll(), countAll(empQuery, "objectives"),
@@ -65,8 +65,7 @@ public class HRService
    *
    * @return List<Map> of employees that have logged in.
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getEmployeeStats()
+  public List<Map<String, Object>> getEmployeeStats()
   {
     List<Employee> employees = employeeQuery().retrievedFields(true, EMPLOYEE_FIELDS).asList();
     return employeeStats.getEmployeeStats(employees);
@@ -77,8 +76,7 @@ public class HRService
    *
    * @return List<Map> of statistics for feedback
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getFeedbackStats()
+  public List<Map<String, Object>> getFeedbackStats()
   {
     List<Employee> employees = employeeQuery().field("feedback").exists()
         .retrievedFields(true, addAll(EMPLOYEE_FIELDS, FEEDBACK_FIELDS)).asList();
@@ -90,8 +88,7 @@ public class HRService
    *
    * @return List<Map> of statistics for objectives
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getObjectiveStats()
+  public List<Map<String, Object>> getObjectiveStats()
   {
     List<Employee> employees = employeeQuery().retrievedFields(true, addAll(EMPLOYEE_FIELDS, OBJECTIVES_FIELDS))
         .asList();
@@ -103,8 +100,7 @@ public class HRService
    *
    * @return List<Map> of statistics for development needs
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getDevelopmentNeedStats()
+  public List<Map<String, Object>> getDevelopmentNeedStats()
   {
     List<Employee> employees = employeeQuery().field("developmentNeeds").exists()
         .retrievedFields(true, addAll(EMPLOYEE_FIELDS, DEVELOPMENT_NEEDS_FIELDS)).asList();
@@ -117,8 +113,7 @@ public class HRService
    *
    * @return List<Map> of development need breakdown statistics
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getDevelopmentNeedBreakDown()
+  public List<Map<String, Object>> getDevelopmentNeedBreakDown()
   {
     List<Employee> employees = employeeQuery().field("developmentNeeds").exists()
         .retrievedFields(true, addAll(EMPLOYEE_FIELDS, DEVELOPMENT_NEEDS_FIELDS)).asList();
@@ -130,8 +125,7 @@ public class HRService
    *
    * @return Map<String, Object> of sector need breakdown statistics
    */
-  @SuppressWarnings("rawtypes")
-  public List<Map> getSectorBreakDown()
+  public List<Map<String, Object>> getSectorBreakDown()
   {
     List<Employee> employees = employeeQuery().retrievedFields(true, SECTOR_FIELDS).asList();
     return employeeStats.getSectorBreakDown(employees);
