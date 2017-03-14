@@ -11,7 +11,7 @@ import utils.Utils;
  * 
  * @deprecated This will be replaced with Spring Rest.
  * 
- */
+ *///TODO remove.
 public class ValidateAppController
 {
 

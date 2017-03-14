@@ -11,6 +11,7 @@ import static services.validate.ValidateAppController.isValidCreateFeedbackReque
 import java.io.IOException;
 import java.time.YearMonth;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
+import application.GlobalExceptionHandler;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
@@ -548,7 +550,7 @@ public class EmployeeController
   }
 
   @RequestMapping(value = "/toggleDevNeedArchive/{employeeID}", method = POST)
-  public ResponseEntity<String> toggleDevNeedArchive(
+  public ResponseEntity<?> toggleDevNeedArchive(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
       @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedID)
   {
@@ -559,7 +561,7 @@ public class EmployeeController
     }
     catch (InvalidAttributeValueException e)
     {
-      return badRequest().body(e.getMessage());
+      return badRequest().body(GlobalExceptionHandler.error(e.getMessage()));
     }
    
   }

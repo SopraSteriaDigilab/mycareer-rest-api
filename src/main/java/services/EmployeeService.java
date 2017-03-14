@@ -63,9 +63,12 @@ public class EmployeeService
   private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeService.class);
 
   private static final String ERROR_USER_NOT_FOUND = "The given user ID does not exist.";
-
+  private static final String INVALID_DEVELOPMENT_NEED_ID = "The given development Need ID does not exist.";
+  
   /** String Constant - Represents Feedback Request */
   public static final String FEEDBACK_REQUEST = "Feedback Request";
+
+
 
   // There is only 1 instance of the Datastore in the whole system
   private static Datastore dbConnection;
@@ -604,6 +607,10 @@ public class EmployeeService
     Query<Employee> querySearch = getEmployeeQuery(employeeID);
     Employee employee = querySearch.get();
     DevelopmentNeed curDevNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(developmentNeedID);
+    
+    if(curDevNeed == null)
+      throw new InvalidAttributeValueException(INVALID_DEVELOPMENT_NEED_ID);
+    
     DevelopmentNeed developmentNeed = new DevelopmentNeed(curDevNeed);
     developmentNeed.setIsArchived(!developmentNeed.getIsArchived());
 

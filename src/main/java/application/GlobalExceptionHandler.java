@@ -65,7 +65,7 @@ public class GlobalExceptionHandler
    * @param message
    * @return
    */
-  private Map<String, Object> error(Object message)
+  public static Map<String, Object> error(Object message)
   {
     return Collections.singletonMap("error", message);
   }
