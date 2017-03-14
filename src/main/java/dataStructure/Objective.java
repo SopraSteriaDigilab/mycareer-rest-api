@@ -26,8 +26,6 @@ public class Objective implements Serializable
   private int id, progress, performance;
   private boolean isArchived;
   private String title, description, timeStamp, timeToCompleteBy, proposedBy;
-  // @Embedded
-  // private List<Feedback> feedback;
 
   // Empty Constructor
   public Objective()
@@ -41,7 +39,6 @@ public class Objective implements Serializable
     this.proposedBy = "";
     this.timeStamp = null;
     this.timeToCompleteBy = null;
-    // feedback=new ArrayList<Feedback>();
   }
 
   // Constructor with Parameters

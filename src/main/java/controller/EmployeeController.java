@@ -18,11 +18,9 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +62,8 @@ public class EmployeeController
   private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
-
+  private static final String ERROR_DEVELOPMENT_NEED_ID = "The given Development Need ID is invalid";
+  
   private static final String ERROR_NOTE_PROVIDER_NAME_EMPTY = "Provider name can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_EMPTY = "Note description can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
@@ -182,8 +181,7 @@ public class EmployeeController
    * @return list of notes
    */
   @RequestMapping(value = "/getNotes/{employeeID}", method = GET)
-  public ResponseEntity<?> getNotes(
-      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
+  public ResponseEntity<?> getNotes(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
   {
     try
     {
@@ -547,6 +545,23 @@ public class EmployeeController
     {
       return badRequest().body(e.getMessage());
     }
+  }
+
+  @RequestMapping(value = "/toggleDevNeedArchive/{employeeID}", method = POST)
+  public ResponseEntity<String> toggleDevNeedArchive(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedID)
+  {
+    try
+    {
+      employeeService.toggleDevNeedArchive(employeeID, developmentNeedID);
+      return ok("Development Need udpated");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+   
   }
 
   // /**

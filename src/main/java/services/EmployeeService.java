@@ -599,6 +599,22 @@ public class EmployeeService
     return false;
   }
 
+  public void toggleDevNeedArchive(long employeeID, int developmentNeedID) throws InvalidAttributeValueException
+  {
+    Query<Employee> querySearch = getEmployeeQuery(employeeID);
+    Employee employee = querySearch.get();
+    DevelopmentNeed curDevNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(developmentNeedID);
+    DevelopmentNeed developmentNeed = new DevelopmentNeed(curDevNeed);
+    developmentNeed.setIsArchived(!developmentNeed.getIsArchived());
+
+    if (employee.editDevelopmentNeed(developmentNeed))
+    {
+      UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds",
+          employee.getDevelopmentNeedsList());
+      dbConnection.update(querySearch, ops);
+    }
+  }
+
   /**
    * Sends Emails to the recipients and updates the database.
    * 
@@ -831,4 +847,5 @@ public class EmployeeService
         employee.getLastLogon());
     dbConnection.update(employee, ops);
   }
+
 }

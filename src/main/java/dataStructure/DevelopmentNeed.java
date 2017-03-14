@@ -23,6 +23,7 @@ public class DevelopmentNeed implements Serializable
   private static final long serialVersionUID = -5067508122602507151L;
   // Global Variables
   private int id, progress, category;
+  private boolean isArchived;
   private String title, description, timeStamp, timeToCompleteBy;
 
   // Empty Constructor
@@ -31,6 +32,7 @@ public class DevelopmentNeed implements Serializable
     this.id = Constants.INVALID_INT;
     this.progress = Constants.INVALID_INT;
     this.category = Constants.INVALID_INT;
+    this.isArchived = false;
     this.title = Constants.INVALID_STRING;
     this.description = Constants.INVALID_STRING;
     this.timeStamp = null;
@@ -44,6 +46,7 @@ public class DevelopmentNeed implements Serializable
     this.setID(id);
     this.setProgress(progress);
     this.setCategory(cat);
+    this.isArchived = false;
     this.setTitle(title);
     this.setDescription(description);
     this.timeStamp = null;
@@ -58,6 +61,7 @@ public class DevelopmentNeed implements Serializable
     this.setID(id);
     this.setProgress(progress);
     this.setCategory(cat);
+    this.isArchived = false;
     this.setTitle(title);
     this.setDescription(description);
     this.timeStamp = null;
@@ -66,6 +70,18 @@ public class DevelopmentNeed implements Serializable
   }
 
   // Getters and Setters
+
+  public DevelopmentNeed(DevelopmentNeed devNeed) throws InvalidAttributeValueException
+  {
+    this.setID(devNeed.getID());
+    this.setProgress(devNeed.getProgress());
+    this.setCategory(devNeed.getCategory());
+    this.isArchived = devNeed.getIsArchived();
+    this.setTitle(devNeed.getTitle());
+    this.setDescription(devNeed.getDescription());
+    this.setTimeStamp();
+    this.setTimeToCompleteBy(devNeed.getTimeToCompleteBy());
+  }
 
   public void setID(int id) throws InvalidAttributeValueException
   {
@@ -103,6 +119,18 @@ public class DevelopmentNeed implements Serializable
   {
     return this.category;
   }
+  
+  /** @return the isArchived */
+  public boolean getIsArchived()
+  {
+    return isArchived;
+  }
+
+  /** @param isArchived The value to set. */
+  public void setIsArchived(boolean isArchived)
+  {
+    this.isArchived = isArchived;
+  }
 
   /**
    * 
@@ -137,7 +165,7 @@ public class DevelopmentNeed implements Serializable
   /**
    * This method creates a timestamp when the object is created
    */
-  private void setTimeStamp()
+  public void setTimeStamp()
   {
     // Check if the timeStamp has already a value assigned
     if (timeStamp == null) this.timeStamp = LocalDateTime.now(UK_TIMEZONE).toString();
