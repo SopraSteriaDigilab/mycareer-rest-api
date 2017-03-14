@@ -1,6 +1,6 @@
 package dataStructure;
 
-import static services.validate.Validate.isNull;
+import static utils.Validate.isNull;
 
 import java.io.Serializable;
 import java.time.Instant;

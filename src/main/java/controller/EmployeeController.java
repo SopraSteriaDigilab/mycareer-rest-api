@@ -45,8 +45,8 @@ import dataStructure.Objective;
 import services.EmployeeService;
 import services.ad.ADConnectionException;
 import services.ews.EmailService;
-import services.validate.Validate;
 import utils.Template;
+import utils.Validate;
 
 /**
  * This class contains all the available roots of the web service

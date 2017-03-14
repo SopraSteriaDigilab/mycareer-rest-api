@@ -48,9 +48,9 @@ import dataStructure.Note;
 import dataStructure.Objective;
 import services.ad.ADConnectionException;
 import services.ews.EmailService;
-import services.validate.Validate;
 import utils.Template;
 import utils.Utils;
+import utils.Validate;
 
 /**
  * This class contains the definition of the EmployeeDAO object

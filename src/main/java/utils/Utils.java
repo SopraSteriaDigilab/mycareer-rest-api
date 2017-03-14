@@ -21,8 +21,6 @@ import javax.naming.directory.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import services.validate.Validate;
-
 /**
  * Helper class that provides various helper methods throughout the application.
  */
@@ -155,7 +153,7 @@ public class Utils
    * @param feedbackRequestID
    * @return The employeeID if the feedbackRequestID is in the valid format
    * @throws InvalidAttributeValueException if the feedbackRequestID is invalid
-   * @see {@linkplain services.validate.Validate #isValidFeedbackRequestID(String) isValidFeedbackRequest(String)}
+   * @see {@linkplain utils.Validate #isValidFeedbackRequestID(String) isValidFeedbackRequest(String)}
    */
   public static long getEmployeeIDFromRequestID(String feedbackRequestID) throws InvalidAttributeValueException
   {
