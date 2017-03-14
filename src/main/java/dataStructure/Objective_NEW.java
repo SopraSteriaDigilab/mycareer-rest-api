@@ -48,28 +48,18 @@ public class Objective_NEW extends DBObject
   private static final long serialVersionUID = -8210647573312345743L;
 
   /** String Property - Represents the objective title */
-  @NotBlank(message = ERROR_EMPTY)
-  @Size(max = 150, message = ERROR_TITLE_LIMIT)
   private String title;
 
   /** String Property - Represents the objective description */
-  @NotBlank(message = ERROR_EMPTY)
-  @Size(max = 2000, message = ERROR_DESCRIPTION_LIMIT_2000)
   private String description;
 
   /** String Property - Represents the due date of the objective */
-  @NotBlank(message = ERROR_EMPTY)
-  @DateTimeFormat(pattern = "dd/MM/yyyy") // TODO Figure out the best pattern.
-  private Date dueDate; // TODO Use LocalDate and convert to Date? or vice versa?
+  private Date dueDate;
 
   /** String Property - Represents the name of the person that made the objective */
-  @NotBlank(message = ERROR_EMPTY)
-  @Size(max = 150, message = ERROR_NAME_LIMIT)
   private String proposedBy;
 
   /** String Property - Represents the progress of the objective */
-  @NotBlank(message = ERROR_EMPTY)
-  @Pattern(regexp = "^(Proposed)|(InProgress)|(Complete)$")
   private Progress progress;
 
   /** boolean Property - Represents the state of the objective */
@@ -81,7 +71,7 @@ public class Objective_NEW extends DBObject
   public Objective_NEW()
   {
   }
-
+  
   /**
    * Objective_NEW Constructor - Responsible for initialising this object.
    *
@@ -95,6 +85,16 @@ public class Objective_NEW extends DBObject
     this.setProposedBy(proposedBy);
     this.setProgress(Progress.PROPOSED);
     this.setArchived(false);
+  }
+  
+  /**
+   * Objective_NEW Constructor - Responsible for initialising this object.
+   *
+   */
+  public Objective_NEW(int id, String title, String description, LocalDate dueDate, String proposedBy)
+  {
+    this(title, description, dueDate, proposedBy);
+    this.setId(id);    
   }
 
   /** @return the title. */

@@ -8,6 +8,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -42,6 +44,7 @@ import dataStructure.DevelopmentNeed;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
+import dataStructure.Objective_NEW;
 import services.EmployeeService;
 import services.ad.ADConnectionException;
 import services.ews.EmailService;
@@ -62,16 +65,19 @@ public class EmployeeController
   private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
-  private static final String ERROR_DEVELOPMENT_NEED_ID = "The given Development Need ID is invalid";
- 
+  private static final String ERROR_TITLE_LIMIT = "Max Title lenght is 150 characters";
+  private static final String ERROR_TITLE_EMPTY = "Title can not be empty";
+  private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
   private static final String ERROR_EMAIL_RECIPIENTS_EMPTY = "The emailsTo field can not be empty";
-  private static final String ERROR_EMAIL_NOTES_EMPTY = "The notes field can not be empty";
+  private static final String ERROR_DUE_DATE_EMPTY = "Due Date can not be empty";
+  private static final String ERROR_PROPOSED_BY_LIMIT = "Max ProposedBy length is 150 characters";
+  private static final String ERROR_PROPOSED_BY_EMPTY = "ProbosedBy can not be empty";
+
   private static final String ERROR_NOTE_PROVIDER_NAME_EMPTY = "Provider name can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_EMPTY = "Note description can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
-  private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
 
-
+  private static final String ERROR_DEVELOPMENT_NEED_ID = "The given Development Need ID is invalid";
 
   private final EmployeeService employeeService = new EmployeeService();
 
@@ -565,7 +571,7 @@ public class EmployeeController
     {
       return badRequest().body(GlobalExceptionHandler.error(e.getMessage()));
     }
-   
+
   }
 
   // /**
@@ -601,10 +607,11 @@ public class EmployeeController
   // return badRequest().body(e.getMessage());
   // }
   // }
-  
+
   @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
-  public ResponseEntity<String> createFeedbackRequest(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
-      @RequestParam @NotBlank(message = ERROR_EMAIL_RECIPIENTS_EMPTY)  String emailsTo,
+  public ResponseEntity<String> createFeedbackRequest(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @NotBlank(message = ERROR_EMAIL_RECIPIENTS_EMPTY) String emailsTo,
       @RequestParam @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT) String notes)
   {
     try
@@ -812,5 +819,60 @@ public class EmployeeController
       return badRequest().body(result + e.getMessage() + ", ");
     }
   }
+
+  
+  //////////////////// START
+  
+  @RequestMapping(value = "/getObjectivesNEW/{employeeID}", method = GET)
+  public ResponseEntity<?> getObjectivesNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
+  {
+    try
+    {
+      return ok(employeeService.getObjectivesNEW(employeeID));
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+
+  @RequestMapping(value = "/addObjectiveNEW/{employeeID}", method = POST)
+  public ResponseEntity<?> addObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @NotBlank(message = ERROR_DUE_DATE_EMPTY) @DateTimeFormat(pattern = "yyyy-MM-dd") String dueDate,
+      @RequestParam @NotBlank(message = ERROR_PROPOSED_BY_EMPTY) @Size(max = 150, message = ERROR_PROPOSED_BY_LIMIT) String proposedBy)
+  {
+    try
+    {
+      employeeService.addObjectiveNEW(employeeID, new Objective_NEW(title, description, LocalDate.parse(dueDate), proposedBy));
+      return ok("Objective inserted correctly");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+  
+  @RequestMapping(value = "/editObjectiveNEW/{employeeID}", method = POST)
+  public ResponseEntity<?> editObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) int objectiveID,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @NotBlank(message = ERROR_DUE_DATE_EMPTY) @DateTimeFormat(pattern = "yyyy-MM-dd") String dueDate,
+      @RequestParam @NotBlank(message = ERROR_PROPOSED_BY_EMPTY) @Size(max = 150, message = ERROR_PROPOSED_BY_LIMIT) String proposedBy)
+  {
+    try
+    {
+      employeeService.editObjectiveNEW(employeeID, new Objective_NEW(objectiveID, title, description, LocalDate.parse(dueDate), proposedBy));
+      return ok("Objective updated correctly");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+  
+//////////////////// END
 
 }

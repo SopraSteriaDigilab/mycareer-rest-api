@@ -709,9 +709,24 @@ public class Employee implements Serializable
     throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCY_CONTEXT);
   }
 
-  // TODO
+  public int nextFeedbackID()
+  {
+    return this.feedback.size() + 1;
+  }
 
-  public boolean addNewObjective(Objective_NEW objective) throws InvalidAttributeValueException
+  public int nextObjectiveID()
+  {
+    return this.newObjectives.size() + 1;
+  }
+
+  //////////////////// START
+
+  public List<Objective_NEW> getObjectivesNEW()
+  {
+    return this.newObjectives.stream().map(o -> o.get(o.size() - 1)).collect(Collectors.toList());
+  }
+
+  public boolean addObjectiveNEW(Objective_NEW objective) throws InvalidAttributeValueException
   {
     if (objective == null) throw new InvalidAttributeValueException("Objective is invalid.");
     objective.setId(nextObjectiveID());
@@ -722,7 +737,7 @@ public class Employee implements Serializable
     return this.newObjectives.add(objectiveList);
   }
 
-  public boolean editNewObjective(Objective_NEW objective) throws InvalidAttributeValueException
+  public boolean editObjectiveNEW(Objective_NEW objective) throws InvalidAttributeValueException
   {
     if (objective == null) throw new InvalidAttributeValueException("Objective is invalid.");
 
@@ -734,17 +749,14 @@ public class Employee implements Serializable
     return objectiveList.add(objective);
   }
 
-  public List<Objective_NEW> getLatestVersionNEWObjectives()
-  {
-    return this.newObjectives.stream().map(o -> o.get(o.size()-1)).collect(Collectors.toList());
-  }
-
   public Objective_NEW getLatestVersionObjective(int objectiveID)
   {
     List<Objective_NEW> objectiveList = getNewObjectives().stream().filter(o -> o.get(0).getId() == objectiveID)
         .findFirst().get();
     return objectiveList.get(objectiveList.size() - 1);
   }
+
+  //////////////////// END
 
   /**
    * 
@@ -786,16 +798,6 @@ public class Employee implements Serializable
         return (ym1.equals(ym2)) ? 0 : ((ym1.isBefore(ym2)) ? -1 : 1);
       }
     });
-  }
-
-  public int nextFeedbackID()
-  {
-    return this.feedback.size() + 1;
-  }
-
-  public int nextObjectiveID()
-  {
-    return this.newObjectives.size() + 1;
   }
 
 }
