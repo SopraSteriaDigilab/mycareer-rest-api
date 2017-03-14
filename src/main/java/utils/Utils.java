@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -219,6 +220,28 @@ public class Utils
   }
 
   /**
+   * Converts LocalDate to a java.util.Date
+   *
+   * @param localDateTime
+   * @return
+   */
+  public static Date localDatetoDate(LocalDate localDate)
+  {
+    return Date.from(localDate.atStartOfDay(UK_TIMEZONE).toInstant());
+  }
+  
+  /**
+   * Converts java.util.Date to a LocalDate
+   *
+   * @param localDateTime
+   * @return
+   */
+  public static LocalDate DateToLocalDate(Date date)
+  {
+    return date.toInstant().atZone(UK_TIMEZONE).toLocalDate();
+  }
+  
+  /**
    * Converts LocalDateTime to a java.util.Date
    *
    * @param localDateTime
@@ -230,7 +253,7 @@ public class Utils
   }
 
   /**
-   * Converts LocalDateTime to a java.util.Date
+   * Converts java.util.Date to a LocalDateTime
    *
    * @param localDateTime
    * @return

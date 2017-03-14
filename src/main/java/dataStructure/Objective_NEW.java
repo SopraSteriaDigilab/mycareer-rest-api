@@ -14,6 +14,8 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import utils.Utils;
+
 /**
  * This class contains the definition of the Objective object.
  */
@@ -84,7 +86,7 @@ public class Objective_NEW extends DBObject
    * Objective_NEW Constructor - Responsible for initialising this object.
    *
    */
-  public Objective_NEW(String title, String Description, LocalDate dueDate, String proposedBy)
+  public Objective_NEW(String title, String description, LocalDate dueDate, String proposedBy)
   {
     super();
     this.setTitle(title);
@@ -122,17 +124,14 @@ public class Objective_NEW extends DBObject
   /** @return the dueDate. */
   public LocalDate getDueDate()
   {
-    // TODO Move to Utils
-    Instant instant = this.dueDate.toInstant();
-    return instant.atZone(UK_TIMEZONE).toLocalDate();
+    return Utils.DateToLocalDate(this.dueDate);
   }
 
   /** @param dueDate The value to set the named property to. */
   public void setDueDate(LocalDate dueDate)
   {
     // TODO Move to Utils
-    Long milliDate = Instant.from(dueDate).toEpochMilli();
-    this.dueDate = new Date(milliDate);
+    this.dueDate = Utils.localDatetoDate(dueDate);
   }
 
   /** @return the proposedBy. */
