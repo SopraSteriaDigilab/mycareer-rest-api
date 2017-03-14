@@ -6,12 +6,10 @@ import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static services.validate.ValidateAppController.isValidCreateFeedbackRequest;
 
 import java.io.IOException;
 import java.time.YearMonth;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -65,11 +63,15 @@ public class EmployeeController
 
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
   private static final String ERROR_DEVELOPMENT_NEED_ID = "The given Development Need ID is invalid";
-  
+ 
+  private static final String ERROR_EMAIL_RECIPIENTS_EMPTY = "The emailsTo field can not be empty";
+  private static final String ERROR_EMAIL_NOTES_EMPTY = "The notes field can not be empty";
   private static final String ERROR_NOTE_PROVIDER_NAME_EMPTY = "Provider name can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_EMPTY = "Note description can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
   private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
+
+
 
   private final EmployeeService employeeService = new EmployeeService();
 
@@ -599,20 +601,16 @@ public class EmployeeController
   // return badRequest().body(e.getMessage());
   // }
   // }
-
+  
   @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
-  public ResponseEntity<String> createFeedbackRequest(@PathVariable("employeeID") long employeeID,
-      @RequestParam(value = "emailsTo") String toFields, @RequestParam(value = "notes") String notes)
+  public ResponseEntity<String> createFeedbackRequest(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @NotBlank(message = ERROR_EMAIL_RECIPIENTS_EMPTY)  String emailsTo,
+      @RequestParam @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT) String notes)
   {
     try
     {
-      isValidCreateFeedbackRequest(employeeID, toFields, notes);
-      employeeService.processFeedbackRequest(employeeID, toFields, notes);
+      employeeService.processFeedbackRequest(employeeID, emailsTo, notes);
       return ok("Your feedback request has been processed.");
-    }
-    catch (InvalidAttributeValueException e)
-    {
-      return badRequest().body(e.getMessage());
     }
     catch (Exception e)
     {

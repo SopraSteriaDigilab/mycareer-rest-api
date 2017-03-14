@@ -16,6 +16,8 @@ import static dataStructure.Constants.NULL_OBJECTIVE;
 import static dataStructure.Constants.NULL_USER_DATA;
 import static dataStructure.Constants.OBJECTIVE_NOTADDED_ERROR;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,11 +66,9 @@ public class EmployeeService
 
   private static final String ERROR_USER_NOT_FOUND = "The given user ID does not exist.";
   private static final String INVALID_DEVELOPMENT_NEED_ID = "The given development Need ID does not exist.";
-  
+
   /** String Constant - Represents Feedback Request */
   public static final String FEEDBACK_REQUEST = "Feedback Request";
-
-
 
   // There is only 1 instance of the Datastore in the whole system
   private static Datastore dbConnection;
@@ -607,10 +607,9 @@ public class EmployeeService
     Query<Employee> querySearch = getEmployeeQuery(employeeID);
     Employee employee = querySearch.get();
     DevelopmentNeed curDevNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(developmentNeedID);
-    
-    if(curDevNeed == null)
-      throw new InvalidAttributeValueException(INVALID_DEVELOPMENT_NEED_ID);
-    
+
+    if (curDevNeed == null) throw new InvalidAttributeValueException(INVALID_DEVELOPMENT_NEED_ID);
+
     DevelopmentNeed developmentNeed = new DevelopmentNeed(curDevNeed);
     developmentNeed.setIsArchived(!developmentNeed.getIsArchived());
 
@@ -630,10 +629,14 @@ public class EmployeeService
    * @param notes
    * @throws Exception
    */
-  public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception
+  public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception 
   {
     Employee requester = getEmployee(employeeID);
     Set<String> recipientList = Utils.stringEmailsToHashSet(emailsString);
+
+    if (recipientList.size() > 20)
+      throw new InvalidAttributeValueException("There must be less than 20 email addresses.");
+
     List<String> errorRecipientList = new ArrayList<String>();
     String requesterName = requester.getProfile().getFullName();
 
