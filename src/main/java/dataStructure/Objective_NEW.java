@@ -17,7 +17,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 /**
  * This class contains the definition of the Objective object.
  */
-public class Objective_NEW implements Serializable
+public class Objective_NEW extends DBObject
 {
   
   public static final String ERROR_EMPTY = "Please fill in all the required feilds.";
@@ -45,9 +45,6 @@ public class Objective_NEW implements Serializable
   /** long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = -8210647573312345743L;
 
-  /** int Property - Represents Unique ID for the object. */
-  private int id;
-
   /** String Property - Represents the objective title */
   @NotBlank(message = ERROR_EMPTY)
   @Size(max = 150, message = ERROR_TITLE_LIMIT)
@@ -71,14 +68,10 @@ public class Objective_NEW implements Serializable
   /** String Property - Represents the progress of the objective */
   @NotBlank(message = ERROR_EMPTY)
   @Pattern(regexp = "^(Proposed)|(InProgress)|(Complete)$")
-  private String progress;
+  private Progress progress;
 
   /** boolean Property - Represents the state of the objective */
-  @Pattern(regexp = "^(True)|(False)$") // TODO Will this work...?
   private boolean isArchived;
-
-  /** String Property - Represents the timestamp of the objective. */
-  private String timestamp;
 
   /**
    * Default Constructor - Responsible for initialising this object.
@@ -91,27 +84,15 @@ public class Objective_NEW implements Serializable
    * Objective_NEW Constructor - Responsible for initialising this object.
    *
    */
-  public Objective_NEW(Objective_NEW objective)
+  public Objective_NEW(String title, String Description, LocalDate dueDate, String proposedBy)
   {
-    this.setTitle(objective.getTitle());
-    this.setDescription(objective.getDescription());
-    this.setDueDate(objective.getDueDate());
-    this.setProposedBy(objective.getProposedBy());
+    super();
+    this.setTitle(title);
+    this.setDescription(description);
+    this.setDueDate(dueDate);
+    this.setProposedBy(proposedBy);
     this.setProgress(Progress.PROPOSED);
     this.setArchived(false);
-    this.setTimestamp();
-  }
-
-  /** @return the id. */
-  public int getId()
-  {
-    return id;
-  }
-
-  /** @param id The value to set the named property to. */
-  public void setId(int id)
-  {
-    this.id = id;
   }
 
   /** @return the title. */
@@ -169,7 +150,7 @@ public class Objective_NEW implements Serializable
   /** @return the progress. */
   public String getProgress()
   {
-    return Progress.valueOf(this.progress).getProgressStr();
+    return this.progress.getProgressStr();
   }
 
   /**
@@ -178,7 +159,7 @@ public class Objective_NEW implements Serializable
    */
   public void setProgress(Progress progress)
   {
-    this.progress = progress.getProgressStr();
+    this.progress = progress;
   }
 
   /** @return the isArchived */
@@ -191,18 +172,6 @@ public class Objective_NEW implements Serializable
   public void setArchived(boolean isArchived)
   {
     this.isArchived = isArchived;
-  }
-
-  /** @return the timeStamp. */
-  public String getTimeStamp()
-  {
-    return timestamp;
-  }
-
-  /** @param timestamp */
-  public void setTimestamp()
-  {
-    this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
 }

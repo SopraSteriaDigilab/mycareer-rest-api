@@ -1,6 +1,8 @@
 package dataStructure;
 
 
+import java.time.LocalDate;
+
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -33,7 +35,7 @@ public class DevelopmentNeed_NEW extends Objective_NEW
   /** int Property - Represents the category of the objective */
   @NotBlank(message = ERROR_EMPTY)
   @Pattern(regexp = "^(OnJobTraining)|(ClassroomTraining)|(OnlineorELearning)|(SelfStudy)|(Other)$")
-  private String category;
+  private Category category;
 
   /**
    * Default Constructor - Responsible for initialising this object.
@@ -45,25 +47,25 @@ public class DevelopmentNeed_NEW extends Objective_NEW
   /**
    * TYPE Constructor - Responsible for initialising this object.
    */
-  public DevelopmentNeed_NEW(DevelopmentNeed_NEW developmentNeed)
+  public DevelopmentNeed_NEW(String title, String description, LocalDate dueDate, String proposedBy, Category category)
   {
-    super(developmentNeed);
-    this.setCategory(Category.valueOf(developmentNeed.getCategory()));
+    super(title, description, dueDate, proposedBy);
+    this.setCategory(category);
   }
 
   /** @return the category */
   public String getCategory()
   {
-    return Category.valueOf(this.category).getCategoryStr();
+    return this.category.getCategoryStr();
   }
 
   /**
    * Mutator for the named property. Must be one of the following: OnJobTraining, ClassroomTraining, OnlineorELearning,
    * SelfStudy, Other.
    */
-  public String setCategory(Category category)
+  public void setCategory(Category category)
   {
-    return this.category = category.getCategoryStr();
+    this.category = category;
   }
 
 }
