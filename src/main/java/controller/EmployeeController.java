@@ -538,8 +538,8 @@ public class EmployeeController
     try
     {
       boolean inserted = employeeService.updateProgressDevelopmentNeed(employeeID, devNeedID, progress);
-      if (inserted) return ok("DevelopmentNeed modified correctly");
-      else return badRequest().body("Error while editing the developmentNeed");
+      if (inserted) return ok("Development need modified correctly");
+      else return badRequest().body("Error while editing the development need");
     }
     catch (MongoException me)
     {
@@ -559,7 +559,7 @@ public class EmployeeController
     try
     {
       employeeService.toggleDevNeedArchive(employeeID, developmentNeedID);
-      return ok("Development Need udpated");
+      return ok("Development Need updated");
     }
     catch (InvalidAttributeValueException e)
     {
