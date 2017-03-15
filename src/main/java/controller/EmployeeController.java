@@ -1,15 +1,14 @@
 package controller;
 
 import static dataStructure.Constants.UK_TIMEZONE;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static services.validate.ValidateAppController.isValidCreateFeedbackRequest;
 
 import java.io.IOException;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,13 +16,17 @@ import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 
+import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,34 +35,45 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
-import dataStructure.ADProfile_Basic;
+import application.GlobalExceptionHandler;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
+import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
-import services.EmployeeProfileDAO;
 import services.EmployeeService;
+import services.ad.ADConnectionException;
 import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Template;
 
-/** 
+/**
  * This class contains all the available roots of the web service
  */
 @CrossOrigin
 @RestController
 @PropertySource("${ENVIRONMENT}.properties")
+@Validated
 public class EmployeeController
 {
 
   /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
   private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 
-  private final EmployeeService employeeService = new EmployeeService();
+  private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
+  private static final String ERROR_DEVELOPMENT_NEED_ID = "The given Development Need ID is invalid";
+ 
+  private static final String ERROR_EMAIL_RECIPIENTS_EMPTY = "The emailsTo field can not be empty";
+  private static final String ERROR_EMAIL_NOTES_EMPTY = "The notes field can not be empty";
+  private static final String ERROR_NOTE_PROVIDER_NAME_EMPTY = "Provider name can not be empty.";
+  private static final String ERROR_NOTE_DESCRIPTION_EMPTY = "Note description can not be empty.";
+  private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
+  private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
 
-  /** TYPE Property|Constant - Represents|Indicates... */
-  private final EmployeeProfileDAO profileDAO = new EmployeeProfileDAO();
+
+
+  private final EmployeeService employeeService = new EmployeeService();
 
   /** Environment Property - Reference to environment to get property details. */
   @Autowired
@@ -96,7 +110,20 @@ public class EmployeeController
   public ResponseEntity<?> index(HttpServletRequest request)
   {
     String username = request.getRemoteUser();
-    return authenticateUserProfile(username);
+    ResponseEntity<?> response = authenticateUserProfile(username);
+    try
+    {
+      if (response.getStatusCode().equals(OK))
+      {
+        employeeService.updateLastLoginDate((EmployeeProfile) response.getBody());
+      }
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e);
+    }
+
+    return response;
   }
 
   /**
@@ -152,30 +179,22 @@ public class EmployeeController
 
   /**
    * 
-   * This method allows the front-end to retrieve all the notes associated to a specific user
+   * GET end point - gets all notes for a user
    * 
-   * @param employeeID the ID of an employee
-   * @return list of notes (only the latest version for each of them)
+   * @param employeeID the ID of the employee
+   * @return list of notes
    */
   @RequestMapping(value = "/getNotes/{employeeID}", method = GET)
-  public ResponseEntity<?> getNotes(@PathVariable long employeeID)
+  public ResponseEntity<?> getNotes(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
   {
-    if (employeeID > 0)
+    try
     {
-      try
-      {
-        return ok(employeeService.getNotesForUser(employeeID));
-      }
-      catch (MongoException me)
-      {
-        return badRequest().body("DataBase Connection Error");
-      }
-      catch (Exception e)
-      {
-        return badRequest().body(e.getMessage());
-      }
+      return ok(employeeService.getNotes(employeeID));
     }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
   }
 
   /**
@@ -249,24 +268,6 @@ public class EmployeeController
     {
       return badRequest().body(e.getMessage());
     }
-  }
-
-  @RequestMapping(value = "/management/retrieveAllUser_Data/employee/{employeeID}", method = GET)
-  public ResponseEntity<?> getAllUserData(@PathVariable long employeeID)
-  {
-    if (employeeID > 0) try
-    {
-      return ok(employeeService.getAllUserDataFromID(employeeID));
-    }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
-    }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
   }
 
   /**
@@ -417,91 +418,45 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * This method allows the front-end to add a new note to a specific user
-   * 
-   * @param employeeID the employee ID (>0)
-   * @param from the author of the note (<150)
-   * @param body the content of the note (<1000)
-   * @return a message explaining if the note has been added or if there was an error while completing the task
+   * POST End point - Adds note to employee
+   *
    */
   @RequestMapping(value = "/addNote/{employeeID}", method = POST)
-  public ResponseEntity<?> addNoteToAUser(@PathVariable("employeeID") long employeeID,
-      @RequestParam(value = "noteType") int noteType, @RequestParam(value = "linkID") int linkID,
-      @RequestParam(value = "from") String from, @RequestParam(value = "body") String body)
+  public ResponseEntity<String> addNote(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @NotBlank(message = ERROR_NOTE_PROVIDER_NAME_EMPTY) @Size(max = 150, message = ERROR_PROVIDER_NAME_LIMIT) String providerName,
+      @RequestParam @NotBlank(message = ERROR_NOTE_DESCRIPTION_EMPTY) @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT) String noteDescription)
   {
     try
     {
-      Note obj = new Note(1, noteType, linkID, body, from);
-      boolean inserted = employeeService.insertNewNote(employeeID, obj);
-      if (inserted)
-      {
-        return ok("Note inserted correctly");
-
-      }
-      else return badRequest().body("Error while adding the Note");
-    }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
-    }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-  }
-
-  /**
-   * POST End Point - adds note to reportee
-   *
-   * @param employeeID
-   * @param reporteeEmployeeID
-   * @param body
-   * @return
-   */
-  @RequestMapping(value = "/addNoteToReportee/{reporteeEmployeeID}", method = POST)
-  public ResponseEntity<?> addNoteToReportee(@PathVariable long reporteeEmployeeID, @RequestParam String from,
-      @RequestParam String body)
-  {
-    try
-    {
-      employeeService.insertNewNoteForReportee(reporteeEmployeeID, from, body);
-      return ok("Note inserted correctly");
+      employeeService.addNote(employeeID, new Note(providerName, noteDescription));
+      return ok("Note inserted");
     }
     catch (InvalidAttributeValueException e)
     {
       return badRequest().body(e.getMessage());
     }
+
   }
 
   /**
+   * POST End point - Add note to reportee.
    * 
-   * This method allows the front-end to edit a new version of a note currently stored within the system
-   * 
-   * @param employeeID the employeeID (>0)
-   * @param noteID the ID of the note to edit (>0)
-   * @param from the author of the note (<150)
-   * @param body the content of the note (<1000)
-   * @return a message explaining if the note has been added or if there was an error while completing the task
+   * @return
+   *
    */
-  @RequestMapping(value = "/editNote/{employeeID}", method = POST)
-  public ResponseEntity<?> addNewVersionNoteToAUser(@PathVariable("employeeID") long employeeID,
-      @RequestParam(value = "noteID") int noteID, @RequestParam(value = "noteType") int noteType,
-      @RequestParam(value = "linkID") int linkID, @RequestParam(value = "from") String from,
-      @RequestParam(value = "body") String body)
+  @RequestMapping(value = "/addNoteToReportee/{employeeID}", method = POST)
+  public ResponseEntity<String> addNoteToReportee(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeEmployeeID,
+      @NotBlank(message = ERROR_NOTE_PROVIDER_NAME_EMPTY) @Size(max = 150, message = ERROR_PROVIDER_NAME_LIMIT) String providerName,
+      @NotBlank(message = ERROR_NOTE_DESCRIPTION_EMPTY) @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT) String noteDescription)
   {
     try
     {
-      Note obj = new Note(noteID, noteType, linkID, body, from);
-      boolean inserted = employeeService.addNewVersionNote(employeeID, noteID, obj);
-      if (inserted) return ok("Note modified correctly");
-      else return badRequest().body("Error while editing the Note");
+      employeeService.addNoteToReportee(reporteeEmployeeID, new Note(providerName, noteDescription));
+      return ok("Note inserted correctly");
     }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
-    }
-    catch (Exception e)
+    catch (InvalidAttributeValueException e)
     {
       return badRequest().body(e.getMessage());
     }
@@ -596,6 +551,23 @@ public class EmployeeController
     }
   }
 
+  @RequestMapping(value = "/toggleDevNeedArchive/{employeeID}", method = POST)
+  public ResponseEntity<?> toggleDevNeedArchive(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedID)
+  {
+    try
+    {
+      employeeService.toggleDevNeedArchive(employeeID, developmentNeedID);
+      return ok("Development Need udpated");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(GlobalExceptionHandler.error(e.getMessage()));
+    }
+   
+  }
+
   // /**
   // *
   // * @param employeeID the employee ID (>0)
@@ -629,20 +601,16 @@ public class EmployeeController
   // return badRequest().body(e.getMessage());
   // }
   // }
-
+  
   @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
-  public ResponseEntity<String> createFeedbackRequest(@PathVariable("employeeID") long employeeID,
-      @RequestParam(value = "emailsTo") String toFields, @RequestParam(value = "notes") String notes)
+  public ResponseEntity<String> createFeedbackRequest(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @NotBlank(message = ERROR_EMAIL_RECIPIENTS_EMPTY)  String emailsTo,
+      @RequestParam @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT) String notes)
   {
     try
     {
-      isValidCreateFeedbackRequest(employeeID, toFields, notes);
-      employeeService.processFeedbackRequest(employeeID, toFields, notes);
+      employeeService.processFeedbackRequest(employeeID, emailsTo, notes);
       return ok("Your feedback request has been processed.");
-    }
-    catch (InvalidAttributeValueException e)
-    {
-      return badRequest().body(e.getMessage());
     }
     catch (Exception e)
     {
@@ -709,21 +677,16 @@ public class EmployeeController
     {
       if (userName != null && !userName.equals("") && userName.length() < 300)
       {
-        return ok(profileDAO.authenticateUserProfile(userName));
+        return ok(employeeService.matchADWithMongoData(employeeService.authenticateUserProfile(userName)));
       }
       else
       {
         return badRequest().body("The username given is invalid");
       }
     }
-    catch (InvalidAttributeValueException e)
+    catch (InvalidAttributeValueException | NamingException | ADConnectionException e)
     {
       return badRequest().body(e.getMessage());
-    }
-    catch (NamingException e)
-    {
-      // return badRequest().body("AD Connection Error");
-      return badRequest().body(e.toString());
     }
   }
 
@@ -771,7 +734,7 @@ public class EmployeeController
 
       // check date is not in the past
       YearMonth temp = YearMonth.parse(completedBy, Constants.YEAR_MONTH_FORMAT);
-      if (temp.isBefore(YearMonth.now(ZoneId.of(UK_TIMEZONE))))
+      if (temp.isBefore(YearMonth.now(UK_TIMEZONE)))
       {
         throw new InvalidAttributeValueException("Date can not be in the past");
       }
@@ -785,7 +748,8 @@ public class EmployeeController
       {
         try
         {
-          ADProfile_Basic userInQuestion = profileDAO.authenticateUserProfile(email);
+          EmployeeProfile userInQuestion = employeeService
+              .matchADWithMongoData(employeeService.authenticateUserProfile(email));
           Objective obj = new Objective(0, 0, title, description, completedBy);
           obj.setProposedBy(proposedBy);
           boolean inserted = employeeService.insertNewObjective(userInQuestion.getEmployeeID(), obj);
@@ -839,7 +803,7 @@ public class EmployeeController
       }
       return badRequest().body(result + e.getMessage() + ", ");
     }
-    catch (NamingException e)
+    catch (NamingException | ADConnectionException e)
     {
       if (!insertAccepted)
       {
@@ -848,28 +812,5 @@ public class EmployeeController
       return badRequest().body(result + e.getMessage() + ", ");
     }
   }
-
-  // /**
-  // * Gets all IDs and Titles for each Objective, Competency,Feedback, Development need,
-  // * and team member for this {@code employeeID}.
-  // *
-  // * @param employeeID
-  // */
-  // @RequestMapping(value="/getIDTitlePairs/{employeeID}", method = GET)
-  // public ResponseEntity<?> getIDTitlePairs(@PathVariable long employeeID){
-  // if(employeeID>0)
-  // try {
-  // //Retrieve and return the ID Title pairs from the system
-  // return ok(EmployeeDAO.getIDTitlePairsDataStructure(employeeID));
-  // }
-  // catch(MongoException me){
-  // return badRequest().body("DataBase Connection Error");
-  // }
-  // catch (Exception e) {
-  // return badRequest().body(e.getMessage());
-  // }
-  // else
-  // return badRequest().body("The given ID is invalid");
-  // }
 
 }

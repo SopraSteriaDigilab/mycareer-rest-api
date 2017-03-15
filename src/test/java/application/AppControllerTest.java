@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import controller.EmployeeController;
 import dataStructure.Employee;
 import dataStructure.Objective;
+import services.EmployeeProfileService;
 import services.EmployeeService;
 
 /**
@@ -49,6 +50,10 @@ public class AppControllerTest
   /** EmployeeDAO Property - Mocked by Mockito. */
   @Mock
   private EmployeeService mockEmployeeDao;
+  
+  /** EmployeeProfileSerivce Property - Mocked by Mockito. */
+  @Mock
+  private EmployeeProfileService mockEmployeeProfileService;
 
   /** Employee Property - Mocked by Mockito. */
   @Mock
@@ -67,6 +72,7 @@ public class AppControllerTest
   @InjectMocks
   private EmployeeController unitUnderTest;
 
+
   /**
    * Setup method that runs once before each test method.
    */
@@ -84,7 +90,7 @@ public class AppControllerTest
     when(mockQuery.filter(Mockito.anyString(), Mockito.any())).thenReturn(mockQuery);
     when(mockQuery.get()).thenReturn(mockEmployee);
 
-    mockEmployeeDao = new EmployeeService(mockDatastore, mockEnvironment);
+    mockEmployeeDao = new EmployeeService(mockDatastore, mockEmployeeProfileService, mockEnvironment);
   }
 
   /**

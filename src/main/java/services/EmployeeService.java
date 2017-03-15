@@ -8,19 +8,17 @@ import static dataStructure.Constants.INVALID_CONTEXT_USERID;
 import static dataStructure.Constants.INVALID_DEVNEEDID_CONTEXT;
 import static dataStructure.Constants.INVALID_DEVNEED_CONTEXT;
 import static dataStructure.Constants.INVALID_DEVNEED_OR_EMPLOYEEID;
-import static dataStructure.Constants.INVALID_IDNOTFOND;
-import static dataStructure.Constants.INVALID_NOTE;
-import static dataStructure.Constants.INVALID_NOTEID;
-import static dataStructure.Constants.INVALID_NOTE_OR_EMPLOYEEID;
+import static dataStructure.Constants.INVALID_ID_NOT_FOUND;
 import static dataStructure.Constants.INVALID_OBJECTIVE;
 import static dataStructure.Constants.INVALID_OBJECTIVEID;
 import static dataStructure.Constants.INVALID_OBJECTIVE_OR_EMPLOYEEID;
-import static dataStructure.Constants.INVALID_USERGUID_NOTFOUND;
-import static dataStructure.Constants.NOTE_NOTADDED_ERROR;
 import static dataStructure.Constants.NULL_OBJECTIVE;
 import static dataStructure.Constants.NULL_USER_DATA;
 import static dataStructure.Constants.OBJECTIVE_NOTADDED_ERROR;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,15 +38,15 @@ import org.springframework.stereotype.Component;
 
 import com.mongodb.MongoException;
 
-import dataStructure.ADProfile_Advanced;
-import dataStructure.ADProfile_Basic;
 import dataStructure.Competency;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
+import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
+import services.ad.ADConnectionException;
 import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Template;
@@ -64,19 +62,22 @@ public class EmployeeService
 {
 
   /** TYPE Property|Constant - Represents|Indicates... */
-  private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeService.class);
 
-  /* Accesses the Active Directories */
-  private static final EmployeeProfileDAO PROFILE_DAO = new EmployeeProfileDAO();
+  private static final String ERROR_USER_NOT_FOUND = "The given user ID does not exist.";
+  private static final String INVALID_DEVELOPMENT_NEED_ID = "The given development Need ID does not exist.";
+
+  /** String Constant - Represents Feedback Request */
+  public static final String FEEDBACK_REQUEST = "Feedback Request";
 
   // There is only 1 instance of the Datastore in the whole system
   private static Datastore dbConnection;
 
-  /** String Constant - Represents Feedback Request */
-  public final static String FEEDBACK_REQUEST = "Feedback Request";
-
   /** Environment Property - Reference to environment to get property details. */
   private static Environment env;
+
+  /* Accesses the Active Directories */
+  private static EmployeeProfileService employeeProfileService;
 
   /**
    * EmployeeDAO Constructor - Needed for morphia?.
@@ -91,10 +92,11 @@ public class EmployeeService
    *
    * @param dbConnection
    */
-  public EmployeeService(Datastore dbConnection, Environment env)
+  public EmployeeService(Datastore dbConnection, EmployeeProfileService employeeProfileService, Environment env)
   {
     EmployeeService.dbConnection = dbConnection;
     EmployeeService.env = env;
+    EmployeeService.employeeProfileService = employeeProfileService;
   }
 
   /**
@@ -109,7 +111,7 @@ public class EmployeeService
     Employee employee = getEmployeeQuery(employeeID).get();
     if (employee == null)
     {
-      throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+      throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
     }
     return employee;
   }
@@ -122,7 +124,7 @@ public class EmployeeService
    */
   private Query<Employee> getEmployeeQuery(long employeeID)
   {
-    return dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+    return dbConnection.createQuery(Employee.class).filter("profile.employeeID =", employeeID);
   }
 
   /**
@@ -134,7 +136,7 @@ public class EmployeeService
    */
   public String getFullNameUser(long employeeID) throws InvalidAttributeValueException
   {
-    return getEmployee(employeeID).getFullName();
+    return getEmployee(employeeID).getProfile().getFullName();
   }
 
   /**
@@ -177,15 +179,15 @@ public class EmployeeService
   }
 
   /**
-   * TODO: Describe this method.
+   * Get all notes for user.
    *
    * @param employeeID
    * @return
    * @throws InvalidAttributeValueException
    */
-  public List<Note> getNotesForUser(long employeeID) throws InvalidAttributeValueException
+  public List<Note> getNotes(long employeeID) throws InvalidAttributeValueException
   {
-    return getEmployee(employeeID).getLatestVersionNotes();
+    return getEmployee(employeeID).getNotes();
   }
 
   /**
@@ -224,7 +226,6 @@ public class EmployeeService
     return getEmployee(employeeID).getLatestVersionCompetencies();
   }
 
-
   /**
    * TODO: Describe this method.
    *
@@ -233,19 +234,19 @@ public class EmployeeService
    * @throws InvalidAttributeValueException
    * @throws NamingException
    */
-  public List<ADProfile_Basic> getReporteesForUser(long employeeID)
+  public List<EmployeeProfile> getReporteesForUser(long employeeID)
       throws InvalidAttributeValueException, NamingException
   {
     Employee employee = getEmployee(employeeID);
 
-    List<ADProfile_Basic> reporteeList = new ArrayList<>();
+    List<EmployeeProfile> reporteeList = new ArrayList<>();
 
-    for (String str : employee.getReporteeCNs())
+    for (String str : employee.getProfile().getReporteeCNs())
     {
       long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
       try
       {
-        reporteeList.add(PROFILE_DAO.verifyIfUserExists(temp));
+        reporteeList.add(matchADWithMongoData(employeeProfileService.fetchEmployeeProfile(temp)));
       }
       catch (Exception e)
       {
@@ -269,7 +270,7 @@ public class EmployeeService
       if (data != null && data instanceof Objective)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeID);
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
@@ -285,7 +286,7 @@ public class EmployeeService
           }
           else throw new InvalidAttributeValueException(OBJECTIVE_NOTADDED_ERROR);
         }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
       }
       else throw new InvalidAttributeValueException(NULL_OBJECTIVE);
     }
@@ -356,7 +357,7 @@ public class EmployeeService
       if (data != null && data instanceof Objective)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeID);
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
@@ -392,7 +393,7 @@ public class EmployeeService
           // exception
           else throw new InvalidAttributeValueException(INVALID_OBJECTIVEID);
         }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
       }
       else throw new InvalidAttributeValueException(INVALID_OBJECTIVE);
     }
@@ -402,136 +403,53 @@ public class EmployeeService
   }
 
   /**
-   * TODO: Describe this method.
+   * Adds new note to an employee
    *
    * @param employeeID
-   * @param data
-   * @return
-   * @throws InvalidAttributeValueException
-   * @throws MongoException
-   */
-  public boolean insertNewNote(long employeeID, Object data) throws InvalidAttributeValueException, MongoException
-  {
-    // Check the employeeID
-    if (employeeID > 0)
-    {
-      if (data != null && data instanceof Note)
-      {
-        // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-        if (querySearch.get() != null)
-        {
-          Employee e = querySearch.get();
-          // Add the new note to the list
-          if (e.addNote((Note) data))
-          {
-            // Update the List<List<Note>> in the DB passing the new list
-            UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes",
-                e.getNoteList());
-            // Commit the changes to the DB
-            dbConnection.update(querySearch, ops);
-            return true;
-          }
-          else throw new InvalidAttributeValueException(NOTE_NOTADDED_ERROR);
-        }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-      }
-      else throw new InvalidAttributeValueException(INVALID_NOTE);
-    }
-    else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
-  }
-
-  /**
-   * TODO: Describe this method.
-   *
-   * @param employeeID
-   * @param from
-   * @param noteDescription
+   * @param note
    * @return
    * @throws InvalidAttributeValueException
    */
-  public boolean insertNewNoteForReportee(long employeeID, String from, String noteDescription)
-      throws InvalidAttributeValueException
+  public boolean addNote(long employeeID, Note note) throws InvalidAttributeValueException
   {
-    if (employeeID < 1)
-      throw new InvalidAttributeValueException("The ID provided was not found. Please try again with valid ID");
+    Query<Employee> employeeQuery = getEmployeeQuery(employeeID);
+    Employee employee = employeeQuery.get();
 
-    insertNewNote(employeeID, new Note(1, 0, 0, noteDescription, from));
+    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
 
-    String reporteeEmail = getEmployee(employeeID).getEmailAddress();
-    String subject = String.format("Note added from %s", from);
-    try
-    {
-      String body = Template.populateTemplate(env.getProperty("templates.note.added"), from);
-      EmailService.sendEmail(reporteeEmail, subject, body);
-    }
-    catch (Exception e)
-    {
-      logger.error("Email could not be sent for a proposed objective. Error: {}", e);
-    }
+    employee.addNote(note);
 
+    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class).set("notes",
+        employee.getNotes());
+    dbConnection.update(employeeQuery, updateOperation);
     return true;
   }
 
   /**
-   * TODO: Describe this method.
+   * Add new note to reportee
    *
-   * @param employeeID
-   * @param noteID
-   * @param data
+   * @param reporteeEmployeeID
+   * @param note
    * @return
    * @throws InvalidAttributeValueException
    */
-  public boolean addNewVersionNote(long employeeID, int noteID, Object data) throws InvalidAttributeValueException
+  public boolean addNoteToReportee(long reporteeEmployeeID, Note note) throws InvalidAttributeValueException
   {
-    // Check EmployeeID and noteID
-    if (employeeID > 0 && noteID > 0)
+    addNote(reporteeEmployeeID, note);
+
+    String reporteeEmail = getEmployee(reporteeEmployeeID).getProfile().getEmailAddress();
+    String subject = String.format("Note added from %s", note.getProviderName());
+    try
     {
-      if (data != null && data instanceof Note)
-      {
-        // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
-        if (querySearch.get() != null)
-        {
-          Employee e = querySearch.get();
-          // Extract its List of notes
-          List<List<Note>> dataFromDB = e.getNoteList();
-          // Search for the objective Id within the list of notes
-          int indexNoteList = -1;
-          for (int i = 0; i < dataFromDB.size(); i++)
-          {
-            // Save the index of the list when the noteID is found
-            if (dataFromDB.get(i).get(0).getID() == noteID)
-            {
-              indexNoteList = i;
-              // Exit the for loop once the value has been found
-              break;
-            }
-          }
-          // verify that the index variable has changed its value
-          if (indexNoteList != -1)
-          {
-            // Add the updated version of the note
-            if (e.editNote((Note) data))
-            {
-              // Update the List<List<Note>> in the DB passing the new list
-              UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("notes",
-                  e.getNoteList());
-              // Commit the changes to the DB
-              dbConnection.update(querySearch, ops);
-              return true;
-            }
-          }
-          // if the index hasn't changed its value it means that there is no note with such ID, therefore throw and
-          // exception
-          else throw new InvalidAttributeValueException(INVALID_NOTEID);
-        }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
-      }
-      else throw new InvalidAttributeValueException(INVALID_NOTE);
+      String body = Template.populateTemplate(env.getProperty("templates.note.added"), note.getProviderName());
+      EmailService.sendEmail(reporteeEmail, subject, body);
     }
-    else throw new InvalidAttributeValueException(INVALID_NOTE_OR_EMPLOYEEID);
-    return false;
+    catch (Exception e)
+    {
+      LOGGER.error("Email could not be sent for a proposed objective. Error: {}", e);
+    }
+
+    return true;
   }
 
   /**
@@ -552,7 +470,7 @@ public class EmployeeService
       if (data != null && data instanceof DevelopmentNeed)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeID);
 
         if (querySearch.get() != null)
         {
@@ -569,7 +487,7 @@ public class EmployeeService
           }
           else throw new InvalidAttributeValueException(DEVELOPMENTNEED_NOTADDED_ERROR);
         }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
       }
       else throw new InvalidAttributeValueException(INVALID_DEVNEED_CONTEXT);
     }
@@ -640,7 +558,7 @@ public class EmployeeService
       if (data != null && data instanceof DevelopmentNeed)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeID);
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
@@ -676,12 +594,31 @@ public class EmployeeService
           // throw and exception
           else throw new InvalidAttributeValueException(INVALID_DEVNEEDID_CONTEXT);
         }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
       }
       else throw new InvalidAttributeValueException(INVALID_DEVNEED_CONTEXT);
     }
     else throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
     return false;
+  }
+
+  public void toggleDevNeedArchive(long employeeID, int developmentNeedID) throws InvalidAttributeValueException
+  {
+    Query<Employee> querySearch = getEmployeeQuery(employeeID);
+    Employee employee = querySearch.get();
+    DevelopmentNeed curDevNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(developmentNeedID);
+
+    if (curDevNeed == null) throw new InvalidAttributeValueException(INVALID_DEVELOPMENT_NEED_ID);
+
+    DevelopmentNeed developmentNeed = new DevelopmentNeed(curDevNeed);
+    developmentNeed.setIsArchived(!developmentNeed.getIsArchived());
+
+    if (employee.editDevelopmentNeed(developmentNeed))
+    {
+      UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds",
+          employee.getDevelopmentNeedsList());
+      dbConnection.update(querySearch, ops);
+    }
   }
 
   /**
@@ -692,17 +629,21 @@ public class EmployeeService
    * @param notes
    * @throws Exception
    */
-  public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception
+  public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception 
   {
     Employee requester = getEmployee(employeeID);
     Set<String> recipientList = Utils.stringEmailsToHashSet(emailsString);
+
+    if (recipientList.size() > 20)
+      throw new InvalidAttributeValueException("There must be less than 20 email addresses.");
+
     List<String> errorRecipientList = new ArrayList<String>();
-    String requesterName = requester.getFullName();
+    String requesterName = requester.getProfile().getFullName();
 
     for (String recipient : recipientList)
     {
       String tempID = Utils.generateFeedbackRequestID(employeeID);
-      String subject = String.format("Feedback Request from %s - %s", requester.getFullName(), employeeID);
+      String subject = String.format("Feedback Request from %s - %s", requester.getProfile().getFullName(), employeeID);
       // String body = String.format("%s \n\n Feedback_Request: %s", notes, tempID);
       String body = Template.populateTemplate(env.getProperty("templates.feedback.request"), requesterName, notes,
           tempID);
@@ -712,7 +653,7 @@ public class EmployeeService
       }
       catch (Exception e)
       {
-        logger.error(e.getMessage());
+        LOGGER.error(e.getMessage());
         errorRecipientList.add(recipient);
         continue;
       }
@@ -758,14 +699,15 @@ public class EmployeeService
   {
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
 
-    long employeeID = PROFILE_DAO.authenticateUserProfile(recipientEmail).getEmployeeID();
+    long employeeID = matchADWithMongoData(employeeProfileService.fetchEmployeeProfileFromEmailAddress(recipientEmail))
+        .getEmployeeID();
     Employee employee = getEmployee(employeeID);
 
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
 
     try
     {
-      feedback.setProviderName(PROFILE_DAO.findEmployeeFullNameFromEmailAddress(providerEmail));
+      feedback.setProviderName(employeeProfileService.fetchEmployeeFullNameFromEmailAddress(providerEmail));
     }
     catch (InvalidAttributeValueException | NamingException e)
     {
@@ -812,7 +754,7 @@ public class EmployeeService
         employee.getFeedbackRequestsList());
     dbConnection.update(employee, ops);
 
-    addFeedback(providerEmail, employee.getEmailAddress(), feedbackDescription, true);
+    addFeedback(providerEmail, employee.getProfile().getEmailAddress(), feedbackDescription, true);
   }
 
   /**
@@ -833,7 +775,7 @@ public class EmployeeService
       if (data != null && data instanceof Competency && title != null && title.length() > 0)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("employeeID =", employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeID);
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
@@ -848,7 +790,7 @@ public class EmployeeService
             return true;
           }
         }
-        else throw new InvalidAttributeValueException(INVALID_IDNOTFOND);
+        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
       }
       else throw new InvalidAttributeValueException(INVALID_COMPETENCY_CONTEXT);
     }
@@ -859,52 +801,61 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param userData
+   * @param profileFromAD
    * @return
    * @throws InvalidAttributeValueException
    */
-  public ADProfile_Basic matchADWithMongoData(ADProfile_Advanced userData) throws InvalidAttributeValueException
+  public EmployeeProfile matchADWithMongoData(EmployeeProfile profileFromAD) throws InvalidAttributeValueException
   {
-    if (userData != null)
+    if (profileFromAD == null)
     {
-      // Establish a connection with the DB
-      // Search for a user GUID
-      // Retrieve Employee with the given GUID
-      if (!userData.getGUID().equals(""))
-      {
-        Query<Employee> querySearch = dbConnection.createQuery(Employee.class).filter("GUID =", userData.getGUID());
-
-        // If a user exists in our system, verify that his/hers data is up-to-date
-        if (querySearch.get() != null)
-        {
-          Employee e = querySearch.get();
-          boolean updated = e.matchAndUpdated(userData);
-          // If the method returns true, the data has been updated
-          if (updated)
-          {
-            // Reflect the changes to our system, updating the user data in the MongoDB
-            // Remove incorrect document
-            // dbConnection.findAndDelete(querySearch);
-            // Commit the changes to the DB
-            dbConnection.save(e);
-          }
-        }
-        // Else, Create the user in our system with the given data
-        else
-        {
-          // Create the Employee Object
-          Employee employeeNewData = new Employee(userData);
-          // Save the new user to the DB
-          dbConnection.save(employeeNewData);
-        }
-        // Return a smaller version of the current object to the user
-
-        return new ADProfile_Basic(userData.getEmployeeID(), userData.getSurname(), userData.getForename(),
-            userData.getIsManager(), userData.getUsername(), userData.getEmailAddress(), userData.getHasHRDash());
-      }
-      else throw new InvalidAttributeValueException(INVALID_USERGUID_NOTFOUND);
+      LOGGER.warn(NULL_USER_DATA);
+      throw new InvalidAttributeValueException(NULL_USER_DATA);
     }
-    else throw new InvalidAttributeValueException(NULL_USER_DATA);
+
+    if (profileFromAD.getEmployeeID() < 0)
+    {
+      LOGGER.warn(INVALID_DEVNEED_OR_EMPLOYEEID);
+      throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
+    }
+
+    Employee e = getEmployeeQuery(profileFromAD.getEmployeeID()).get();
+
+    if (e != null)
+    {
+      final boolean needsUpdate = !e.getProfile().equals(profileFromAD);
+      LOGGER.debug("Employee (" + e.getProfile().getEmployeeID() + ") needs update: " + needsUpdate);
+      if (needsUpdate)
+      {
+        e.setProfile(profileFromAD);
+        LOGGER.debug("Updating employee: " + e.getProfile().getEmployeeID());
+        dbConnection.save(e);
+      }
+    }
+    else
+    {
+      e = new Employee(profileFromAD);
+      LOGGER.debug("Inserting employee: " + e.getProfile().getEmployeeID());
+      dbConnection.save(e);
+    }
+
+    return e.getProfile();
+  }
+
+  public EmployeeProfile authenticateUserProfile(String usernameEmail)
+      throws InvalidAttributeValueException, ADConnectionException, NamingException
+  {
+    return employeeProfileService.fetchEmployeeProfile(usernameEmail);
+  }
+
+  public void updateLastLoginDate(EmployeeProfile profile) throws InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(profile.getEmployeeID());
+    employee.setLastLogon(Utils.localDateTimetoDate(LocalDateTime.now()));
+
+    UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("lastLogon",
+        employee.getLastLogon());
+    dbConnection.update(employee, ops);
   }
 
 }

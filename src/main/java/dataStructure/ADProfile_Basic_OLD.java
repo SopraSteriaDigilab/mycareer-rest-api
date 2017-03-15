@@ -10,7 +10,7 @@ import com.google.gson.Gson;
  * This class contains the definition of the ADProfile_Basic object
  *
  */
-public class ADProfile_Basic implements Serializable
+public class ADProfile_Basic_OLD implements Serializable
 {
 
   // Global Constants
@@ -24,7 +24,7 @@ public class ADProfile_Basic implements Serializable
   private boolean hasHRDash;
 
   // Empty Constructor
-  public ADProfile_Basic()
+  public ADProfile_Basic_OLD()
   {
     this.surname = INVALID_STRING;
     this.forename = INVALID_STRING;
@@ -36,7 +36,7 @@ public class ADProfile_Basic implements Serializable
   }
 
   // Constructor with parameters
-  public ADProfile_Basic(long employeeID, String surname, String forename, boolean manager, String username,
+  public ADProfile_Basic_OLD(long employeeID, String surname, String forename, boolean manager, String username,
       String emailAddress, boolean hasHRDash) throws InvalidAttributeValueException
   {
     this.setSurname(surname);
