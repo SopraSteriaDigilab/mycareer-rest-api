@@ -20,9 +20,8 @@ import com.google.gson.Gson;
 @Embedded
 public class Objective implements Serializable
 {
-
-  private static final long serialVersionUID = -274154678364673992L;
-  // Global Variables
+  private static final long serialVersionUID = 1L;
+  
   private int id, progress, performance;
   private boolean isArchived;
   private String title, description, timeStamp, timeToCompleteBy, proposedBy;

@@ -12,7 +12,6 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 public class DevelopmentNeed_NEW extends Objective_NEW
 {
-
   /** Represent Category of a development need. */
   public enum Category
   {
@@ -30,7 +29,7 @@ public class DevelopmentNeed_NEW extends Objective_NEW
   }
 
   /** long Constant - Represents serialVersionUID... */
-  private static final long serialVersionUID = 7267058498926094125L;
+  private static final long serialVersionUID = 1L;
 
   /** int Property - Represents the category of the objective */
   @NotBlank(message = ERROR_EMPTY)

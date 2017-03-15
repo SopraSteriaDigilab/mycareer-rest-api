@@ -1,18 +1,7 @@
 package dataStructure;
 
-import static dataStructure.Constants.UK_TIMEZONE;
-
-import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
-
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import utils.Utils;
 
@@ -21,7 +10,6 @@ import utils.Utils;
  */
 public class Objective_NEW extends DBObject
 {
-  
   public static final String ERROR_EMPTY = "Please fill in all the required feilds.";
   public static final String ERROR_DESCRIPTION_LIMIT_2000 = "Max Description length is 1000 characters.";
   public static final String ERROR_NAME_LIMIT = "Max Name length is 150 characters.";
@@ -32,14 +20,16 @@ public class Objective_NEW extends DBObject
   public enum Progress
   {
     PROPOSED("Proposed"), IN_PROGRESS("In-Progress"), COMPLETE("Complete");
-    
+
     private String progressStr;
-    
-    Progress(String progressStr){
-     this.progressStr = progressStr; 
+
+    Progress(String progressStr)
+    {
+      this.progressStr = progressStr;
     }
-    
-    public String getProgressStr() {
+
+    public String getProgressStr()
+    {
       return this.progressStr;
     }
   }
@@ -71,14 +61,13 @@ public class Objective_NEW extends DBObject
   public Objective_NEW()
   {
   }
-  
+
   /**
    * Objective_NEW Constructor - Responsible for initialising this object.
    *
    */
   public Objective_NEW(String title, String description, LocalDate dueDate, String proposedBy)
   {
-    super();
     this.setTitle(title);
     this.setDescription(description);
     this.setDueDate(dueDate);
@@ -86,7 +75,7 @@ public class Objective_NEW extends DBObject
     this.setProgress(Progress.PROPOSED);
     this.setArchived(false);
   }
-  
+
   /**
    * Objective_NEW Constructor - Responsible for initialising this object.
    *
@@ -94,7 +83,7 @@ public class Objective_NEW extends DBObject
   public Objective_NEW(int id, String title, String description, LocalDate dueDate, String proposedBy)
   {
     this(title, description, dueDate, proposedBy);
-    this.setId(id);    
+    this.setId(id);
   }
 
   /** @return the title. */
@@ -154,7 +143,7 @@ public class Objective_NEW extends DBObject
 
   /**
    * @param progress The value to set the named property to. Must be one of the following: Proposed, InProgress,
-   * Complete;
+   *          Complete;
    */
   public void setProgress(Progress progress)
   {

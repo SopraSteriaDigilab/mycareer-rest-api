@@ -13,9 +13,8 @@ import java.time.LocalDateTime;
 // take in a Note object.
 public class Note implements Serializable
 {
-
   /** long Constant - Represents serialVersionUID... */
-  private static final long serialVersionUID = -7758646259468792018L;
+  private static final long serialVersionUID = 1L;
 
   /** int Property - Represents Unique ID for the object. */
   private int id;

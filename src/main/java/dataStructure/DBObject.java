@@ -1,5 +1,7 @@
 package dataStructure;
 
+import static dataStructure.Constants.*;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -8,14 +10,10 @@ import java.time.ZoneId;
  * This class contains the definition of an object to be stored in the DB.
  *
  */
-public class DBObject implements Serializable
+public abstract class DBObject implements Serializable
 {
-  
-  /** ZoneId Constant - Represents Time Zone for UK... */
-  public static final ZoneId UK_TIMEZONE = ZoneId.of("Europe/London");
-
   /** long Constant - Represents serialVersionUID... */
-  private static final long serialVersionUID = -3282647892949110214L;
+  private static final long serialVersionUID = 1L;
 
   /** int Property - Represents Unique ID for the object. */
   private int id;

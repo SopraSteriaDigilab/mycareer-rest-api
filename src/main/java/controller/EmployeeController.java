@@ -62,7 +62,7 @@ public class EmployeeController
 {
 
   /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
-  private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeController.class);
 
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
   private static final String ERROR_TITLE_LIMIT = "Max Title lenght is 150 characters";
@@ -78,6 +78,8 @@ public class EmployeeController
   private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
 
   private static final String ERROR_DEVELOPMENT_NEED_ID = "The given Development Need ID is invalid";
+
+  private static final String ERROR_OBJECTIVE_ID = "The given objective ID is invalid";
 
   private final EmployeeService employeeService = new EmployeeService();
 
@@ -107,7 +109,7 @@ public class EmployeeController
     }
     catch (IOException e)
     {
-      logger.error(e.getMessage());
+      LOGGER.error(e.getMessage());
     }
 
   }
@@ -544,8 +546,8 @@ public class EmployeeController
     try
     {
       boolean inserted = employeeService.updateProgressDevelopmentNeed(employeeID, devNeedID, progress);
-      if (inserted) return ok("DevelopmentNeed modified correctly");
-      else return badRequest().body("Error while editing the developmentNeed");
+      if (inserted) return ok("Development Need modified correctly");
+      else return badRequest().body("Error while editing the development need");
     }
     catch (MongoException me)
     {
@@ -565,7 +567,7 @@ public class EmployeeController
     try
     {
       employeeService.toggleDevNeedArchive(employeeID, developmentNeedID);
-      return ok("Development Need udpated");
+      return ok("Development Need updated");
     }
     catch (InvalidAttributeValueException e)
     {
@@ -772,7 +774,7 @@ public class EmployeeController
             }
             catch (Exception e)
             {
-              logger.error("Email could not be sent for a proposed objective. Error: {}", e);
+              LOGGER.error("Email could not be sent for a proposed objective. Error: {}", e);
             }
 
           }
@@ -820,9 +822,8 @@ public class EmployeeController
     }
   }
 
-  
   //////////////////// START
-  
+
   @RequestMapping(value = "/getObjectivesNEW/{employeeID}", method = GET)
   public ResponseEntity<?> getObjectivesNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
   {
@@ -845,7 +846,8 @@ public class EmployeeController
   {
     try
     {
-      employeeService.addObjectiveNEW(employeeID, new Objective_NEW(title, description, LocalDate.parse(dueDate), proposedBy));
+      employeeService.addObjectiveNEW(employeeID,
+          new Objective_NEW(title, description, LocalDate.parse(dueDate), proposedBy));
       return ok("Objective inserted correctly");
     }
     catch (InvalidAttributeValueException e)
@@ -853,10 +855,10 @@ public class EmployeeController
       return badRequest().body(e.getMessage());
     }
   }
-  
+
   @RequestMapping(value = "/editObjectiveNEW/{employeeID}", method = POST)
   public ResponseEntity<?> editObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
-      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) int objectiveID,
+      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveID,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
       @RequestParam @NotBlank(message = ERROR_DUE_DATE_EMPTY) @DateTimeFormat(pattern = "yyyy-MM-dd") String dueDate,
@@ -864,7 +866,8 @@ public class EmployeeController
   {
     try
     {
-      employeeService.editObjectiveNEW(employeeID, new Objective_NEW(objectiveID, title, description, LocalDate.parse(dueDate), proposedBy));
+      employeeService.editObjectiveNEW(employeeID,
+          new Objective_NEW(objectiveID, title, description, LocalDate.parse(dueDate), proposedBy));
       return ok("Objective updated correctly");
     }
     catch (InvalidAttributeValueException e)
@@ -872,7 +875,67 @@ public class EmployeeController
       return badRequest().body(e.getMessage());
     }
   }
-  
-//////////////////// END
+
+  /**
+   * 
+   * This method allows the front-end to update the status of a objective. This corresponds to archiving or unarchiving
+   * an objective
+   * 
+   * @param employeeID The user ID
+   * @param objectiveID The objective ID to update
+   * @param isArchived boolean value (true=archive, false=unarchive)
+   * @return a message explaining if the objective has been updated or if there was an error while completing the task
+   */
+  @RequestMapping(value = "/archiveObjectiveNEW/{employeeID}", method = POST)
+  public ResponseEntity<?> updateStatusUserObjectiveNEW(
+      @PathVariable("employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam(value = "objectiveID") @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveID,
+      @RequestParam(value = "isArchived") boolean isArchived)
+  {
+    try
+    {
+      // Retrieve the object with the given ID from the DB data
+      Objective obj = employeeService.getSpecificObjectiveForUser(employeeID, objectiveID);
+      if (obj.getIsArchived() == isArchived)
+      {
+        return ok("The status of the objective has not changed");
+      }
+      // //Create a new object which stores the data from the retrieved element but sets a new timestamp to it
+      // Objective newObjUpdated=new Objective(obj);
+      // newObjUpdated.setIsArchived(isArchived);
+
+      boolean updatedArchiveStatus = obj.updateArchiveStatus(isArchived);
+
+      // Store the new version to the system
+      boolean inserted = employeeService.addNewVersionObjective(employeeID, objectiveID, obj);
+      if (inserted)
+      {
+        if (updatedArchiveStatus)
+        {
+          return ok("The objective has been archived");
+        }
+        else
+        {
+          return ok("The objective has been restored");
+        }
+      }
+      else
+      {
+        return badRequest().body("Error while editing the objective");
+      }
+    }
+    catch (MongoException me)
+    {
+      LOGGER.error("MongoException caught while trying to archive or restore an objective", me);
+      return badRequest().body("DataBase Connection Error");
+    }
+    catch (Exception e)
+    {
+      LOGGER.error("Exception caught while trying to archive or restore an objective", e);
+      return badRequest().body(e.getMessage());
+    }
+  }
+
+  //////////////////// END
 
 }

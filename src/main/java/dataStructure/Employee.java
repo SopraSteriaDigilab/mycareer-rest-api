@@ -3,17 +3,12 @@ package dataStructure;
 import static utils.Validate.isNull;
 
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.management.InvalidAttributeValueException;
@@ -30,7 +25,10 @@ import org.mongodb.morphia.annotations.Id;
 @Entity("employeeDataDev")
 public class Employee implements Serializable
 {
-  private static final long serialVersionUID = 6218992334392107696L;
+  private static final long serialVersionUID = 1L;
+  private static final String INVALID_OBJECTIVE_ID = "No objective ID matches the user data";
+  
+  
   // Global Variables
   @Id
   private ObjectId id;
@@ -184,8 +182,6 @@ public class Employee implements Serializable
    */
   public Objective getLatestVersionOfSpecificObjective(int id) throws InvalidAttributeValueException
   {
-    // Verify if the id is valid
-    if (id < 0) throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVEID);
     // Search for the objective with the given ID
     for (List<Objective> subList : objectives)
     {
@@ -196,7 +192,7 @@ public class Employee implements Serializable
         return (subList.get(subList.size() - 1));
       }
     }
-    throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVEIDNOTFOND);
+    throw new InvalidAttributeValueException(INVALID_OBJECTIVE_ID);
   }
 
   /** @return the newObjectives */
