@@ -144,20 +144,26 @@ public class EmployeeController
   @RequestMapping(value = "/getObjectives/{employeeID}", method = GET)
   public ResponseEntity<?> getObjectives(@PathVariable long employeeID)
   {
-    if (employeeID > 0) try
+    if (employeeID > 0)
     {
-      // Retrieve and return the objectives from the system
-      return ok(employeeService.getObjectivesForUser(employeeID));
+      try
+      {
+        // Retrieve and return the objectives from the system
+        return ok(employeeService.getObjectivesForUser(employeeID));
+      }
+      catch (MongoException me)
+      {
+        return badRequest().body("DataBase Connection Error");
+      }
+      catch (Exception e)
+      {
+        return badRequest().body(e.getMessage());
+      }
     }
-    catch (MongoException me)
+    else
     {
-      return badRequest().body("DataBase Connection Error");
+      return badRequest().body(Constants.INVALID_CONTEXT_USERID);
     }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
   }
 
   /**
@@ -170,19 +176,25 @@ public class EmployeeController
   @RequestMapping(value = "/getFeedback/{employeeID}", method = GET)
   public ResponseEntity<?> getFeedback(@PathVariable long employeeID)
   {
-    if (employeeID > 0) try
+    if (employeeID > 0)
     {
-      return ok(employeeService.getFeedbackForUser(employeeID));
+      try
+      {
+        return ok(employeeService.getFeedbackForUser(employeeID));
+      }
+      catch (MongoException me)
+      {
+        return badRequest().body("DataBase Connection Error");
+      }
+      catch (Exception e)
+      {
+        return badRequest().body(e.getMessage());
+      }
     }
-    catch (MongoException me)
+    else
     {
-      return badRequest().body("DataBase Connection Error");
+      return badRequest().body(Constants.INVALID_CONTEXT_USERID);
     }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
   }
 
   /**
@@ -215,19 +227,25 @@ public class EmployeeController
   @RequestMapping(value = "/getDevelopmentNeeds/{employeeID}", method = GET)
   public ResponseEntity<?> getDevelomentNeeds(@PathVariable long employeeID)
   {
-    if (employeeID > 0) try
+    if (employeeID > 0)
     {
-      return ok(employeeService.getDevelopmentNeedsForUser(employeeID));
+      try
+      {
+        return ok(employeeService.getDevelopmentNeedsForUser(employeeID));
+      }
+      catch (MongoException me)
+      {
+        return badRequest().body("DataBase Connection Error");
+      }
+      catch (Exception e)
+      {
+        return badRequest().body(e.getMessage());
+      }
     }
-    catch (MongoException me)
+    else
     {
-      return badRequest().body("DataBase Connection Error");
+      return badRequest().body(Constants.INVALID_CONTEXT_USERID);
     }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
   }
 
   /**
@@ -300,8 +318,14 @@ public class EmployeeController
       Objective obj = new Objective(0, 0, title, description, completedBy);
       obj.setProposedBy(proposedBy);
       boolean inserted = employeeService.insertNewObjective(employeeID, obj);
-      if (inserted) return ok("Objective inserted correctly");
-      else return badRequest().body("Error while adding the objective");
+      if (inserted)
+      {
+        return ok("Objective inserted correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while adding the objective");
+      }
     }
     catch (MongoException me)
     {
@@ -336,8 +360,14 @@ public class EmployeeController
       Objective obj = new Objective(objectiveID, progress, 0, title, description, completedBy);
       obj.setProposedBy(proposedBy);
       boolean inserted = employeeService.addNewVersionObjective(employeeID, objectiveID, obj);
-      if (inserted) return ok("Objective modified correctly");
-      else return badRequest().body("Error while editing the objective");
+      if (inserted)
+      {
+        return ok("Objective modified correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while editing the objective");
+      }
     }
     catch (MongoException me)
     {
@@ -356,8 +386,14 @@ public class EmployeeController
     try
     {
       boolean inserted = employeeService.updateProgressObjective(employeeID, objectiveID, progress);
-      if (inserted) return ok("Objective modified correctly");
-      else return badRequest().body("Error while editing the objective");
+      if (inserted)
+      {
+        return ok("Objective modified correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while editing the objective");
+      }
     }
     catch (MongoException me)
     {
@@ -491,8 +527,14 @@ public class EmployeeController
     {
       DevelopmentNeed obj = new DevelopmentNeed(1, 0, cat, title, description, timeToCompleteBy);
       boolean inserted = employeeService.insertNewDevelopmentNeed(employeeID, obj);
-      if (inserted) return ok("Development need inserted correctly");
-      else return badRequest().body("Error while adding the Development need");
+      if (inserted)
+      {
+        return ok("Development need inserted correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while adding the Development need");
+      }
     }
     catch (MongoException me)
     {
@@ -526,8 +568,14 @@ public class EmployeeController
     {
       DevelopmentNeed obj = new DevelopmentNeed(devNeedID, progress, cat, title, description, timeToCompleteBy);
       boolean inserted = employeeService.addNewVersionDevelopmentNeed(employeeID, devNeedID, obj);
-      if (inserted) return ok("Development need modified correctly");
-      else return badRequest().body("Error while editing the Development need");
+      if (inserted)
+      {
+        return ok("Development need modified correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while editing the Development need");
+      }
     }
     catch (MongoException me)
     {
@@ -546,8 +594,14 @@ public class EmployeeController
     try
     {
       boolean inserted = employeeService.updateProgressDevelopmentNeed(employeeID, devNeedID, progress);
-      if (inserted) return ok("Development Need modified correctly");
-      else return badRequest().body("Error while editing the development need");
+      if (inserted)
+      {
+        return ok("Development Need modified correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while editing the development need");
+      }
     }
     catch (MongoException me)
     {
@@ -661,13 +715,24 @@ public class EmployeeController
     try
     {
       if (title == null || title.length() < 1 || title.length() > 200)
+      {
         return badRequest().body("The given title is invalid");
+      }
       int index = Constants.getCompetencyIDGivenTitle(title);
-      if (index < 0) return badRequest().body("The given title does not match any valid competency");
+      if (index < 0)
+      {
+        return badRequest().body("The given title does not match any valid competency");
+      }
       Competency obj = new Competency(index, status);
       boolean inserted = employeeService.addNewVersionCompetency(employeeID, obj, title);
-      if (inserted) return ok("Competency updated correctly");
-      else return badRequest().body("Error while updating the Competency");
+      if (inserted)
+      {
+        return ok("Competency updated correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while updating the Competency");
+      }
     }
     catch (MongoException me)
     {
