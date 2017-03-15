@@ -1,5 +1,6 @@
 package dataStructure;
 
+import static application.GlobalExceptionHandler.*;
 import static dataStructure.Constants.UK_TIMEZONE;
 
 import java.io.Serializable;
@@ -28,7 +29,9 @@ public class Note implements Serializable
   /** String Property - Represents the timestamp of the note. */
   private String timestamp;
 
-  /** Default Constructor - Responsible for initialising this object. */
+  /** 
+   * Default Constructor - Responsible for initialising this object.
+   */
   public Note()
   {
   }

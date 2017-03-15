@@ -46,11 +46,12 @@ import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
+import dataStructure.Objective_NEW;
 import services.ad.ADConnectionException;
 import services.ews.EmailService;
-import services.validate.Validate;
 import utils.Template;
 import utils.Utils;
+import utils.Validate;
 
 /**
  * This class contains the definition of the EmployeeDAO object
@@ -114,17 +115,6 @@ public class EmployeeService
       throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
     }
     return employee;
-  }
-
-  /**
-   * Get Employee query with the specified id
-   *
-   * @param employeeID
-   * @return
-   */
-  private Query<Employee> getEmployeeQuery(long employeeID)
-  {
-    return dbConnection.createQuery(Employee.class).filter("profile.employeeID =", employeeID);
   }
 
   /**
@@ -629,7 +619,7 @@ public class EmployeeService
    * @param notes
    * @throws Exception
    */
-  public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception 
+  public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception
   {
     Employee requester = getEmployee(employeeID);
     Set<String> recipientList = Utils.stringEmailsToHashSet(emailsString);
@@ -856,6 +846,64 @@ public class EmployeeService
     UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("lastLogon",
         employee.getLastLogon());
     dbConnection.update(employee, ops);
+  }
+
+  //////////////////// START
+
+  /**
+   * Get a list of the current objectives for a user.
+   *
+   * @param employeeID
+   * @return A list of the latest version objectives for a user
+   * @throws InvalidAttributeValueException
+   */
+  public List<Objective_NEW> getObjectivesNEW(long employeeID) throws InvalidAttributeValueException
+  {
+    return getEmployee(employeeID).getObjectivesNEW();
+  }
+
+  public boolean addObjectiveNEW(long employeeID, Objective_NEW objective) throws InvalidAttributeValueException
+  {
+    Query<Employee> employeeQuery = getEmployeeQuery(employeeID);
+    Employee employee = employeeQuery.get();
+
+    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
+
+    employee.addObjectiveNEW(objective);
+
+    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
+        .set("newObjectives", employee.getNewObjectives());
+    dbConnection.update(employeeQuery, updateOperation);
+    return true;
+  }
+
+  public boolean editObjectiveNEW(long employeeID, Objective_NEW objective) throws InvalidAttributeValueException
+  {
+    Query<Employee> employeeQuery = getEmployeeQuery(employeeID);
+    Employee employee = employeeQuery.get();
+
+    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
+
+    employee.editObjectiveNEW(objective);
+
+    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
+        .set("newObjectives", employee.getNewObjectives());
+    dbConnection.update(employeeQuery, updateOperation);
+
+    return true;
+  }
+
+  //////////////////// END
+
+  /**
+   * Get Employee query with the specified id
+   *
+   * @param employeeID
+   * @return
+   */
+  private Query<Employee> getEmployeeQuery(long employeeID)
+  {
+    return dbConnection.createQuery(Employee.class).filter("profile.employeeID =", employeeID);
   }
 
 }

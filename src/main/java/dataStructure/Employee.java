@@ -1,6 +1,6 @@
 package dataStructure;
 
-import static services.validate.Validate.isNull;
+import static utils.Validate.isNull;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -44,6 +45,9 @@ public class Employee implements Serializable
   private List<List<Objective>> objectives;
 
   @Embedded
+  private List<List<Objective_NEW>> newObjectives;
+
+  @Embedded
   private List<Note> notes;
 
   @Embedded
@@ -63,6 +67,7 @@ public class Employee implements Serializable
   {
     this.feedback = new ArrayList<Feedback>();
     this.objectives = new ArrayList<List<Objective>>();
+    this.newObjectives = new ArrayList<List<Objective_NEW>>();
     this.notes = new ArrayList<Note>();
     this.developmentNeeds = new ArrayList<List<DevelopmentNeed>>();
     this.feedbackRequests = new ArrayList<FeedbackRequest>();
@@ -72,13 +77,8 @@ public class Employee implements Serializable
   /** Default Constructor - Responsible for initialising this object. */
   public Employee(final EmployeeProfile profile)
   {
+    this();
     this.profile = profile;
-    this.feedback = new ArrayList<Feedback>();
-    this.objectives = new ArrayList<List<Objective>>();
-    this.notes = new ArrayList<Note>();
-    this.developmentNeeds = new ArrayList<List<DevelopmentNeed>>();
-    this.feedbackRequests = new ArrayList<FeedbackRequest>();
-    this.competencies = new ArrayList<List<Competency>>();
   }
 
   /** @return The _id created by MongoDB when inserting this object in the Collection */
@@ -110,16 +110,6 @@ public class Employee implements Serializable
   {
     this.feedback = feedback;
   }
-  //
-
-  // public Feedback getSpecificFeedback(int id) throws InvalidAttributeValueException
-  // {
-  // if (id > 0)
-  // {
-  // return feedback.stream().filter(f -> f.getId() == id).findFirst().get();
-  // }
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKID);
-  // }
 
   /**
    * 
@@ -209,6 +199,18 @@ public class Employee implements Serializable
     throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVEIDNOTFOND);
   }
 
+  /** @return the newObjectives */
+  public List<List<Objective_NEW>> getNewObjectives()
+  {
+    return newObjectives;
+  }
+
+  /** @param newObjectives The value to set. */
+  public void setNewObjectives(List<List<Objective_NEW>> newObjectives)
+  {
+    this.newObjectives = newObjectives;
+  }
+
   /** @return the notes */
   public List<Note> getNotes()
   {
@@ -230,7 +232,7 @@ public class Employee implements Serializable
    */
   public void setDevelopmentNeedsList(List<List<DevelopmentNeed>> developments) throws InvalidAttributeValueException
   {
-    if (developments != null) 
+    if (developments != null)
     {
       // Counter that keeps tracks of the error while adding elements
       int errorCounter = 0;
@@ -361,7 +363,7 @@ public class Employee implements Serializable
       if (feedbackRequest.getId().equals(id)) return feedbackRequest;
     }
     throw new InvalidAttributeValueException("Feedback Request does not exist.");
-  } 
+  }
 
   // /**
   // *
@@ -452,7 +454,7 @@ public class Employee implements Serializable
    * 
    * @return List<Competencies>
    */
-  public List<Competency> getLatestVersionCompetencies() 
+  public List<Competency> getLatestVersionCompetencies()
   {
     List<Competency> organisedList = new ArrayList<Competency>();
     if (this.competencies.size() == 0)
@@ -707,6 +709,55 @@ public class Employee implements Serializable
     throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCY_CONTEXT);
   }
 
+  public int nextFeedbackID()
+  {
+    return this.feedback.size() + 1;
+  }
+
+  public int nextObjectiveID()
+  {
+    return this.newObjectives.size() + 1;
+  }
+
+  //////////////////// START
+
+  public List<Objective_NEW> getObjectivesNEW()
+  {
+    return this.newObjectives.stream().map(o -> o.get(o.size() - 1)).collect(Collectors.toList());
+  }
+
+  public boolean addObjectiveNEW(Objective_NEW objective) throws InvalidAttributeValueException
+  {
+    if (objective == null) throw new InvalidAttributeValueException("Objective is invalid.");
+    objective.setId(nextObjectiveID());
+
+    List<Objective_NEW> objectiveList = new ArrayList<Objective_NEW>();
+    objectiveList.add(objective);
+
+    return this.newObjectives.add(objectiveList);
+  }
+
+  public boolean editObjectiveNEW(Objective_NEW objective) throws InvalidAttributeValueException
+  {
+    if (objective == null) throw new InvalidAttributeValueException("Objective is invalid.");
+
+    List<Objective_NEW> objectiveList = getNewObjectives().stream().filter(o -> o.get(0).getId() == objective.getId())
+        .findFirst().get();
+
+    if (objectiveList == null) throw new InvalidAttributeValueException("Objective not found.");
+
+    return objectiveList.add(objective);
+  }
+
+  public Objective_NEW getLatestVersionObjective(int objectiveID)
+  {
+    List<Objective_NEW> objectiveList = getNewObjectives().stream().filter(o -> o.get(0).getId() == objectiveID)
+        .findFirst().get();
+    return objectiveList.get(objectiveList.size() - 1);
+  }
+
+  //////////////////// END
+
   /**
    * 
    * This method takes in a List of Objectives or Development Needs an sorts them based on the Due Date Sorted by
@@ -747,11 +798,6 @@ public class Employee implements Serializable
         return (ym1.equals(ym2)) ? 0 : ((ym1.isBefore(ym2)) ? -1 : 1);
       }
     });
-  }
-
-  public int nextFeedbackID()
-  {
-    return this.feedback.size() + 1;
   }
 
 }
