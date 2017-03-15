@@ -7,12 +7,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
+import javax.naming.NamingException;
+import javax.naming.directory.SearchResult;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import services.validate.Validate;
 
@@ -22,6 +29,9 @@ import services.validate.Validate;
 public class Utils
 {
 
+  /** Logger Constant - Represents logger to use */
+  private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
+
   /**
    * Generate a feedbackRequestID using an employeeID. Format will be dddddd_ddddddddddddddddd. Where 'd' is a number.
    * 
@@ -30,7 +40,7 @@ public class Utils
    */
   public static String generateFeedbackRequestID(long id)
   {
-    LocalDateTime localDateTime = LocalDateTime.now(ZoneId.of(UK_TIMEZONE));
+    LocalDateTime localDateTime = LocalDateTime.now(UK_TIMEZONE);
     String stringDate = localDateTime.toString().replace("-", "").replace("T", "").replace(":", "").replace(".", "");
     String generatedId = id + "_" + stringDate;
     return generatedId;
@@ -184,5 +194,53 @@ public class Utils
   }
 
   // TODO Page 492 - look into it.
+
+  /**
+   * Returns the {@code String} attribute value from an {@code SearchResult} object.
+   * 
+   * Logs at message at warning level if the value could not be obtained.
+   *
+   * @param result The SearchResult object to obtain the attribute from.
+   * @param attribute The attribute key
+   * @return The attribute value or null if it could not be obtained.
+   */
+  public static String getAttribute(SearchResult result, String attribute)
+  {
+    String retVal = null;
+
+    try
+    {
+      retVal = result.getAttributes().get(attribute).get().toString();
+    }
+    catch (final NullPointerException | NamingException e)
+    {
+      LOGGER.warn("Unable to obtain attribute value");
+    }
+
+    return retVal;
+  }
+
+  /**
+   * Converts LocalDateTime to a java.util.Date
+   *
+   * @param localDateTime
+   * @return
+   */
+  public static Date localDateTimetoDate(LocalDateTime localDateTime)
+  {
+    return Date.from(localDateTime.atZone(UK_TIMEZONE).toInstant());
+  }
+
+  /**
+   * Converts LocalDateTime to a java.util.Date
+   *
+   * @param localDateTime
+   * @return
+   */
+  public static LocalDateTime DateToLocalDateTime(Date date)
+  {
+    Instant instant = date.toInstant();
+    return instant.atZone(UK_TIMEZONE).toLocalDateTime();
+  }
 
 }

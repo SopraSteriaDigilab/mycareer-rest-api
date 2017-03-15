@@ -1,4 +1,4 @@
-package application;
+package config;
 
 import java.io.IOException;
 import javax.servlet.Filter;
@@ -17,41 +17,19 @@ import net.sourceforge.spnego.SpnegoHttpFilter;
 
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
-public class WebConfiguration extends OncePerRequestFilter
+public class WebConfig extends OncePerRequestFilter
 {
-
-  private static final String SPNEGO_USERNAME = "mycareersvc";
-  private static final String SPNEGO_PASSWORD = "Czam2mc2!";
+  private static final String SPNEGO_USERNAME = "mycareersvc";  // TODO move these out of application code
+  private static final String SPNEGO_PASSWORD = "Czam2mc2!";    // TODO move these out of application code
 
   @Autowired
   private Environment env;
-
-  @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-      throws ServletException, IOException
-  {
-
-    response.setHeader("Access-Control-Allow-Origin", env.getProperty("domain.url.full"));
-    response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    response.setHeader("Access-Control-Max-Age", "3600");
-    response.setHeader("Access-Control-Allow-Headers", "authorization, xsrf-token, Content-Type, Accept");
-    response.addHeader("Access-Control-Expose-Headers", "xsrf-token");
-    response.setHeader("Access-Control-Allow-Credentials", "true");
-
-    if ("OPTIONS".equals(request.getMethod()))
-    {
-      response.setStatus(HttpServletResponse.SC_OK);
-    }
-    else
-    {
-      filterChain.doFilter(request, response);
-    }
-  }
 
   @Bean
   public FilterRegistrationBean spnegoFilterRegistration()
   {
     FilterRegistrationBean registration = new FilterRegistrationBean();
+    
     registration.setFilter(spnegoHttpFilter());
     registration.setName("spnegoHttpFilter");
     registration.addInitParameter("spnego.allow.basic", "true");
@@ -74,4 +52,24 @@ public class WebConfiguration extends OncePerRequestFilter
     return new SpnegoHttpFilter();
   }
 
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException
+  {
+    response.setHeader("Access-Control-Allow-Origin", env.getProperty("domain.url.full"));
+    response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.setHeader("Access-Control-Max-Age", "3600");
+    response.setHeader("Access-Control-Allow-Headers", "authorization, xsrf-token, Content-Type, Accept");
+    response.addHeader("Access-Control-Expose-Headers", "xsrf-token");
+    response.setHeader("Access-Control-Allow-Credentials", "true");
+
+    if ("OPTIONS".equals(request.getMethod()))
+    {
+      response.setStatus(HttpServletResponse.SC_OK);
+    }
+    else
+    {
+      filterChain.doFilter(request, response);
+    }
+  }
 }

@@ -13,7 +13,7 @@ import com.google.gson.Gson;
  * This class contains the definition of the ADProfile_Advanced object
  *
  */
-public class ADProfile_Advanced extends ADProfile_Basic implements Serializable
+public class ADProfile_Advanced_OLD extends ADProfile_Basic_OLD implements Serializable
 {
 
   // Global Constant
@@ -29,7 +29,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable
   private List<String> reporteeCNs;
 
   // Empty Constructor
-  public ADProfile_Advanced()
+  public ADProfile_Advanced_OLD()
   {
     company = INVALID_STRING;
     superSector = INVALID_STRING;
@@ -42,7 +42,7 @@ public class ADProfile_Advanced extends ADProfile_Basic implements Serializable
   }
 
   // Constructor with parameters
-  public ADProfile_Advanced(long employeeID, String guid, String name, String surname, String emailAddress,
+  public ADProfile_Advanced_OLD(long employeeID, String guid, String name, String surname, String emailAddress,
       String username, String company, String superSector, String sector, String steriaDepartment,
       String sopraDepartment, String team, boolean isManager, boolean hasHRDash, List<String> reps)
       throws InvalidAttributeValueException

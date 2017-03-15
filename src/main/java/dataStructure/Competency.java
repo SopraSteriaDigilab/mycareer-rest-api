@@ -70,7 +70,7 @@ public class Competency implements Serializable
    */
   private void setTimeStamp()
   {
-    if (this.timeStamp == null) this.timeStamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+    if (this.timeStamp == null) this.timeStamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
   public String getTimeStamp()
@@ -86,7 +86,7 @@ public class Competency implements Serializable
    */
   public void setTitle(int compId) throws InvalidAttributeValueException
   {
-    if (compId == 0 | compId < Constants.COMPETENCY_NAMES.length) this.title = Constants.COMPETENCY_NAMES[compId];
+    if (compId >= 0 && compId < Constants.COMPETENCY_NAMES.length) this.title = Constants.COMPETENCY_NAMES[compId];
     else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_TITLE);
   }
 
@@ -104,7 +104,7 @@ public class Competency implements Serializable
    */
   public void setDescription(int compId) throws InvalidAttributeValueException
   {
-    if (compId == 0 | compId < Constants.COMPETENCY_NAMES.length)
+    if (compId >= 0 && compId < Constants.COMPETENCY_NAMES.length)
       this.description = Constants.COMPETENCY_DESCRIPTIONS[compId];
     else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_DESCRIPTION);
   }
