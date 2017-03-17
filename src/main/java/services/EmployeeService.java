@@ -47,6 +47,7 @@ import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 import services.ad.ADConnectionException;
+import services.db.DBOperationException;
 import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Template;
@@ -705,14 +706,7 @@ public class EmployeeService
 
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
 
-    try
-    {
-      feedback.setProviderName(employeeProfileService.fetchEmployeeFullNameFromEmailAddress(providerEmail));
-    }
-    catch (InvalidAttributeValueException | NamingException e)
-    {
-      // TODO Handle this better?
-    }
+    feedback.setProviderName(employeeProfileService.fetchEmployeeProfileFromEmailAddress(providerEmail).getFullName());
 
     employee.addFeedback(feedback);
 
@@ -843,7 +837,7 @@ public class EmployeeService
   }
 
   public EmployeeProfile authenticateUserProfile(String usernameEmail)
-      throws InvalidAttributeValueException, ADConnectionException, NamingException
+      throws DBOperationException
   {
     return employeeProfileService.fetchEmployeeProfile(usernameEmail);
   }

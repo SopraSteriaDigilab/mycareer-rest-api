@@ -44,6 +44,7 @@ import dataStructure.Note;
 import dataStructure.Objective;
 import services.EmployeeService;
 import services.ad.ADConnectionException;
+import services.db.DBOperationException;
 import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Template;
@@ -70,8 +71,6 @@ public class EmployeeController
   private static final String ERROR_NOTE_DESCRIPTION_EMPTY = "Note description can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
   private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
-
-
 
   private final EmployeeService employeeService = new EmployeeService();
 
@@ -107,7 +106,7 @@ public class EmployeeController
   }
 
   @RequestMapping(value = "/logMeIn", method = GET)
-  public ResponseEntity<?> index(HttpServletRequest request)
+  public ResponseEntity<?> index(HttpServletRequest request) throws DBOperationException
   {
     String username = request.getRemoteUser();
     ResponseEntity<?> response = authenticateUserProfile(username);
@@ -671,7 +670,7 @@ public class EmployeeController
   }
 
   @RequestMapping(value = "/authenticateUserProfile", method = GET)
-  public ResponseEntity<?> authenticateUserProfile(@RequestParam(value = "userName_Email") String userName)
+  public ResponseEntity<?> authenticateUserProfile(@RequestParam(value = "userName_Email") String userName) throws DBOperationException
   {
     try
     {
@@ -684,7 +683,7 @@ public class EmployeeController
         return badRequest().body("The username given is invalid");
       }
     }
-    catch (InvalidAttributeValueException | NamingException | ADConnectionException e)
+    catch (InvalidAttributeValueException e)
     {
       return badRequest().body(e.getMessage());
     }
@@ -701,11 +700,12 @@ public class EmployeeController
    * @param emails, a string of email addresses -1 => Not Relevant to my career anymore 0 => Awaiting 1 => In Flight 2
    *          => Done
    * @return a message explaining if the objective has been inserted or if there was an error while completing the task
+   * @throws DBOperationException 
    */
   @RequestMapping(value = "/addProposedObjective/{employeeID}", method = POST)
   public ResponseEntity<?> addProposedObjectiveToAUser(@PathVariable(value = "employeeID") long employeeID,
       @RequestParam(value = "title") String title, @RequestParam(value = "description") String description,
-      @RequestParam(value = "completedBy") String completedBy, @RequestParam(value = "emails") String emails)
+      @RequestParam(value = "completedBy") String completedBy, @RequestParam(value = "emails") String emails) throws DBOperationException
   {
     String result = "Objective Proposed for: ";
     String errorResult = "Error: ";
@@ -796,14 +796,6 @@ public class EmployeeController
 
     }
     catch (InvalidAttributeValueException e)
-    {
-      if (!insertAccepted)
-      {
-        result = "";
-      }
-      return badRequest().body(result + e.getMessage() + ", ");
-    }
-    catch (NamingException | ADConnectionException e)
     {
       if (!insertAccepted)
       {

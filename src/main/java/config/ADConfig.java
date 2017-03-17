@@ -29,7 +29,6 @@ public class ADConfig
 
   private static final String AUTHENTICATION = "simple";
   private static final String LDAP_CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
-  private static final String BINARY_ATTRIBUTES_KEY = "java.naming.ldap.attributes.binary";
   private static final String TIMEOUT_ATTRIBUTE_KEY = "com.sun.jndi.ldap.read.timeout";
   private static final String TIMEOUT_ATTRIBUTE = "30000";
 
@@ -37,10 +36,8 @@ public class ADConfig
   private static final String AD_SOPRA_URL = AD_SOPRA_HOST.concat(":389");
   private static final String AD_SOPRA_USERNAME = "svc_mycareer@emea.msad.sopra";
   private static final String AD_SOPRA_PASSWORD = "N9T$SiPSZ";
-  private static final String AD_SOPRA_BINARY_ATTRIBUTES = "objectGUID";
   private static final String AD_SOPRA_PRINCIPAL = AD_SOPRA_USERNAME;
-  private static final String[] AD_SOPRA_ATTRIBUTES = { "sn", "givenName", "company", "sAMAccountName",
-      "extensionAttribute7", "objectGUID", "mail", "department", "targetAddress", "memberOf" };
+  private static final String[] AD_SOPRA_ATTRIBUTES = { "memberOf" };
 
   private static final String AD_STERIA_HOST = "ldap://one.steria.dom";
   private static final String AD_STERIA_URL = AD_STERIA_HOST.concat(":389");
@@ -76,7 +73,6 @@ public class ADConfig
     sopraADSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
     sopraADSettings.put(PROVIDER_URL, AD_SOPRA_URL);
     sopraADSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
-    sopraADSettings.put(BINARY_ATTRIBUTES_KEY, AD_SOPRA_BINARY_ATTRIBUTES);
     sopraADSettings.put(SECURITY_PRINCIPAL, AD_SOPRA_PRINCIPAL);
     sopraADSettings.put(SECURITY_CREDENTIALS, AD_SOPRA_PASSWORD);
     sopraADSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);

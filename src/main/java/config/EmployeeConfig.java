@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import services.ad.ADSearchSettings;
+import services.db.MorphiaOperations;
 import services.EmployeeProfileService;
 import services.EmployeeService;
 
@@ -22,23 +23,23 @@ public class EmployeeConfig
   private Environment env;
   
   @Autowired
-  private Datastore dbConnection;
+  private Datastore datastore;
   
   @Autowired
   private ADSearchSettings sopraADSearchSettings;
   
   @Autowired
-  private ADSearchSettings steriaADSearchSettings;
+  private MorphiaOperations morphiaOperation;
   
   @Bean
   public EmployeeService employeeService()
   {
-    return new EmployeeService(dbConnection, employeeProfileService(), env);
+    return new EmployeeService(datastore, employeeProfileService(), env);
   }
   
   @Bean
   public EmployeeProfileService employeeProfileService()
   {
-    return new EmployeeProfileService(sopraADSearchSettings, steriaADSearchSettings);
+    return new EmployeeProfileService(morphiaOperation, sopraADSearchSettings);
   }
 }
