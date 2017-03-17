@@ -182,9 +182,6 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
   private Date mapAccountExpires(final Attributes attributes)
   {
     final String result = mapString(ACCOUNT_EXPIRES, attributes);
-    
-    // the date is returned as micros since unix epoch in String form
-    // the leaving date should be recent
     if (result.length() < 18)
     {
       return null;

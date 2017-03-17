@@ -12,8 +12,7 @@ import java.time.ZoneId;
  */
 public class FeedbackRequest implements Serializable
 {
-
-  private static final long serialVersionUID = 5904650249033682895L;
+  private static final long serialVersionUID = 1L;
 
   /** Unique ID for the object. */
   private String id;

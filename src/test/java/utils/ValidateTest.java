@@ -1,4 +1,4 @@
-package services.validate;
+package utils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -8,7 +8,7 @@ import javax.management.InvalidAttributeValueException;
 
 import org.junit.Test;
 
-import services.validate.Validate;
+import utils.Validate;
 
 /**
  * Unit tests for the Validate class.

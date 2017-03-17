@@ -99,7 +99,7 @@ public final class Constants
   public static final String INVALID_NULLREPORTEESLIST = "The given list of reportees is null";
   public static final String INVALID_NULLREPORTEE = "The given 'reportee' is null";
   public static final String INVALID_ID_NOT_FOUND = "No employee matches the given ID";
-  public static final String INVALID_OBJECTIVEIDNOTFOND = "No objective ID matches the user data";
+  public static final String INVALID_OBJECTIVE_ID_NOT_FOUND = "No objective ID matches the user data";
   public static final String INVALID_USEREMAIL = "The given email address does not match any valid employee";
   public static final String OBJECTIVE_NOTADDED_ERROR = "The given objective couldn't be added Please try again later";
   public static final String FEEDBACK_NOTADDED_ERROR = "The given feedback couldn't be added Please try again later";
@@ -146,16 +146,6 @@ public final class Constants
   public static final String AD_STERIA_LOGIN_TREE = "OU=Service Accounts,OU=UKCentral,OU=UK,OU=Resources,DC=one,DC=steria,DC=dom";
   public static final String[] AD_STERIA_ATTRIBUTES = { "directReports", "sn", "givenName", "mail", "targetAddress",
       "company", "sAMAccountName", "department", "ou", "SteriaSectorUnit" };
-
-  // Constants for the emailServices package
-  // public static final String MAILBOX_ADDRESS="feedback.uk@soprasteria.com";
-  // public static final String MAIL_USERNAME="FbackUK";
-  // public static final String MAIL_PASSWORD="Auto_Map_$459$";
-  // public static final String MAIL_EXCHANGE_URI="https://mailbox.corp.sopra/ews/exchange.asmx";
-  // public static final String MAILBOX_ADDRESS = "feedback.dev.uk@soprasteria.com";
-  // public static final String MAIL_USERNAME = "feedback.dev.uk";
-  // public static final String MAIL_PASSWORD = "=9UzlDg^3N";
-  // public static final String MAIL_EXCHANGE_URI = "https://mailbox.corp.sopra/ews/exchange.asmx";
   public static final String MAILBOX_ADDRESS = "ridhwan.nacef@soprasteria.com";
   public static final String MAIL_USERNAME = "ridhwan.nacef@soprasteria.com";
   public static final String MAIL_PASSWORD = "Steria123";

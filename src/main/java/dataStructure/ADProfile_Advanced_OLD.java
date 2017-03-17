@@ -13,12 +13,11 @@ import com.google.gson.Gson;
  * This class contains the definition of the ADProfile_Advanced object
  *
  */
+@Deprecated
 public class ADProfile_Advanced_OLD extends ADProfile_Basic_OLD implements Serializable
 {
-
-  // Global Constant
-  private static final long serialVersionUID = -5982675570485578676L;
-  // Global Variables
+  private static final long serialVersionUID = 1L;
+  
   private String GUID;
   private String team;
   private String sopraDepartment;

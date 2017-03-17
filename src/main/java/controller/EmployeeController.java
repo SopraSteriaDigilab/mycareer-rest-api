@@ -8,6 +8,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -42,11 +44,12 @@ import dataStructure.DevelopmentNeed;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
+import dataStructure.Objective_NEW;
 import services.EmployeeService;
 import services.ad.ADConnectionException;
 import services.ews.EmailService;
-import services.validate.Validate;
 import utils.Template;
+import utils.Validate;
 
 /**
  * This class contains all the available roots of the web service
@@ -59,19 +62,24 @@ public class EmployeeController
 {
 
   /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
-  private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeController.class);
 
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
-  private static final String ERROR_DEVELOPMENT_NEED_ID = "The given Development Need ID is invalid";
- 
+  private static final String ERROR_TITLE_LIMIT = "Max Title lenght is 150 characters";
+  private static final String ERROR_TITLE_EMPTY = "Title can not be empty";
+  private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
   private static final String ERROR_EMAIL_RECIPIENTS_EMPTY = "The emailsTo field can not be empty";
-  private static final String ERROR_EMAIL_NOTES_EMPTY = "The notes field can not be empty";
+  private static final String ERROR_DUE_DATE_EMPTY = "Due Date can not be empty";
+  private static final String ERROR_PROPOSED_BY_LIMIT = "Max ProposedBy length is 150 characters";
+  private static final String ERROR_PROPOSED_BY_EMPTY = "ProbosedBy can not be empty";
+
   private static final String ERROR_NOTE_PROVIDER_NAME_EMPTY = "Provider name can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_EMPTY = "Note description can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
-  private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
 
+  private static final String ERROR_DEVELOPMENT_NEED_ID = "The given Development Need ID is invalid";
 
+  private static final String ERROR_OBJECTIVE_ID = "The given objective ID is invalid";
 
   private final EmployeeService employeeService = new EmployeeService();
 
@@ -101,7 +109,7 @@ public class EmployeeController
     }
     catch (IOException e)
     {
-      logger.error(e.getMessage());
+      LOGGER.error(e.getMessage());
     }
 
   }
@@ -136,20 +144,26 @@ public class EmployeeController
   @RequestMapping(value = "/getObjectives/{employeeID}", method = GET)
   public ResponseEntity<?> getObjectives(@PathVariable long employeeID)
   {
-    if (employeeID > 0) try
+    if (employeeID > 0)
     {
-      // Retrieve and return the objectives from the system
-      return ok(employeeService.getObjectivesForUser(employeeID));
+      try
+      {
+        // Retrieve and return the objectives from the system
+        return ok(employeeService.getObjectivesForUser(employeeID));
+      }
+      catch (MongoException me)
+      {
+        return badRequest().body("DataBase Connection Error");
+      }
+      catch (Exception e)
+      {
+        return badRequest().body(e.getMessage());
+      }
     }
-    catch (MongoException me)
+    else
     {
-      return badRequest().body("DataBase Connection Error");
+      return badRequest().body(Constants.INVALID_CONTEXT_USERID);
     }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
   }
 
   /**
@@ -162,19 +176,25 @@ public class EmployeeController
   @RequestMapping(value = "/getFeedback/{employeeID}", method = GET)
   public ResponseEntity<?> getFeedback(@PathVariable long employeeID)
   {
-    if (employeeID > 0) try
+    if (employeeID > 0)
     {
-      return ok(employeeService.getFeedbackForUser(employeeID));
+      try
+      {
+        return ok(employeeService.getFeedbackForUser(employeeID));
+      }
+      catch (MongoException me)
+      {
+        return badRequest().body("DataBase Connection Error");
+      }
+      catch (Exception e)
+      {
+        return badRequest().body(e.getMessage());
+      }
     }
-    catch (MongoException me)
+    else
     {
-      return badRequest().body("DataBase Connection Error");
+      return badRequest().body(Constants.INVALID_CONTEXT_USERID);
     }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
   }
 
   /**
@@ -207,19 +227,25 @@ public class EmployeeController
   @RequestMapping(value = "/getDevelopmentNeeds/{employeeID}", method = GET)
   public ResponseEntity<?> getDevelomentNeeds(@PathVariable long employeeID)
   {
-    if (employeeID > 0) try
+    if (employeeID > 0)
     {
-      return ok(employeeService.getDevelopmentNeedsForUser(employeeID));
+      try
+      {
+        return ok(employeeService.getDevelopmentNeedsForUser(employeeID));
+      }
+      catch (MongoException me)
+      {
+        return badRequest().body("DataBase Connection Error");
+      }
+      catch (Exception e)
+      {
+        return badRequest().body(e.getMessage());
+      }
     }
-    catch (MongoException me)
+    else
     {
-      return badRequest().body("DataBase Connection Error");
+      return badRequest().body(Constants.INVALID_CONTEXT_USERID);
     }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
   }
 
   /**
@@ -292,8 +318,14 @@ public class EmployeeController
       Objective obj = new Objective(0, 0, title, description, completedBy);
       obj.setProposedBy(proposedBy);
       boolean inserted = employeeService.insertNewObjective(employeeID, obj);
-      if (inserted) return ok("Objective inserted correctly");
-      else return badRequest().body("Error while adding the objective");
+      if (inserted)
+      {
+        return ok("Objective inserted correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while adding the objective");
+      }
     }
     catch (MongoException me)
     {
@@ -328,8 +360,14 @@ public class EmployeeController
       Objective obj = new Objective(objectiveID, progress, 0, title, description, completedBy);
       obj.setProposedBy(proposedBy);
       boolean inserted = employeeService.addNewVersionObjective(employeeID, objectiveID, obj);
-      if (inserted) return ok("Objective modified correctly");
-      else return badRequest().body("Error while editing the objective");
+      if (inserted)
+      {
+        return ok("Objective modified correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while editing the objective");
+      }
     }
     catch (MongoException me)
     {
@@ -348,8 +386,14 @@ public class EmployeeController
     try
     {
       boolean inserted = employeeService.updateProgressObjective(employeeID, objectiveID, progress);
-      if (inserted) return ok("Objective modified correctly");
-      else return badRequest().body("Error while editing the objective");
+      if (inserted)
+      {
+        return ok("Objective modified correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while editing the objective");
+      }
     }
     catch (MongoException me)
     {
@@ -483,8 +527,14 @@ public class EmployeeController
     {
       DevelopmentNeed obj = new DevelopmentNeed(1, 0, cat, title, description, timeToCompleteBy);
       boolean inserted = employeeService.insertNewDevelopmentNeed(employeeID, obj);
-      if (inserted) return ok("Development need inserted correctly");
-      else return badRequest().body("Error while adding the Development need");
+      if (inserted)
+      {
+        return ok("Development need inserted correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while adding the Development need");
+      }
     }
     catch (MongoException me)
     {
@@ -518,8 +568,14 @@ public class EmployeeController
     {
       DevelopmentNeed obj = new DevelopmentNeed(devNeedID, progress, cat, title, description, timeToCompleteBy);
       boolean inserted = employeeService.addNewVersionDevelopmentNeed(employeeID, devNeedID, obj);
-      if (inserted) return ok("Development need modified correctly");
-      else return badRequest().body("Error while editing the Development need");
+      if (inserted)
+      {
+        return ok("Development need modified correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while editing the Development need");
+      }
     }
     catch (MongoException me)
     {
@@ -538,8 +594,14 @@ public class EmployeeController
     try
     {
       boolean inserted = employeeService.updateProgressDevelopmentNeed(employeeID, devNeedID, progress);
-      if (inserted) return ok("Development need modified correctly");
-      else return badRequest().body("Error while editing the development need");
+      if (inserted)
+      {
+        return ok("Development Need modified correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while editing the development need");
+      }
     }
     catch (MongoException me)
     {
@@ -565,7 +627,7 @@ public class EmployeeController
     {
       return badRequest().body(GlobalExceptionHandler.error(e.getMessage()));
     }
-   
+
   }
 
   // /**
@@ -601,10 +663,11 @@ public class EmployeeController
   // return badRequest().body(e.getMessage());
   // }
   // }
-  
+
   @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
-  public ResponseEntity<String> createFeedbackRequest(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
-      @RequestParam @NotBlank(message = ERROR_EMAIL_RECIPIENTS_EMPTY)  String emailsTo,
+  public ResponseEntity<String> createFeedbackRequest(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @NotBlank(message = ERROR_EMAIL_RECIPIENTS_EMPTY) String emailsTo,
       @RequestParam @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT) String notes)
   {
     try
@@ -652,13 +715,24 @@ public class EmployeeController
     try
     {
       if (title == null || title.length() < 1 || title.length() > 200)
+      {
         return badRequest().body("The given title is invalid");
+      }
       int index = Constants.getCompetencyIDGivenTitle(title);
-      if (index < 0) return badRequest().body("The given title does not match any valid competency");
+      if (index < 0)
+      {
+        return badRequest().body("The given title does not match any valid competency");
+      }
       Competency obj = new Competency(index, status);
       boolean inserted = employeeService.addNewVersionCompetency(employeeID, obj, title);
-      if (inserted) return ok("Competency updated correctly");
-      else return badRequest().body("Error while updating the Competency");
+      if (inserted)
+      {
+        return ok("Competency updated correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while updating the Competency");
+      }
     }
     catch (MongoException me)
     {
@@ -765,7 +839,7 @@ public class EmployeeController
             }
             catch (Exception e)
             {
-              logger.error("Email could not be sent for a proposed objective. Error: {}", e);
+              LOGGER.error("Email could not be sent for a proposed objective. Error: {}", e);
             }
 
           }
@@ -812,5 +886,121 @@ public class EmployeeController
       return badRequest().body(result + e.getMessage() + ", ");
     }
   }
+
+  //////////////////// START
+
+  @RequestMapping(value = "/getObjectivesNEW/{employeeID}", method = GET)
+  public ResponseEntity<?> getObjectivesNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
+  {
+    try
+    {
+      return ok(employeeService.getObjectivesNEW(employeeID));
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+
+  @RequestMapping(value = "/addObjectiveNEW/{employeeID}", method = POST)
+  public ResponseEntity<?> addObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @NotBlank(message = ERROR_DUE_DATE_EMPTY) @DateTimeFormat(pattern = "yyyy-MM-dd") String dueDate,
+      @RequestParam @NotBlank(message = ERROR_PROPOSED_BY_EMPTY) @Size(max = 150, message = ERROR_PROPOSED_BY_LIMIT) String proposedBy)
+  {
+    try
+    {
+      employeeService.addObjectiveNEW(employeeID,
+          new Objective_NEW(title, description, LocalDate.parse(dueDate), proposedBy));
+      return ok("Objective inserted correctly");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+
+  @RequestMapping(value = "/editObjectiveNEW/{employeeID}", method = POST)
+  public ResponseEntity<?> editObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveID,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @NotBlank(message = ERROR_DUE_DATE_EMPTY) @DateTimeFormat(pattern = "yyyy-MM-dd") String dueDate,
+      @RequestParam @NotBlank(message = ERROR_PROPOSED_BY_EMPTY) @Size(max = 150, message = ERROR_PROPOSED_BY_LIMIT) String proposedBy)
+  {
+    try
+    {
+      employeeService.editObjectiveNEW(employeeID,
+          new Objective_NEW(objectiveID, title, description, LocalDate.parse(dueDate), proposedBy));
+      return ok("Objective updated correctly");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+
+  /**
+   * 
+   * This method allows the front-end to update the status of a objective. This corresponds to archiving or unarchiving
+   * an objective
+   * 
+   * @param employeeID The user ID
+   * @param objectiveID The objective ID to update
+   * @param isArchived boolean value (true=archive, false=unarchive)
+   * @return a message explaining if the objective has been updated or if there was an error while completing the task
+   */
+  @RequestMapping(value = "/archiveObjectiveNEW/{employeeID}", method = POST)
+  public ResponseEntity<?> updateStatusUserObjectiveNEW(
+      @PathVariable("employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam(value = "objectiveID") @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveID,
+      @RequestParam(value = "isArchived") boolean isArchived)
+  {
+    try
+    {
+      // Retrieve the object with the given ID from the DB data
+      Objective obj = employeeService.getSpecificObjectiveForUser(employeeID, objectiveID);
+      if (obj.getIsArchived() == isArchived)
+      {
+        return ok("The status of the objective has not changed");
+      }
+      // //Create a new object which stores the data from the retrieved element but sets a new timestamp to it
+      // Objective newObjUpdated=new Objective(obj);
+      // newObjUpdated.setIsArchived(isArchived);
+
+      boolean updatedArchiveStatus = obj.updateArchiveStatus(isArchived);
+
+      // Store the new version to the system
+      boolean inserted = employeeService.addNewVersionObjective(employeeID, objectiveID, obj);
+      if (inserted)
+      {
+        if (updatedArchiveStatus)
+        {
+          return ok("The objective has been archived");
+        }
+        else
+        {
+          return ok("The objective has been restored");
+        }
+      }
+      else
+      {
+        return badRequest().body("Error while editing the objective");
+      }
+    }
+    catch (MongoException me)
+    {
+      LOGGER.error("MongoException caught while trying to archive or restore an objective", me);
+      return badRequest().body("DataBase Connection Error");
+    }
+    catch (Exception e)
+    {
+      LOGGER.error("Exception caught while trying to archive or restore an objective", e);
+      return badRequest().body(e.getMessage());
+    }
+  }
+
+  //////////////////// END
 
 }
