@@ -19,7 +19,7 @@ public class EmployeeStatistics
 
   /** String[] Constant - Indicates fields to be used in the employee statistics */
   public final static String[] EMPLOYEE_FIELDS = { "profile.employeeID", "profile.forename", "profile.surname",
-      "profile.company", "profile.superSector", "profile.steriaDepartment", "lastLogon" };
+      "profile.company", "profile.superSector", "profile.steriaDepartment", "profile.accountExpires", "lastLogon" };
 
   /** String[] Constant - Represents fields to be used in the feedback statistics */
   public final static String[] FEEDBACK_FIELDS = { "feedback" };
@@ -76,6 +76,7 @@ public class EmployeeStatistics
       Map<String, Object> map = getBasicMap(e);
       map.put("lastLogon",
           (e.getLastLogon() == null) ? "Never" : Utils.DateToLocalDateTime(e.getLastLogon()).toString());
+      map.put("currentEmployee", e.getProfile().getAccountExpires() == null);
       statistics.add(map);
     });
     return statistics;

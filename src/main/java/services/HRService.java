@@ -60,12 +60,12 @@ public class HRService
   public Map<String, Long> getMyCareerStats()
   {
     Query<Employee> empQuery = employeeQuery();
-    return employeeStats.getMyCareerStats(empQuery.countAll(), countAll(empQuery, "objectives"),
+    return employeeStats.getMyCareerStats(countAll(empQuery, "lastLogon"), countAll(empQuery, "objectives"),
         countAll(empQuery, "developmentNeeds"), countAll(empQuery, "notes"), countAll(empQuery, "competencies"),
         countAll(empQuery, "feedbackRequests"), countAll(empQuery, "feedback"));
   }
   
-  public List testDevNeeds()
+  public List<Map<String, Object>> testDevNeeds()
   {
     List<Employee> empList = dbConnection.find(Employee.class).field("developmentNeeds").exists().asList();
     long count = dbConnection.find(Employee.class).field("developmentNeeds").exists().countAll();
