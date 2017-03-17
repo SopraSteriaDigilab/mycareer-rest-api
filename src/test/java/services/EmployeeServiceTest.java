@@ -2,7 +2,7 @@ package services;
 
 import static model.Models.*;
 import static model.Models.FULL_NAME;
-import static model.Models.getEmployee;
+//import static model.Models.getEmployee;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -52,10 +52,14 @@ public class EmployeeServiceTest
   /** Environment Property - Mocked by Mockito. */
   @Mock
   private Environment mockEnvironment;
+  
+  /** EmployeeProfileSerivce Property - Mocked by Mockito. */
+  @Mock
+  private EmployeeProfileService mockEmployeeProfileService;
 
   /** EmployeeDAO Property - Mocked by Mockito. */
   @Mock
-  private EmployeeService mockEmployeeDao;
+  private EmployeeService mockEmployeeService;
 
   /** Employee Property - Mocked by Mockito. */
   @Mock
@@ -79,7 +83,7 @@ public class EmployeeServiceTest
   public void setup() throws InvalidAttributeValueException
   {
     MockitoAnnotations.initMocks(this);
-    unitUnderTest = new EmployeeService(mockDatastore, mockEnvironment);
+    unitUnderTest = new EmployeeService(mockDatastore, mockEmployeeProfileService, mockEnvironment);
     employee = getEmployee();
     
     when(mockDatastore.createQuery(Mockito.any())).thenReturn(mockQuery);

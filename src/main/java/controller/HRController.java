@@ -31,6 +31,14 @@ public class HRController
   {
     return ResponseEntity.ok(hrService.getMyCareerStats());
   }
+  
+  
+  @RequestMapping(value = "/testDevNeeds", method = GET)
+  public ResponseEntity<?> testDevNeeds()
+  {
+    return ResponseEntity.ok(hrService.testDevNeeds());
+  }
+
 
   /**
    * GET End Point - Gets lists of employees with department data
@@ -74,6 +82,29 @@ public class HRController
   public ResponseEntity<?> getDevelopmentNeedStats()
   {
     return ResponseEntity.ok(hrService.getDevelopmentNeedStats());
+  }
+
+  /**
+   * GET End Point - Gets lists of employees with started and in progress development needs with categories.
+   *
+   * @return
+   */
+  @RequestMapping(value = "/getDevelopmentNeedBreakDown", method = GET)
+  public ResponseEntity<?> getDevelopmentNeedBreakDown()
+  {
+    return ResponseEntity.ok(hrService.getDevelopmentNeedBreakDown());
+  }
+
+  /**
+   * GET End Point - Gets list of sectors and statistics about employees, objectives and development needs in each
+   * sector.
+   *
+   * @return
+   */
+  @RequestMapping(value = "/getSectorBreakDown", method = GET)
+  public ResponseEntity<?> getSectorBreakDown()
+  {
+    return ResponseEntity.ok(hrService.getSectorBreakDown());
   }
 
 }

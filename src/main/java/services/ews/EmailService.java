@@ -193,7 +193,7 @@ public class EmailService
     }
     catch (Exception e)
     {
-      LOGGER.error(e.getMessage());
+      LOGGER.error(e.getMessage(), e);
     }
   }
 
@@ -275,14 +275,13 @@ public class EmailService
       catch (InvalidAttributeValueException | NamingException | RuntimeException e)
       {
         errorRecipients.add(recipient);
-
         LOGGER.error("Exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e);
       }
       catch (Exception e)
       {
         errorRecipients.add(recipient);
 
-        LOGGER.error("Generic exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e);
+        LOGGER.error("Generic exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e.getMessage(), e);
       }
     }
     
@@ -317,7 +316,7 @@ public class EmailService
     Employee employee = EMPLOYEE_SERVICE.getEmployee(employeeID);
     String intendedRecipient = Utils.getRecipientFromUndeliverableEmail(body);
 
-    String errorRecipient = employee.getEmailAddress();
+    String errorRecipient = employee.getProfile().getEmailAddress();
     String errorSubject = "Feedback Request Issue";
     // String errorBody = String.format("There was an issue proccessing your feedback to %s, please make sure the email
     // address is correct and try again",intendedRecipient);

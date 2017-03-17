@@ -5,13 +5,14 @@ import java.util.List;
 
 import javax.management.InvalidAttributeValueException;
 
-import dataStructure.ADProfile_Advanced;
+import dataStructure.ADProfile_Advanced_OLD;
 import dataStructure.Competency;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
+import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
-import dataStructure.Note;
+import dataStructure.Note_OLD;
 import dataStructure.Objective;
 
 /**
@@ -32,7 +33,7 @@ public class Models
 
   /** Employee Property - Represents an Employee object... */
   public static final String LAST_NAME = "Last";
-  
+
   /** Employee Property - Represents an Employee object... */
   public static final String FULL_NAME = "First Last";
 
@@ -80,20 +81,22 @@ public class Models
 
   /** TYPE Property|Constant - Represents|Indicates... */
   public static final String DATE = "2018-12";
-  
+
   /** TYPE Property|Constant - Represents|Indicates... */
   public static final boolean STATUS = true;
 
   /**
-   * Get an advanced profile.
+   * Get an employee profile object.
    *
    * @return
    * @throws InvalidAttributeValueException
    */
-  public static ADProfile_Advanced getProfile() throws InvalidAttributeValueException
+  public static EmployeeProfile getProfile() throws InvalidAttributeValueException
   {
-    return new ADProfile_Advanced(EMPLOYEE_ID, GUID, FIRST_NAME, LAST_NAME, EMAIL_ADRESS, USERNAME, COMPANY,
-        SUPER_SECTOR, SECTOR, STERIA_DEPARTMENT, SOPRA_DEPARTMENT, TEAM, IS_MANAGER, IS_HR, REPORTEES);
+    return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).guid(GUID).forename(FIRST_NAME).surname(LAST_NAME)
+        .emailAddress(EMAIL_ADRESS).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR).sector(SECTOR)
+        .steriaDepartment(STERIA_DEPARTMENT).sopraDepartment(SOPRA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER)
+        .build();
   }
 
   /**
@@ -107,17 +110,16 @@ public class Models
     return new Employee(getProfile());
   }
 
-  
-  
   /**
    * Get a competency
    *
    * @return
    */
-  public static Competency getCompetency(){
+  public static Competency getCompetency()
+  {
     return new Competency(ID, STATUS);
   }
-  
+
   /**
    * Get a development need
    *
@@ -128,36 +130,38 @@ public class Models
   {
     return new DevelopmentNeed(ID, ID, ID, TITLE, DESCRIPTION, DATE);
   }
-  
+
   /**
    * Get a feedback
    *
    * @return
    */
-  public static Feedback getFeedback() {
+  public static Feedback getFeedback()
+  {
     return new Feedback(ID, EMAIL_ADRESS, FULL_NAME, DESCRIPTION);
   }
-  
+
   /**
    * Get a feedback request
    *
    * @return
    */
-  public static FeedbackRequest getFeedbackRequest() {
+  public static FeedbackRequest getFeedbackRequest()
+  {
     return new FeedbackRequest(GUID, EMAIL_ADRESS);
-  } 
-  
-  
+  }
+
   /**
    * Get a note
    *
    * @return
    * @throws InvalidAttributeValueException
    */
-  public static Note getNote() throws InvalidAttributeValueException {
-    return new Note(ID, ID, ID, DESCRIPTION, FULL_NAME);
+  public static Note_OLD getNote() throws InvalidAttributeValueException
+  {
+    return new Note_OLD(ID, ID, ID, DESCRIPTION, FULL_NAME);
   }
-  
+
   /**
    * Get an objective
    *
@@ -168,5 +172,5 @@ public class Models
   {
     return new Objective(ID, ID, ID, TITLE, DESCRIPTION, DATE);
   }
-  
+
 }

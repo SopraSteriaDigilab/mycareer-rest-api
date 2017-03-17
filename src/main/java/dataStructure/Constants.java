@@ -1,5 +1,6 @@
 package dataStructure;
 
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -9,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 public final class Constants
 {
 
-  public static final String UK_TIMEZONE = "Europe/London";
+  public static final ZoneId UK_TIMEZONE = ZoneId.of("Europe/London");
 
   // Constants for the DataStructure package
   public static final int INVALID_INT = -1;
@@ -97,7 +98,7 @@ public final class Constants
   public static final String INVALID_SMTPSERVICE_TOOMANYADDRESSES = "Too many email addresses, The maximum number allowed is 20";
   public static final String INVALID_NULLREPORTEESLIST = "The given list of reportees is null";
   public static final String INVALID_NULLREPORTEE = "The given 'reportee' is null";
-  public static final String INVALID_IDNOTFOND = "No employee matches the given ID";
+  public static final String INVALID_ID_NOT_FOUND = "No employee matches the given ID";
   public static final String INVALID_OBJECTIVEIDNOTFOND = "No objective ID matches the user data";
   public static final String INVALID_USEREMAIL = "The given email address does not match any valid employee";
   public static final String OBJECTIVE_NOTADDED_ERROR = "The given objective couldn't be added Please try again later";

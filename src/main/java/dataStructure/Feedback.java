@@ -95,7 +95,9 @@ public class Feedback implements Serializable
   public void setProviderEmail(String providerEmail) throws InvalidAttributeValueException
   {
     if (Validate.isValidEmailSyntax(providerEmail)) this.providerEmail = providerEmail;
-    throw new InvalidAttributeValueException("This email address is not valid syntax.");
+    else {
+      throw new InvalidAttributeValueException("This email address is not valid syntax.");
+    }
   }
 
   /** @return the providerName */
@@ -131,7 +133,7 @@ public class Feedback implements Serializable
   /** Set timestamp to current time */
   public void setTimestamp()
   {
-    this.timestamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+    this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
 }

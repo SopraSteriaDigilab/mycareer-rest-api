@@ -23,6 +23,7 @@ public class DevelopmentNeed implements Serializable
   private static final long serialVersionUID = -5067508122602507151L;
   // Global Variables
   private int id, progress, category;
+  private boolean isArchived;
   private String title, description, timeStamp, timeToCompleteBy;
 
   // Empty Constructor
@@ -31,6 +32,7 @@ public class DevelopmentNeed implements Serializable
     this.id = Constants.INVALID_INT;
     this.progress = Constants.INVALID_INT;
     this.category = Constants.INVALID_INT;
+    this.isArchived = false;
     this.title = Constants.INVALID_STRING;
     this.description = Constants.INVALID_STRING;
     this.timeStamp = null;
@@ -44,6 +46,7 @@ public class DevelopmentNeed implements Serializable
     this.setID(id);
     this.setProgress(progress);
     this.setCategory(cat);
+    this.isArchived = false;
     this.setTitle(title);
     this.setDescription(description);
     this.timeStamp = null;
@@ -58,6 +61,7 @@ public class DevelopmentNeed implements Serializable
     this.setID(id);
     this.setProgress(progress);
     this.setCategory(cat);
+    this.isArchived = false;
     this.setTitle(title);
     this.setDescription(description);
     this.timeStamp = null;
@@ -66,6 +70,18 @@ public class DevelopmentNeed implements Serializable
   }
 
   // Getters and Setters
+
+  public DevelopmentNeed(DevelopmentNeed devNeed) throws InvalidAttributeValueException
+  {
+    this.setID(devNeed.getID());
+    this.setProgress(devNeed.getProgress());
+    this.setCategory(devNeed.getCategory());
+    this.isArchived = devNeed.getIsArchived();
+    this.setTitle(devNeed.getTitle());
+    this.setDescription(devNeed.getDescription());
+    this.setTimeStamp();
+    this.setTimeToCompleteBy(devNeed.getTimeToCompleteBy());
+  }
 
   public void setID(int id) throws InvalidAttributeValueException
   {
@@ -95,13 +111,25 @@ public class DevelopmentNeed implements Serializable
 
   public void setCategory(int cat) throws InvalidAttributeValueException
   {
-    if (cat >= 0 && cat <= 5) this.category = cat;
+    if (cat >= 0 && cat <= 4) this.category = cat;
     else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_CATEGORY);
   }
 
   public int getCategory()
   {
     return this.category;
+  }
+  
+  /** @return the isArchived */
+  public boolean getIsArchived()
+  {
+    return isArchived;
+  }
+
+  /** @param isArchived The value to set. */
+  public void setIsArchived(boolean isArchived)
+  {
+    this.isArchived = isArchived;
   }
 
   /**
@@ -125,7 +153,7 @@ public class DevelopmentNeed implements Serializable
    */
   public void setDescription(String description) throws InvalidAttributeValueException
   {
-    if (description != null && description.length() > 0 && description.length() < 1001) this.description = description;
+    if (description != null && description.length() > 0 && description.length() < 2001) this.description = description;
     else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_DESCRIPTION);
   }
 
@@ -137,10 +165,10 @@ public class DevelopmentNeed implements Serializable
   /**
    * This method creates a timestamp when the object is created
    */
-  private void setTimeStamp()
+  public void setTimeStamp()
   {
     // Check if the timeStamp has already a value assigned
-    if (timeStamp == null) this.timeStamp = LocalDateTime.now(ZoneId.of(UK_TIMEZONE)).toString();
+    if (timeStamp == null) this.timeStamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
   public String getTimeStamp()
@@ -161,8 +189,8 @@ public class DevelopmentNeed implements Serializable
       YearMonth temp = YearMonth.parse(date, Constants.YEAR_MONTH_FORMAT);
       // Verify that the month and year inserted are greater than the current month and year
       // Every year has 12 months, so if the values are 2017 and 2016 the difference will be 1 which is 12 months
-      int yearDifference = (temp.getYear() - LocalDate.now(ZoneId.of(UK_TIMEZONE)).getYear()) * 12;
-      int monthDifference = temp.getMonthValue() - LocalDate.now(ZoneId.of(UK_TIMEZONE)).getMonthValue();
+      int yearDifference = (temp.getYear() - LocalDate.now(UK_TIMEZONE).getYear()) * 12;
+      int monthDifference = temp.getMonthValue() - LocalDate.now(UK_TIMEZONE).getMonthValue();
       // Sum these 2 values up and if the result is <0, the date is in the past which is invalid
       int totalMonthsApart = yearDifference + monthDifference;
       if (totalMonthsApart >= 0) this.timeToCompleteBy = temp.toString();
