@@ -47,7 +47,6 @@ import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 import services.ad.ADConnectionException;
-import services.db.DBOperationException;
 import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Template;
@@ -837,7 +836,7 @@ public class EmployeeService
   }
 
   public EmployeeProfile authenticateUserProfile(String usernameEmail)
-      throws DBOperationException
+      throws EmployeeNotFoundException
   {
     return employeeProfileService.fetchEmployeeProfile(usernameEmail);
   }

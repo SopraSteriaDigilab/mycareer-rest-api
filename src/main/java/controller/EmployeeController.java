@@ -42,9 +42,9 @@ import dataStructure.DevelopmentNeed;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
+import services.EmployeeNotFoundException;
 import services.EmployeeService;
 import services.ad.ADConnectionException;
-import services.db.DBOperationException;
 import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Template;
@@ -106,7 +106,7 @@ public class EmployeeController
   }
 
   @RequestMapping(value = "/logMeIn", method = GET)
-  public ResponseEntity<?> index(HttpServletRequest request) throws DBOperationException
+  public ResponseEntity<?> index(HttpServletRequest request) throws EmployeeNotFoundException
   {
     String username = request.getRemoteUser();
     ResponseEntity<?> response = authenticateUserProfile(username);
@@ -670,7 +670,7 @@ public class EmployeeController
   }
 
   @RequestMapping(value = "/authenticateUserProfile", method = GET)
-  public ResponseEntity<?> authenticateUserProfile(@RequestParam(value = "userName_Email") String userName) throws DBOperationException
+  public ResponseEntity<?> authenticateUserProfile(@RequestParam(value = "userName_Email") String userName) throws EmployeeNotFoundException
   {
     try
     {
@@ -700,12 +700,12 @@ public class EmployeeController
    * @param emails, a string of email addresses -1 => Not Relevant to my career anymore 0 => Awaiting 1 => In Flight 2
    *          => Done
    * @return a message explaining if the objective has been inserted or if there was an error while completing the task
-   * @throws DBOperationException 
+   * @throws EmployeeNotFoundException 
    */
   @RequestMapping(value = "/addProposedObjective/{employeeID}", method = POST)
   public ResponseEntity<?> addProposedObjectiveToAUser(@PathVariable(value = "employeeID") long employeeID,
       @RequestParam(value = "title") String title, @RequestParam(value = "description") String description,
-      @RequestParam(value = "completedBy") String completedBy, @RequestParam(value = "emails") String emails) throws DBOperationException
+      @RequestParam(value = "completedBy") String completedBy, @RequestParam(value = "emails") String emails) throws EmployeeNotFoundException
   {
     String result = "Objective Proposed for: ";
     String errorResult = "Error: ";

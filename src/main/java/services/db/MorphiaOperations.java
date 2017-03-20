@@ -17,10 +17,6 @@ import dataStructure.EmployeeProfile;
  */
 public class MorphiaOperations
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MorphiaOperations.class);
-
-  private static final String EMPLOYEE_NOT_FOUND = "No employee matches the given criteria";
-
   private static final String PROFILE = "profile";
 
   private final Datastore datastore;
@@ -41,19 +37,13 @@ public class MorphiaOperations
    *
    * @param field The field to search
    * @param value The value of the field to search on
-   * @return the {@code Employee} object
-   * @throws DBOperationException if the query returns no results
+   * @return the {@code Employee} object or null if it could not be found
    */
-  public <T> Employee getEmployee(final String field, final T value) throws DBOperationException
+  public <T> Employee getEmployee(final String field, final T value)
   {
     Employee employee = datastore
         .find(Employee.class, field, value)
         .get();
-    
-    if (employee == null)
-    {
-      throw new DBOperationException(EMPLOYEE_NOT_FOUND);
-    }
     
     return employee;
   }
@@ -63,25 +53,15 @@ public class MorphiaOperations
    *
    * @param field The field to search
    * @param value The value of the field to search on
-   * @throws DBOperationException if the query returns no results
+   * @throws NullPointerException if the employee count not be found.
    */
-  public <T> EmployeeProfile getEmployeeProfile(final String field, final T value) throws DBOperationException
+  public <T> EmployeeProfile getEmployeeProfile(final String field, final T value) throws NullPointerException
   {
-    EmployeeProfile profile = null;
-
-    try
-    {
-      profile = datastore
+    EmployeeProfile profile = datastore
           .find(Employee.class, field, value)
           .retrievedFields(true, PROFILE)
           .get()
           .getProfile();
-    }
-    catch (NullPointerException npe)
-    {
-      LOGGER.error(EMPLOYEE_NOT_FOUND);
-      throw new DBOperationException(EMPLOYEE_NOT_FOUND, npe);
-    }
 
     return profile;
   }
