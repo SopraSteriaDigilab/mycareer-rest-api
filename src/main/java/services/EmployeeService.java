@@ -902,7 +902,7 @@ public class EmployeeService
 
     if (objective == null) throw new InvalidAttributeValueException(INVALID_DEVELOPMENT_NEED_ID);
 
-    objective.setIsArchived(!objective.getIsArchived());
+    objective.isArchived(!objective.getArchived());
 
     UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("newObjectives",
         employee.getObjectivesNEW());

@@ -3,6 +3,7 @@ package dataStructure;
 import static utils.Validate.isNull;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -736,7 +737,7 @@ public class Employee implements Serializable
     // Change below into 'update' method in the objective class?
     objectiveToEdit.setDescription(objective.getDescription());
     objectiveToEdit.setTitle(objective.getTitle());
-    objectiveToEdit.setDueDate(objective.getDueDate());
+    objectiveToEdit.setDueDate(LocalDate.parse(objective.getDueDate()));
 
     return true;
   }

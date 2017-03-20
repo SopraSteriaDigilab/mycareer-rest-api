@@ -5,6 +5,9 @@ import static dataStructure.Constants.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
+
+import utils.Utils;
 
 /**
  * This class contains the definition of an object to be stored in the DB.
@@ -19,17 +22,21 @@ public abstract class DBObject implements Serializable
   private int id;
 
   /** String Property - Represents the timestamp of the objective. */
-  private String timestamp;
+  private Date createdOn;
+
+  /** String Property - Represents the time the objective was last modified. */
+  private Date lastModified;
 
   /**
    * Default Constructor - Responsible for initialising this object.
    *
    * @param id
-   * @param timestamp
+   * @param lastModified
    */
   public DBObject()
   {
-    this.setTimestamp();
+    this.setCreatedOn();
+    this.setLastModified();
   }
 
   /** @return the id. */
@@ -44,15 +51,28 @@ public abstract class DBObject implements Serializable
     this.id = id;
   }
 
-  /** @return the timeStamp. */
-  public String getTimeStamp()
+  /** @return the createdOn */
+  public String getCreatedOn()
   {
-    return timestamp;
+    return Utils.DateToLocalDateTime(this.createdOn).toString();
   }
 
-  /** @param timestamp */
-  public void setTimestamp()
+  /** @param createdOn The value to set. */
+  public void setCreatedOn()
   {
-    this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
+    this.createdOn = Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE));
   }
+
+  /** @return the timeStamp. */
+  public String getLastModified()
+  {
+    return Utils.DateToLocalDateTime(this.lastModified).toString();
+  }
+
+  /** @param lastModified */
+  public void setLastModified()
+  {
+    this.lastModified = Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE));
+  }
+
 }

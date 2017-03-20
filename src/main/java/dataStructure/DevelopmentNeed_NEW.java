@@ -64,6 +64,7 @@ public class DevelopmentNeed_NEW extends Objective_NEW
   public void setCategory(Category category)
   {
     this.category = category;
+    this.setLastModified();
   }
 
 }

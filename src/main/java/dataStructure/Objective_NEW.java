@@ -73,7 +73,7 @@ public class Objective_NEW extends DBObject
     this.setDueDate(dueDate);
     this.setProposedBy(proposedBy);
     this.setProgress(Progress.PROPOSED);
-    this.setIsArchived(false);
+    this.isArchived(false);
   }
 
   /**
@@ -96,6 +96,7 @@ public class Objective_NEW extends DBObject
   public void setTitle(String title)
   {
     this.title = title;
+    this.setLastModified();
   }
 
   /** @return the description. */
@@ -108,18 +109,20 @@ public class Objective_NEW extends DBObject
   public void setDescription(String description)
   {
     this.description = description;
+    this.setLastModified();
   }
 
   /** @return the dueDate. */
-  public LocalDate getDueDate()
+  public String getDueDate()
   {
-    return Utils.DateToLocalDate(this.dueDate);
+    return Utils.DateToLocalDate(this.dueDate).toString();
   }
 
   /** @param dueDate The value to set the named property to. */
   public void setDueDate(LocalDate dueDate)
   {
     this.dueDate = Utils.localDatetoDate(dueDate);
+    this.setLastModified();
   }
 
   /** @return the proposedBy. */
@@ -132,6 +135,7 @@ public class Objective_NEW extends DBObject
   public void setProposedBy(String proposedBy)
   {
     this.proposedBy = proposedBy;
+    this.setLastModified();
   }
 
   /** @return the progress. */
@@ -147,18 +151,20 @@ public class Objective_NEW extends DBObject
   public void setProgress(Progress progress)
   {
     this.progress = progress;
+    this.setLastModified();
   }
 
   /** @return the isArchived */
-  public boolean getIsArchived()
+  public boolean getArchived()
   {
     return isArchived;
   }
 
   /** @param isArchived The value to set the named property to. */
-  public void setIsArchived(boolean isArchived)
+  public void isArchived(boolean isArchived)
   {
     this.isArchived = isArchived;
+    this.setLastModified();
   }
 
 }
