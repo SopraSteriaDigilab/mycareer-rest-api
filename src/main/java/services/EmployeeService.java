@@ -872,7 +872,7 @@ public class EmployeeService
     employee.addObjectiveNEW(objective);
 
     UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
-        .set("newObjectives", employee.getNewObjectives());
+        .set("newObjectives", employee.getObjectivesNEW());
     dbConnection.update(employeeQuery, updateOperation);
     return true;
   }
@@ -887,10 +887,26 @@ public class EmployeeService
     employee.editObjectiveNEW(objective);
 
     UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
-        .set("newObjectives", employee.getNewObjectives());
+        .set("newObjectives", employee.getObjectivesNEW());
     dbConnection.update(employeeQuery, updateOperation);
 
     return true;
+  }
+  
+  
+  public void toggleObjectiveNEWArchive(long employeeID, int objectiveID) throws InvalidAttributeValueException
+  {
+    Query<Employee> querySearch = getEmployeeQuery(employeeID);
+    Employee employee = querySearch.get();
+    Objective_NEW objective = employee.getObjectiveNEW(objectiveID);
+
+    if (objective == null) throw new InvalidAttributeValueException(INVALID_DEVELOPMENT_NEED_ID);
+
+    objective.setIsArchived(!objective.getIsArchived());
+
+    UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("newObjectives",
+        employee.getObjectivesNEW());
+    dbConnection.update(querySearch, ops);
   }
 
   //////////////////// END

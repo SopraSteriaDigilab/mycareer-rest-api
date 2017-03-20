@@ -1,6 +1,5 @@
 package dataStructure;
 
-
 import java.time.LocalDate;
 
 import javax.validation.constraints.Pattern;
@@ -15,25 +14,28 @@ public class DevelopmentNeed_NEW extends Objective_NEW
   /** Represent Category of a development need. */
   public enum Category
   {
-    JobTraining("On Job Training"), ClassroomTraining("Classroom Training"), Online("Online or E-learning"), SelfStudy("Self Study"), Other("Other");
-    
+    JobTraining("On Job Training"), ClassroomTraining("Classroom Training"), Online("Online or E-learning"), SelfStudy(
+        "Self Study"), Other("Other");
+
     private String categoryStr;
-    
-    Category(String categoryStr){
-      this.categoryStr = categoryStr; 
-     }
-     
-     public String getCategoryStr() {
-       return this.categoryStr;
-     }
+
+    Category(String categoryStr)
+    {
+      this.categoryStr = categoryStr;
+    }
+
+    public String getCategoryStr()
+    {
+      return this.categoryStr;
+    }
   }
 
   /** long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = 1L;
 
   /** int Property - Represents the category of the objective */
-  @NotBlank(message = ERROR_EMPTY)
-  @Pattern(regexp = "^(OnJobTraining)|(ClassroomTraining)|(OnlineorELearning)|(SelfStudy)|(Other)$")
+  // @NotBlank(message = ERROR_EMPTY)
+  // @Pattern(regexp = "^(OnJobTraining)|(ClassroomTraining)|(OnlineorELearning)|(SelfStudy)|(Other)$")
   private Category category;
 
   /**
@@ -44,7 +46,7 @@ public class DevelopmentNeed_NEW extends Objective_NEW
   }
 
   /**
-   * TYPE Constructor - Responsible for initialising this object.
+   * Development Need Constructor - Responsible for initialising this object.
    */
   public DevelopmentNeed_NEW(String title, String description, LocalDate dueDate, String proposedBy, Category category)
   {
@@ -58,10 +60,7 @@ public class DevelopmentNeed_NEW extends Objective_NEW
     return this.category.getCategoryStr();
   }
 
-  /**
-   * Mutator for the named property. Must be one of the following: OnJobTraining, ClassroomTraining, OnlineorELearning,
-   * SelfStudy, Other.
-   */
+  /** @param the Category to set. */
   public void setCategory(Category category)
   {
     this.category = category;

@@ -27,8 +27,7 @@ public class Employee implements Serializable
 {
   private static final long serialVersionUID = 1L;
   private static final String INVALID_OBJECTIVE_ID = "No objective ID matches the user data";
-  
-  
+
   // Global Variables
   @Id
   private ObjectId id;
@@ -43,7 +42,7 @@ public class Employee implements Serializable
   private List<List<Objective>> objectives;
 
   @Embedded
-  private List<List<Objective_NEW>> newObjectives;
+  private List<Objective_NEW> newObjectives;
 
   @Embedded
   private List<Note> notes;
@@ -65,7 +64,7 @@ public class Employee implements Serializable
   {
     this.feedback = new ArrayList<Feedback>();
     this.objectives = new ArrayList<List<Objective>>();
-    this.newObjectives = new ArrayList<List<Objective_NEW>>();
+    this.newObjectives = new ArrayList<Objective_NEW>();
     this.notes = new ArrayList<Note>();
     this.developmentNeeds = new ArrayList<List<DevelopmentNeed>>();
     this.feedbackRequests = new ArrayList<FeedbackRequest>();
@@ -196,13 +195,13 @@ public class Employee implements Serializable
   }
 
   /** @return the newObjectives */
-  public List<List<Objective_NEW>> getNewObjectives()
+  public List<Objective_NEW> getObjectivesNEW()
   {
     return newObjectives;
   }
 
   /** @param newObjectives The value to set. */
-  public void setNewObjectives(List<List<Objective_NEW>> newObjectives)
+  public void setObjectivesNEW(List<Objective_NEW> newObjectives)
   {
     this.newObjectives = newObjectives;
   }
@@ -717,39 +716,39 @@ public class Employee implements Serializable
 
   //////////////////// START
 
-  public List<Objective_NEW> getObjectivesNEW()
-  {
-    return this.newObjectives.stream().map(o -> o.get(o.size() - 1)).collect(Collectors.toList());
-  }
-
+  // TODO TEST
   public boolean addObjectiveNEW(Objective_NEW objective) throws InvalidAttributeValueException
   {
     if (objective == null) throw new InvalidAttributeValueException("Objective is invalid.");
     objective.setId(nextObjectiveID());
-
-    List<Objective_NEW> objectiveList = new ArrayList<Objective_NEW>();
-    objectiveList.add(objective);
-
-    return this.newObjectives.add(objectiveList);
+    return this.newObjectives.add(objective);
   }
 
+  // TODO TEST
   public boolean editObjectiveNEW(Objective_NEW objective) throws InvalidAttributeValueException
   {
     if (objective == null) throw new InvalidAttributeValueException("Objective is invalid.");
 
-    List<Objective_NEW> objectiveList = getNewObjectives().stream().filter(o -> o.get(0).getId() == objective.getId())
-        .findFirst().get();
+    Objective_NEW objectiveToEdit = getObjectiveNEW(objective.getId());
 
-    if (objectiveList == null) throw new InvalidAttributeValueException("Objective not found.");
+    if (objectiveToEdit == null) throw new InvalidAttributeValueException("Objective not found.");
 
-    return objectiveList.add(objective);
+    // Change below into 'update' method in the objective class?
+    objectiveToEdit.setDescription(objective.getDescription());
+    objectiveToEdit.setTitle(objective.getTitle());
+    objectiveToEdit.setDueDate(objective.getDueDate());
+
+    return true;
   }
 
-  public Objective_NEW getLatestVersionObjective(int objectiveID)
+  // TODO TEST
+  public Objective_NEW getObjectiveNEW(int objectiveID) throws InvalidAttributeValueException
   {
-    List<Objective_NEW> objectiveList = getNewObjectives().stream().filter(o -> o.get(0).getId() == objectiveID)
-        .findFirst().get();
-    return objectiveList.get(objectiveList.size() - 1);
+    Objective_NEW objective = getObjectivesNEW().stream().filter(o -> o.getId() == objectiveID).findFirst().get();
+
+    if (objective == null) throw new InvalidAttributeValueException("Objective not found.");
+
+    return objective;
   }
 
   //////////////////// END

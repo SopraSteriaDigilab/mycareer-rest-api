@@ -73,7 +73,7 @@ public class Objective_NEW extends DBObject
     this.setDueDate(dueDate);
     this.setProposedBy(proposedBy);
     this.setProgress(Progress.PROPOSED);
-    this.setArchived(false);
+    this.setIsArchived(false);
   }
 
   /**
@@ -119,7 +119,6 @@ public class Objective_NEW extends DBObject
   /** @param dueDate The value to set the named property to. */
   public void setDueDate(LocalDate dueDate)
   {
-    // TODO Move to Utils
     this.dueDate = Utils.localDatetoDate(dueDate);
   }
 
@@ -151,13 +150,13 @@ public class Objective_NEW extends DBObject
   }
 
   /** @return the isArchived */
-  public boolean isArchived()
+  public boolean getIsArchived()
   {
     return isArchived;
   }
 
   /** @param isArchived The value to set the named property to. */
-  public void setArchived(boolean isArchived)
+  public void setIsArchived(boolean isArchived)
   {
     this.isArchived = isArchived;
   }
