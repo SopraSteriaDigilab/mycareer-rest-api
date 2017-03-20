@@ -106,7 +106,7 @@ public class EmployeeController
   }
 
   @RequestMapping(value = "/logMeIn", method = GET)
-  public ResponseEntity<?> index(HttpServletRequest request) throws EmployeeNotFoundException
+  public ResponseEntity<?> index(HttpServletRequest request)
   {
     String username = request.getRemoteUser();
     ResponseEntity<?> response = authenticateUserProfile(username);
@@ -253,7 +253,7 @@ public class EmployeeController
    * @return list of ADProfileBasics
    */
   @RequestMapping(value = "/getReportees/{employeeID}", method = GET)
-  public ResponseEntity<?> getReportees(@PathVariable long employeeID)
+  public ResponseEntity<?> getReportees(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
   {
     try
     {
@@ -670,7 +670,7 @@ public class EmployeeController
   }
 
   @RequestMapping(value = "/authenticateUserProfile", method = GET)
-  public ResponseEntity<?> authenticateUserProfile(@RequestParam(value = "userName_Email") String userName) throws EmployeeNotFoundException
+  public ResponseEntity<?> authenticateUserProfile(@RequestParam(value = "userName_Email") String userName)
   {
     try
     {
@@ -683,7 +683,7 @@ public class EmployeeController
         return badRequest().body("The username given is invalid");
       }
     }
-    catch (InvalidAttributeValueException e)
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
     {
       return badRequest().body(e.getMessage());
     }
@@ -700,12 +700,11 @@ public class EmployeeController
    * @param emails, a string of email addresses -1 => Not Relevant to my career anymore 0 => Awaiting 1 => In Flight 2
    *          => Done
    * @return a message explaining if the objective has been inserted or if there was an error while completing the task
-   * @throws EmployeeNotFoundException 
    */
   @RequestMapping(value = "/addProposedObjective/{employeeID}", method = POST)
   public ResponseEntity<?> addProposedObjectiveToAUser(@PathVariable(value = "employeeID") long employeeID,
       @RequestParam(value = "title") String title, @RequestParam(value = "description") String description,
-      @RequestParam(value = "completedBy") String completedBy, @RequestParam(value = "emails") String emails) throws EmployeeNotFoundException
+      @RequestParam(value = "completedBy") String completedBy, @RequestParam(value = "emails") String emails)
   {
     String result = "Objective Proposed for: ";
     String errorResult = "Error: ";
@@ -775,7 +774,7 @@ public class EmployeeController
             errorResult += "Could not send to " + userInQuestion.getEmployeeID() + ", ";
           }
         }
-        catch (InvalidAttributeValueException er)
+        catch (InvalidAttributeValueException | EmployeeNotFoundException er)
         {
           errorInserting = true;
           errorResult += er.getMessage();

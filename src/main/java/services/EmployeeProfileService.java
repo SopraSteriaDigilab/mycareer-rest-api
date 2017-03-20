@@ -27,7 +27,7 @@ public class EmployeeProfileService
   private static final String INVALID_EMPLOYEE_ID = "Employee ID cannot be a negative number";
   private static final String INVALID_EMAIL_ADDRESS = "Not a valid email address";
   private static final String INVALID_USERNAME = "Not a valid username";
-  private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: {} {}";
+  private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: {} {} ";
   private static final String HR_PERMISSION_EXCEPTION = "Exception caught while trying to find HR Dashboard Permission for employee with ID {}";
 
   // Sopra AD Details
@@ -56,16 +56,12 @@ public class EmployeeProfileService
    * @throws IllegalArgumentException if the employee ID is in an invalid format
    * @throws EmployeeNotFoundException if the given employee ID could not be found in the database
    */
-  public EmployeeProfile fetchEmployeeProfile(final long employeeID) throws EmployeeNotFoundException, IllegalArgumentException
+  public EmployeeProfile fetchEmployeeProfile(final long employeeID)
+      throws EmployeeNotFoundException
   {
-    if (employeeID < 0)
-    {
-      throw new IllegalArgumentException(INVALID_EMPLOYEE_ID);
-    }
-    
     final EmployeeProfile profile = fetchEmployeeProfile(EMPLOYEE_ID, employeeID);
     setHasHRDash(profile);
-    
+
     return profile;
   }
 
@@ -81,7 +77,8 @@ public class EmployeeProfileService
    */
   // TODO See if this method can be removed. We should know whether an email address or username is being
   // used for authentication.
-  public EmployeeProfile fetchEmployeeProfile(final String usernameEmail) throws EmployeeNotFoundException, IllegalArgumentException
+  public EmployeeProfile fetchEmployeeProfile(final String usernameEmail)
+      throws EmployeeNotFoundException, IllegalArgumentException
   {
     EmployeeProfile profile;
 
@@ -114,7 +111,7 @@ public class EmployeeProfileService
 
     final EmployeeProfile profile = fetchEmployeeProfile(USERNAME, username);
     setHasHRDash(profile);
-    
+
     return profile;
   }
 
@@ -124,25 +121,26 @@ public class EmployeeProfileService
    * @param emailAddress
    * @return the {@code EmployeeProfile} relating to the given email address
    * @throws EmployeeNotFoundException if the given email address could not be found in the database
-   * @throws ADConnectionException if the HR dashboard permission could not be 
+   * @throws ADConnectionException if the HR dashboard permission could not be
    */
-  public EmployeeProfile fetchEmployeeProfileFromEmailAddress(final String emailAddress) throws EmployeeNotFoundException, IllegalArgumentException
+  public EmployeeProfile fetchEmployeeProfileFromEmailAddress(final String emailAddress)
+      throws EmployeeNotFoundException, IllegalArgumentException
   {
     if (emailAddress == null || emailAddress.isEmpty() || !emailAddress.contains("@"))
     {
       throw new IllegalArgumentException(INVALID_EMAIL_ADDRESS);
     }
-    
+
     final EmployeeProfile profile = fetchEmployeeProfile(EMAIL_ADDRESS, emailAddress);
     setHasHRDash(profile);
-    
+
     return profile;
   }
-  
+
   private <T> EmployeeProfile fetchEmployeeProfile(final String field, final T value) throws EmployeeNotFoundException
   {
     EmployeeProfile profile = null;
-    
+
     try
     {
       profile = morphiaOperations.getEmployeeProfile(field, value);
@@ -152,10 +150,10 @@ public class EmployeeProfileService
       LOGGER.error(EMPLOYEE_NOT_FOUND, field, value);
       throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + value);
     }
-    
+
     return profile;
   }
-  
+
   private void setHasHRDash(final EmployeeProfile profile)
   {
     try
@@ -168,12 +166,12 @@ public class EmployeeProfileService
       profile.setHasHRDash(false);
     }
   }
-  
+
   private boolean hasHRDash(final long employeeID) throws ADConnectionException
   {
-    final String filter = "(extensionAttribute7=s" + employeeID + ")"; 
+    final String filter = "(extensionAttribute7=s" + employeeID + ")";
     final SearchResult result = searchADSingleResult(sopraADSearchSettings, AD_SOPRA_TREE, filter);
-    
+
     return mapHRPermission(result.getAttributes());
   }
 }
