@@ -313,11 +313,14 @@ public class EmployeeProfile implements Serializable
 
     return employeeID == employeeProfile.employeeID && isManager == employeeProfile.isManager
         && Objects.equals(surname, employeeProfile.surname)
-        && Objects.equals(forename, employeeProfile.forename) && Objects.equals(username, employeeProfile.username)
+        && Objects.equals(forename, employeeProfile.forename)
+        && Objects.equals(username, employeeProfile.username)
         && Objects.equals(emailAddress, employeeProfile.emailAddress)
         && Objects.equals(company, employeeProfile.company)
         && Objects.equals(steriaDepartment, employeeProfile.steriaDepartment)
-        && Objects.equals(sector, employeeProfile.sector) && Objects.equals(superSector, employeeProfile.superSector)
+        && Objects.equals(sector, employeeProfile.sector)
+        && Objects.equals(superSector, employeeProfile.superSector)
+        && Objects.equals(hasHRDash, employeeProfile.hasHRDash)
         && Objects.deepEquals(reporteeCNs, employeeProfile.reporteeCNs)
         && Objects.equals(accountExpires, employeeProfile.accountExpires);
   }
