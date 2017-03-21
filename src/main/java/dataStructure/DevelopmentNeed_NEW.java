@@ -2,10 +2,6 @@ package dataStructure;
 
 import java.time.LocalDate;
 
-import javax.validation.constraints.Pattern;
-
-import org.hibernate.validator.constraints.NotBlank;
-
 /**
  * This class contains the definition of the Development Need object.
  */
@@ -34,8 +30,6 @@ public class DevelopmentNeed_NEW extends Objective_NEW
   private static final long serialVersionUID = 1L;
 
   /** int Property - Represents the category of the objective */
-  // @NotBlank(message = ERROR_EMPTY)
-  // @Pattern(regexp = "^(OnJobTraining)|(ClassroomTraining)|(OnlineorELearning)|(SelfStudy)|(Other)$")
   private Category category;
 
   /**
@@ -52,6 +46,15 @@ public class DevelopmentNeed_NEW extends Objective_NEW
   {
     super(title, description, dueDate, proposedBy);
     this.setCategory(category);
+  }
+  
+  /**
+   * Development Need Constructor - Responsible for initialising this object.
+   */
+  public DevelopmentNeed_NEW(int id, String title, String description, LocalDate dueDate, String proposedBy, Category category)
+  {
+    this(title, description, dueDate, proposedBy, category);
+    this.setId(id);
   }
 
   /** @return the category */

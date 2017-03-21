@@ -16,8 +16,6 @@ import static dataStructure.Constants.NULL_OBJECTIVE;
 import static dataStructure.Constants.NULL_USER_DATA;
 import static dataStructure.Constants.OBJECTIVE_NOTADDED_ERROR;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +38,7 @@ import com.mongodb.MongoException;
 
 import dataStructure.Competency;
 import dataStructure.DevelopmentNeed;
+import dataStructure.DevelopmentNeed_NEW;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
@@ -47,6 +46,7 @@ import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 import dataStructure.Objective_NEW;
+import dataStructure.Objective_NEW.Progress;
 import services.ad.ADConnectionException;
 import services.ews.EmailService;
 import utils.Template;
@@ -103,13 +103,13 @@ public class EmployeeService
   /**
    * Gets Employee from database with the specified id
    *
-   * @param employeeID ID of the employee
+   * @param employeeId ID of the employee
    * @return the employee if exists
    * @throws InvalidAttributeValueException if employee is not found or is null.
    */
-  public Employee getEmployee(long employeeID) throws InvalidAttributeValueException
+  public Employee getEmployee(long employeeId) throws InvalidAttributeValueException
   {
-    Employee employee = getEmployeeQuery(employeeID).get();
+    Employee employee = getEmployeeQuery(employeeId).get();
     if (employee == null)
     {
       throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
@@ -120,50 +120,50 @@ public class EmployeeService
   /**
    * Gets full name os a user from the database
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws InvalidAttributeValueException
    */
-  public String getFullNameUser(long employeeID) throws InvalidAttributeValueException
+  public String getFullNameUser(long employeeId) throws InvalidAttributeValueException
   {
-    return getEmployee(employeeID).getProfile().getFullName();
+    return getEmployee(employeeId).getProfile().getFullName();
   }
 
   /**
    * Get a list of the current objectives for a user.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws InvalidAttributeValueException
    */
-  public List<Objective> getObjectivesForUser(long employeeID) throws InvalidAttributeValueException
+  public List<Objective> getObjectivesForUser(long employeeId) throws InvalidAttributeValueException
   {
-    return getEmployee(employeeID).getLatestVersionObjectives();
+    return getEmployee(employeeId).getLatestVersionObjectives();
   }
 
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @param objectiveID
    * @return
    * @throws InvalidAttributeValueException
    */
-  public Objective getSpecificObjectiveForUser(long employeeID, int objectiveID) throws InvalidAttributeValueException
+  public Objective getSpecificObjectiveForUser(long employeeId, int objectiveID) throws InvalidAttributeValueException
   {
-    return getEmployee(employeeID).getLatestVersionOfSpecificObjective(objectiveID);
+    return getEmployee(employeeId).getLatestVersionOfSpecificObjective(objectiveID);
   }
 
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws InvalidAttributeValueException
    */
-  public List<Feedback> getFeedbackForUser(long employeeID) throws InvalidAttributeValueException
+  public List<Feedback> getFeedbackForUser(long employeeId) throws InvalidAttributeValueException
   {
-    List<Feedback> feedbackList = getEmployee(employeeID).getFeedback();
+    List<Feedback> feedbackList = getEmployee(employeeId).getFeedback();
     Collections.reverse(feedbackList);
     return feedbackList;
   }
@@ -171,63 +171,63 @@ public class EmployeeService
   /**
    * Get all notes for user.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws InvalidAttributeValueException
    */
-  public List<Note> getNotes(long employeeID) throws InvalidAttributeValueException
+  public List<Note> getNotes(long employeeId) throws InvalidAttributeValueException
   {
-    return getEmployee(employeeID).getNotes();
+    return getEmployee(employeeId).getNotes();
   }
 
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws InvalidAttributeValueException
    */
-  public List<DevelopmentNeed> getDevelopmentNeedsForUser(long employeeID) throws InvalidAttributeValueException
+  public List<DevelopmentNeed> getDevelopmentNeedsForUser(long employeeId) throws InvalidAttributeValueException
   {
-    return getEmployee(employeeID).getLatestVersionDevelopmentNeeds();
+    return getEmployee(employeeId).getLatestVersionDevelopmentNeeds();
   }
 
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws InvalidAttributeValueException
    */
-  public String getAllUserDataFromID(long employeeID) throws InvalidAttributeValueException
+  public String getAllUserDataFromID(long employeeId) throws InvalidAttributeValueException
   {
-    return getEmployee(employeeID).toString();
+    return getEmployee(employeeId).toString();
   }
 
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws InvalidAttributeValueException
    */
-  public List<Competency> getCompetenciesForUser(long employeeID) throws InvalidAttributeValueException
+  public List<Competency> getCompetenciesForUser(long employeeId) throws InvalidAttributeValueException
   {
-    return getEmployee(employeeID).getLatestVersionCompetencies();
+    return getEmployee(employeeId).getLatestVersionCompetencies();
   }
 
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws InvalidAttributeValueException
    * @throws NamingException
    */
-  public List<EmployeeProfile> getReporteesForUser(long employeeID)
+  public List<EmployeeProfile> getReporteesForUser(long employeeId)
       throws InvalidAttributeValueException, NamingException
   {
-    Employee employee = getEmployee(employeeID);
+    Employee employee = getEmployee(employeeId);
 
     List<EmployeeProfile> reporteeList = new ArrayList<>();
 
@@ -248,19 +248,19 @@ public class EmployeeService
 
   /**
    * 
-   * @param employeeID
+   * @param employeeId
    * @return This method inserts a new objective for a specific employee given their ID
    * @throws InvalidAttributeValueException
    */
-  public boolean insertNewObjective(long employeeID, Object data) throws InvalidAttributeValueException, MongoException
+  public boolean insertNewObjective(long employeeId, Object data) throws InvalidAttributeValueException, MongoException
   {
-    // Check the employeeID
-    if (employeeID > 0)
+    // Check the employeeId
+    if (employeeId > 0)
     {
       if (data != null && data instanceof Objective)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = getEmployeeQuery(employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeId);
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
@@ -286,16 +286,16 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @param objectiveID
    * @param progress
    * @return
    * @throws InvalidAttributeValueException
    */
-  public boolean updateProgressObjective(long employeeID, int objectiveID, int progress)
+  public boolean updateProgressObjective(long employeeId, int objectiveID, int progress)
       throws InvalidAttributeValueException
   {
-    if (employeeID < 1 || objectiveID < 1)
+    if (employeeId < 1 || objectiveID < 1)
     {
       throw new InvalidAttributeValueException(INVALID_OBJECTIVE_OR_EMPLOYEEID);
     }
@@ -305,7 +305,7 @@ public class EmployeeService
     }
 
     boolean updated = false;
-    final Query<Employee> querySearch = getEmployeeQuery(employeeID);
+    final Query<Employee> querySearch = getEmployeeQuery(employeeId);
     final Employee employee = querySearch.get();
     final Objective objective = employee.getLatestVersionOfSpecificObjective(objectiveID);
 
@@ -332,22 +332,22 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @param objectiveID
    * @param data
    * @return
    * @throws InvalidAttributeValueException
    */
-  public boolean addNewVersionObjective(long employeeID, int objectiveID, Object data)
+  public boolean addNewVersionObjective(long employeeId, int objectiveID, Object data)
       throws InvalidAttributeValueException
   {
     // Check EmployeeID and ObjectiveID
-    if (employeeID > 0 && objectiveID > 0)
+    if (employeeId > 0 && objectiveID > 0)
     {
       if (data != null && data instanceof Objective)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = getEmployeeQuery(employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeId);
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
@@ -395,14 +395,14 @@ public class EmployeeService
   /**
    * Adds new note to an employee
    *
-   * @param employeeID
+   * @param employeeId
    * @param note
    * @return
    * @throws InvalidAttributeValueException
    */
-  public boolean addNote(long employeeID, Note note) throws InvalidAttributeValueException
+  public boolean addNote(long employeeId, Note note) throws InvalidAttributeValueException
   {
-    Query<Employee> employeeQuery = getEmployeeQuery(employeeID);
+    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
     Employee employee = employeeQuery.get();
 
     if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
@@ -445,22 +445,22 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @param data
    * @return
    * @throws InvalidAttributeValueException
    * @throws MongoException
    */
-  public boolean insertNewDevelopmentNeed(long employeeID, Object data)
+  public boolean insertNewDevelopmentNeed(long employeeId, Object data)
       throws InvalidAttributeValueException, MongoException
   {
-    // Check the employeeID
-    if (employeeID > 0)
+    // Check the employeeId
+    if (employeeId > 0)
     {
       if (data != null && data instanceof DevelopmentNeed)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = getEmployeeQuery(employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeId);
 
         if (querySearch.get() != null)
         {
@@ -487,16 +487,16 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @param devNeedID
    * @param progress
    * @return
    * @throws InvalidAttributeValueException
    */
-  public boolean updateProgressDevelopmentNeed(long employeeID, int devNeedID, int progress)
+  public boolean updateProgressDevelopmentNeed(long employeeId, int devNeedID, int progress)
       throws InvalidAttributeValueException
   {
-    if (employeeID < 1 || devNeedID < 1)
+    if (employeeId < 1 || devNeedID < 1)
     {
       throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
     }
@@ -506,7 +506,7 @@ public class EmployeeService
     }
 
     boolean updated = false;
-    final Query<Employee> querySearch = getEmployeeQuery(employeeID);
+    final Query<Employee> querySearch = getEmployeeQuery(employeeId);
     final Employee employee = querySearch.get();
     final DevelopmentNeed devNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(devNeedID);
 
@@ -533,22 +533,22 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @param devNeedID
    * @param data
    * @return
    * @throws InvalidAttributeValueException
    */
-  public boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, Object data)
+  public boolean addNewVersionDevelopmentNeed(long employeeId, int devNeedID, Object data)
       throws InvalidAttributeValueException
   {
     // Check EmployeeID and noteID
-    if (employeeID > 0 && devNeedID > 0)
+    if (employeeId > 0 && devNeedID > 0)
     {
       if (data != null && data instanceof DevelopmentNeed)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = getEmployeeQuery(employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeId);
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
@@ -592,9 +592,9 @@ public class EmployeeService
     return false;
   }
 
-  public void toggleDevNeedArchive(long employeeID, int developmentNeedID) throws InvalidAttributeValueException
+  public void toggleDevNeedArchive(long employeeId, int developmentNeedID) throws InvalidAttributeValueException
   {
-    Query<Employee> querySearch = getEmployeeQuery(employeeID);
+    Query<Employee> querySearch = getEmployeeQuery(employeeId);
     Employee employee = querySearch.get();
     DevelopmentNeed curDevNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(developmentNeedID);
 
@@ -614,14 +614,14 @@ public class EmployeeService
   /**
    * Sends Emails to the recipients and updates the database.
    * 
-   * @param employeeID
+   * @param employeeId
    * @param emailsString
    * @param notes
    * @throws Exception
    */
-  public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception
+  public void processFeedbackRequest(long employeeId, String emailsString, String notes) throws Exception
   {
-    Employee requester = getEmployee(employeeID);
+    Employee requester = getEmployee(employeeId);
     Set<String> recipientList = Utils.stringEmailsToHashSet(emailsString);
 
     if (recipientList.size() > 20)
@@ -632,8 +632,8 @@ public class EmployeeService
 
     for (String recipient : recipientList)
     {
-      String tempID = Utils.generateFeedbackRequestID(employeeID);
-      String subject = String.format("Feedback Request from %s - %s", requester.getProfile().getFullName(), employeeID);
+      String tempID = Utils.generateFeedbackRequestID(employeeId);
+      String subject = String.format("Feedback Request from %s - %s", requester.getProfile().getFullName(), employeeId);
       // String body = String.format("%s \n\n Feedback_Request: %s", notes, tempID);
       String body = Template.populateTemplate(env.getProperty("templates.feedback.request"), requesterName, notes,
           tempID);
@@ -689,9 +689,9 @@ public class EmployeeService
   {
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
 
-    long employeeID = matchADWithMongoData(employeeProfileService.fetchEmployeeProfileFromEmailAddress(recipientEmail))
+    long employeeId = matchADWithMongoData(employeeProfileService.fetchEmployeeProfileFromEmailAddress(recipientEmail))
         .getEmployeeID();
-    Employee employee = getEmployee(employeeID);
+    Employee employee = getEmployee(employeeId);
 
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
 
@@ -735,8 +735,8 @@ public class EmployeeService
   {
     Validate.areStringsEmptyorNull(providerEmail, feedbackRequestID, feedbackDescription);
 
-    long employeeID = Utils.getEmployeeIDFromRequestID(feedbackRequestID);
-    Employee employee = getEmployee(employeeID);
+    long employeeId = Utils.getEmployeeIDFromRequestID(feedbackRequestID);
+    Employee employee = getEmployee(employeeId);
 
     employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
 
@@ -749,23 +749,23 @@ public class EmployeeService
 
   /**
    * 
-   * @param employeeID the employee ID
+   * @param employeeId the employee ID
    * @param data the Competency to update
    * @param title the title of the competency (max 200 characters)
    * @return true or false to establish whether the task has been completed successfully or not This method inserts a
    *         new version of competencies list
    * @throws InvalidAttributeValueException
    */
-  public boolean addNewVersionCompetency(long employeeID, Object data, String title)
+  public boolean addNewVersionCompetency(long employeeId, Object data, String title)
       throws InvalidAttributeValueException
   {
     // Check EmployeeID and noteID
-    if (employeeID > 0 && title != null && title.length() > 0)
+    if (employeeId > 0 && title != null && title.length() > 0)
     {
       if (data != null && data instanceof Competency && title != null && title.length() > 0)
       {
         // Retrieve Employee with the given ID
-        Query<Employee> querySearch = getEmployeeQuery(employeeID);
+        Query<Employee> querySearch = getEmployeeQuery(employeeId);
         if (querySearch.get() != null)
         {
           Employee e = querySearch.get();
@@ -848,23 +848,27 @@ public class EmployeeService
     dbConnection.update(employee, ops);
   }
 
-  //////////////////// START
-
   /**
-   * Get a list of the current objectives for a user.
+   * Get Employee query with the specified id
    *
-   * @param employeeID
-   * @return A list of the latest version objectives for a user
-   * @throws InvalidAttributeValueException
+   * @param employeeId
+   * @return
    */
-  public List<Objective_NEW> getObjectivesNEW(long employeeID) throws InvalidAttributeValueException
+  private Query<Employee> getEmployeeQuery(long employeeID)
   {
-    return getEmployee(employeeID).getObjectivesNEW();
+    return dbConnection.createQuery(Employee.class).filter("profile.employeeID =", employeeID);
   }
 
-  public boolean addObjectiveNEW(long employeeID, Objective_NEW objective) throws InvalidAttributeValueException
+  //////////////////// START NEW OBJECTIVES
+
+  public List<Objective_NEW> getObjectivesNEW(long employeeId) throws InvalidAttributeValueException
   {
-    Query<Employee> employeeQuery = getEmployeeQuery(employeeID);
+    return getEmployee(employeeId).getObjectivesNEW();
+  }
+
+  public void addObjectiveNEW(long employeeId, Objective_NEW objective) throws InvalidAttributeValueException
+  {
+    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
     Employee employee = employeeQuery.get();
 
     if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
@@ -874,12 +878,11 @@ public class EmployeeService
     UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
         .set("newObjectives", employee.getObjectivesNEW());
     dbConnection.update(employeeQuery, updateOperation);
-    return true;
   }
 
-  public boolean editObjectiveNEW(long employeeID, Objective_NEW objective) throws InvalidAttributeValueException
+  public void editObjectiveNEW(long employeeId, Objective_NEW objective) throws InvalidAttributeValueException
   {
-    Query<Employee> employeeQuery = getEmployeeQuery(employeeID);
+    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
     Employee employee = employeeQuery.get();
 
     if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
@@ -889,37 +892,134 @@ public class EmployeeService
     UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
         .set("newObjectives", employee.getObjectivesNEW());
     dbConnection.update(employeeQuery, updateOperation);
-
-    return true;
   }
-  
-  
-  public void toggleObjectiveNEWArchive(long employeeID, int objectiveID) throws InvalidAttributeValueException
+
+  public void deleteObjectiveNEW(long employeeId, int objectiveId) throws InvalidAttributeValueException
   {
-    Query<Employee> querySearch = getEmployeeQuery(employeeID);
+    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
+    Employee employee = employeeQuery.get();
+
+    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
+
+    employee.deleteObjectiveNEW(objectiveId);
+
+    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
+        .set("newObjectives", employee.getObjectivesNEW());
+    dbConnection.update(employeeQuery, updateOperation);
+  }
+
+  public void updateObjectiveNEWProgress(long employeeId, int objectiveId, Progress progress)
+      throws InvalidAttributeValueException
+  {
+    Query<Employee> querySearch = getEmployeeQuery(employeeId);
     Employee employee = querySearch.get();
-    Objective_NEW objective = employee.getObjectiveNEW(objectiveID);
 
-    if (objective == null) throw new InvalidAttributeValueException(INVALID_DEVELOPMENT_NEED_ID);
+    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
 
-    objective.isArchived(!objective.getArchived());
+    employee.updateObjectiveNEWProgress(objectiveId, progress);
 
-    UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("newObjectives",
-        employee.getObjectivesNEW());
-    dbConnection.update(querySearch, ops);
+    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
+        .set("newObjectives", employee.getObjectivesNEW());
+    dbConnection.update(querySearch, updateOperation);
   }
 
-  //////////////////// END
-
-  /**
-   * Get Employee query with the specified id
-   *
-   * @param employeeID
-   * @return
-   */
-  private Query<Employee> getEmployeeQuery(long employeeID)
+  public void toggleObjectiveNEWArchive(long employeeId, int objectiveId) throws InvalidAttributeValueException
   {
-    return dbConnection.createQuery(Employee.class).filter("profile.employeeID =", employeeID);
+    Query<Employee> querySearch = getEmployeeQuery(employeeId);
+    Employee employee = querySearch.get();
+
+    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
+
+    employee.toggleObjectiveNEWArchive(objectiveId);
+
+    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
+        .set("newObjectives", employee.getObjectivesNEW());
+    dbConnection.update(querySearch, updateOperation);
   }
+
+  //////////////////// END NEW OBJECTIVES
+
+  //////////////////// START NEW DEVELOPMENT NEEDS
+
+  public List<DevelopmentNeed_NEW> getDevelopmentNeedsNEW(long employeeId) throws InvalidAttributeValueException
+  {
+    return getEmployee(employeeId).getDevelopmentNeedsNEW();
+  }
+
+  public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed_NEW developmentNeed)
+      throws InvalidAttributeValueException
+  {
+    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
+    Employee employee = employeeQuery.get();
+
+    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
+
+    employee.addDevelopmentNeedNEW(developmentNeed);
+
+    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
+        .set("newDevelopmentNeeds", employee.getDevelopmentNeedsNEW());
+    dbConnection.update(employeeQuery, updateOperation);
+  }
+
+  public void editDevelopmentNeedNEW(long employeeId, DevelopmentNeed_NEW developmentNeed)
+      throws InvalidAttributeValueException
+  {
+    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
+    Employee employee = employeeQuery.get();
+
+    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
+
+    employee.editDevelopmentNeedNEW(developmentNeed);
+
+    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
+        .set("newDevelopmentNeeds", employee.getDevelopmentNeedsNEW());
+    dbConnection.update(employeeQuery, updateOperation);
+  }
+
+  public void deleteDevelopmentNeedNEW(long employeeId, int developmentNeedId) throws InvalidAttributeValueException
+  {
+    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
+    Employee employee = employeeQuery.get();
+
+    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
+
+    employee.deleteDevelopmentNeedNEW(developmentNeedId);
+
+    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
+        .set("newDevelopmentNeeds", employee.getDevelopmentNeedsNEW());
+    dbConnection.update(employeeQuery, updateOperation);
+  }
+
+  public void updateDevelopmentNeedNEWProgress(long employeeId, int developmentNeedId, Progress progress)
+      throws InvalidAttributeValueException
+  {
+    Query<Employee> querySearch = getEmployeeQuery(employeeId);
+    Employee employee = querySearch.get();
+
+    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
+
+    employee.updateDevelopmentNeedNEWProgress(developmentNeedId, progress);
+
+    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
+        .set("newDevelopmentNeeds", employee.getDevelopmentNeedsNEW());
+    dbConnection.update(querySearch, updateOperation);
+  }
+
+  public void toggleDevelopmentNeedNEWArchive(long employeeId, int developmentNeedId)
+      throws InvalidAttributeValueException
+  {
+    Query<Employee> querySearch = getEmployeeQuery(employeeId);
+    Employee employee = querySearch.get();
+
+    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
+
+    employee.toggleDevelopmentNeedNEWArchive(developmentNeedId);
+
+    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
+        .set("newDevelopmentNeeds", employee.getDevelopmentNeedsNEW());
+    dbConnection.update(querySearch, updateOperation);
+  }
+
+  //////////////////// END NEW DEVELOPMENT NEEDS
 
 }
