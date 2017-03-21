@@ -76,7 +76,7 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
 
     profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_2))
         .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
-        .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddress(mapString(TARGET_ADDRESS, attributes))
+        .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddress(mapString(MAIL, attributes))
         .company(mapString(COMPANY, attributes)).superSector(mapString(OU, attributes)).sector(mapSector(attributes))
         .steriaDepartment(mapString(DEPARTMENT, attributes)).manager(mapIsManager(attributes))
         .reporteeCNs(mapReporteeCNs(attributes)).accountExpires(mapAccountExpires(attributes)).build();
