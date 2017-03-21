@@ -174,14 +174,14 @@ public class EmployeeService
     Collections.reverse(feedbackList);
     return feedbackList;
   }
-  
+
   /**
    * TODO: Describe this method.
    *
    * @param employeeID
    * @return
    * @throws InvalidAttributeValueException
-   * @throws services.EmployeeNotFoundException 
+   * @throws services.EmployeeNotFoundException
    */
   public List<Competency> getCompetenciesForUser(long employeeID) throws EmployeeNotFoundException
   {
@@ -617,8 +617,22 @@ public class EmployeeService
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
     Employee employee = morphiaOperations.getEmployee(EMAIL_ADDRESS, recipientEmail);
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
+    String providerName = null;
 
-    feedback.setProviderName(employeeProfileService.fetchEmployeeProfileFromEmailAddress(providerEmail).getFullName());
+    try
+    {
+      providerName = employeeProfileService.fetchEmployeeProfileFromEmailAddress(providerName).getFullName();
+    }
+    catch (final EmployeeNotFoundException e)
+    {
+      /*
+       * If this happens the provider email address is external (not SopraSteria). This is a normal operation so just
+       * swallow the exception and set provider name to provider email address
+       */
+      providerName = providerEmail;
+    }
+
+    feedback.setProviderName(providerName);
     employee.addFeedback(feedback);
     morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK, employee.getFeedback());
 
@@ -662,7 +676,7 @@ public class EmployeeService
    * @return true or false to establish whether the task has been completed successfully or not This method inserts a
    *         new version of competencies list
    * @throws InvalidAttributeValueException
-   * @throws EmployeeNotFoundException 
+   * @throws EmployeeNotFoundException
    */
   public boolean addNewVersionCompetency(long employeeID, Competency data, String title)
       throws EmployeeNotFoundException, InvalidAttributeValueException
@@ -675,7 +689,7 @@ public class EmployeeService
       morphiaOperations.updateEmployee(employeeID, COMPETENCIES, e.getCompetenciesList());
       return true;
     }
-    
+
     return false;
   }
 
@@ -685,9 +699,10 @@ public class EmployeeService
    * @param profileFromAD
    * @return
    * @throws InvalidAttributeValueException
-   * @throws EmployeeNotFoundException 
+   * @throws EmployeeNotFoundException
    */
-  public EmployeeProfile matchADWithMongoData(EmployeeProfile profileFromAD) throws InvalidAttributeValueException, EmployeeNotFoundException
+  public EmployeeProfile matchADWithMongoData(EmployeeProfile profileFromAD)
+      throws InvalidAttributeValueException, EmployeeNotFoundException
   {
     if (profileFromAD == null)
     {
