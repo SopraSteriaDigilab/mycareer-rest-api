@@ -47,6 +47,7 @@ import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 import services.ad.ADConnectionException;
+import services.db.MorphiaOperations;
 import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Template;
@@ -66,37 +67,41 @@ public class EmployeeService
 
   private static final String ERROR_USER_NOT_FOUND = "The given user ID does not exist.";
   private static final String INVALID_DEVELOPMENT_NEED_ID = "The given development Need ID does not exist.";
+  private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: {} {} ";
 
   /** String Constant - Represents Feedback Request */
   public static final String FEEDBACK_REQUEST = "Feedback Request";
 
+  private static final String EMPLOYEE_ID = "profile.employeeID";
+  private static final String EMAIL_ADDRESS = "profile.emailAddress";
+  private static final String NOTES = "notes";
+  private static final String OBJECTIVES = "objectives";
+  private static final String DEVELOPMENT_NEEDS = "developmentNeeds";
+  private static final String FEEDBACK_REQUESTS = "feedbackRequests";
+  private static final String FEEDBACK = "feedback";
+  private static final String COMPETENCIES = "competencies";
+  private static final String LAST_LOGON = "lastLogon";
+
   // There is only 1 instance of the Datastore in the whole system
-  private static Datastore dbConnection;
+  private MorphiaOperations morphiaOperations;
 
   /** Environment Property - Reference to environment to get property details. */
-  private static Environment env;
+  private Environment env;
 
   /* Accesses the Active Directories */
-  private static EmployeeProfileService employeeProfileService;
+  private EmployeeProfileService employeeProfileService;
 
   /**
-   * EmployeeDAO Constructor - Needed for morphia?.
-   *
-   */
-  public EmployeeService()
-  {
-  }
-
-  /**
-   * EmployeeDAO Constructor - Responsible for initialising dbConnection.
+   * EmployeeService Constructor - Responsible for initialising dbConnection.
    *
    * @param dbConnection
    */
-  public EmployeeService(Datastore dbConnection, EmployeeProfileService employeeProfileService, Environment env)
+  public EmployeeService(MorphiaOperations morphiaOperations, EmployeeProfileService employeeProfileService,
+      Environment env)
   {
-    EmployeeService.dbConnection = dbConnection;
-    EmployeeService.env = env;
-    EmployeeService.employeeProfileService = employeeProfileService;
+    this.morphiaOperations = morphiaOperations;
+    this.env = env;
+    this.employeeProfileService = employeeProfileService;
   }
 
   /**
@@ -104,37 +109,28 @@ public class EmployeeService
    *
    * @param employeeID ID of the employee
    * @return the employee if exists
-   * @throws InvalidAttributeValueException if employee is not found or is null.
+   * @throws EmployeeNotFoundException if employee is not found or is null.
    */
-  public Employee getEmployee(long employeeID) throws InvalidAttributeValueException
+  public Employee getEmployee(final long employeeID) throws EmployeeNotFoundException
   {
-    Employee employee = getEmployeeQuery(employeeID).get();
+    Employee employee = morphiaOperations.getEmployee(EMPLOYEE_ID, employeeID);
+
     if (employee == null)
     {
-      throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
+      throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + employeeID);
     }
+
     return employee;
   }
 
   /**
-   * Get Employee query with the specified id
+   * Gets full name of a user from the database
    *
    * @param employeeID
    * @return
+   * @throws EmployeeNotFoundException
    */
-  private Query<Employee> getEmployeeQuery(long employeeID)
-  {
-    return dbConnection.createQuery(Employee.class).filter("profile.employeeID =", employeeID);
-  }
-
-  /**
-   * Gets full name os a user from the database
-   *
-   * @param employeeID
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public String getFullNameUser(long employeeID) throws InvalidAttributeValueException
+  public String getFullNameUser(long employeeID) throws EmployeeNotFoundException
   {
     return getEmployee(employeeID).getProfile().getFullName();
   }
@@ -144,9 +140,9 @@ public class EmployeeService
    *
    * @param employeeID
    * @return
-   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
-  public List<Objective> getObjectivesForUser(long employeeID) throws InvalidAttributeValueException
+  public List<Objective> getObjectivesForUser(long employeeID) throws EmployeeNotFoundException
   {
     return getEmployee(employeeID).getLatestVersionObjectives();
   }
@@ -157,9 +153,10 @@ public class EmployeeService
    * @param employeeID
    * @param objectiveID
    * @return
-   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
-  public Objective getSpecificObjectiveForUser(long employeeID, int objectiveID) throws InvalidAttributeValueException
+  public Objective getSpecificObjectiveForUser(long employeeID, int objectiveID)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     return getEmployee(employeeID).getLatestVersionOfSpecificObjective(objectiveID);
   }
@@ -169,9 +166,9 @@ public class EmployeeService
    *
    * @param employeeID
    * @return
-   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
-  public List<Feedback> getFeedbackForUser(long employeeID) throws InvalidAttributeValueException
+  public List<Feedback> getFeedbackForUser(long employeeID) throws EmployeeNotFoundException
   {
     List<Feedback> feedbackList = getEmployee(employeeID).getFeedback();
     Collections.reverse(feedbackList);
@@ -179,13 +176,26 @@ public class EmployeeService
   }
 
   /**
-   * Get all notes for user.
+   * TODO: Describe this method.
    *
    * @param employeeID
    * @return
    * @throws InvalidAttributeValueException
+   * @throws services.EmployeeNotFoundException
    */
-  public List<Note> getNotes(long employeeID) throws InvalidAttributeValueException
+  public List<Competency> getCompetenciesForUser(long employeeID) throws EmployeeNotFoundException
+  {
+    return getEmployee(employeeID).getLatestVersionCompetencies();
+  }
+
+  /**
+   * Get all notes for user.
+   *
+   * @param employeeID
+   * @return
+   * @throws EmployeeNotFoundException
+   */
+  public List<Note> getNotes(long employeeID) throws EmployeeNotFoundException
   {
     return getEmployee(employeeID).getNotes();
   }
@@ -195,9 +205,9 @@ public class EmployeeService
    *
    * @param employeeID
    * @return
-   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
-  public List<DevelopmentNeed> getDevelopmentNeedsForUser(long employeeID) throws InvalidAttributeValueException
+  public List<DevelopmentNeed> getDevelopmentNeedsForUser(long employeeID) throws EmployeeNotFoundException
   {
     return getEmployee(employeeID).getLatestVersionDevelopmentNeeds();
   }
@@ -207,21 +217,9 @@ public class EmployeeService
    *
    * @param employeeID
    * @return
-   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
-  public String getAllUserDataFromID(long employeeID) throws InvalidAttributeValueException
-  {
-    return getEmployee(employeeID).toString();
-  }
-
-  /**
-   * TODO: Describe this method.
-   *
-   * @param employeeID
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public List<Competency> getCompetenciesForUser(long employeeID) throws InvalidAttributeValueException
+  public List<Competency> EmployeeNotFoundException(long employeeID) throws EmployeeNotFoundException
   {
     return getEmployee(employeeID).getLatestVersionCompetencies();
   }
@@ -232,10 +230,9 @@ public class EmployeeService
    * @param employeeID
    * @return
    * @throws InvalidAttributeValueException
-   * @throws NamingException
    */
   public List<EmployeeProfile> getReporteesForUser(long employeeID)
-      throws InvalidAttributeValueException, NamingException
+      throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeID);
 
@@ -244,14 +241,8 @@ public class EmployeeService
     for (String str : employee.getProfile().getReporteeCNs())
     {
       long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
-      try
-      {
-        reporteeList.add(matchADWithMongoData(employeeProfileService.fetchEmployeeProfile(temp)));
-      }
-      catch (Exception e)
-      {
-        throw new InvalidAttributeValueException("Sorry there were some connectiviy errors. Please try again later.");
-      }
+
+      reporteeList.add(matchADWithMongoData(employeeProfileService.fetchEmployeeProfile(temp)));
     }
     return reporteeList;
   }
@@ -260,37 +251,27 @@ public class EmployeeService
    * 
    * @param employeeID
    * @return This method inserts a new objective for a specific employee given their ID
-   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
-  public boolean insertNewObjective(long employeeID, Object data) throws InvalidAttributeValueException, MongoException
+  public boolean insertNewObjective(long employeeID, Objective data)
+      throws InvalidAttributeValueException, services.EmployeeNotFoundException
   {
-    // Check the employeeID
-    if (employeeID > 0)
+    // Retrieve Employee with the given ID
+    final Employee e = morphiaOperations.getEmployee(EMPLOYEE_ID, employeeID);
+
+    if (e == null)
     {
-      if (data != null && data instanceof Objective)
-      {
-        // Retrieve Employee with the given ID
-        Query<Employee> querySearch = getEmployeeQuery(employeeID);
-        if (querySearch.get() != null)
-        {
-          Employee e = querySearch.get();
-          // Add the new objective to the list
-          if (e.addObjective((Objective) data))
-          {
-            // Update the List<List<objective>> in the DB passing the new list
-            UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives",
-                e.getObjectiveList());
-            // Commit the changes to the DB
-            dbConnection.update(querySearch, ops);
-            return true;
-          }
-          else throw new InvalidAttributeValueException(OBJECTIVE_NOTADDED_ERROR);
-        }
-        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
-      }
-      else throw new InvalidAttributeValueException(NULL_OBJECTIVE);
+      throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND);
     }
-    else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
+
+    if (!e.addObjective(data))
+    {
+      throw new InvalidAttributeValueException(OBJECTIVE_NOTADDED_ERROR);
+    }
+
+    morphiaOperations.updateEmployee(e.getProfile().getEmployeeID(), OBJECTIVES, e.getObjectiveList());
+
+    return true;
   }
 
   /**
@@ -300,23 +281,18 @@ public class EmployeeService
    * @param objectiveID
    * @param progress
    * @return
-   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
   public boolean updateProgressObjective(long employeeID, int objectiveID, int progress)
-      throws InvalidAttributeValueException
+      throws InvalidAttributeValueException, EmployeeNotFoundException
   {
-    if (employeeID < 1 || objectiveID < 1)
-    {
-      throw new InvalidAttributeValueException(INVALID_OBJECTIVE_OR_EMPLOYEEID);
-    }
-    else if (progress < -1 || progress > 2)
+    if (progress < -1 || progress > 2)
     {
       throw new InvalidAttributeValueException(INVALID_CONTEXT_PROGRESS);
     }
 
     boolean updated = false;
-    final Query<Employee> querySearch = getEmployeeQuery(employeeID);
-    final Employee employee = querySearch.get();
+    final Employee employee = getEmployee(employeeID);
     final Objective objective = employee.getLatestVersionOfSpecificObjective(objectiveID);
 
     if (objective.getProgress() == progress)
@@ -329,9 +305,8 @@ public class EmployeeService
 
       if (employee.editObjective(objective))
       {
-        UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives",
+        morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), OBJECTIVES,
             employee.getObjectiveList());
-        dbConnection.update(querySearch, ops);
         updated = true;
       }
     }
@@ -346,58 +321,43 @@ public class EmployeeService
    * @param objectiveID
    * @param data
    * @return
-   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
-  public boolean addNewVersionObjective(long employeeID, int objectiveID, Object data)
-      throws InvalidAttributeValueException
+  public boolean addNewVersionObjective(long employeeID, int objectiveID, Objective data)
+      throws InvalidAttributeValueException, EmployeeNotFoundException
   {
-    // Check EmployeeID and ObjectiveID
-    if (employeeID > 0 && objectiveID > 0)
+    // Retrieve Employee with the given ID
+    Employee e = getEmployee(employeeID);
+    // Extract its List of Objectives
+    List<List<Objective>> dataFromDB = e.getObjectiveList();
+    // Search for the objective Id within the list of objectives
+    int indexObjectiveList = -1;
+    for (int i = 0; i < dataFromDB.size(); i++)
     {
-      if (data != null && data instanceof Objective)
+      // Save the index of the list when the objectiveID is found
+      if (dataFromDB.get(i).get(0).getID() == objectiveID)
       {
-        // Retrieve Employee with the given ID
-        Query<Employee> querySearch = getEmployeeQuery(employeeID);
-        if (querySearch.get() != null)
-        {
-          Employee e = querySearch.get();
-          // Extract its List of Objectives
-          List<List<Objective>> dataFromDB = e.getObjectiveList();
-          // Search for the objective Id within the list of objectives
-          int indexObjectiveList = -1;
-          for (int i = 0; i < dataFromDB.size(); i++)
-          {
-            // Save the index of the list when the objectiveID is found
-            if (dataFromDB.get(i).get(0).getID() == objectiveID)
-            {
-              indexObjectiveList = i;
-              // Exit the for loop once the value has been found
-              break;
-            }
-          }
-          // verify that the index variable has changed its value
-          if (indexObjectiveList != -1)
-          {
-            // Add the updated version of the objective
-            if (e.editObjective((Objective) data))
-            {
-              // Update the List<List<objective>> in the DB passing the new list
-              UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("objectives",
-                  e.getObjectiveList());
-              // Commit the changes to the DB
-              dbConnection.update(querySearch, ops);
-              return true;
-            }
-          }
-          // if the index hasn't changed its value it means that there is no objective with such ID, therefore throw and
-          // exception
-          else throw new InvalidAttributeValueException(INVALID_OBJECTIVEID);
-        }
-        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
+        indexObjectiveList = i;
+        // Exit the for loop once the value has been found
+        break;
       }
-      else throw new InvalidAttributeValueException(INVALID_OBJECTIVE);
     }
-    else throw new InvalidAttributeValueException(INVALID_OBJECTIVE_OR_EMPLOYEEID);
+    // verify that the index variable has changed its value
+    if (indexObjectiveList != -1)
+    {
+      // Add the updated version of the objective
+      if (e.editObjective((Objective) data))
+      {
+        morphiaOperations.updateEmployee(e.getProfile().getEmployeeID(), OBJECTIVES, e.getObjectiveList());
+        return true;
+      }
+    }
+    else
+    {
+      // if the index hasn't changed its value it means that there is no objective with such ID, therefore throw an
+      // exception
+      throw new InvalidAttributeValueException(INVALID_OBJECTIVEID);
+    }
 
     return false;
   }
@@ -408,20 +368,14 @@ public class EmployeeService
    * @param employeeID
    * @param note
    * @return
-   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
-  public boolean addNote(long employeeID, Note note) throws InvalidAttributeValueException
+  public boolean addNote(long employeeID, Note note) throws EmployeeNotFoundException
   {
-    Query<Employee> employeeQuery = getEmployeeQuery(employeeID);
-    Employee employee = employeeQuery.get();
-
-    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
-
+    Employee employee = getEmployee(employeeID);
     employee.addNote(note);
+    morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), NOTES, employee.getNotes());
 
-    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class).set("notes",
-        employee.getNotes());
-    dbConnection.update(employeeQuery, updateOperation);
     return true;
   }
 
@@ -432,8 +386,9 @@ public class EmployeeService
    * @param note
    * @return
    * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
-  public boolean addNoteToReportee(long reporteeEmployeeID, Note note) throws InvalidAttributeValueException
+  public boolean addNoteToReportee(long reporteeEmployeeID, Note note) throws EmployeeNotFoundException
   {
     addNote(reporteeEmployeeID, note);
 
@@ -458,40 +413,23 @@ public class EmployeeService
    * @param employeeID
    * @param data
    * @return
-   * @throws InvalidAttributeValueException
-   * @throws MongoException
+   * @throws EmployeeNotFoundException
    */
-  public boolean insertNewDevelopmentNeed(long employeeID, Object data)
-      throws InvalidAttributeValueException, MongoException
+  public boolean insertNewDevelopmentNeed(long employeeID, DevelopmentNeed data)
+      throws InvalidAttributeValueException, EmployeeNotFoundException
   {
-    // Check the employeeID
-    if (employeeID > 0)
+    // Retrieve Employee with the given ID
+    Employee e = getEmployee(employeeID);
+    // Add the new development need to the list
+    if (e.addDevelopmentNeed(data))
     {
-      if (data != null && data instanceof DevelopmentNeed)
-      {
-        // Retrieve Employee with the given ID
-        Query<Employee> querySearch = getEmployeeQuery(employeeID);
-
-        if (querySearch.get() != null)
-        {
-          Employee e = querySearch.get();
-          // Add the new development need to the list
-          if (e.addDevelopmentNeed((DevelopmentNeed) data))
-          {
-            // Update the List<List<developmentNeed>> in the DB passing the new list
-            UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds",
-                e.getDevelopmentNeedsList());
-            // Commit the changes to the DB
-            dbConnection.update(querySearch, ops);
-            return true;
-          }
-          else throw new InvalidAttributeValueException(DEVELOPMENTNEED_NOTADDED_ERROR);
-        }
-        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
-      }
-      else throw new InvalidAttributeValueException(INVALID_DEVNEED_CONTEXT);
+      morphiaOperations.updateEmployee(employeeID, DEVELOPMENT_NEEDS, e.getDevelopmentNeedsList());
+      return true;
     }
-    else throw new InvalidAttributeValueException(INVALID_CONTEXT_USERID);
+    else
+    {
+      throw new InvalidAttributeValueException(DEVELOPMENTNEED_NOTADDED_ERROR);
+    }
   }
 
   /**
@@ -502,22 +440,18 @@ public class EmployeeService
    * @param progress
    * @return
    * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
   public boolean updateProgressDevelopmentNeed(long employeeID, int devNeedID, int progress)
-      throws InvalidAttributeValueException
+      throws InvalidAttributeValueException, EmployeeNotFoundException
   {
-    if (employeeID < 1 || devNeedID < 1)
-    {
-      throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
-    }
-    else if (progress < -1 || progress > 2)
+    if (progress < -1 || progress > 2)
     {
       throw new InvalidAttributeValueException(INVALID_CONTEXT_PROGRESS);
     }
 
     boolean updated = false;
-    final Query<Employee> querySearch = getEmployeeQuery(employeeID);
-    final Employee employee = querySearch.get();
+    final Employee employee = getEmployee(employeeID);
     final DevelopmentNeed devNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(devNeedID);
 
     if (devNeed.getProgress() == progress)
@@ -530,9 +464,7 @@ public class EmployeeService
 
       if (employee.editDevelopmentNeed(devNeed))
       {
-        UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds",
-            employee.getDevelopmentNeedsList());
-        dbConnection.update(querySearch, ops);
+        morphiaOperations.updateEmployee(employeeID, DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsList());
         updated = true;
       }
     }
@@ -549,75 +481,62 @@ public class EmployeeService
    * @return
    * @throws InvalidAttributeValueException
    */
-  public boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, Object data)
-      throws InvalidAttributeValueException
+  public boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, DevelopmentNeed data)
+      throws InvalidAttributeValueException, EmployeeNotFoundException
   {
-    // Check EmployeeID and noteID
-    if (employeeID > 0 && devNeedID > 0)
+    // Retrieve Employee with the given ID
+    Employee e = getEmployee(employeeID);
+    // Extract its List of notes
+    List<List<DevelopmentNeed>> dataFromDB = e.getDevelopmentNeedsList();
+    // Search for the objective Id within the list of development needs
+    int indexDevNeedList = -1;
+    for (int i = 0; i < dataFromDB.size(); i++)
     {
-      if (data != null && data instanceof DevelopmentNeed)
+      // Save the index of the list when the devNeedID is found
+      if (dataFromDB.get(i).get(0).getID() == devNeedID)
       {
-        // Retrieve Employee with the given ID
-        Query<Employee> querySearch = getEmployeeQuery(employeeID);
-        if (querySearch.get() != null)
-        {
-          Employee e = querySearch.get();
-          // Extract its List of notes
-          List<List<DevelopmentNeed>> dataFromDB = e.getDevelopmentNeedsList();
-          // Search for the objective Id within the list of development needs
-          int indexDevNeedList = -1;
-          for (int i = 0; i < dataFromDB.size(); i++)
-          {
-            // Save the index of the list when the devNeedID is found
-            if (dataFromDB.get(i).get(0).getID() == devNeedID)
-            {
-              indexDevNeedList = i;
-              // Exit the for loop once the value has been found
-              break;
-            }
-          }
-          // verify that the index variable has changed its value
-          if (indexDevNeedList != -1)
-          {
-            // Add the updated version of the DevelopmentNeed
-            if (e.editDevelopmentNeed((DevelopmentNeed) data))
-            {
-              // Update the List<List<DevelopmentNeed>> in the DB passing the new list
-              UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class)
-                  .set("developmentNeeds", e.getDevelopmentNeedsList());
-              // Commit the changes to the DB
-              dbConnection.update(querySearch, ops);
-              return true;
-            }
-          }
-          // if the index hasn't changed its value it means that there is no development need with such ID, therefore
-          // throw and exception
-          else throw new InvalidAttributeValueException(INVALID_DEVNEEDID_CONTEXT);
-        }
-        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
+        indexDevNeedList = i;
+        // Exit the for loop once the value has been found
+        break;
       }
-      else throw new InvalidAttributeValueException(INVALID_DEVNEED_CONTEXT);
     }
-    else throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
+    // verify that the index variable has changed its value
+    if (indexDevNeedList != -1)
+    {
+      // Add the updated version of the DevelopmentNeed
+      if (e.editDevelopmentNeed((DevelopmentNeed) data))
+      {
+        morphiaOperations.updateEmployee(employeeID, DEVELOPMENT_NEEDS, e.getDevelopmentNeedsList());
+        return true;
+      }
+    }
+    else
+    {
+      // if the index hasn't changed its value it means that there is no development need with such ID, therefore
+      // throw and exception
+      throw new InvalidAttributeValueException(INVALID_DEVNEEDID_CONTEXT);
+    }
+
     return false;
   }
 
-  public void toggleDevNeedArchive(long employeeID, int developmentNeedID) throws InvalidAttributeValueException
+  public void toggleDevNeedArchive(long employeeID, int developmentNeedID)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
   {
-    Query<Employee> querySearch = getEmployeeQuery(employeeID);
-    Employee employee = querySearch.get();
+    Employee employee = getEmployee(employeeID);
     DevelopmentNeed curDevNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(developmentNeedID);
 
-    if (curDevNeed == null) throw new InvalidAttributeValueException(INVALID_DEVELOPMENT_NEED_ID);
+    if (curDevNeed == null)
+    {
+      throw new InvalidAttributeValueException(INVALID_DEVELOPMENT_NEED_ID);
+    }
 
     DevelopmentNeed developmentNeed = new DevelopmentNeed(curDevNeed);
     developmentNeed.setIsArchived(!developmentNeed.getIsArchived());
 
     if (employee.editDevelopmentNeed(developmentNeed))
     {
-      UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("developmentNeeds",
-          employee.getDevelopmentNeedsList());
-      dbConnection.update(querySearch, ops);
+      morphiaOperations.updateEmployee(employeeID, DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsList());
     }
   }
 
@@ -629,7 +548,7 @@ public class EmployeeService
    * @param notes
    * @throws Exception
    */
-  public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception 
+  public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception
   {
     Employee requester = getEmployee(employeeID);
     Set<String> recipientList = Utils.stringEmailsToHashSet(emailsString);
@@ -674,15 +593,13 @@ public class EmployeeService
    * @param feedbackRequest
    * @throws InvalidAttributeValueException
    */
-  public void addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest)
+  private void addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest)
       throws InvalidAttributeValueException
   {
     Validate.isNull(employee, feedbackRequest);
-
     employee.addFeedbackRequest(feedbackRequest);
-    UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests",
+    morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK_REQUESTS,
         employee.getFeedbackRequestsList());
-    dbConnection.update(employee, ops);
   }
 
   /**
@@ -698,27 +615,26 @@ public class EmployeeService
 
   {
     Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
-
-    long employeeID = matchADWithMongoData(employeeProfileService.fetchEmployeeProfileFromEmailAddress(recipientEmail))
-        .getEmployeeID();
-    Employee employee = getEmployee(employeeID);
-
+    Employee employee = morphiaOperations.getEmployee(EMAIL_ADDRESS, recipientEmail);
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
+    String providerName = null;
 
     try
     {
-      feedback.setProviderName(employeeProfileService.fetchEmployeeFullNameFromEmailAddress(providerEmail));
+      providerName = employeeProfileService.fetchEmployeeProfileFromEmailAddress(providerEmail).getFullName();
     }
-    catch (InvalidAttributeValueException | NamingException e)
+    catch (final EmployeeNotFoundException e)
     {
-      // TODO Handle this better?
+      /*
+       * If this happens the provider email address is external (not SopraSteria). This is a normal operation so just
+       * swallow the exception and set provider name to provider email address
+       */
+      providerName = providerEmail;
     }
 
+    feedback.setProviderName(providerName);
     employee.addFeedback(feedback);
-
-    UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedback",
-        employee.getFeedback());
-    dbConnection.update(employee, ops);
+    morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK, employee.getFeedback());
 
     if (isFeedbackRequest)
     {
@@ -744,16 +660,11 @@ public class EmployeeService
       throws Exception
   {
     Validate.areStringsEmptyorNull(providerEmail, feedbackRequestID, feedbackDescription);
-
     long employeeID = Utils.getEmployeeIDFromRequestID(feedbackRequestID);
     Employee employee = getEmployee(employeeID);
 
     employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
-
-    UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("feedbackRequests",
-        employee.getFeedbackRequestsList());
-    dbConnection.update(employee, ops);
-
+    morphiaOperations.updateEmployee(employeeID, FEEDBACK_REQUESTS, employee.getFeedbackRequestsList());
     addFeedback(providerEmail, employee.getProfile().getEmailAddress(), feedbackDescription, true);
   }
 
@@ -765,36 +676,20 @@ public class EmployeeService
    * @return true or false to establish whether the task has been completed successfully or not This method inserts a
    *         new version of competencies list
    * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
-  public boolean addNewVersionCompetency(long employeeID, Object data, String title)
-      throws InvalidAttributeValueException
+  public boolean addNewVersionCompetency(long employeeID, Competency data, String title)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
   {
-    // Check EmployeeID and noteID
-    if (employeeID > 0 && title != null && title.length() > 0)
+    // Retrieve Employee with the given ID
+    Employee e = getEmployee(employeeID);
+    // Add the updated version of the note
+    if (e.updateCompetency(data, title))
     {
-      if (data != null && data instanceof Competency && title != null && title.length() > 0)
-      {
-        // Retrieve Employee with the given ID
-        Query<Employee> querySearch = getEmployeeQuery(employeeID);
-        if (querySearch.get() != null)
-        {
-          Employee e = querySearch.get();
-          // Add the updated version of the note
-          if (e.updateCompetency((Competency) data, title))
-          {
-            // Update the List<List<Competencies>> in the DB passing the new list
-            UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("competencies",
-                e.getCompetenciesList());
-            // Commit the changes to the DB
-            dbConnection.update(querySearch, ops);
-            return true;
-          }
-        }
-        else throw new InvalidAttributeValueException(INVALID_ID_NOT_FOUND);
-      }
-      else throw new InvalidAttributeValueException(INVALID_COMPETENCY_CONTEXT);
+      morphiaOperations.updateEmployee(employeeID, COMPETENCIES, e.getCompetenciesList());
+      return true;
     }
-    else throw new InvalidAttributeValueException(INVALID_COMPETENCY_OR_EMPLOYEEID);
+
     return false;
   }
 
@@ -804,8 +699,10 @@ public class EmployeeService
    * @param profileFromAD
    * @return
    * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
    */
-  public EmployeeProfile matchADWithMongoData(EmployeeProfile profileFromAD) throws InvalidAttributeValueException
+  public EmployeeProfile matchADWithMongoData(EmployeeProfile profileFromAD)
+      throws InvalidAttributeValueException, EmployeeNotFoundException
   {
     if (profileFromAD == null)
     {
@@ -819,7 +716,7 @@ public class EmployeeService
       throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
     }
 
-    Employee e = getEmployeeQuery(profileFromAD.getEmployeeID()).get();
+    Employee e = getEmployee(profileFromAD.getEmployeeID());
 
     if (e != null)
     {
@@ -829,33 +726,28 @@ public class EmployeeService
       {
         e.setProfile(profileFromAD);
         LOGGER.debug("Updating employee: " + e.getProfile().getEmployeeID());
-        dbConnection.save(e);
+        morphiaOperations.updateEmployee(e);
       }
     }
     else
     {
       e = new Employee(profileFromAD);
       LOGGER.debug("Inserting employee: " + e.getProfile().getEmployeeID());
-      dbConnection.save(e);
+      morphiaOperations.updateEmployee(e);
     }
 
     return e.getProfile();
   }
 
-  public EmployeeProfile authenticateUserProfile(String usernameEmail)
-      throws InvalidAttributeValueException, ADConnectionException, NamingException
+  public EmployeeProfile authenticateUserProfile(String usernameEmail) throws EmployeeNotFoundException
   {
     return employeeProfileService.fetchEmployeeProfile(usernameEmail);
   }
 
-  public void updateLastLoginDate(EmployeeProfile profile) throws InvalidAttributeValueException
+  public void updateLastLoginDate(EmployeeProfile profile) throws EmployeeNotFoundException
   {
     Employee employee = getEmployee(profile.getEmployeeID());
     employee.setLastLogon(Utils.localDateTimetoDate(LocalDateTime.now()));
-
-    UpdateOperations<Employee> ops = dbConnection.createUpdateOperations(Employee.class).set("lastLogon",
-        employee.getLastLogon());
-    dbConnection.update(employee, ops);
+    morphiaOperations.updateEmployee(profile.getEmployeeID(), LAST_LOGON, employee.getLastLogon());
   }
-
 }

@@ -42,7 +42,6 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
   private static final String COMPANY = "company";
   private static final String DEPARTMENT = "department";
   private static final String MEMBER_OF = "memberOf";
-  private static final String EXTENSION_ATTRIBUTE_7 = "extensionAttribute7";
   private static final String EXTENSION_ATTRIBUTE_2 = "extensionAttribute2";
   private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
   private static final String DIRECT_REPORTS = "directReports";
@@ -77,7 +76,7 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
 
     profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_2))
         .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
-        .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddress(mapString(MAIL, attributes))
+        .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddress(mapString(TARGET_ADDRESS, attributes))
         .company(mapString(COMPANY, attributes)).superSector(mapString(OU, attributes)).sector(mapSector(attributes))
         .steriaDepartment(mapString(DEPARTMENT, attributes)).manager(mapIsManager(attributes))
         .reporteeCNs(mapReporteeCNs(attributes)).accountExpires(mapAccountExpires(attributes)).build();
@@ -147,7 +146,7 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
   }
 
   @SuppressWarnings("unchecked")
-  private boolean mapHRPermission(final Attributes attributes)
+  public static boolean mapHRPermission(final Attributes attributes)
   {
     NamingEnumeration<String> groups = null;
     boolean hasHRDash = false;
