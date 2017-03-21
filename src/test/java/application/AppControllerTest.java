@@ -25,8 +25,10 @@ import org.springframework.http.ResponseEntity;
 import controller.EmployeeController;
 import dataStructure.Employee;
 import dataStructure.Objective;
+import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
 import services.EmployeeService;
+import services.db.MorphiaOperations;
 
 /**
  * Unit tests for the AppController class.
@@ -41,7 +43,7 @@ public class AppControllerTest
 
   /** Datastore Property - Mocked by Mockito. */
   @Mock
-  private Datastore mockDatastore;
+  private MorphiaOperations mockMorphiaOperations;
 
   /** Environment Property - Mocked by Mockito. */
   @Mock
@@ -85,12 +87,10 @@ public class AppControllerTest
     unitUnderTest = new EmployeeController();
 
     MockitoAnnotations.initMocks(this);
+    
+    when(mockMorphiaOperations.getEmployee("profile.employeeID", VALID_EMPLOYEE_ID)).thenReturn(mockEmployee);
 
-    when(mockDatastore.createQuery(Mockito.any())).thenReturn(mockQuery);
-    when(mockQuery.filter(Mockito.anyString(), Mockito.any())).thenReturn(mockQuery);
-    when(mockQuery.get()).thenReturn(mockEmployee);
-
-    mockEmployeeDao = new EmployeeService(mockDatastore, mockEmployeeProfileService, mockEnvironment);
+    mockEmployeeDao = new EmployeeService(mockMorphiaOperations, mockEmployeeProfileService, mockEnvironment);
   }
 
   /**
@@ -109,10 +109,11 @@ public class AppControllerTest
    * Unit test for the testGetObjectives method
    * 
    * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException 
    */
   @SuppressWarnings({ "static-access" })
   @Test
-  public void testGetObjectivesShouldWorkAsExpected() throws InvalidAttributeValueException
+  public void testGetObjectivesShouldWorkAsExpected() throws EmployeeNotFoundException
   {
     // LOG.debug("AppControllerTest.testGetObjectives()");
 
