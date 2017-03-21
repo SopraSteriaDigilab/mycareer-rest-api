@@ -46,7 +46,7 @@ public class EmployeeServiceTest
   /** List<Objective> Property - Represents list of objectives */
   private List<Objective> objectives;
 
-  /** Datastore Property - Mocked by Mockito. */
+  /** MorphiaOperations Property - Mocked by Mockito. */
   @Mock
   private MorphiaOperations mockMorphiaOperations;
 
