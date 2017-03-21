@@ -1,6 +1,5 @@
 package config;
 
-import org.mongodb.morphia.Datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,23 +22,20 @@ public class EmployeeConfig
   private Environment env;
   
   @Autowired
-  private Datastore datastore;
-  
-  @Autowired
   private ADSearchSettings sopraADSearchSettings;
   
   @Autowired
-  private MorphiaOperations morphiaOperation;
+  private MorphiaOperations morphiaOperations;
   
   @Bean
   public EmployeeService employeeService()
   {
-    return new EmployeeService(datastore, employeeProfileService(), env);
+    return new EmployeeService(morphiaOperations, employeeProfileService(), env);
   }
   
   @Bean
   public EmployeeProfileService employeeProfileService()
   {
-    return new EmployeeProfileService(morphiaOperation, sopraADSearchSettings);
+    return new EmployeeProfileService(morphiaOperations, sopraADSearchSettings);
   }
 }

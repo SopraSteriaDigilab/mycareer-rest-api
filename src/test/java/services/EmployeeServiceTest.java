@@ -26,6 +26,7 @@ import org.springframework.core.env.Environment;
 import application.AppControllerTest;
 import dataStructure.Employee;
 import dataStructure.Objective;
+import services.db.MorphiaOperations;
 
 
 /**
@@ -47,7 +48,7 @@ public class EmployeeServiceTest
 
   /** Datastore Property - Mocked by Mockito. */
   @Mock
-  private Datastore mockDatastore;
+  private MorphiaOperations mockMorphiaOperations;
 
   /** Environment Property - Mocked by Mockito. */
   @Mock
@@ -83,13 +84,9 @@ public class EmployeeServiceTest
   public void setup() throws InvalidAttributeValueException
   {
     MockitoAnnotations.initMocks(this);
-    unitUnderTest = new EmployeeService(mockDatastore, mockEmployeeProfileService, mockEnvironment);
+    unitUnderTest = new EmployeeService(mockMorphiaOperations, mockEmployeeProfileService, mockEnvironment);
     employee = getEmployee();
     
-    when(mockDatastore.createQuery(Mockito.any())).thenReturn(mockQuery);
-    when(mockQuery.filter(Mockito.anyString(), Mockito.any())).thenReturn(mockQuery);
-    when(mockQuery.get()).thenReturn(mockEmployee);
-
   }
 
   /**
@@ -98,8 +95,9 @@ public class EmployeeServiceTest
    * @throws InvalidAttributeValueException
    */
   @Test
-  public void testGetEmployeeShouldWorkAsExpected() throws InvalidAttributeValueException
+  public void testGetEmployeeShouldWorkAsExpected() throws EmployeeNotFoundException
   {
+    when(mockMorphiaOperations.getEmployee("profile.employeeID", EMPLOYEE_ID)).thenReturn(mockEmployee);
     assertEquals(mockEmployee, unitUnderTest.getEmployee(EMPLOYEE_ID));
   }
 
@@ -108,10 +106,10 @@ public class EmployeeServiceTest
    * 
    * @throws InvalidAttributeValueException
    */
-  @Test(expected = InvalidAttributeValueException.class)
-  public void testGetEmployeeShouldThrowException() throws InvalidAttributeValueException
+  @Test(expected = EmployeeNotFoundException.class)
+  public void testGetEmployeeShouldThrowException() throws EmployeeNotFoundException
   {
-    when(mockQuery.get()).thenReturn(null);
+    when(mockMorphiaOperations.getEmployee("profile.employeeID", EMPLOYEE_ID)).thenReturn(null);
     unitUnderTest.getEmployee(EMPLOYEE_ID);
   }
   
@@ -121,9 +119,9 @@ public class EmployeeServiceTest
    * @throws InvalidAttributeValueException
    */
   @Test
-  public void testgetFullNameUserWorkAsExpected() throws InvalidAttributeValueException
+  public void testgetFullNameUserWorkAsExpected() throws EmployeeNotFoundException
   {
-    when(mockQuery.get()).thenReturn(employee);
+    when(mockMorphiaOperations.getEmployee("profile.employeeID", EMPLOYEE_ID)).thenReturn(mockEmployee);
     assertEquals(FULL_NAME, unitUnderTest.getFullNameUser(EMPLOYEE_ID));
   }
   
@@ -132,10 +130,10 @@ public class EmployeeServiceTest
    * 
    * @throws InvalidAttributeValueException
    */
-  @Test(expected=InvalidAttributeValueException.class)
-  public void testgetFullNameUserWithNulls() throws InvalidAttributeValueException
+  @Test(expected=EmployeeNotFoundException.class)
+  public void testgetFullNameUserWithNulls() throws EmployeeNotFoundException
   {
-    when(mockQuery.get()).thenReturn(null);
+    when(mockMorphiaOperations.getEmployee("profile.employeeID", EMPLOYEE_ID)).thenReturn(null);
     unitUnderTest.getFullNameUser(EMPLOYEE_ID);
   }
   
@@ -146,14 +144,14 @@ public class EmployeeServiceTest
    * @throws InvalidAttributeValueException
    */
   @Test
-  public void testgetObjectivesForUserWorkAsExpected() throws InvalidAttributeValueException
+  public void testgetObjectivesForUserWorkAsExpected() throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     
     objective = getObjective();
     objectives = Arrays.asList(objective);
     
     employee.addObjective(objective);
-    when(mockQuery.get()).thenReturn(employee);
+    when(mockMorphiaOperations.getEmployee("profile.employeeID", EMPLOYEE_ID)).thenReturn(mockEmployee);
     
     assertEquals(objectives, unitUnderTest.getObjectivesForUser(EMPLOYEE_ID));
   }
@@ -164,9 +162,9 @@ public class EmployeeServiceTest
    * @throws InvalidAttributeValueException
    */
   @Test(expected=InvalidAttributeValueException.class)
-  public void testgetObjectivesForUserWithNulls() throws InvalidAttributeValueException
+  public void testgetObjectivesForUserWithNulls() throws EmployeeNotFoundException
   {
-    when(mockQuery.get()).thenReturn(null);
+    when(mockMorphiaOperations.getEmployee("profile.employeeID", EMPLOYEE_ID)).thenReturn(mockEmployee);
     unitUnderTest.getObjectivesForUser(EMPLOYEE_ID);
   }
   

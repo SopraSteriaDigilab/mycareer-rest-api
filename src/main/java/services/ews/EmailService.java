@@ -55,7 +55,7 @@ public class EmailService
   private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
   /** TYPE Property|Constant - Represents|Indicates... */
-  private static final EmployeeService EMPLOYEE_SERVICE = new EmployeeService();
+  private static EmployeeService employeeService;
 
   /** Environment Property - Reference to environment to get property details. */
   private static Environment env;
@@ -69,8 +69,9 @@ public class EmailService
    * @param env The Environment of the project that is set in {@link application.Application Application }
    */
   @Autowired
-  private EmailService(Environment env)
+  private EmailService(EmployeeService employeeService, Environment env)
   {
+    EmailService.employeeService = employeeService;
     EmailService.env = env;
   }
 
@@ -218,7 +219,7 @@ public class EmailService
     }
     try
     {
-      EMPLOYEE_SERVICE.addRequestedFeedback(from, requestID, body);
+      employeeService.addRequestedFeedback(from, requestID, body);
     }
     catch (InvalidAttributeValueException | NamingException e)
     {
@@ -270,7 +271,7 @@ public class EmailService
 
       try
       {
-        EMPLOYEE_SERVICE.addFeedback(from, recipient.getAddress(), body, false);
+        employeeService.addFeedback(from, recipient.getAddress(), body, false);
       }
       catch (InvalidAttributeValueException | NamingException | RuntimeException e)
       {
@@ -313,7 +314,7 @@ public class EmailService
     LOGGER.debug("Undelivered Email found.");
 
     long employeeID = Utils.getEmployeeIDFromFeedbackRequestSubject(subject);
-    Employee employee = EMPLOYEE_SERVICE.getEmployee(employeeID);
+    Employee employee = employeeService.getEmployee(employeeID);
     String intendedRecipient = Utils.getRecipientFromUndeliverableEmail(body);
 
     String errorRecipient = employee.getProfile().getEmailAddress();
