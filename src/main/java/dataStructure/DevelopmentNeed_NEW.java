@@ -2,6 +2,8 @@ package dataStructure;
 
 import java.time.LocalDate;
 
+import javax.management.InvalidAttributeValueException;
+
 /**
  * This class contains the definition of the Development Need object.
  */
@@ -24,6 +26,25 @@ public class DevelopmentNeed_NEW extends Objective_NEW
     {
       return this.categoryStr;
     }
+
+    public static Category getCategoryFromString(String categoryString) throws InvalidAttributeValueException
+    {
+      switch (categoryString)
+      {
+        case "On Job Training":
+          return Category.JobTraining;
+        case "Classroom Training":
+          return Category.ClassroomTraining;
+        case "Online or E-learning":
+          return Category.Online;
+        case "Self Study":
+          return Category.SelfStudy;
+        case "Other":
+          return Category.Other;
+      }
+      throw new InvalidAttributeValueException("This enum string does not exist");
+    }
+
   }
 
   /** long Constant - Represents serialVersionUID... */
@@ -47,11 +68,12 @@ public class DevelopmentNeed_NEW extends Objective_NEW
     super(title, description, dueDate, proposedBy);
     this.setCategory(category);
   }
-  
+
   /**
    * Development Need Constructor - Responsible for initialising this object.
    */
-  public DevelopmentNeed_NEW(int id, String title, String description, LocalDate dueDate, String proposedBy, Category category)
+  public DevelopmentNeed_NEW(int id, String title, String description, LocalDate dueDate, String proposedBy,
+      Category category)
   {
     this(title, description, dueDate, proposedBy, category);
     this.setId(id);

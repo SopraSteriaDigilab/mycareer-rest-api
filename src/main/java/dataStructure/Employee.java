@@ -20,6 +20,7 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
 import dataStructure.Objective_NEW.Progress;
+import dataStructure.DevelopmentNeed_NEW.Category;
 
 /**
  * This class contains the definition of the Employee object
@@ -52,7 +53,7 @@ public class Employee implements Serializable
 
   @Embedded
   private List<List<DevelopmentNeed>> developmentNeeds;
-  
+
   @Embedded
   private List<DevelopmentNeed_NEW> newDevelopmentNeeds;
 
@@ -707,23 +708,23 @@ public class Employee implements Serializable
   public int nextObjectiveID()
   {
     int max = 0;
-    for(Objective_NEW objective : this.getObjectivesNEW()){
-      if(objective.getId() > max)
-        max = objective.getId();
+    for (Objective_NEW objective : this.getObjectivesNEW())
+    {
+      if (objective.getId() > max) max = objective.getId();
     }
     return ++max;
   }
-  
+
   public int nextDevelopmentNeedID()
   {
     int max = 0;
-    for(DevelopmentNeed_NEW developmentNeed : this.getDevelopmentNeedsNEW()){
-      if(developmentNeed.getId() > max)
-        max = developmentNeed.getId();
+    for (DevelopmentNeed_NEW developmentNeed : this.getDevelopmentNeedsNEW())
+    {
+      if (developmentNeed.getId() > max) max = developmentNeed.getId();
     }
     return ++max;
   }
-  
+
   /**
    * 
    * This method takes in a List of Objectives or Development Needs an sorts them based on the Due Date Sorted by
@@ -783,7 +784,9 @@ public class Employee implements Serializable
   public boolean addObjectiveNEW(Objective_NEW objective) throws InvalidAttributeValueException
   {
     if (objective == null) throw new InvalidAttributeValueException("Objective is invalid.");
+
     objective.setId(nextObjectiveID());
+
     return this.newObjectives.add(objective);
   }
 
@@ -792,10 +795,10 @@ public class Employee implements Serializable
     if (objective == null) throw new InvalidAttributeValueException("Objective is invalid.");
 
     Objective_NEW objectiveToEdit = getObjectiveNEW(objective.getId());
+    
+    if (objectiveToEdit.getArchived() || objectiveToEdit.getProgress().equals(Progress.COMPLETE.getProgressStr()))
+      throw new InvalidAttributeValueException("Cannot Edit archived/complete Objective.");
 
-    if (objectiveToEdit == null) throw new InvalidAttributeValueException("Objective not found.");
-
-    // Change below into 'update' method in the objective class?
     objectiveToEdit.setDescription(objective.getDescription());
     objectiveToEdit.setTitle(objective.getTitle());
     objectiveToEdit.setDueDate(LocalDate.parse(objective.getDueDate()));
@@ -807,22 +810,21 @@ public class Employee implements Serializable
   {
     Objective_NEW objective = getObjectiveNEW(objectiveId);
 
-    if (objective == null) throw new InvalidAttributeValueException("Objective not found.");
-
-    if (objective.getArchived() == false)
+    if (!objective.getArchived())
       throw new InvalidAttributeValueException("Objective must be archived before deleting.");
 
     return this.getObjectivesNEW().remove(objective);
   }
-  
+
   public boolean updateObjectiveNEWProgress(int objectiveId, Progress progress) throws InvalidAttributeValueException
   {
     Objective_NEW objective = getObjectiveNEW(objectiveId);
     
-    if (objective == null) throw new InvalidAttributeValueException("Objective not found.");
-    
+    if (objective.getArchived() || objective.getProgress().equals(Progress.COMPLETE.getProgressStr()))
+      throw new InvalidAttributeValueException("Cannot Edit archived/complete Objective.");
+
     objective.setProgress(progress);
-    
+
     return true;
   }
 
@@ -830,26 +832,24 @@ public class Employee implements Serializable
   {
     Objective_NEW objective = getObjectiveNEW(objectiveId);
 
-    if (objective == null) throw new InvalidAttributeValueException("Objective not found.");
-
     objective.isArchived(!objective.getArchived());
 
     return true;
   }
 
-  public Objective_NEW getObjectiveNEW(int objectiveId) throws InvalidAttributeValueException
+  private Objective_NEW getObjectiveNEW(int objectiveId) throws InvalidAttributeValueException
   {
     Optional<Objective_NEW> objective = getObjectivesNEW().stream().filter(o -> o.getId() == objectiveId).findFirst();
 
-    if(!objective.isPresent()) throw new InvalidAttributeValueException("Objective not found.");
+    if (!objective.isPresent()) throw new InvalidAttributeValueException("Objective not found.");
 
     return objective.get();
   }
 
   //////////////////// END NEW OBJECTIVES
-  
+
   //////////////////// START NEW DEVELOPMENT NEEDS
-  
+
   /** @return the newDevelopmentNeeds */
   public List<DevelopmentNeed_NEW> getDevelopmentNeedsNEW()
   {
@@ -860,13 +860,14 @@ public class Employee implements Serializable
   public void setDevelopmentNeedsNEW(List<DevelopmentNeed_NEW> newDevelopmentNeeds)
   {
     this.newDevelopmentNeeds = newDevelopmentNeeds;
-  }  
-  
-  
+  }
+
   public boolean addDevelopmentNeedNEW(DevelopmentNeed_NEW developmentNeed) throws InvalidAttributeValueException
   {
     if (developmentNeed == null) throw new InvalidAttributeValueException("Development Need is invalid.");
+
     developmentNeed.setId(nextDevelopmentNeedID());
+
     return this.newDevelopmentNeeds.add(developmentNeed);
   }
 
@@ -876,12 +877,13 @@ public class Employee implements Serializable
 
     DevelopmentNeed_NEW developmentNeedToEdit = getDevelopmentNeedNEW(developmentNeed.getId());
 
-    if (developmentNeedToEdit == null) throw new InvalidAttributeValueException("Development Need not found.");
+    if (developmentNeedToEdit.getArchived() || developmentNeedToEdit.getProgress().equals(Progress.COMPLETE.getProgressStr()))
+      throw new InvalidAttributeValueException("Cannot Edit archived/complete Development Needs.");
 
-    // Change below into 'update' method in the objective class?
     developmentNeedToEdit.setDescription(developmentNeed.getDescription());
     developmentNeedToEdit.setTitle(developmentNeed.getTitle());
     developmentNeedToEdit.setDueDate(LocalDate.parse(developmentNeed.getDueDate()));
+    developmentNeedToEdit.setCategory(Category.getCategoryFromString(developmentNeed.getCategory()));
 
     return true;
   }
@@ -890,22 +892,22 @@ public class Employee implements Serializable
   {
     DevelopmentNeed_NEW developmentNeed = getDevelopmentNeedNEW(developmentNeedId);
 
-    if (developmentNeed == null) throw new InvalidAttributeValueException("Development Need not found.");
-
-    if (developmentNeed.getArchived() == false)
+    if (!developmentNeed.getArchived())
       throw new InvalidAttributeValueException("Development Need must be archived before deleting.");
 
     return this.getDevelopmentNeedsNEW().remove(developmentNeed);
   }
-  
-  public boolean updateDevelopmentNeedNEWProgress(int developmentNeedId, Progress progress) throws InvalidAttributeValueException
+
+  public boolean updateDevelopmentNeedNEWProgress(int developmentNeedId, Progress progress)
+      throws InvalidAttributeValueException
   {
     DevelopmentNeed_NEW developmentNeed = getDevelopmentNeedNEW(developmentNeedId);
-    
-    if (developmentNeed == null) throw new InvalidAttributeValueException("Development Need not found.");
-    
+    System.out.println(developmentNeed.getProgress() + " = " + Progress.COMPLETE.toString());
+    if (developmentNeed.getArchived() || developmentNeed.getProgress().equals(Progress.COMPLETE.getProgressStr()))
+      throw new InvalidAttributeValueException("Cannot Edit archived/complete Development Needs.");
+
     developmentNeed.setProgress(progress);
-    
+
     return true;
   }
 
@@ -913,22 +915,21 @@ public class Employee implements Serializable
   {
     DevelopmentNeed_NEW developmentNeed = getDevelopmentNeedNEW(developmentNeedId);
 
-    if (developmentNeed == null) throw new InvalidAttributeValueException("Development Need not found.");
-
     developmentNeed.isArchived(!developmentNeed.getArchived());
 
     return true;
   }
 
-  public DevelopmentNeed_NEW getDevelopmentNeedNEW(int objectiveId) throws InvalidAttributeValueException
+  private DevelopmentNeed_NEW getDevelopmentNeedNEW(int objectiveId) throws InvalidAttributeValueException
   {
-    Optional<DevelopmentNeed_NEW> developmentNeed = getDevelopmentNeedsNEW().stream().filter(o -> o.getId() == objectiveId).findFirst();
+    Optional<DevelopmentNeed_NEW> developmentNeed = getDevelopmentNeedsNEW().stream()
+        .filter(o -> o.getId() == objectiveId).findFirst();
 
-    if(!developmentNeed.isPresent()) throw new InvalidAttributeValueException("Development Need not found.");
+    if (!developmentNeed.isPresent()) throw new InvalidAttributeValueException("Development Need not found.");
 
     return developmentNeed.get();
   }
-  
+
   //////////////////// END NEW DEVELOPMENT NEEDS
 
 }

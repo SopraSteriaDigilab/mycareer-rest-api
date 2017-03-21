@@ -1,5 +1,9 @@
 package utils;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
@@ -76,6 +80,19 @@ public class Validate
 
     Pattern pattern = Pattern.compile("^(\\d{6})_(\\d{17})$");
     return pattern.matcher(id).matches();
+  }
+
+  /**
+   * Checks if a year month is in the past
+   *
+   * @param yearMonth
+   * @return A local date of the year month with the using the {@link java.time.YearMonth#atEndOfMonth() atEndOfMonth} method.
+   * @throws InvalidAttributeValueException if date is in the past
+   */
+  public static LocalDate isYearMonthInPast(YearMonth yearMonth) throws InvalidAttributeValueException
+  {
+    if (yearMonth.isBefore(YearMonth.now(UK_TIMEZONE))) throw new InvalidAttributeValueException("Date is in past.");
+    return yearMonth.atEndOfMonth();
   }
 
 }

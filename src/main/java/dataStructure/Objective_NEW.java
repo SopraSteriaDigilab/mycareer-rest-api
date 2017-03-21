@@ -3,6 +3,9 @@ package dataStructure;
 import java.time.LocalDate;
 import java.util.Date;
 
+import javax.management.InvalidAttributeValueException;
+
+import dataStructure.DevelopmentNeed_NEW.Category;
 import utils.Utils;
 
 /**
@@ -31,6 +34,20 @@ public class Objective_NEW extends DBObject
     public String getProgressStr()
     {
       return this.progressStr;
+    }
+
+    public static Progress getProgressFromString(String progressString) throws InvalidAttributeValueException
+    {
+      switch (progressString)
+      {
+        case "Proposed":
+          return Progress.PROPOSED;
+        case "In-Progress":
+          return Progress.IN_PROGRESS;
+        case "Complete":
+          return Progress.COMPLETE;
+      }
+      throw new InvalidAttributeValueException("This enum string does not exist");
     }
   }
 
