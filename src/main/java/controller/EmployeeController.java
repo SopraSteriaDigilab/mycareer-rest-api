@@ -42,8 +42,9 @@ import dataStructure.DevelopmentNeed;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
+import services.EmployeeNotFoundException;
+import services.EmployeeProfileService;
 import services.EmployeeService;
-import services.ad.ADConnectionException;
 import services.ews.EmailService;
 import services.validate.Validate;
 import utils.Template;
@@ -59,21 +60,25 @@ public class EmployeeController
 {
 
   /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
-  private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeController.class);
 
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
+  private static final String ERROR_OBJECTIVE_ID = "The given Objective ID is invalid";
   private static final String ERROR_DEVELOPMENT_NEED_ID = "The given Development Need ID is invalid";
- 
+
   private static final String ERROR_EMAIL_RECIPIENTS_EMPTY = "The emailsTo field can not be empty";
   private static final String ERROR_EMAIL_NOTES_EMPTY = "The notes field can not be empty";
   private static final String ERROR_NOTE_PROVIDER_NAME_EMPTY = "Provider name can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_EMPTY = "Note description can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
   private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
+  private static final String ERROR_COMPETENCY_TITLE_BLANK = "Compentency title cannot be empty";
 
-
-
-  private final EmployeeService employeeService = new EmployeeService();
+  @Autowired
+  private EmployeeService employeeService;
+  
+  @Autowired
+  private EmployeeProfileService employeeProfileService;
 
   /** Environment Property - Reference to environment to get property details. */
   @Autowired
@@ -101,7 +106,7 @@ public class EmployeeController
     }
     catch (IOException e)
     {
-      logger.error(e.getMessage());
+      LOGGER.error(e.getMessage());
     }
 
   }
@@ -118,7 +123,7 @@ public class EmployeeController
         employeeService.updateLastLoginDate((EmployeeProfile) response.getBody());
       }
     }
-    catch (InvalidAttributeValueException e)
+    catch (final EmployeeNotFoundException e)
     {
       return badRequest().body(e);
     }
@@ -191,7 +196,7 @@ public class EmployeeController
     {
       return ok(employeeService.getNotes(employeeID));
     }
-    catch (InvalidAttributeValueException e)
+    catch (final EmployeeNotFoundException e)
     {
       return badRequest().body(e.getMessage());
     }
@@ -254,7 +259,7 @@ public class EmployeeController
    * @return list of ADProfileBasics
    */
   @RequestMapping(value = "/getReportees/{employeeID}", method = GET)
-  public ResponseEntity<?> getReportees(@PathVariable long employeeID)
+  public ResponseEntity<?> getReportees(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
   {
     try
     {
@@ -283,7 +288,8 @@ public class EmployeeController
    * @return a message explaining if the objective has been inserted or if there was an error while completing the task
    */
   @RequestMapping(value = "/addObjective/{employeeID}", method = POST)
-  public ResponseEntity<?> addObjectiveToAUser(@PathVariable("employeeID") long employeeID,
+  public ResponseEntity<?> addObjectiveToAUser(
+      @PathVariable("employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
       @RequestParam(value = "title") String title, @RequestParam(value = "description") String description,
       @RequestParam(value = "completedBy") String completedBy, @RequestParam(value = "proposedBy") String proposedBy)
   {
@@ -292,12 +298,15 @@ public class EmployeeController
       Objective obj = new Objective(0, 0, title, description, completedBy);
       obj.setProposedBy(proposedBy);
       boolean inserted = employeeService.insertNewObjective(employeeID, obj);
-      if (inserted) return ok("Objective inserted correctly");
-      else return badRequest().body("Error while adding the objective");
-    }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
+
+      if (inserted)
+      {
+        return ok("Objective inserted correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while adding the objective");
+      }
     }
     catch (Exception e)
     {
@@ -318,22 +327,27 @@ public class EmployeeController
    * @return a message explaining if the objective has been updated or if there was an error while completing the task
    */
   @RequestMapping(value = "/editObjective/{employeeID}", method = POST)
-  public ResponseEntity<?> addNewVersionObjectiveToAUser(@PathVariable("employeeID") long employeeID,
-      @RequestParam(value = "objectiveID") int objectiveID, @RequestParam(value = "title") String title,
-      @RequestParam(value = "description") String description, @RequestParam(value = "completedBy") String completedBy,
-      @RequestParam(value = "progress") int progress, @RequestParam(value = "proposedBy") String proposedBy)
+  public ResponseEntity<?> addNewVersionObjectiveToAUser(
+      @PathVariable("employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam(value = "objectiveID") @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveID,
+      @RequestParam(value = "title") String title, @RequestParam(value = "description") String description,
+      @RequestParam(value = "completedBy") String completedBy, @RequestParam(value = "progress") int progress,
+      @RequestParam(value = "proposedBy") String proposedBy)
   {
     try
     {
       Objective obj = new Objective(objectiveID, progress, 0, title, description, completedBy);
       obj.setProposedBy(proposedBy);
       boolean inserted = employeeService.addNewVersionObjective(employeeID, objectiveID, obj);
-      if (inserted) return ok("Objective modified correctly");
-      else return badRequest().body("Error while editing the objective");
-    }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
+
+      if (inserted)
+      {
+        return ok("Objective modified correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while editing the objective");
+      }
     }
     catch (Exception e)
     {
@@ -342,18 +356,23 @@ public class EmployeeController
   }
 
   @RequestMapping(value = "/editObjectiveProgress/{employeeID}", method = POST)
-  public ResponseEntity<?> addNewVersionObjectiveToAUser(@PathVariable("employeeID") long employeeID,
-      @RequestParam(value = "objectiveID") int objectiveID, @RequestParam(value = "progress") int progress)
+  public ResponseEntity<?> addNewVersionObjectiveToAUser(
+      @PathVariable("employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam(value = "objectiveID") @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveID,
+      @RequestParam(value = "progress") int progress)
   {
     try
     {
       boolean inserted = employeeService.updateProgressObjective(employeeID, objectiveID, progress);
-      if (inserted) return ok("Objective modified correctly");
-      else return badRequest().body("Error while editing the objective");
-    }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
+
+      if (inserted)
+      {
+        return ok("Objective modified correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while editing the objective");
+      }
     }
     catch (Exception e)
     {
@@ -372,8 +391,10 @@ public class EmployeeController
    * @return a message explaining if the objective has been updated or if there was an error while completing the task
    */
   @RequestMapping(value = "/changeStatusObjective/{employeeID}", method = POST)
-  public ResponseEntity<?> updateStatusUserObjective(@PathVariable("employeeID") long employeeID,
-      @RequestParam(value = "objectiveID") int objectiveID, @RequestParam(value = "isArchived") boolean isArchived)
+  public ResponseEntity<?> updateStatusUserObjective(
+      @PathVariable("employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam(value = "objectiveID") @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveID,
+      @RequestParam(value = "isArchived") boolean isArchived)
   {
     try
     {
@@ -391,6 +412,7 @@ public class EmployeeController
 
       // Store the new version to the system
       boolean inserted = employeeService.addNewVersionObjective(employeeID, objectiveID, obj);
+
       if (inserted)
       {
         if (updatedArchiveStatus)
@@ -406,10 +428,6 @@ public class EmployeeController
       {
         return badRequest().body("Error while editing the objective");
       }
-    }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
     }
     catch (Exception e)
     {
@@ -431,7 +449,7 @@ public class EmployeeController
       employeeService.addNote(employeeID, new Note(providerName, noteDescription));
       return ok("Note inserted");
     }
-    catch (InvalidAttributeValueException e)
+    catch (final EmployeeNotFoundException e)
     {
       return badRequest().body(e.getMessage());
     }
@@ -456,7 +474,7 @@ public class EmployeeController
       employeeService.addNoteToReportee(reporteeEmployeeID, new Note(providerName, noteDescription));
       return ok("Note inserted correctly");
     }
-    catch (InvalidAttributeValueException e)
+    catch (final EmployeeNotFoundException e)
     {
       return badRequest().body(e.getMessage());
     }
@@ -474,7 +492,8 @@ public class EmployeeController
    *         task
    */
   @RequestMapping(value = "/addDevelopmentNeed/{employeeID}", method = POST)
-  public ResponseEntity<?> addDevelopmentNeedToAUser(@PathVariable("employeeID") long employeeID,
+  public ResponseEntity<?> addDevelopmentNeedToAUser(
+      @PathVariable("employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
       @RequestParam(value = "category") int cat, @RequestParam(value = "title") String title,
       @RequestParam(value = "description") String description,
       @RequestParam(value = "timeToCompleteBy") String timeToCompleteBy)
@@ -483,12 +502,15 @@ public class EmployeeController
     {
       DevelopmentNeed obj = new DevelopmentNeed(1, 0, cat, title, description, timeToCompleteBy);
       boolean inserted = employeeService.insertNewDevelopmentNeed(employeeID, obj);
-      if (inserted) return ok("Development need inserted correctly");
-      else return badRequest().body("Error while adding the Development need");
-    }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
+
+      if (inserted)
+      {
+        return ok("Development need inserted correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while adding the Development need");
+      }
     }
     catch (Exception e)
     {
@@ -509,8 +531,10 @@ public class EmployeeController
    *         task
    */
   @RequestMapping(value = "/editDevelopmentNeed/{employeeID}", method = POST)
-  public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(@PathVariable("employeeID") long employeeID,
-      @RequestParam(value = "category") int cat, @RequestParam(value = "devNeedID") int devNeedID,
+  public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
+      @PathVariable("employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam(value = "category") int cat,
+      @RequestParam(value = "devNeedID") @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int devNeedID,
       @RequestParam(value = "title") String title, @RequestParam(value = "description") String description,
       @RequestParam(value = "timeToCompleteBy") String timeToCompleteBy, @RequestParam int progress)
   {
@@ -532,14 +556,23 @@ public class EmployeeController
   }
 
   @RequestMapping(value = "/editDevelopmentNeedProgress/{employeeID}", method = POST)
-  public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(@PathVariable("employeeID") long employeeID,
-      @RequestParam(value = "devNeedID") int devNeedID, @RequestParam(value = "progress") int progress)
+  public ResponseEntity<?> addNewVersionDevelopmentNeedToAUser(
+      @PathVariable("employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam(value = "devNeedID") @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int devNeedID,
+      @RequestParam(value = "progress") int progress)
   {
     try
     {
       boolean inserted = employeeService.updateProgressDevelopmentNeed(employeeID, devNeedID, progress);
-      if (inserted) return ok("Development need modified correctly");
-      else return badRequest().body("Error while editing the development need");
+
+      if (inserted)
+      {
+        return ok("Development need modified correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while editing the development need");
+      }
     }
     catch (MongoException me)
     {
@@ -561,50 +594,17 @@ public class EmployeeController
       employeeService.toggleDevNeedArchive(employeeID, developmentNeedID);
       return ok("Development Need updated");
     }
-    catch (InvalidAttributeValueException e)
+    catch (final EmployeeNotFoundException | InvalidAttributeValueException e)
     {
       return badRequest().body(GlobalExceptionHandler.error(e.getMessage()));
     }
-   
+
   }
 
-  // /**
-  // *
-  // * @param employeeID the employee ID (>0)
-  // * @param toFields an array containing the email addresses, separated by commas (max 20 elements)
-  // * @param notes a string of max 1000 characters containing any additional notes to add to the feedback request email
-  // * @return a message explaining whether the feedback request has been sent or if there was an error while completing
-  // the task
-  // */
-  //
-  // @RequestMapping(value="/generateFeedbackRequest/{employeeID}", method=RequestMethod.POST)
-  // public ResponseEntity<?> createFeedbackRequest(
-  // @PathVariable("employeeID") long employeeID,
-  // @RequestParam(value="emailsTo") String toFields,
-  // @RequestParam(value="notes") String notes){
-  // try{
-  // //Split the email addresses from the toField into single elements
-  // String[] emailAddressesToField=toFields.split(",");
-  // for(int i=0; i<emailAddressesToField.length; i++){
-  // emailAddressesToField[i]=emailAddressesToField[i].trim();
-  // }
-  // if(emailAddressesToField[0].length()<1)
-  // return badRequest().body("No recipients inserted");
-  // int attemptsCounter=1;
-  // boolean done=SMTPService.tryToSendFeedbackRequest(attemptsCounter, employeeID, notes, emailAddressesToField);
-  // if(done)
-  // return ok("Your feedback request has been processed.");
-  // else
-  // return badRequest().body("Error while creating a feedback request");
-  // }
-  // catch(Exception e){
-  // return badRequest().body(e.getMessage());
-  // }
-  // }
-  
   @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
-  public ResponseEntity<String> createFeedbackRequest(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
-      @RequestParam @NotBlank(message = ERROR_EMAIL_RECIPIENTS_EMPTY)  String emailsTo,
+  public ResponseEntity<String> createFeedbackRequest(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @NotBlank(message = ERROR_EMAIL_RECIPIENTS_EMPTY) String emailsTo,
       @RequestParam @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT) String notes)
   {
     try
@@ -618,25 +618,6 @@ public class EmployeeController
     }
   }
 
-  // /**
-  // *
-  // * @param employeeID the employee ID
-  // * @return all the feedback requests created by the given user
-  // */
-  // @RequestMapping(value="/getRequestedFeedback/{employeeID}", method=RequestMethod.GET)
-  // public ResponseEntity<?> getGroupFeedbackRequests(
-  // @PathVariable("employeeID") long employeeID){
-  // try{
-  // return ok(EmployeeDAO.getGroupFeedbackRequestsForUser(employeeID));
-  // }
-  // catch(MongoException me){
-  // return badRequest().body("DataBase Connection Error");
-  // }
-  // catch(Exception e){
-  // return badRequest().body(e.getMessage());
-  // }
-  // }
-
   /**
    * 
    * This method allows the front-end to insert new competencies in the system
@@ -646,8 +627,8 @@ public class EmployeeController
    * @return a message explaining if the competency has been updated or if there was an error while completing the task
    */
   @RequestMapping(value = "/updateCompetency/{employeeID}", method = POST)
-  public ResponseEntity<?> addCompetenciesToAUser(@PathVariable("employeeID") long employeeID,
-      @RequestParam(value = "title") String title, @RequestParam(value = "status") boolean status)
+  public ResponseEntity<?> addCompetenciesToAUser(@PathVariable("employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam(value = "title") @NotBlank(message = ERROR_COMPETENCY_TITLE_BLANK) String title, @RequestParam(value = "status") boolean status)
   {
     try
     {
@@ -677,14 +658,14 @@ public class EmployeeController
     {
       if (userName != null && !userName.equals("") && userName.length() < 300)
       {
-        return ok(employeeService.matchADWithMongoData(employeeService.authenticateUserProfile(userName)));
+        return ok(employeeService.authenticateUserProfile(userName));
       }
       else
       {
         return badRequest().body("The username given is invalid");
       }
     }
-    catch (InvalidAttributeValueException | NamingException | ADConnectionException e)
+    catch (EmployeeNotFoundException e)
     {
       return badRequest().body(e.getMessage());
     }
@@ -701,11 +682,14 @@ public class EmployeeController
    * @param emails, a string of email addresses -1 => Not Relevant to my career anymore 0 => Awaiting 1 => In Flight 2
    *          => Done
    * @return a message explaining if the objective has been inserted or if there was an error while completing the task
+   * @throws EmployeeNotFoundException
    */
   @RequestMapping(value = "/addProposedObjective/{employeeID}", method = POST)
-  public ResponseEntity<?> addProposedObjectiveToAUser(@PathVariable(value = "employeeID") long employeeID,
+  public ResponseEntity<?> addProposedObjectiveToAUser(
+      @PathVariable(value = "employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
       @RequestParam(value = "title") String title, @RequestParam(value = "description") String description,
       @RequestParam(value = "completedBy") String completedBy, @RequestParam(value = "emails") String emails)
+      throws EmployeeNotFoundException
   {
     String result = "Objective Proposed for: ";
     String errorResult = "Error: ";
@@ -749,7 +733,7 @@ public class EmployeeController
         try
         {
           EmployeeProfile userInQuestion = employeeService
-              .matchADWithMongoData(employeeService.authenticateUserProfile(email));
+              .matchADWithMongoData(employeeProfileService.fetchEmployeeProfile(email));
           Objective obj = new Objective(0, 0, title, description, completedBy);
           obj.setProposedBy(proposedBy);
           boolean inserted = employeeService.insertNewObjective(userInQuestion.getEmployeeID(), obj);
@@ -765,7 +749,7 @@ public class EmployeeController
             }
             catch (Exception e)
             {
-              logger.error("Email could not be sent for a proposed objective. Error: {}", e);
+              LOGGER.error("Email could not be sent for a proposed objective. Error: {}", e);
             }
 
           }
@@ -775,7 +759,7 @@ public class EmployeeController
             errorResult += "Could not send to " + userInQuestion.getEmployeeID() + ", ";
           }
         }
-        catch (InvalidAttributeValueException er)
+        catch (InvalidAttributeValueException | EmployeeNotFoundException | IllegalArgumentException er)
         {
           errorInserting = true;
           errorResult += er.getMessage();
@@ -795,15 +779,7 @@ public class EmployeeController
       return ok(result);
 
     }
-    catch (InvalidAttributeValueException e)
-    {
-      if (!insertAccepted)
-      {
-        result = "";
-      }
-      return badRequest().body(result + e.getMessage() + ", ");
-    }
-    catch (NamingException | ADConnectionException e)
+    catch (InvalidAttributeValueException | EmployeeNotFoundException | IllegalArgumentException e)
     {
       if (!insertAccepted)
       {

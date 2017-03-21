@@ -20,6 +20,7 @@ import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
 
 import services.DataService;
+import services.db.MorphiaOperations;
 
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
@@ -37,7 +38,7 @@ public class DBConfig
   }
   
   @Bean
-  public Datastore dBConnection(final MongoClient client) throws MongoException
+  public Datastore datastore(final MongoClient client) throws MongoException
   {
     Datastore dbConnection;
     final Morphia morphia = new Morphia();
@@ -46,6 +47,12 @@ public class DBConfig
     dbConnection.ensureIndexes();
 
     return dbConnection;
+  }
+  
+  @Bean
+  public MorphiaOperations morphiaOperation(final Datastore datastore)
+  {
+    return new MorphiaOperations(datastore(mongoClient()));
   }
   
   @Bean

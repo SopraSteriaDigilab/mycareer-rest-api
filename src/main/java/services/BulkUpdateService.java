@@ -61,7 +61,7 @@ public class BulkUpdateService
         employeeService.matchADWithMongoData(profile);
         updatedCount++;
       }
-      catch (InvalidAttributeValueException e)
+      catch (final EmployeeNotFoundException | InvalidAttributeValueException e)
       {
         /*
          * swallow this exception as matchADWithMongoData already logs it besides, we are concerned with the hundreds,

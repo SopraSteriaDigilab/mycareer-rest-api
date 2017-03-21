@@ -291,9 +291,19 @@ public class EmployeeProfile implements Serializable
    */
   public boolean addReportee(String cn) throws InvalidAttributeValueException
   {
-    if (this.reporteeCNs == null) this.reporteeCNs = new ArrayList<>();
-    if (cn != null && cn.length() > 1) return this.reporteeCNs.add(cn);
-    else throw new InvalidAttributeValueException(INVALID_NULLREPORTEE);
+    if (this.reporteeCNs == null)
+    {
+      this.reporteeCNs = new ArrayList<>();
+    }
+
+    if (cn != null && cn.length() > 1)
+    {
+      return this.reporteeCNs.add(cn);
+    }
+    else
+    {
+      throw new InvalidAttributeValueException(INVALID_NULLREPORTEE);
+    }
   }
 
   /**
@@ -307,15 +317,22 @@ public class EmployeeProfile implements Serializable
   @Override
   public boolean equals(Object o)
   {
-    if (o == this) return true;
-    if (!(o instanceof EmployeeProfile)) return false;
+    if (o == this)
+    {
+      return true;
+    }
+
+    if (!(o instanceof EmployeeProfile))
+    {
+      return false;
+    }
+
     EmployeeProfile employeeProfile = (EmployeeProfile) o;
 
-    return employeeID == employeeProfile.employeeID && isManager == employeeProfile.isManager
-        && Objects.equals(surname, employeeProfile.surname)
+    return employeeID == employeeProfile.employeeID && Objects.equals(surname, employeeProfile.surname)
         && Objects.equals(forename, employeeProfile.forename) && Objects.equals(username, employeeProfile.username)
-        && Objects.equals(emailAddress, employeeProfile.emailAddress)
-        && Objects.equals(company, employeeProfile.company)
+        && Objects.equals(emailAddress, employeeProfile.emailAddress) && isManager == employeeProfile.isManager
+        && Objects.equals(hasHRDash, employeeProfile.hasHRDash) && Objects.equals(company, employeeProfile.company)
         && Objects.equals(steriaDepartment, employeeProfile.steriaDepartment)
         && Objects.equals(sector, employeeProfile.sector) && Objects.equals(superSector, employeeProfile.superSector)
         && Objects.deepEquals(reporteeCNs, employeeProfile.reporteeCNs)
@@ -332,18 +349,17 @@ public class EmployeeProfile implements Serializable
   @Override
   public int hashCode()
   {
-    return Objects.hash(employeeID, surname, forename, username, emailAddress, isManager, hasHRDash, guid, company,
-        sopraDepartment, steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
+    return Objects.hash(employeeID, surname, forename, username, emailAddress, isManager, hasHRDash, company,
+        steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
   }
 
   @Override
   public String toString()
   {
     return "EmployeeProfile [employeeID=" + employeeID + ", surname=" + surname + ", forename=" + forename
-        + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager=" + isManager + ", GUID=" + guid
-        + ", company=" + company + ", sopraDepartment=" + sopraDepartment + ", steriaDepartment=" + steriaDepartment
-        + ", sector=" + sector + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + ", accountExpires="
-        + accountExpires + "]";
+        + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager=" + isManager + ", hasHRDash="
+        + hasHRDash + ", company=" + company + ", steriaDepartment=" + steriaDepartment + ", sector=" + sector
+        + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + ", accountExpires=" + accountExpires + "]";
   }
 
   public static class Builder
