@@ -295,7 +295,7 @@ public class EmployeeService
     final Employee employee = getEmployee(employeeID);
     final Objective objective = employee.getLatestVersionOfSpecificObjective(objectiveID);
 
-    if (objective.getProgress() != progress)
+    if (objective.getProgress() == progress)
     {
       updated = true;
     }

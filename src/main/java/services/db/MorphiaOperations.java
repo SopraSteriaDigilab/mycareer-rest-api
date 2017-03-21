@@ -21,8 +21,6 @@ public class MorphiaOperations
 {
   private static final String PROFILE = "profile";
   private static final String EMPLOYEE_ID = "profile.employeeID";
-  private static final String OBJECTIVES = "objectives";
-  private static final String NOTES = "notes";
 
   private final Datastore datastore;
 
