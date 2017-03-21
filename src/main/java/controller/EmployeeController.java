@@ -60,7 +60,7 @@ public class EmployeeController
 {
 
   /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
-  private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeController.class);
 
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
   private static final String ERROR_OBJECTIVE_ID = "The given Objective ID is invalid";
@@ -106,7 +106,7 @@ public class EmployeeController
     }
     catch (IOException e)
     {
-      logger.error(e.getMessage());
+      LOGGER.error(e.getMessage());
     }
 
   }
@@ -749,7 +749,7 @@ public class EmployeeController
             }
             catch (Exception e)
             {
-              logger.error("Email could not be sent for a proposed objective. Error: {}", e);
+              LOGGER.error("Email could not be sent for a proposed objective. Error: {}", e);
             }
 
           }
@@ -759,7 +759,7 @@ public class EmployeeController
             errorResult += "Could not send to " + userInQuestion.getEmployeeID() + ", ";
           }
         }
-        catch (InvalidAttributeValueException | EmployeeNotFoundException er)
+        catch (InvalidAttributeValueException | EmployeeNotFoundException | IllegalArgumentException er)
         {
           errorInserting = true;
           errorResult += er.getMessage();
@@ -779,7 +779,7 @@ public class EmployeeController
       return ok(result);
 
     }
-    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    catch (InvalidAttributeValueException | EmployeeNotFoundException | IllegalArgumentException e)
     {
       if (!insertAccepted)
       {

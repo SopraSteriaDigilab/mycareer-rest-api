@@ -25,9 +25,11 @@ public class EmployeeProfileService
   // Exception messages
   private static final String TOO_MANY_RESULTS = "More than one match was found in the database";
   private static final String INVALID_EMPLOYEE_ID = "Employee ID cannot be a negative number";
+  private static final String INVALID_USERNAME_OR_EMAIL_ADDRESS = "Not a valid username or email address";
   private static final String INVALID_EMAIL_ADDRESS = "Not a valid email address";
   private static final String INVALID_USERNAME = "Not a valid username";
-  private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: {} {} ";
+  private static final String EMPLOYEE_NOT_FOUND_LOG = "Employee not found based on the criteria: {} {} ";
+  private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: ";
   private static final String HR_PERMISSION_EXCEPTION = "Exception caught while trying to find HR Dashboard Permission for employee with ID {}";
 
   // Sopra AD Details
@@ -38,6 +40,7 @@ public class EmployeeProfileService
   private static final String EMPLOYEE_ID = "profile.employeeID";
   private static final String USERNAME = "profile.username";
   private static final String EMAIL_ADDRESS = "profile.emailAddress";
+
 
   private final ADSearchSettings sopraADSearchSettings;
   private final MorphiaOperations morphiaOperations;
@@ -80,6 +83,11 @@ public class EmployeeProfileService
   public EmployeeProfile fetchEmployeeProfile(final String usernameEmail)
       throws EmployeeNotFoundException, IllegalArgumentException
   {
+    if (usernameEmail == null || usernameEmail.isEmpty())
+    {
+      throw new IllegalArgumentException(INVALID_USERNAME_OR_EMAIL_ADDRESS);
+    }
+    
     EmployeeProfile profile;
 
     if (usernameEmail.contains("@"))
@@ -147,7 +155,7 @@ public class EmployeeProfileService
     }
     catch (final NullPointerException e)
     {
-      LOGGER.error(EMPLOYEE_NOT_FOUND, field, value);
+      LOGGER.error(EMPLOYEE_NOT_FOUND_LOG, field, value);
       throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + value);
     }
 
