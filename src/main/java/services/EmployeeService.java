@@ -621,7 +621,7 @@ public class EmployeeService
 
     try
     {
-      providerName = employeeProfileService.fetchEmployeeProfileFromEmailAddress(providerName).getFullName();
+      providerName = employeeProfileService.fetchEmployeeProfileFromEmailAddress(providerEmail).getFullName();
     }
     catch (final EmployeeNotFoundException e)
     {
