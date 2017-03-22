@@ -7,7 +7,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -86,8 +88,10 @@ public class EmployeeProfileTest
   public void setup() throws InvalidAttributeValueException
   {
     unitUnderTestEmpty = new EmployeeProfile();
+    Set<String> emailAddresses = new HashSet<>();
+    emailAddresses.add(VALID_EMAIL_ADDRESS);
     unitUnderTest = new EmployeeProfile.Builder().employeeID(VALID_EMPLOYEE_ID).guid(VALID_GUID).forename(VALID_NAME)
-        .surname(VALID_NAME).emailAddress(VALID_EMAIL_ADDRESS).username(VALID_USERNAME).company(VALID_COMPANY)
+        .surname(VALID_NAME).emailAddress(emailAddresses).username(VALID_USERNAME).company(VALID_COMPANY)
         .superSector(VALID_SECTOR_SUPERSECTOR).sector(VALID_SECTOR_SUPERSECTOR).steriaDepartment(VALID_DEPARTMENT)
         .sopraDepartment(VALID_DEPARTMENT).manager(IS_MANAGER).hasHRDash(HAS_HRDASH).reporteeCNs(new ArrayList<>(VALID_REPORTEE_LIST))
         .build();
@@ -145,9 +149,9 @@ public class EmployeeProfileTest
    * @throws InvalidAttributeValueException
    */
   @Test(expected= InvalidAttributeValueException.class)
-  public void testSetEmailAddressWithEmptyString() throws InvalidAttributeValueException
+  public void testSetEmailAddressWithEmptySet() throws InvalidAttributeValueException
   {  
-    unitUnderTest.setEmailAddress("");
+    unitUnderTest.setEmailAddress(new HashSet<>());
   }
   
   /**
@@ -158,7 +162,9 @@ public class EmployeeProfileTest
   @Test(expected= InvalidAttributeValueException.class)
   public void testSetEmailAddressWithInvalidEmailAddress() throws InvalidAttributeValueException
   {  
-    unitUnderTest.setEmailAddress(INVALID_EMAIL_ADDRESS);
+    Set<String> emailAddresses = new HashSet<>();
+    emailAddresses.add(INVALID_EMAIL_ADDRESS);
+    unitUnderTest.setEmailAddress(emailAddresses);
   }
   
   /**
@@ -168,9 +174,10 @@ public class EmployeeProfileTest
    */
   @Test
   public void testSetEmailAddressWithValidEmailAddress() throws InvalidAttributeValueException
-  {  
-    unitUnderTest.setEmailAddress(VALID_EMAIL_ADDRESS);
-    assertEquals(unitUnderTest.getEmailAddress(),VALID_EMAIL_ADDRESS);
+  {
+    Set<String> emailAddresses = new HashSet<>();
+    emailAddresses.add(VALID_EMAIL_ADDRESS);
+    assertEquals(unitUnderTest.getEmailAddress(), emailAddresses);
   }
   
   /**

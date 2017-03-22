@@ -1,18 +1,18 @@
 package model;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
-import dataStructure.ADProfile_Advanced_OLD;
 import dataStructure.Competency;
 import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
-import dataStructure.Note_OLD;
 import dataStructure.Objective;
 
 /**
@@ -93,8 +93,10 @@ public class Models
    */
   public static EmployeeProfile getProfile() throws InvalidAttributeValueException
   {
+    Set<String> emailAddresses = new HashSet<>();
+    emailAddresses.add(EMAIL_ADRESS);
     return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).guid(GUID).forename(FIRST_NAME).surname(LAST_NAME)
-        .emailAddress(EMAIL_ADRESS).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR).sector(SECTOR)
+        .emailAddress(emailAddresses).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR).sector(SECTOR)
         .steriaDepartment(STERIA_DEPARTMENT).sopraDepartment(SOPRA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER)
         .build();
   }
@@ -149,17 +151,6 @@ public class Models
   public static FeedbackRequest getFeedbackRequest()
   {
     return new FeedbackRequest(GUID, EMAIL_ADRESS);
-  }
-
-  /**
-   * Get a note
-   *
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public static Note_OLD getNote() throws InvalidAttributeValueException
-  {
-    return new Note_OLD(ID, ID, ID, DESCRIPTION, FULL_NAME);
   }
 
   /**

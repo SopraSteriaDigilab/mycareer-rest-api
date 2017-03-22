@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -33,7 +34,7 @@ public class EmployeeProfile implements Serializable
   private String username;
 
   /** String Property - Represents the employee emailAddress. */
-  private String emailAddress;
+  private Set<String> emailAddresses;
 
   /** boolean Property - Represents if the employee is a manager. */
   private boolean isManager;
@@ -83,7 +84,7 @@ public class EmployeeProfile implements Serializable
     this.surname = builder.surname;
     this.forename = builder.forename;
     this.username = builder.username;
-    this.emailAddress = builder.emailAddress;
+    this.emailAddresses = builder.emailAddresses;
     this.isManager = builder.isManager;
     this.hasHRDash = builder.hasHRDash;
     this.guid = builder.guid;
@@ -145,15 +146,15 @@ public class EmployeeProfile implements Serializable
   }
 
   /** @return the emailAddress */
-  public String getEmailAddress()
+  public Set<String> getEmailAddress()
   {
-    return emailAddress;
+    return emailAddresses;
   }
 
   /** @param emailAddress The value to set. */
-  public void setEmailAddress(String emailAddress)
+  public void setEmailAddress(Set<String> emailAddress)
   {
-    this.emailAddress = emailAddress;
+    this.emailAddresses = emailAddress;
   }
 
   /** @return the isManager */
@@ -331,7 +332,7 @@ public class EmployeeProfile implements Serializable
 
     return employeeID == employeeProfile.employeeID && Objects.equals(surname, employeeProfile.surname)
         && Objects.equals(forename, employeeProfile.forename) && Objects.equals(username, employeeProfile.username)
-        && Objects.equals(emailAddress, employeeProfile.emailAddress) && isManager == employeeProfile.isManager
+        && Objects.equals(emailAddresses, employeeProfile.emailAddresses) && isManager == employeeProfile.isManager
         && Objects.equals(hasHRDash, employeeProfile.hasHRDash) && Objects.equals(company, employeeProfile.company)
         && Objects.equals(steriaDepartment, employeeProfile.steriaDepartment)
         && Objects.equals(sector, employeeProfile.sector) && Objects.equals(superSector, employeeProfile.superSector)
@@ -349,7 +350,7 @@ public class EmployeeProfile implements Serializable
   @Override
   public int hashCode()
   {
-    return Objects.hash(employeeID, surname, forename, username, emailAddress, isManager, hasHRDash, company,
+    return Objects.hash(employeeID, surname, forename, username, emailAddresses, isManager, hasHRDash, company,
         steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
   }
 
@@ -357,7 +358,7 @@ public class EmployeeProfile implements Serializable
   public String toString()
   {
     return "EmployeeProfile [employeeID=" + employeeID + ", surname=" + surname + ", forename=" + forename
-        + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager=" + isManager + ", hasHRDash="
+        + ", username=" + username + ", emailAddress=" + emailAddresses + ", isManager=" + isManager + ", hasHRDash="
         + hasHRDash + ", company=" + company + ", steriaDepartment=" + steriaDepartment + ", sector=" + sector
         + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + ", accountExpires=" + accountExpires + "]";
   }
@@ -378,7 +379,7 @@ public class EmployeeProfile implements Serializable
     private String username;
 
     /** String Property - Represents the employee emailAddress. */
-    private String emailAddress;
+    private Set<String> emailAddresses;
 
     /** boolean Property - Represents if the employee is a manager. */
     private boolean isManager;
@@ -438,10 +439,10 @@ public class EmployeeProfile implements Serializable
       return this;
     }
 
-    /** @param emailAddress The value to set. */
-    public Builder emailAddress(String emailAddress)
+    /** @param emailAddresses The value to set. */
+    public Builder emailAddress(Set<String> emailAddresses)
     {
-      this.emailAddress = emailAddress;
+      this.emailAddresses = emailAddresses;
       return this;
     }
 

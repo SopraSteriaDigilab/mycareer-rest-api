@@ -13,7 +13,9 @@ import static org.mockito.Matchers.any;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.lang.reflect.Field;
 import org.bson.types.ObjectId;
 
@@ -155,8 +157,10 @@ public class EmployeeTest
   public void setup() throws InvalidAttributeValueException
   {
    // LOG.debug("AppControllerTest.setup()", true);
+   Set<String> emailAddresses = new HashSet<>();
+   emailAddresses.add(VALID_EMAIL_ADDRESS);
    profile = new EmployeeProfile.Builder().employeeID(VALID_ID).guid(VALID_GUID).forename(VALID_NAME)
-       .surname(VALID_NAME).emailAddress(VALID_EMAIL_ADDRESS).username(VALID_USERNAME).company(VALID_COMPANY)
+       .surname(VALID_NAME).emailAddress(emailAddresses).username(VALID_USERNAME).company(VALID_COMPANY)
        .superSector(VALID_SECTOR_SUPERSECTOR).sector(VALID_SECTOR_SUPERSECTOR).steriaDepartment(VALID_DEPARTMENT)
        .sopraDepartment(VALID_DEPARTMENT).manager(IS_MANAGER).hasHRDash(HAS_HRDASH).reporteeCNs(VALID_REPORTEE_LIST)
        .build();
