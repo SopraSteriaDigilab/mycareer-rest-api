@@ -18,7 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 
-import services.validate.Validate;
+import utils.Validate;
 
 public class FeedbackTest
 {

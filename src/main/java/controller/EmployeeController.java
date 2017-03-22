@@ -1,13 +1,17 @@
 package controller;
 
+import static application.GlobalExceptionHandler.error;
 import static dataStructure.Constants.UK_TIMEZONE;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static utils.Validate.isYearMonthInPast;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +20,9 @@ import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -25,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -39,15 +46,18 @@ import application.GlobalExceptionHandler;
 import dataStructure.Competency;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
+import dataStructure.DevelopmentNeed_NEW;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
+import dataStructure.Objective_NEW;
 import services.EmployeeService;
 import services.ews.EmailService;
-import services.validate.Validate;
 import utils.Template;
+import utils.Utils;
+import utils.Validate;
 
 /**
  * This class contains all the available roots of the web service
@@ -65,14 +75,24 @@ public class EmployeeController
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
   private static final String ERROR_OBJECTIVE_ID = "The given Objective ID is invalid";
   private static final String ERROR_DEVELOPMENT_NEED_ID = "The given Development Need ID is invalid";
-
+  private static final String ERROR_TITLE_LIMIT = "Max Title lenght is 150 characters";
+  private static final String ERROR_TITLE_EMPTY = "Title can not be empty";
+  private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
   private static final String ERROR_EMAIL_RECIPIENTS_EMPTY = "The emailsTo field can not be empty";
-  private static final String ERROR_EMAIL_NOTES_EMPTY = "The notes field can not be empty";
+  private static final String ERROR_DUE_DATE_EMPTY = "Due Date can not be empty";
+  private static final String ERROR_PROPOSED_BY_LIMIT = "Max ProposedBy length is 150 characters";
+  private static final String ERROR_PROPOSED_BY_EMPTY = "Proposed By can not be empty";
+  private static final String ERROR_DATE_FORMAT = "The date format is incorrect";
   private static final String ERROR_NOTE_PROVIDER_NAME_EMPTY = "Provider name can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_EMPTY = "Note description can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
-  private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
   private static final String ERROR_COMPETENCY_TITLE_BLANK = "Compentency title cannot be empty";
+  private static final String ERROR_CATEGORY = "Category must be from 0 to 4";
+  private static final String ERROR_EMAILS_EMPTY = "Emails field can not be empty";
+  private static final String EMPTY_STRING = "";
+  private static final String YEAR_MONTH_REGEX = "^\\d{4}[-](0[1-9]|1[012])$";
+  private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
+  private static final String[] PROGRESS_LIST = { "PROPOSED", "IN_PROGRESS", "COMPLETE" };
 
   @Autowired
   private EmployeeService employeeService;
@@ -141,20 +161,26 @@ public class EmployeeController
   @RequestMapping(value = "/getObjectives/{employeeID}", method = GET)
   public ResponseEntity<?> getObjectives(@PathVariable long employeeID)
   {
-    if (employeeID > 0) try
+    if (employeeID > 0)
     {
-      // Retrieve and return the objectives from the system
-      return ok(employeeService.getObjectivesForUser(employeeID));
+      try
+      {
+        // Retrieve and return the objectives from the system
+        return ok(employeeService.getObjectivesForUser(employeeID));
+      }
+      catch (MongoException me)
+      {
+        return badRequest().body("DataBase Connection Error");
+      }
+      catch (Exception e)
+      {
+        return badRequest().body(e.getMessage());
+      }
     }
-    catch (MongoException me)
+    else
     {
-      return badRequest().body("DataBase Connection Error");
+      return badRequest().body(Constants.INVALID_CONTEXT_USERID);
     }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
   }
 
   /**
@@ -167,19 +193,25 @@ public class EmployeeController
   @RequestMapping(value = "/getFeedback/{employeeID}", method = GET)
   public ResponseEntity<?> getFeedback(@PathVariable long employeeID)
   {
-    if (employeeID > 0) try
+    if (employeeID > 0)
     {
-      return ok(employeeService.getFeedbackForUser(employeeID));
+      try
+      {
+        return ok(employeeService.getFeedbackForUser(employeeID));
+      }
+      catch (MongoException me)
+      {
+        return badRequest().body("DataBase Connection Error");
+      }
+      catch (Exception e)
+      {
+        return badRequest().body(e.getMessage());
+      }
     }
-    catch (MongoException me)
+    else
     {
-      return badRequest().body("DataBase Connection Error");
+      return badRequest().body(Constants.INVALID_CONTEXT_USERID);
     }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
   }
 
   /**
@@ -212,19 +244,25 @@ public class EmployeeController
   @RequestMapping(value = "/getDevelopmentNeeds/{employeeID}", method = GET)
   public ResponseEntity<?> getDevelomentNeeds(@PathVariable long employeeID)
   {
-    if (employeeID > 0) try
+    if (employeeID > 0)
     {
-      return ok(employeeService.getDevelopmentNeedsForUser(employeeID));
+      try
+      {
+        return ok(employeeService.getDevelopmentNeedsForUser(employeeID));
+      }
+      catch (MongoException me)
+      {
+        return badRequest().body("DataBase Connection Error");
+      }
+      catch (Exception e)
+      {
+        return badRequest().body(e.getMessage());
+      }
     }
-    catch (MongoException me)
+    else
     {
-      return badRequest().body("DataBase Connection Error");
+      return badRequest().body(Constants.INVALID_CONTEXT_USERID);
     }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-    else return badRequest().body(Constants.INVALID_CONTEXT_USERID);
   }
 
   /**
@@ -298,7 +336,6 @@ public class EmployeeController
       Objective obj = new Objective(0, 0, title, description, completedBy);
       obj.setProposedBy(proposedBy);
       boolean inserted = employeeService.insertNewObjective(employeeID, obj);
-
       if (inserted)
       {
         return ok("Objective inserted correctly");
@@ -339,7 +376,6 @@ public class EmployeeController
       Objective obj = new Objective(objectiveID, progress, 0, title, description, completedBy);
       obj.setProposedBy(proposedBy);
       boolean inserted = employeeService.addNewVersionObjective(employeeID, objectiveID, obj);
-
       if (inserted)
       {
         return ok("Objective modified correctly");
@@ -364,7 +400,6 @@ public class EmployeeController
     try
     {
       boolean inserted = employeeService.updateProgressObjective(employeeID, objectiveID, progress);
-
       if (inserted)
       {
         return ok("Objective modified correctly");
@@ -502,7 +537,6 @@ public class EmployeeController
     {
       DevelopmentNeed obj = new DevelopmentNeed(1, 0, cat, title, description, timeToCompleteBy);
       boolean inserted = employeeService.insertNewDevelopmentNeed(employeeID, obj);
-
       if (inserted)
       {
         return ok("Development need inserted correctly");
@@ -542,8 +576,14 @@ public class EmployeeController
     {
       DevelopmentNeed obj = new DevelopmentNeed(devNeedID, progress, cat, title, description, timeToCompleteBy);
       boolean inserted = employeeService.addNewVersionDevelopmentNeed(employeeID, devNeedID, obj);
-      if (inserted) return ok("Development need modified correctly");
-      else return badRequest().body("Error while editing the Development need");
+      if (inserted)
+      {
+        return ok("Development need modified correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while editing the Development need");
+      }
     }
     catch (MongoException me)
     {
@@ -564,7 +604,6 @@ public class EmployeeController
     try
     {
       boolean inserted = employeeService.updateProgressDevelopmentNeed(employeeID, devNeedID, progress);
-
       if (inserted)
       {
         return ok("Development need modified correctly");
@@ -633,13 +672,24 @@ public class EmployeeController
     try
     {
       if (title == null || title.length() < 1 || title.length() > 200)
+      {
         return badRequest().body("The given title is invalid");
+      }
       int index = Constants.getCompetencyIDGivenTitle(title);
-      if (index < 0) return badRequest().body("The given title does not match any valid competency");
+      if (index < 0)
+      {
+        return badRequest().body("The given title does not match any valid competency");
+      }
       Competency obj = new Competency(index, status);
       boolean inserted = employeeService.addNewVersionCompetency(employeeID, obj, title);
-      if (inserted) return ok("Competency updated correctly");
-      else return badRequest().body("Error while updating the Competency");
+      if (inserted)
+      {
+        return ok("Competency updated correctly");
+      }
+      else
+      {
+        return badRequest().body("Error while updating the Competency");
+      }
     }
     catch (MongoException me)
     {
@@ -788,5 +838,241 @@ public class EmployeeController
       return badRequest().body(result + e.getMessage() + ", ");
     }
   }
+
+  //////////////////// START NEW OBJECTIVES
+
+  @RequestMapping(value = "/getObjectivesNEW/{employeeId}", method = GET)
+  public ResponseEntity<?> getObjectivesNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
+  {
+    try
+    {
+      return ok(employeeService.getObjectivesNEW(employeeId));
+    }
+    catch (EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/addObjectiveNEW/{employeeId}", method = POST)
+  public ResponseEntity<?> addObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate)
+  {
+    try
+    {
+      employeeService.addObjectiveNEW(employeeId,
+          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING));
+      return ok("Objective inserted correctly");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/editObjectiveNEW/{employeeId}", method = POST)
+  public ResponseEntity<?> editObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate)
+  {
+    try
+    {
+      employeeService.editObjectiveNEW(employeeId, new Objective_NEW(objectiveId, title, description,
+          isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING));
+      return ok("Objective updated correctly");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/deleteObjectiveNEW/{employeeId}", method = DELETE)
+  public ResponseEntity<?> deleteObjectiveNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId)
+  {
+    try
+    {
+      employeeService.deleteObjectiveNEW(employeeId, objectiveId);
+      return ok("Objective deleted");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/updateObjectiveNEWProgress/{employeeId}", method = POST)
+  public ResponseEntity<?> updateObjectiveNEWProgress(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
+      @RequestParam @Min(value = 0, message = ERROR_OBJECTIVE_ID) @Max(value = 2, message = ERROR_OBJECTIVE_ID) int progress)
+  {
+    try
+    {
+      employeeService.updateObjectiveNEWProgress(employeeId, objectiveId,
+          Objective_NEW.Progress.valueOf(PROGRESS_LIST[progress]));
+      return ok("Objective progress updated");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/toggleObjectiveNEWArchive/{employeeId}", method = POST)
+  public ResponseEntity<?> toggleObjectiveNEWArchive(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId)
+  {
+    try
+    {
+      employeeService.toggleObjectiveNEWArchive(employeeId, objectiveId);
+      return ok("Objective updated");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+//  @RequestMapping(value = "/proposeObjectiveNEW/{employeeId}", method = POST)
+//  public ResponseEntity<?> proposeObjectiveNEW(
+//      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+//      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
+//      @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails)
+//  {
+//    try
+//    {
+//      Set emailSet = Utils.stringEmailsToHashSet(emails);
+//      employeeService.proposeObjectiveNEW(employeeId,
+//          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING), emailSet);
+//      return ok("Objective inserted correctly");
+//    }
+//    catch (InvalidAttributeValueException e)
+//    {
+//      return badRequest().body(error(e.getMessage()));
+//    }
+//  }
+
+  //////////////////// END NEW OBJECTIVES
+
+  //////////////////// START NEW DEVELOPMENT NEEDS
+
+  @RequestMapping(value = "/getDevelopmentNeedsNEW/{employeeId}", method = GET)
+  public ResponseEntity<?> getDevelopmentNeedsNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
+  {
+    try
+    {
+      return ok(employeeService.getDevelopmentNeedsNEW(employeeId));
+    }
+    catch (EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/addDevelopmentNeedNEW/{employeeId}", method = POST)
+  public ResponseEntity<?> addDevelopmentNeedsNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
+      @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
+  {
+    try
+    {
+      employeeService.addDevelopmentNeedNEW(employeeId,
+          new DevelopmentNeed_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING,
+              DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
+      return ok("Development Need inserted correctly");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/editDevelopmentNeedNEW/{employeeId}", method = POST)
+  public ResponseEntity<?> editDevelopmentNeedNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
+      @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
+  {
+    try
+    {
+      employeeService.editDevelopmentNeedNEW(employeeId,
+          new DevelopmentNeed_NEW(developmentNeedId, title, description, isYearMonthInPast(YearMonth.parse(dueDate)),
+              EMPTY_STRING, DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
+      return ok("Development Need updated correctly");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/deleteDevelopmentNeedNEW/{employeeId}", method = DELETE)
+  public ResponseEntity<?> deleteDevelopmentNeedNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId)
+  {
+    try
+    {
+      employeeService.deleteDevelopmentNeedNEW(employeeId, developmentNeedId);
+      return ok("Development Need deleted");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/updateDevelopmentNeedNEWProgress/{employeeId}", method = POST)
+  public ResponseEntity<?> updateDevelopmentNeedNEWProgress(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
+      @RequestParam @Min(value = 0, message = ERROR_DEVELOPMENT_NEED_ID) @Max(value = 2, message = ERROR_DEVELOPMENT_NEED_ID) int progress)
+  {
+    try
+    {
+      employeeService.updateDevelopmentNeedNEWProgress(employeeId, developmentNeedId,
+          Objective_NEW.Progress.valueOf(PROGRESS_LIST[progress]));
+      return ok("Development Need progress updated");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/toggleDevelopmentNeedNEWArchive/{employeeId}", method = POST)
+  public ResponseEntity<?> toggleDevelopmentNeedNEWArchive(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId)
+  {
+    try
+    {
+      employeeService.toggleDevelopmentNeedNEWArchive(employeeId, developmentNeedId);
+      return ok("Development Need updated");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  //////////////////// END NEW DEVELOPMENT NEEDS
 
 }

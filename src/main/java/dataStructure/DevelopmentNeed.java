@@ -19,9 +19,8 @@ import com.google.gson.Gson;
 @Embedded
 public class DevelopmentNeed implements Serializable
 {
-
-  private static final long serialVersionUID = -5067508122602507151L;
-  // Global Variables
+  private static final long serialVersionUID = 1L;
+ 
   private int id, progress, category;
   private boolean isArchived;
   private String title, description, timeStamp, timeToCompleteBy;

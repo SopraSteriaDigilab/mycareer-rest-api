@@ -16,8 +16,6 @@ import static dataStructure.Constants.NULL_OBJECTIVE;
 import static dataStructure.Constants.NULL_USER_DATA;
 import static dataStructure.Constants.OBJECTIVE_NOTADDED_ERROR;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,18 +38,21 @@ import com.mongodb.MongoException;
 
 import dataStructure.Competency;
 import dataStructure.DevelopmentNeed;
+import dataStructure.DevelopmentNeed_NEW;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
+import dataStructure.Objective_NEW;
+import dataStructure.Objective_NEW.Progress;
 import services.ad.ADConnectionException;
 import services.db.MorphiaOperations;
 import services.ews.EmailService;
-import services.validate.Validate;
 import utils.Template;
 import utils.Utils;
+import utils.Validate;
 
 /**
  * This class contains the definition of the EmployeeDAO object
@@ -82,6 +83,10 @@ public class EmployeeService
   private static final String COMPETENCIES = "competencies";
   private static final String LAST_LOGON = "lastLogon";
 
+  private static final String NEW_OBJECTIVES = "newObjective";
+  private static final String NEW_DEVELOPMENT_NEEDS = "newDevelopmentNeeds";
+  
+
   // There is only 1 instance of the Datastore in the whole system
   private MorphiaOperations morphiaOperations;
 
@@ -107,26 +112,24 @@ public class EmployeeService
   /**
    * Gets Employee from database with the specified id
    *
-   * @param employeeID ID of the employee
+   * @param employeeId ID of the employee
    * @return the employee if exists
    * @throws EmployeeNotFoundException if employee is not found or is null.
    */
   public Employee getEmployee(final long employeeID) throws EmployeeNotFoundException
   {
     Employee employee = morphiaOperations.getEmployee(EMPLOYEE_ID, employeeID);
-
     if (employee == null)
     {
       throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + employeeID);
     }
-
     return employee;
   }
 
   /**
    * Gets full name of a user from the database
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws EmployeeNotFoundException
    */
@@ -138,7 +141,7 @@ public class EmployeeService
   /**
    * Get a list of the current objectives for a user.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws EmployeeNotFoundException
    */
@@ -150,7 +153,7 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @param objectiveID
    * @return
    * @throws EmployeeNotFoundException
@@ -164,7 +167,7 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws EmployeeNotFoundException
    */
@@ -178,7 +181,7 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws InvalidAttributeValueException
    * @throws services.EmployeeNotFoundException
@@ -191,7 +194,7 @@ public class EmployeeService
   /**
    * Get all notes for user.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws EmployeeNotFoundException
    */
@@ -203,7 +206,7 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws EmployeeNotFoundException
    */
@@ -215,7 +218,7 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws EmployeeNotFoundException
    */
@@ -227,7 +230,7 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @return
    * @throws InvalidAttributeValueException
    */
@@ -249,7 +252,7 @@ public class EmployeeService
 
   /**
    * 
-   * @param employeeID
+   * @param employeeId
    * @return This method inserts a new objective for a specific employee given their ID
    * @throws EmployeeNotFoundException
    */
@@ -277,7 +280,7 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @param objectiveID
    * @param progress
    * @return
@@ -317,7 +320,7 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @param objectiveID
    * @param data
    * @return
@@ -365,7 +368,7 @@ public class EmployeeService
   /**
    * Adds new note to an employee
    *
-   * @param employeeID
+   * @param employeeId
    * @param note
    * @return
    * @throws EmployeeNotFoundException
@@ -410,7 +413,7 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @param data
    * @return
    * @throws EmployeeNotFoundException
@@ -435,7 +438,7 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @param devNeedID
    * @param progress
    * @return
@@ -475,7 +478,7 @@ public class EmployeeService
   /**
    * TODO: Describe this method.
    *
-   * @param employeeID
+   * @param employeeId
    * @param devNeedID
    * @param data
    * @return
@@ -543,7 +546,7 @@ public class EmployeeService
   /**
    * Sends Emails to the recipients and updates the database.
    * 
-   * @param employeeID
+   * @param employeeId
    * @param emailsString
    * @param notes
    * @throws Exception
@@ -670,7 +673,7 @@ public class EmployeeService
 
   /**
    * 
-   * @param employeeID the employee ID
+   * @param employeeId the employee IDsdfsd
    * @param data the Competency to update
    * @param title the title of the competency (max 200 characters)
    * @return true or false to establish whether the task has been completed successfully or not This method inserts a
@@ -750,4 +753,144 @@ public class EmployeeService
     employee.setLastLogon(Utils.localDateTimetoDate(LocalDateTime.now()));
     morphiaOperations.updateEmployee(profile.getEmployeeID(), LAST_LOGON, employee.getLastLogon());
   }
+
+  //////////////////// START NEW OBJECTIVES
+
+  public List<Objective_NEW> getObjectivesNEW(long employeeId) throws EmployeeNotFoundException
+  {
+    return getEmployee(employeeId).getObjectivesNEW();
+  }
+
+  public void addObjectiveNEW(long employeeId, Objective_NEW objective) throws EmployeeNotFoundException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    objective.setProposedBy(employee.getProfile().getFullName());
+    employee.addObjectiveNEW(objective);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());  
+  }
+
+  public void editObjectiveNEW(long employeeId, Objective_NEW objective) throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.editObjectiveNEW(objective);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
+  }
+
+  public void deleteObjectiveNEW(long employeeId, int objectiveId) throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.deleteObjectiveNEW(objectiveId);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
+  }
+
+  public void updateObjectiveNEWProgress(long employeeId, int objectiveId, Progress progress)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.updateObjectiveNEWProgress(objectiveId, progress);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
+  }
+
+  public void toggleObjectiveNEWArchive(long employeeId, int objectiveId) throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.toggleObjectiveNEWArchive(objectiveId);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
+  }
+
+  //////////////////// END NEW OBJECTIVES
+
+  //////////////////// START NEW DEVELOPMENT NEEDS
+
+  public List<DevelopmentNeed_NEW> getDevelopmentNeedsNEW(long employeeId) throws EmployeeNotFoundException
+  {
+    return getEmployee(employeeId).getDevelopmentNeedsNEW();
+  }
+
+  public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed_NEW developmentNeed)
+      throws EmployeeNotFoundException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    developmentNeed.setProposedBy(employee.getProfile().getFullName());
+    employee.addDevelopmentNeedNEW(developmentNeed);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+
+  }
+
+  public void editDevelopmentNeedNEW(long employeeId, DevelopmentNeed_NEW developmentNeed)
+      throws EmployeeNotFoundException,InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.editDevelopmentNeedNEW(developmentNeed);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+
+  }
+
+  public void deleteDevelopmentNeedNEW(long employeeId, int developmentNeedId) throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.deleteDevelopmentNeedNEW(developmentNeedId);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+
+  }
+
+  public void updateDevelopmentNeedNEWProgress(long employeeId, int developmentNeedId, Progress progress)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.updateDevelopmentNeedNEWProgress(developmentNeedId, progress);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+
+  }
+
+  public void toggleDevelopmentNeedNEWArchive(long employeeId, int developmentNeedId)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.toggleDevelopmentNeedNEWArchive(developmentNeedId);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+
+  }
+
+  //////////////////// END NEW DEVELOPMENT NEEDS
 }

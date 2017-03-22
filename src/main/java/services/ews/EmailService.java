@@ -90,6 +90,14 @@ public class EmailService
     //TODO Consider removing/redoing
   }
   
+  /**
+   * Static method to send an Email.
+   * 
+   * @param recipient
+   * @param subject
+   * @param body
+   * @throws Exception
+   */
   public synchronized static void sendEmail(List<String> recipients, String subject, String body) throws Exception
   {
     initiateEWSConnection(20000);

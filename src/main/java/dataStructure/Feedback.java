@@ -8,7 +8,7 @@ import java.time.ZoneId;
 
 import javax.management.InvalidAttributeValueException;
 
-import services.validate.Validate;
+import utils.Validate;
 
 /**
  * Feedback object for MyCareer
@@ -16,8 +16,7 @@ import services.validate.Validate;
  */
 public class Feedback implements Serializable
 {
-
-  private static final long serialVersionUID = -1220037164373122395L;
+  private static final long serialVersionUID = 1L;
 
   /** Unique ID for the object. */
   private int id;

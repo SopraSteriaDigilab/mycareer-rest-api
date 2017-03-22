@@ -18,7 +18,7 @@ import services.mappers.InvalidEmployeeProfileException;
 // TODO remove validation on all setters.
 public class EmployeeProfile implements Serializable
 {
-  private static final long serialVersionUID = 6335090383770271897L;
+  private static final long serialVersionUID = 1L;
 
   /** long Property - Represents the employee id */
   private long employeeID;
