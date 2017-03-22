@@ -10,11 +10,10 @@ import com.google.gson.Gson;
  * This class contains the definition of the ADProfile_Basic object
  *
  */
+@Deprecated
 public class ADProfile_Basic_OLD implements Serializable
 {
-
-  // Global Constants
-  private static final long serialVersionUID = 6335090383770271897L;
+  private static final long serialVersionUID = 1L;
 
   // Global Variables
   private long employeeID;

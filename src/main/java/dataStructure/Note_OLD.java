@@ -19,8 +19,7 @@ import com.google.gson.Gson;
 @Embedded
 public class Note_OLD implements Serializable
 {
-
-  private static final long serialVersionUID = 3232489026577284657L;
+  private static final long serialVersionUID = 1L;
   // Global Variables
   private int id, noteType, linkID;
   private String body, timeStamp, fromWho, linkTitle;

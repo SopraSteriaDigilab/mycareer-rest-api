@@ -1,13 +1,10 @@
 package dataStructure;
 
-import static services.validate.Validate.isNull;
+import static utils.Validate.isNull;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,6 +19,9 @@ import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
+import dataStructure.Objective_NEW.Progress;
+import dataStructure.DevelopmentNeed_NEW.Category;
+
 /**
  * This class contains the definition of the Employee object
  *
@@ -29,7 +29,9 @@ import org.mongodb.morphia.annotations.Id;
 @Entity("employeeDataDev")
 public class Employee implements Serializable
 {
-  private static final long serialVersionUID = 6218992334392107696L;
+  private static final long serialVersionUID = 1L;
+  private static final String INVALID_OBJECTIVE_ID = "No objective ID matches the user data";
+
   // Global Variables
   @Id
   private ObjectId id;
@@ -44,10 +46,16 @@ public class Employee implements Serializable
   private List<List<Objective>> objectives;
 
   @Embedded
+  private List<Objective_NEW> newObjectives;
+
+  @Embedded
   private List<Note> notes;
 
   @Embedded
   private List<List<DevelopmentNeed>> developmentNeeds;
+
+  @Embedded
+  private List<DevelopmentNeed_NEW> newDevelopmentNeeds;
 
   @Embedded
   private List<FeedbackRequest> feedbackRequests;
@@ -63,8 +71,10 @@ public class Employee implements Serializable
   {
     this.feedback = new ArrayList<Feedback>();
     this.objectives = new ArrayList<List<Objective>>();
+    this.newObjectives = new ArrayList<Objective_NEW>();
     this.notes = new ArrayList<Note>();
     this.developmentNeeds = new ArrayList<List<DevelopmentNeed>>();
+    this.newDevelopmentNeeds = new ArrayList<DevelopmentNeed_NEW>();
     this.feedbackRequests = new ArrayList<FeedbackRequest>();
     this.competencies = new ArrayList<List<Competency>>();
   }
@@ -72,13 +82,8 @@ public class Employee implements Serializable
   /** Default Constructor - Responsible for initialising this object. */
   public Employee(final EmployeeProfile profile)
   {
+    this();
     this.profile = profile;
-    this.feedback = new ArrayList<Feedback>();
-    this.objectives = new ArrayList<List<Objective>>();
-    this.notes = new ArrayList<Note>();
-    this.developmentNeeds = new ArrayList<List<DevelopmentNeed>>();
-    this.feedbackRequests = new ArrayList<FeedbackRequest>();
-    this.competencies = new ArrayList<List<Competency>>();
   }
 
   /** @return The _id created by MongoDB when inserting this object in the Collection */
@@ -110,16 +115,6 @@ public class Employee implements Serializable
   {
     this.feedback = feedback;
   }
-  //
-
-  // public Feedback getSpecificFeedback(int id) throws InvalidAttributeValueException
-  // {
-  // if (id > 0)
-  // {
-  // return feedback.stream().filter(f -> f.getId() == id).findFirst().get();
-  // }
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKID);
-  // }
 
   /**
    * 
@@ -194,8 +189,6 @@ public class Employee implements Serializable
    */
   public Objective getLatestVersionOfSpecificObjective(int id) throws InvalidAttributeValueException
   {
-    // Verify if the id is valid
-    if (id < 0) throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVEID);
     // Search for the objective with the given ID
     for (List<Objective> subList : objectives)
     {
@@ -206,7 +199,7 @@ public class Employee implements Serializable
         return (subList.get(subList.size() - 1));
       }
     }
-    throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVEIDNOTFOND);
+    throw new InvalidAttributeValueException(INVALID_OBJECTIVE_ID);
   }
 
   /** @return the notes */
@@ -230,7 +223,7 @@ public class Employee implements Serializable
    */
   public void setDevelopmentNeedsList(List<List<DevelopmentNeed>> developments) throws InvalidAttributeValueException
   {
-    if (developments != null) 
+    if (developments != null)
     {
       // Counter that keeps tracks of the error while adding elements
       int errorCounter = 0;
@@ -361,7 +354,7 @@ public class Employee implements Serializable
       if (feedbackRequest.getId().equals(id)) return feedbackRequest;
     }
     throw new InvalidAttributeValueException("Feedback Request does not exist.");
-  } 
+  }
 
   // /**
   // *
@@ -452,7 +445,7 @@ public class Employee implements Serializable
    * 
    * @return List<Competencies>
    */
-  public List<Competency> getLatestVersionCompetencies() 
+  public List<Competency> getLatestVersionCompetencies()
   {
     List<Competency> organisedList = new ArrayList<Competency>();
     if (this.competencies.size() == 0)
@@ -707,6 +700,31 @@ public class Employee implements Serializable
     throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCY_CONTEXT);
   }
 
+  public int nextFeedbackID()
+  {
+    return this.feedback.size() + 1;
+  }
+
+  public int nextObjectiveID()
+  {
+    int max = 0;
+    for (Objective_NEW objective : this.getObjectivesNEW())
+    {
+      if (objective.getId() > max) max = objective.getId();
+    }
+    return ++max;
+  }
+
+  public int nextDevelopmentNeedID()
+  {
+    int max = 0;
+    for (DevelopmentNeed_NEW developmentNeed : this.getDevelopmentNeedsNEW())
+    {
+      if (developmentNeed.getId() > max) max = developmentNeed.getId();
+    }
+    return ++max;
+  }
+
   /**
    * 
    * This method takes in a List of Objectives or Development Needs an sorts them based on the Due Date Sorted by
@@ -749,9 +767,169 @@ public class Employee implements Serializable
     });
   }
 
-  public int nextFeedbackID()
+  //////////////////// START NEW OBJECTIVES
+
+  /** @return the newObjectives */
+  public List<Objective_NEW> getObjectivesNEW()
   {
-    return this.feedback.size() + 1;
+    return newObjectives;
   }
+
+  /** @param newObjectives The value to set. */
+  public void setObjectivesNEW(List<Objective_NEW> newObjectives)
+  {
+    this.newObjectives = newObjectives;
+  }
+
+  public boolean addObjectiveNEW(Objective_NEW objective) throws InvalidAttributeValueException
+  {
+    if (objective == null) throw new InvalidAttributeValueException("Objective is invalid.");
+
+    objective.setId(nextObjectiveID());
+
+    return this.newObjectives.add(objective);
+  }
+
+  public boolean editObjectiveNEW(Objective_NEW objective) throws InvalidAttributeValueException
+  {
+    if (objective == null) throw new InvalidAttributeValueException("Objective is invalid.");
+
+    Objective_NEW objectiveToEdit = getObjectiveNEW(objective.getId());
+    
+    if (objectiveToEdit.getArchived() || objectiveToEdit.getProgress().equals(Progress.COMPLETE.getProgressStr()))
+      throw new InvalidAttributeValueException("Cannot Edit archived/complete Objective.");
+
+    objectiveToEdit.setDescription(objective.getDescription());
+    objectiveToEdit.setTitle(objective.getTitle());
+    objectiveToEdit.setDueDate(LocalDate.parse(objective.getDueDate()));
+
+    return true;
+  }
+
+  public boolean deleteObjectiveNEW(int objectiveId) throws InvalidAttributeValueException
+  {
+    Objective_NEW objective = getObjectiveNEW(objectiveId);
+
+    if (!objective.getArchived())
+      throw new InvalidAttributeValueException("Objective must be archived before deleting.");
+
+    return this.getObjectivesNEW().remove(objective);
+  }
+
+  public boolean updateObjectiveNEWProgress(int objectiveId, Progress progress) throws InvalidAttributeValueException
+  {
+    Objective_NEW objective = getObjectiveNEW(objectiveId);
+    
+    if (objective.getArchived() || objective.getProgress().equals(Progress.COMPLETE.getProgressStr()))
+      throw new InvalidAttributeValueException("Cannot Edit archived/complete Objective.");
+
+    objective.setProgress(progress);
+
+    return true;
+  }
+
+  public boolean toggleObjectiveNEWArchive(int objectiveId) throws InvalidAttributeValueException
+  {
+    Objective_NEW objective = getObjectiveNEW(objectiveId);
+
+    objective.isArchived(!objective.getArchived());
+
+    return true;
+  }
+
+  private Objective_NEW getObjectiveNEW(int objectiveId) throws InvalidAttributeValueException
+  {
+    Optional<Objective_NEW> objective = getObjectivesNEW().stream().filter(o -> o.getId() == objectiveId).findFirst();
+
+    if (!objective.isPresent()) throw new InvalidAttributeValueException("Objective not found.");
+
+    return objective.get();
+  }
+
+  //////////////////// END NEW OBJECTIVES
+
+  //////////////////// START NEW DEVELOPMENT NEEDS
+
+  /** @return the newDevelopmentNeeds */
+  public List<DevelopmentNeed_NEW> getDevelopmentNeedsNEW()
+  {
+    return newDevelopmentNeeds;
+  }
+
+  /** @param newDevelopmentNeeds The value to set. */
+  public void setDevelopmentNeedsNEW(List<DevelopmentNeed_NEW> newDevelopmentNeeds)
+  {
+    this.newDevelopmentNeeds = newDevelopmentNeeds;
+  }
+
+  public boolean addDevelopmentNeedNEW(DevelopmentNeed_NEW developmentNeed) throws InvalidAttributeValueException
+  {
+    if (developmentNeed == null) throw new InvalidAttributeValueException("Development Need is invalid.");
+
+    developmentNeed.setId(nextDevelopmentNeedID());
+
+    return this.newDevelopmentNeeds.add(developmentNeed);
+  }
+
+  public boolean editDevelopmentNeedNEW(DevelopmentNeed_NEW developmentNeed) throws InvalidAttributeValueException
+  {
+    if (developmentNeed == null) throw new InvalidAttributeValueException("Development Need is invalid.");
+
+    DevelopmentNeed_NEW developmentNeedToEdit = getDevelopmentNeedNEW(developmentNeed.getId());
+
+    if (developmentNeedToEdit.getArchived() || developmentNeedToEdit.getProgress().equals(Progress.COMPLETE.getProgressStr()))
+      throw new InvalidAttributeValueException("Cannot Edit archived/complete Development Needs.");
+
+    developmentNeedToEdit.setDescription(developmentNeed.getDescription());
+    developmentNeedToEdit.setTitle(developmentNeed.getTitle());
+    developmentNeedToEdit.setDueDate(LocalDate.parse(developmentNeed.getDueDate()));
+    developmentNeedToEdit.setCategory(Category.getCategoryFromString(developmentNeed.getCategory()));
+
+    return true;
+  }
+
+  public boolean deleteDevelopmentNeedNEW(int developmentNeedId) throws InvalidAttributeValueException
+  {
+    DevelopmentNeed_NEW developmentNeed = getDevelopmentNeedNEW(developmentNeedId);
+
+    if (!developmentNeed.getArchived())
+      throw new InvalidAttributeValueException("Development Need must be archived before deleting.");
+
+    return this.getDevelopmentNeedsNEW().remove(developmentNeed);
+  }
+
+  public boolean updateDevelopmentNeedNEWProgress(int developmentNeedId, Progress progress)
+      throws InvalidAttributeValueException
+  {
+    DevelopmentNeed_NEW developmentNeed = getDevelopmentNeedNEW(developmentNeedId);
+    System.out.println(developmentNeed.getProgress() + " = " + Progress.COMPLETE.toString());
+    if (developmentNeed.getArchived() || developmentNeed.getProgress().equals(Progress.COMPLETE.getProgressStr()))
+      throw new InvalidAttributeValueException("Cannot Edit archived/complete Development Needs.");
+
+    developmentNeed.setProgress(progress);
+
+    return true;
+  }
+
+  public boolean toggleDevelopmentNeedNEWArchive(int developmentNeedId) throws InvalidAttributeValueException
+  {
+    DevelopmentNeed_NEW developmentNeed = getDevelopmentNeedNEW(developmentNeedId);
+
+    developmentNeed.isArchived(!developmentNeed.getArchived());
+
+    return true;
+  }
+
+  private DevelopmentNeed_NEW getDevelopmentNeedNEW(int objectiveId) throws InvalidAttributeValueException
+  {
+    Optional<DevelopmentNeed_NEW> developmentNeed = getDevelopmentNeedsNEW().stream()
+        .filter(o -> o.getId() == objectiveId).findFirst();
+
+    if (!developmentNeed.isPresent()) throw new InvalidAttributeValueException("Development Need not found.");
+
+    return developmentNeed.get();
+  }
+
+  //////////////////// END NEW DEVELOPMENT NEEDS
 
 }

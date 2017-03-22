@@ -16,8 +16,7 @@ import com.google.gson.Gson;
 @Embedded
 public class Competency implements Serializable
 {
-
-  private static final long serialVersionUID = -1186038518710616207L;
+  private static final long serialVersionUID = 1L;
   private int id;
   private boolean isSelected;
   private String title;
