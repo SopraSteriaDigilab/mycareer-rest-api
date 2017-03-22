@@ -395,7 +395,7 @@ public class EmployeeService
   {
     addNote(reporteeEmployeeID, note);
 
-    Set<String> reporteeEmail = getEmployee(reporteeEmployeeID).getProfile().getEmailAddress();
+    Set<String> reporteeEmail = getEmployee(reporteeEmployeeID).getProfile().getEmailAddresses();
     String subject = String.format("Note added from %s", note.getProviderName());
     try
     {
@@ -626,7 +626,7 @@ public class EmployeeService
 
   {
     Validate.areStringsEmptyorNull(providerEmail, feedbackDescription);
-    Validate.areStringsEmptyorNull((String[]) recipientEmail.toArray());
+    Validate.areStringsEmptyorNull(recipientEmail.toArray(new String[0]));
     Employee employee = morphiaOperations.getEmployeeFromEmailAddress(recipientEmail);
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
     String providerName = null;
@@ -677,7 +677,7 @@ public class EmployeeService
 
     employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
     morphiaOperations.updateEmployee(employeeID, FEEDBACK_REQUESTS, employee.getFeedbackRequestsList());
-    addFeedback(providerEmail, employee.getProfile().getEmailAddress(), feedbackDescription, true);
+    addFeedback(providerEmail, employee.getProfile().getEmailAddresses(), feedbackDescription, true);
   }
 
   /**

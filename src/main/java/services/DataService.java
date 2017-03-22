@@ -1,10 +1,5 @@
 package services;
 
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Sorts.*;
-import static com.mongodb.client.model.Projections.*;
-import static com.mongodb.client.model.Aggregates.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,10 +20,11 @@ public class DataService
   private static final String DB_NAME = "Development";
   private static final String DB_COLLECTION = "employeeDataDev";
 
-  private static final String PROFILE_EMAIL_ADDRESS = "$profile.emailAddress";
+  private static final String PROFILE_EMAIL_ADDRESSES = "profile.emailAddresses";
   private static final String ID = "_id";
   private static final String EMAIL_ADDRESSES = "emailAddresses";
   private static final String UNWIND = "$unwind";
+  private static final String PROJECT = "$project";
 
   private final MongoCollection<Document> mongoCollection;
 
@@ -41,7 +37,7 @@ public class DataService
   {
     final List<String> emails = new ArrayList<>();
     final List<Bson> aggregationPipeline = new ArrayList<>();
-    final Bson projectEmailAddresses = excludeId().append(EMAIL_ADDRESSES, PROFILE_EMAIL_ADDRESS);
+    final Bson projectEmailAddresses = project(excludeId().append(EMAIL_ADDRESSES, reference(PROFILE_EMAIL_ADDRESSES)));
     final Bson unwindEmails = unwind(EMAIL_ADDRESSES);
 
     aggregationPipeline.add(projectEmailAddresses);
@@ -49,9 +45,14 @@ public class DataService
     mongoCollection.aggregate(aggregationPipeline)
         .forEach((Block<Document>) d -> emails.add(d.getString(EMAIL_ADDRESSES)));
 
-    LOGGER.debug("Email address count is {}", emails.size());
+    LOGGER.info("Email address count is {}", emails.size());
 
     return emails;
+  }
+  
+  private String reference(final String field)
+  {
+    return "$".concat(field);
   }
   
   private Document excludeId()
@@ -59,8 +60,13 @@ public class DataService
     return new Document(ID, 0);
   }
   
+  private Bson project(final Bson projection)
+  {
+    return new Document(PROJECT, projection);
+  }
+  
   private Bson unwind(final String field)
   {
-    return new Document(UNWIND, field);
+    return new Document(UNWIND, reference(field));
   }
 }

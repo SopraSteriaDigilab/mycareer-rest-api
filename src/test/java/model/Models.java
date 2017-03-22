@@ -95,10 +95,9 @@ public class Models
   {
     Set<String> emailAddresses = new HashSet<>();
     emailAddresses.add(EMAIL_ADRESS);
-    return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).guid(GUID).forename(FIRST_NAME).surname(LAST_NAME)
-        .emailAddress(emailAddresses).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR).sector(SECTOR)
-        .steriaDepartment(STERIA_DEPARTMENT).sopraDepartment(SOPRA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER)
-        .build();
+    return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).forename(FIRST_NAME).surname(LAST_NAME)
+        .emailAddresses(emailAddresses).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR).sector(SECTOR)
+        .steriaDepartment(STERIA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER).build();
   }
 
   /**

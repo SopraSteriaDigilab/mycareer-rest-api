@@ -122,6 +122,6 @@ public class MorphiaOperations
 
   private String in(String field)
   {
-    return "in ".concat(field);
+    return field.concat(" in");
   }
 }

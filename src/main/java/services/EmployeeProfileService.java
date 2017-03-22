@@ -39,7 +39,7 @@ public class EmployeeProfileService
   // DB fields
   private static final String EMPLOYEE_ID = "profile.employeeID";
   private static final String USERNAME = "profile.username";
-  private static final String EMAIL_ADDRESS = "profile.emailAddress";
+  private static final String EMAIL_ADDRESS = "profile.emailAddresses";
 
 
   private final ADSearchSettings sopraADSearchSettings;

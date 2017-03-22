@@ -42,14 +42,8 @@ public class EmployeeProfile implements Serializable
   /** boolean Property - Represents if the employee has access to the hr dashboard. */
   private boolean hasHRDash;
 
-  /** String Property - Represents the GUID from the AD. */
-  private String guid;
-
   /** String Property - Represents the employee company. */
   private String company;
-
-  /** String Property - Represents the employee sopraDepartment. */
-  private String sopraDepartment;
 
   /** String Property - Represents the employee steriaDepartment. */
   private String steriaDepartment;
@@ -87,9 +81,7 @@ public class EmployeeProfile implements Serializable
     this.emailAddresses = builder.emailAddresses;
     this.isManager = builder.isManager;
     this.hasHRDash = builder.hasHRDash;
-    this.guid = builder.guid;
     this.company = builder.company;
-    this.sopraDepartment = builder.sopraDepartment;
     this.steriaDepartment = builder.steriaDepartment;
     this.sector = builder.sector;
     this.superSector = builder.superSector;
@@ -146,15 +138,15 @@ public class EmployeeProfile implements Serializable
   }
 
   /** @return the emailAddress */
-  public Set<String> getEmailAddress()
+  public Set<String> getEmailAddresses()
   {
     return emailAddresses;
   }
 
   /** @param emailAddress The value to set. */
-  public void setEmailAddress(Set<String> emailAddress)
+  public void setEmailAddresses(Set<String> emailAddresses)
   {
-    this.emailAddresses = emailAddress;
+    this.emailAddresses = emailAddresses;
   }
 
   /** @return the isManager */
@@ -181,18 +173,6 @@ public class EmployeeProfile implements Serializable
     this.hasHRDash = hasHRDash;
   }
 
-  /** @return the guid */
-  public String getGuid()
-  {
-    return guid;
-  }
-
-  /** @param guid The value to set. */
-  public void setGuid(String guid)
-  {
-    this.guid = guid;
-  }
-
   /** @return the company */
   public String getCompany()
   {
@@ -203,18 +183,6 @@ public class EmployeeProfile implements Serializable
   public void setCompany(String company)
   {
     this.company = company;
-  }
-
-  /** @return the sopraDepartment */
-  public String getSopraDepartment()
-  {
-    return sopraDepartment;
-  }
-
-  /** @param sopraDepartment The value to set. */
-  public void setSopraDepartment(String sopraDepartment)
-  {
-    this.sopraDepartment = sopraDepartment;
   }
 
   /** @return the steriaDepartment */
@@ -387,14 +355,8 @@ public class EmployeeProfile implements Serializable
     /** boolean Property - Represents if the employee has access to the hr dashboard. */
     private boolean hasHRDash;
 
-    /** String Property - Represents the GUID from the AD. */
-    private String guid;
-
     /** String Property - Represents the employee company. */
     private String company;
-
-    /** String Property - Represents the employee sopraDepartment. */
-    private String sopraDepartment;
 
     /** String Property - Represents the employee steriaDepartment. */
     private String steriaDepartment;
@@ -440,7 +402,7 @@ public class EmployeeProfile implements Serializable
     }
 
     /** @param emailAddresses The value to set. */
-    public Builder emailAddress(Set<String> emailAddresses)
+    public Builder emailAddresses(Set<String> emailAddresses)
     {
       this.emailAddresses = emailAddresses;
       return this;
@@ -460,24 +422,10 @@ public class EmployeeProfile implements Serializable
       return this;
     }
 
-    /** @param gUID The value to set. */
-    public Builder guid(String guid)
-    {
-      this.guid = guid;
-      return this;
-    }
-
     /** @param company The value to set. */
     public Builder company(String company)
     {
       this.company = company;
-      return this;
-    }
-
-    /** @param sopraDepartment The value to set. */
-    public Builder sopraDepartment(String sopraDepartment)
-    {
-      this.sopraDepartment = sopraDepartment;
       return this;
     }
 
