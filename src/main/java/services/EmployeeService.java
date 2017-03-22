@@ -1,40 +1,27 @@
 package services;
 
 import static dataStructure.Constants.DEVELOPMENTNEED_NOTADDED_ERROR;
-import static dataStructure.Constants.INVALID_COMPETENCY_CONTEXT;
-import static dataStructure.Constants.INVALID_COMPETENCY_OR_EMPLOYEEID;
 import static dataStructure.Constants.INVALID_CONTEXT_PROGRESS;
-import static dataStructure.Constants.INVALID_CONTEXT_USERID;
 import static dataStructure.Constants.INVALID_DEVNEEDID_CONTEXT;
-import static dataStructure.Constants.INVALID_DEVNEED_CONTEXT;
 import static dataStructure.Constants.INVALID_DEVNEED_OR_EMPLOYEEID;
-import static dataStructure.Constants.INVALID_ID_NOT_FOUND;
-import static dataStructure.Constants.INVALID_OBJECTIVE;
 import static dataStructure.Constants.INVALID_OBJECTIVEID;
-import static dataStructure.Constants.INVALID_OBJECTIVE_OR_EMPLOYEEID;
-import static dataStructure.Constants.NULL_OBJECTIVE;
 import static dataStructure.Constants.NULL_USER_DATA;
 import static dataStructure.Constants.OBJECTIVE_NOTADDED_ERROR;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
-import javax.naming.NamingException;
 
-import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.query.Query;
-import org.mongodb.morphia.query.UpdateOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import com.mongodb.MongoException;
 
 import dataStructure.Competency;
 import dataStructure.DevelopmentNeed;
@@ -47,7 +34,6 @@ import dataStructure.Note;
 import dataStructure.Objective;
 import dataStructure.Objective_NEW;
 import dataStructure.Objective_NEW.Progress;
-import services.ad.ADConnectionException;
 import services.db.MorphiaOperations;
 import services.ews.EmailService;
 import utils.Template;
@@ -83,9 +69,8 @@ public class EmployeeService
   private static final String COMPETENCIES = "competencies";
   private static final String LAST_LOGON = "lastLogon";
 
-  private static final String NEW_OBJECTIVES = "newObjective";
+  private static final String NEW_OBJECTIVES = "newObjectives";
   private static final String NEW_DEVELOPMENT_NEEDS = "newDevelopmentNeeds";
-  
 
   // There is only 1 instance of the Datastore in the whole system
   private MorphiaOperations morphiaOperations;
@@ -122,6 +107,23 @@ public class EmployeeService
     if (employee == null)
     {
       throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + employeeID);
+    }
+    return employee;
+  }
+
+  /**
+   * Gets Employee from database with the specified email
+   *
+   * @param email of the employee
+   * @return the employee if exists
+   * @throws EmployeeNotFoundException if employee is not found or is null.
+   */
+  public Employee getEmployee(final String email) throws EmployeeNotFoundException
+  {
+    Employee employee = morphiaOperations.getEmployee(EMAIL_ADDRESS, email);
+    if (employee == null)
+    {
+      throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + email);
     }
     return employee;
   }
@@ -765,30 +767,26 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
 
-    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
-
     objective.setProposedBy(employee.getProfile().getFullName());
     employee.addObjectiveNEW(objective);
 
-    morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());  
+    morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
 
-  public void editObjectiveNEW(long employeeId, Objective_NEW objective) throws EmployeeNotFoundException, InvalidAttributeValueException
+  public void editObjectiveNEW(long employeeId, Objective_NEW objective)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-
-    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
 
     employee.editObjectiveNEW(objective);
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
 
-  public void deleteObjectiveNEW(long employeeId, int objectiveId) throws EmployeeNotFoundException, InvalidAttributeValueException
+  public void deleteObjectiveNEW(long employeeId, int objectiveId)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-
-    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
 
     employee.deleteObjectiveNEW(objectiveId);
 
@@ -800,22 +798,65 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
 
-    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
-
     employee.updateObjectiveNEWProgress(objectiveId, progress);
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
 
-  public void toggleObjectiveNEWArchive(long employeeId, int objectiveId) throws EmployeeNotFoundException, InvalidAttributeValueException
+  public void toggleObjectiveNEWArchive(long employeeId, int objectiveId)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-
-    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
 
     employee.toggleObjectiveNEWArchive(objectiveId);
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
+  }
+
+  public void proposeObjectiveNEW(long employeeId, Objective_NEW objective, Set<String> emailSet)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Set<String> successEmails = new HashSet<>();
+    Set<String> errorEmails = new HashSet<>();
+
+    Employee proposer = getEmployee(employeeId);
+    objective.setProposedBy(proposer.getProfile().getFullName());
+
+    for (String email : emailSet)
+    {
+      try
+      {
+        Employee employee = getEmployee(email);
+        employee.addObjectiveNEW(objective);
+        morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), NEW_OBJECTIVES,
+            employee.getObjectivesNEW());
+
+        successEmails.add(email);
+
+        String subject = String.format("Proposed Objective from %s", objective.getProposedBy());
+        String body = Template.populateTemplate(env.getProperty("templates.objective.proposed"),
+            objective.getProposedBy());
+        EmailService.sendEmail(email, subject, body);
+      }
+      catch (EmployeeNotFoundException e)
+      {
+        errorEmails.add(email);
+        continue;
+      }
+      catch (Exception e)
+      {
+        LOGGER.error("Email could not be sent for a proposed objective. Error: ", e);
+      }
+    }
+
+    if (!errorEmails.isEmpty())
+    {
+      if (successEmails.isEmpty()) throw new InvalidAttributeValueException(
+          "Employees not found for the following Email Addresses: " + errorEmails.toString());
+      throw new InvalidAttributeValueException("Objective proposed for: " + successEmails.toString()
+          + ". Employees not found for the following Email Addresses: " + errorEmails.toString());
+    }
+
   }
 
   //////////////////// END NEW OBJECTIVES
@@ -832,8 +873,6 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
 
-    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
-
     developmentNeed.setProposedBy(employee.getProfile().getFullName());
     employee.addDevelopmentNeedNEW(developmentNeed);
 
@@ -842,11 +881,9 @@ public class EmployeeService
   }
 
   public void editDevelopmentNeedNEW(long employeeId, DevelopmentNeed_NEW developmentNeed)
-      throws EmployeeNotFoundException,InvalidAttributeValueException
+      throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-
-    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
 
     employee.editDevelopmentNeedNEW(developmentNeed);
 
@@ -854,11 +891,10 @@ public class EmployeeService
 
   }
 
-  public void deleteDevelopmentNeedNEW(long employeeId, int developmentNeedId) throws EmployeeNotFoundException, InvalidAttributeValueException
+  public void deleteDevelopmentNeedNEW(long employeeId, int developmentNeedId)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-
-    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
 
     employee.deleteDevelopmentNeedNEW(developmentNeedId);
 
@@ -871,8 +907,6 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
 
-    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
-
     employee.updateDevelopmentNeedNEWProgress(developmentNeedId, progress);
 
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
@@ -883,8 +917,6 @@ public class EmployeeService
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-
-    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
 
     employee.toggleDevelopmentNeedNEWArchive(developmentNeedId);
 

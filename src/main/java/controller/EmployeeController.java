@@ -11,13 +11,11 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static utils.Validate.isYearMonthInPast;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Max;
@@ -31,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -50,9 +47,9 @@ import dataStructure.DevelopmentNeed_NEW;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
+import dataStructure.Objective_NEW;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
-import dataStructure.Objective_NEW;
 import services.EmployeeService;
 import services.ews.EmailService;
 import utils.Template;
@@ -79,9 +76,6 @@ public class EmployeeController
   private static final String ERROR_TITLE_EMPTY = "Title can not be empty";
   private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
   private static final String ERROR_EMAIL_RECIPIENTS_EMPTY = "The emailsTo field can not be empty";
-  private static final String ERROR_DUE_DATE_EMPTY = "Due Date can not be empty";
-  private static final String ERROR_PROPOSED_BY_LIMIT = "Max ProposedBy length is 150 characters";
-  private static final String ERROR_PROPOSED_BY_EMPTY = "Proposed By can not be empty";
   private static final String ERROR_DATE_FORMAT = "The date format is incorrect";
   private static final String ERROR_NOTE_PROVIDER_NAME_EMPTY = "Provider name can not be empty.";
   private static final String ERROR_NOTE_DESCRIPTION_EMPTY = "Note description can not be empty.";
@@ -89,7 +83,6 @@ public class EmployeeController
   private static final String ERROR_COMPETENCY_TITLE_BLANK = "Compentency title cannot be empty";
   private static final String ERROR_CATEGORY = "Category must be from 0 to 4";
   private static final String ERROR_EMAILS_EMPTY = "Emails field can not be empty";
-  private static final String EMPTY_STRING = "";
   private static final String YEAR_MONTH_REGEX = "^\\d{4}[-](0[1-9]|1[012])$";
   private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
   private static final String[] PROGRESS_LIST = { "PROPOSED", "IN_PROGRESS", "COMPLETE" };
@@ -943,27 +936,26 @@ public class EmployeeController
     }
   }
 
-  // @RequestMapping(value = "/proposeObjectiveNEW/{employeeId}", method = POST)
-  // public ResponseEntity<?> proposeObjectiveNEW(
-  // @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-  // @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
-  // @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String
-  // description,
-  // @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
-  // @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails)
-  // {
-  // try
-  // {
-  // Set emailSet = Utils.stringEmailsToHashSet(emails);
-  // employeeService.proposeObjectiveNEW(employeeId,
-  // new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING), emailSet);
-  // return ok("Objective inserted correctly");
-  // }
-  // catch (InvalidAttributeValueException e)
-  // {
-  // return badRequest().body(error(e.getMessage()));
-  // }
-  // }
+  @RequestMapping(value = "/proposeObjectiveNEW/{employeeId}", method = POST)
+  public ResponseEntity<?> proposeObjectiveNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
+      @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails)
+  {
+    try
+    {
+      Set<String> emailSet = Utils.stringEmailsToHashSet(emails);
+      employeeService.proposeObjectiveNEW(employeeId,
+          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate))), emailSet);
+      return ok("Objective inserted correctly");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
 
   //////////////////// END NEW OBJECTIVES
 
