@@ -1,5 +1,6 @@
 package services;
 
+import static application.GlobalExceptionHandler.error;
 import static dataStructure.Constants.DEVELOPMENTNEED_NOTADDED_ERROR;
 import static dataStructure.Constants.INVALID_CONTEXT_PROGRESS;
 import static dataStructure.Constants.INVALID_DEVNEEDID_CONTEXT;
@@ -7,6 +8,9 @@ import static dataStructure.Constants.INVALID_DEVNEED_OR_EMPLOYEEID;
 import static dataStructure.Constants.INVALID_OBJECTIVEID;
 import static dataStructure.Constants.NULL_USER_DATA;
 import static dataStructure.Constants.OBJECTIVE_NOTADDED_ERROR;
+import static org.springframework.http.ResponseEntity.badRequest;
+import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,14 +20,19 @@ import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
+import javax.validation.constraints.Min;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import dataStructure.Competency;
+import dataStructure.Competency_NEW;
 import dataStructure.DevelopmentNeed;
 import dataStructure.DevelopmentNeed_NEW;
 import dataStructure.Employee;
@@ -33,6 +42,7 @@ import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 import dataStructure.Objective_NEW;
+import dataStructure.Competency_NEW.CompetencyTitle;
 import dataStructure.Objective_NEW.Progress;
 import services.db.MorphiaOperations;
 import services.ews.EmailService;
@@ -71,6 +81,7 @@ public class EmployeeService
 
   private static final String NEW_OBJECTIVES = "newObjectives";
   private static final String NEW_DEVELOPMENT_NEEDS = "newDevelopmentNeeds";
+  private static final String NEW_COMPETENCIES = "newCompetencies";
 
   // There is only 1 instance of the Datastore in the whole system
   private MorphiaOperations morphiaOperations;
@@ -921,8 +932,26 @@ public class EmployeeService
     employee.toggleDevelopmentNeedNEWArchive(developmentNeedId);
 
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
-
   }
 
   //////////////////// END NEW DEVELOPMENT NEEDS
+
+  //////////////////// START NEW COMPETENCIES
+
+  public List<Competency_NEW> getCompetenciesNEW(long employeeId) throws EmployeeNotFoundException
+  {
+    return getEmployee(employeeId).getCompetenciesNEW();
+  }
+  
+  public void toggleCompetencyNEW(long employeeId, CompetencyTitle competencyTitle)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    employee.toggleCompetencyNEW(competencyTitle);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_COMPETENCIES, employee.getCompetenciesNEW());
+  }
+
+  //////////////////// END NEW COMPETENCIES
 }

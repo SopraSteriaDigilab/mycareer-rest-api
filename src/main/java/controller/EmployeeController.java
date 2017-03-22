@@ -12,7 +12,9 @@ import static utils.Validate.isYearMonthInPast;
 
 import java.io.IOException;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -41,6 +43,7 @@ import com.mongodb.MongoException;
 
 import application.GlobalExceptionHandler;
 import dataStructure.Competency;
+import dataStructure.Competency_NEW;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.DevelopmentNeed_NEW;
@@ -48,6 +51,7 @@ import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
 import dataStructure.Objective_NEW;
+import dataStructure.Competency_NEW.CompetencyTitle;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
 import services.EmployeeService;
@@ -82,8 +86,10 @@ public class EmployeeController
   private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
   private static final String ERROR_COMPETENCY_TITLE_BLANK = "Compentency title cannot be empty";
   private static final String ERROR_CATEGORY = "Category must be from 0 to 4";
+  private static final String ERROR_COMPETENCY_TITLE = "Invalida Competency, please enter one of the following: 'Accountability', 'Effective Communication', 'Leadership', 'Service Excellence', 'Business Awareness', 'Future Orientation', 'Innovation and Change', 'Teamwork'";
   private static final String ERROR_EMAILS_EMPTY = "Emails field can not be empty";
-  private static final String YEAR_MONTH_REGEX = "^\\d{4}[-](0[1-9]|1[012])$";
+  private static final String REGEX_YEAR_MONTH = "^\\d{4}[-](0[1-9]|1[012])$";
+  private static final String REGEX_COMPETENCY_TITLE = "^(Accountability)|(Effective Communication)|(Leadership)|(Service Excellence)|(Business Awareness)|(Future Orientation)|(Innovation and Change)|(Teamwork)$";
   private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
   private static final String[] PROGRESS_LIST = { "PROPOSED", "IN_PROGRESS", "COMPLETE" };
 
@@ -853,7 +859,7 @@ public class EmployeeController
   public ResponseEntity<?> addObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
-      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate)
+      @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate)
   {
     try
     {
@@ -872,7 +878,7 @@ public class EmployeeController
       @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
-      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate)
+      @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate)
   {
     try
     {
@@ -941,7 +947,7 @@ public class EmployeeController
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
-      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
+      @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
       @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails)
   {
     try
@@ -980,7 +986,7 @@ public class EmployeeController
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
-      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
+      @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
       @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
   {
     try
@@ -1001,7 +1007,7 @@ public class EmployeeController
       @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
-      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
+      @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
       @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
   {
     try
@@ -1067,5 +1073,39 @@ public class EmployeeController
   }
 
   //////////////////// END NEW DEVELOPMENT NEEDS
+
+  //////////////////// START NEW COMPETENCIES
+
+  @RequestMapping(value = "/getCompetenciesNEW/{employeeId}", method = GET)
+  public ResponseEntity<?> getCompetenciesNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
+  {
+    try
+    {
+      return ok(employeeService.getCompetenciesNEW(employeeId));
+    }
+    catch (EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/toggleCompetencyNEW/{employeeId}", method = POST)
+  public ResponseEntity<?> toggleCompetencyNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Pattern(regexp = REGEX_COMPETENCY_TITLE, message = ERROR_COMPETENCY_TITLE) String competencyTitle)
+  {
+    try
+    {
+      employeeService.toggleCompetencyNEW(employeeId, CompetencyTitle.getCompetencyTitleFromString(competencyTitle));
+      return ok("Competency updated");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  //////////////////// END NEW COMPETENCIES
 
 }
