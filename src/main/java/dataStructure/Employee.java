@@ -20,6 +20,7 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
 import dataStructure.Objective_NEW.Progress;
+import dataStructure.Competency_NEW.CompetencyTitle;
 import dataStructure.DevelopmentNeed_NEW.Category;
 
 /**
@@ -63,6 +64,9 @@ public class Employee implements Serializable
   @Embedded
   private List<List<Competency>> competencies;
 
+  @Embedded
+  private List<Competency_NEW> newCompetencies;
+
   /** Date Property - Represents the date of the last logon for the user */
   private Date lastLogon;
 
@@ -77,6 +81,7 @@ public class Employee implements Serializable
     this.newDevelopmentNeeds = new ArrayList<DevelopmentNeed_NEW>();
     this.feedbackRequests = new ArrayList<FeedbackRequest>();
     this.competencies = new ArrayList<List<Competency>>();
+    this.setCompetenciesNEW();
   }
 
   /** Default Constructor - Responsible for initialising this object. */
@@ -914,10 +919,10 @@ public class Employee implements Serializable
     return true;
   }
 
-  private DevelopmentNeed_NEW getDevelopmentNeedNEW(int objectiveId) throws InvalidAttributeValueException
+  private DevelopmentNeed_NEW getDevelopmentNeedNEW(int developmentNeedId) throws InvalidAttributeValueException
   {
     Optional<DevelopmentNeed_NEW> developmentNeed = getDevelopmentNeedsNEW().stream()
-        .filter(o -> o.getId() == objectiveId).findFirst();
+        .filter(d -> d.getId() == developmentNeedId).findFirst();
 
     if (!developmentNeed.isPresent()) throw new InvalidAttributeValueException("Development Need not found.");
 
@@ -925,5 +930,47 @@ public class Employee implements Serializable
   }
 
   //////////////////// END NEW DEVELOPMENT NEEDS
+
+  //////////////////// START NEW COMPETENCIES
+
+  /** @return the newCompetencies */
+  public List<Competency_NEW> getCompetenciesNEW()
+  {
+    return newCompetencies;
+  }
+
+  public void setCompetenciesNEW()
+  {
+    if (newCompetencies == null)
+    {
+      this.newCompetencies = new ArrayList<Competency_NEW>();
+      int id = 0;
+      for (CompetencyTitle competenctyTitle : CompetencyTitle.values())
+      {
+        this.newCompetencies.add(new Competency_NEW(id++, competenctyTitle));
+      }
+    }
+  }
+  
+  public boolean toggleCompetencyNEW(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
+  {
+    Competency_NEW competency = getCompetencyNEW(competencyTitle);
+
+    competency.setSelected(!competency.isSelected());
+
+    return true;
+  }
+  
+  private Competency_NEW getCompetencyNEW(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
+  {
+    Optional<Competency_NEW> competency = getCompetenciesNEW().stream()
+        .filter(c -> c.getTitle().equals(competencyTitle.getCompetencyTitleStr())).findFirst();
+
+    if (!competency.isPresent()) throw new InvalidAttributeValueException("Competency Need not found.");
+
+    return competency.get();
+  }
+
+  //////////////////// END NEW COMPETENCIES
 
 }
