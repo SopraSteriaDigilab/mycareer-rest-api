@@ -83,12 +83,12 @@ public class Objective_NEW extends DBObject
    * Objective_NEW Constructor - Responsible for initialising this object.
    *
    */
-  public Objective_NEW(String title, String description, LocalDate dueDate, String proposedBy)
+  public Objective_NEW(String title, String description, LocalDate dueDate)
   {
     this.setTitle(title);
     this.setDescription(description);
     this.setDueDate(dueDate);
-    this.setProposedBy(proposedBy);
+    this.setProposedBy("");
     this.setProgress(Progress.PROPOSED);
     this.isArchived(false);
   }
@@ -97,9 +97,9 @@ public class Objective_NEW extends DBObject
    * Objective_NEW Constructor - Responsible for initialising this object.
    *
    */
-  public Objective_NEW(int id, String title, String description, LocalDate dueDate, String proposedBy)
+  public Objective_NEW(int id, String title, String description, LocalDate dueDate)
   {
-    this(title, description, dueDate, proposedBy);
+    this(title, description, dueDate);
     this.setId(id);
   }
 

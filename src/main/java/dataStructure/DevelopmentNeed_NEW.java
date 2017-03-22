@@ -63,19 +63,18 @@ public class DevelopmentNeed_NEW extends Objective_NEW
   /**
    * Development Need Constructor - Responsible for initialising this object.
    */
-  public DevelopmentNeed_NEW(String title, String description, LocalDate dueDate, String proposedBy, Category category)
+  public DevelopmentNeed_NEW(String title, String description, LocalDate dueDate, Category category)
   {
-    super(title, description, dueDate, proposedBy);
+    super(title, description, dueDate);
     this.setCategory(category);
   }
 
   /**
    * Development Need Constructor - Responsible for initialising this object.
    */
-  public DevelopmentNeed_NEW(int id, String title, String description, LocalDate dueDate, String proposedBy,
-      Category category)
+  public DevelopmentNeed_NEW(int id, String title, String description, LocalDate dueDate, Category category)
   {
-    this(title, description, dueDate, proposedBy, category);
+    this(title, description, dueDate, category);
     this.setId(id);
   }
 

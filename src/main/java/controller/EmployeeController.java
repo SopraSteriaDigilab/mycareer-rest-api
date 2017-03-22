@@ -96,7 +96,7 @@ public class EmployeeController
 
   @Autowired
   private EmployeeService employeeService;
-  
+
   @Autowired
   private EmployeeProfileService employeeProfileService;
 
@@ -666,8 +666,10 @@ public class EmployeeController
    * @return a message explaining if the competency has been updated or if there was an error while completing the task
    */
   @RequestMapping(value = "/updateCompetency/{employeeID}", method = POST)
-  public ResponseEntity<?> addCompetenciesToAUser(@PathVariable("employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
-      @RequestParam(value = "title") @NotBlank(message = ERROR_COMPETENCY_TITLE_BLANK) String title, @RequestParam(value = "status") boolean status)
+  public ResponseEntity<?> addCompetenciesToAUser(
+      @PathVariable("employeeID") @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam(value = "title") @NotBlank(message = ERROR_COMPETENCY_TITLE_BLANK) String title,
+      @RequestParam(value = "status") boolean status)
   {
     try
     {
@@ -863,7 +865,7 @@ public class EmployeeController
     try
     {
       employeeService.addObjectiveNEW(employeeId,
-          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING));
+          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate))));
       return ok("Objective inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -881,8 +883,8 @@ public class EmployeeController
   {
     try
     {
-      employeeService.editObjectiveNEW(employeeId, new Objective_NEW(objectiveId, title, description,
-          isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING));
+      employeeService.editObjectiveNEW(employeeId,
+          new Objective_NEW(objectiveId, title, description, isYearMonthInPast(YearMonth.parse(dueDate))));
       return ok("Objective updated correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -941,26 +943,27 @@ public class EmployeeController
     }
   }
 
-//  @RequestMapping(value = "/proposeObjectiveNEW/{employeeId}", method = POST)
-//  public ResponseEntity<?> proposeObjectiveNEW(
-//      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
-//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
-//      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
-//      @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails)
-//  {
-//    try
-//    {
-//      Set emailSet = Utils.stringEmailsToHashSet(emails);
-//      employeeService.proposeObjectiveNEW(employeeId,
-//          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING), emailSet);
-//      return ok("Objective inserted correctly");
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
+  // @RequestMapping(value = "/proposeObjectiveNEW/{employeeId}", method = POST)
+  // public ResponseEntity<?> proposeObjectiveNEW(
+  // @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+  // @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+  // @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String
+  // description,
+  // @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
+  // @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails)
+  // {
+  // try
+  // {
+  // Set emailSet = Utils.stringEmailsToHashSet(emails);
+  // employeeService.proposeObjectiveNEW(employeeId,
+  // new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING), emailSet);
+  // return ok("Objective inserted correctly");
+  // }
+  // catch (InvalidAttributeValueException e)
+  // {
+  // return badRequest().body(error(e.getMessage()));
+  // }
+  // }
 
   //////////////////// END NEW OBJECTIVES
 
@@ -990,9 +993,8 @@ public class EmployeeController
   {
     try
     {
-      employeeService.addDevelopmentNeedNEW(employeeId,
-          new DevelopmentNeed_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING,
-              DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
+      employeeService.addDevelopmentNeedNEW(employeeId, new DevelopmentNeed_NEW(title, description,
+          isYearMonthInPast(YearMonth.parse(dueDate)), DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -1012,9 +1014,8 @@ public class EmployeeController
   {
     try
     {
-      employeeService.editDevelopmentNeedNEW(employeeId,
-          new DevelopmentNeed_NEW(developmentNeedId, title, description, isYearMonthInPast(YearMonth.parse(dueDate)),
-              EMPTY_STRING, DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
+      employeeService.editDevelopmentNeedNEW(employeeId, new DevelopmentNeed_NEW(developmentNeedId, title, description,
+          isYearMonthInPast(YearMonth.parse(dueDate)), DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need updated correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
