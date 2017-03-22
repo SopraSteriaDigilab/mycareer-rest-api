@@ -214,26 +214,25 @@ public class EmployeeController
     }
   }
 
-  //TODO Check Phase-two-hr
-//  /**
-//   * 
-//   * GET end point - gets all notes for a user
-//   * 
-//   * @param employeeID the ID of the employee
-//   * @return list of notes
-//   */
-//  @RequestMapping(value = "/getNotes/{employeeID}", method = GET)
-//  public ResponseEntity<?> getNotes(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
-//  {
-//    try
-//    {
-//      return ok(employeeService.getNotes(employeeID));
-//    }
-//    catch (final EmployeeNotFoundException e)
-//    {
-//      return badRequest().body(e.getMessage());
-//    }
-//  }
+  /**
+   * 
+   * GET end point - gets all notes for a user
+   * 
+   * @param employeeID the ID of the employee
+   * @return list of notes
+   */
+  @RequestMapping(value = "/getNotes/{employeeID}", method = GET)
+  public ResponseEntity<?> getNotes(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
+  {
+    try
+    {
+      return ok(employeeService.getNotes(employeeID));
+    }
+    catch (final EmployeeNotFoundException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
 
   /**
    * 
