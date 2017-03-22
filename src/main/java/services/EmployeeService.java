@@ -837,7 +837,7 @@ public class EmployeeService
     developmentNeed.setProposedBy(employee.getProfile().getFullName());
     employee.addDevelopmentNeedNEW(developmentNeed);
 
-    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
 
   }
 
@@ -850,7 +850,7 @@ public class EmployeeService
 
     employee.editDevelopmentNeedNEW(developmentNeed);
 
-    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
 
   }
 
@@ -862,7 +862,7 @@ public class EmployeeService
 
     employee.deleteDevelopmentNeedNEW(developmentNeedId);
 
-    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
 
   }
 
@@ -875,7 +875,7 @@ public class EmployeeService
 
     employee.updateDevelopmentNeedNEWProgress(developmentNeedId, progress);
 
-    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
 
   }
 
@@ -888,7 +888,7 @@ public class EmployeeService
 
     employee.toggleDevelopmentNeedNEWArchive(developmentNeedId);
 
-    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
 
   }
 
