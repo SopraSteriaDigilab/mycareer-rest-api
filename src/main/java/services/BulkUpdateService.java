@@ -44,6 +44,7 @@ public class BulkUpdateService
   }
 
   @Scheduled(cron = "0 30 23 * * ?")
+//  @Scheduled(fixedDelay = 1)
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
     final Instant startADOps = Instant.now();
@@ -160,7 +161,7 @@ public class BulkUpdateService
     LOGGER.info("With surname: {}",
         allEmployeeProfiles.stream().filter(e -> e.getSurname() != null && !e.getSurname().isEmpty()).count());
     LOGGER.info("With email address: {}", allEmployeeProfiles.stream()
-        .filter(e -> e.getEmailAddress() != null && !e.getEmailAddress().isEmpty()).count());
+        .filter(e -> e.getEmailAddresses() != null && !e.getEmailAddresses().isEmpty()).count());
     LOGGER.info("With reportees: {}",
         allEmployeeProfiles.stream().filter(e -> e.getReporteeCNs() != null && !e.getReporteeCNs().isEmpty()).count());
     LOGGER.info("With department: {}", allEmployeeProfiles.stream()

@@ -4,10 +4,13 @@ import static utils.Conversions.*;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -30,9 +33,7 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
   private static final String REPORTEES_NOT_FOUND = "Exception while fetching reportees: {}";
   private static final String EMPLOYEE_NOT_FOUND = "Cannot create an EmployeeProfile: Exception thrown while fetching employeeID: ";
   private static final String HR_PERMISSION_NOT_FOUND = "Exception while fetching HR Dashboard Permission: {}";
-  private static final String SECTOR_NOT_FOUND = "Exception while fetching sector: {}";
   private static final String ATTRIBUTE_NOT_FOUND = "Exception while fetching attribute, {}: {}";
-  private static final String ACCOUNT_EXPIRES_NOT_FOUND = "Exception while fetching account expires: {}";
 
   private static final String SN = "sn";
   private static final String GIVEN_NAME = "givenName";
@@ -76,7 +77,9 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
 
     profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_2))
         .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
-        .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddress(mapString(MAIL, attributes))
+        .username(mapString(SAM_ACCOUNT_NAME, attributes))
+        .emailAddresses(
+            Stream.of(mapString(MAIL, attributes), mapString(TARGET_ADDRESS, attributes)).collect(Collectors.toSet()))
         .company(mapString(COMPANY, attributes)).superSector(mapString(OU, attributes)).sector(mapSector(attributes))
         .steriaDepartment(mapString(DEPARTMENT, attributes)).manager(mapIsManager(attributes))
         .reporteeCNs(mapReporteeCNs(attributes)).accountExpires(mapAccountExpires(attributes)).build();
@@ -185,7 +188,7 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
     {
       return null;
     }
-    
+
     return ldapTimestampToDate(result);
   }
 

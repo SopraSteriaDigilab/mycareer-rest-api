@@ -7,6 +7,7 @@ import static microsoft.exchange.webservices.data.core.service.schema.EmailMessa
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -88,6 +89,21 @@ public class EmailService
     List<String> recipients = Arrays.asList(recipient); 
     sendEmail(recipients, subject, body);
     //TODO Consider removing/redoing
+  }
+
+  /**
+   * Static method to send email to multiple recipients
+   *
+   * @param recipientsSet
+   * @param subject
+   * @param body
+   * @throws Exception
+   */
+  public static void sendEmail(Set<String> recipientsSet, String subject, String body) throws Exception
+  {
+    final List<String> recipientsList = new ArrayList<>();
+    recipientsList.addAll(recipientsSet);
+    sendEmail(recipientsList, subject, body);
   }
   
   /**
@@ -325,7 +341,7 @@ public class EmailService
     Employee employee = employeeService.getEmployee(employeeID);
     String intendedRecipient = Utils.getRecipientFromUndeliverableEmail(body);
 
-    String errorRecipient = employee.getProfile().getEmailAddress();
+    Set<String> errorRecipient = employee.getProfile().getEmailAddresses();
     String errorSubject = "Feedback Request Issue";
     // String errorBody = String.format("There was an issue proccessing your feedback to %s, please make sure the email
     // address is correct and try again",intendedRecipient);
@@ -354,5 +370,4 @@ public class EmailService
       emailService.setTimeout(timeout);
     }
   }
-
 }

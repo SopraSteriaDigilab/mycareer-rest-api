@@ -1,5 +1,8 @@
 package services.db;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
@@ -21,6 +24,7 @@ public class MorphiaOperations
 {
   private static final String PROFILE = "profile";
   private static final String EMPLOYEE_ID = "profile.employeeID";
+  private static final String EMAIL_ADDRESSES = "profile.emailAddresses";
 
   private final Datastore datastore;
 
@@ -48,6 +52,34 @@ public class MorphiaOperations
 
     return employee;
   }
+  
+  /**
+   * Retrieves an employee object from the database by matching the given email address
+   *
+   * @param emailAddress the email address to search for
+   * @return the {@code Employee} object or null if it could not be found
+   */
+  public Employee getEmployeeFromEmailAddress(final String emailAddress)
+  {
+    Set<String> emailAddresses = new HashSet<>();
+    emailAddresses.add(emailAddress);
+
+    return getEmployeeFromEmailAddress(emailAddresses);
+  }
+  
+  /**
+   * 
+   * Retrieves an employee object from the database by matching the given email addresses
+   *
+   * @param emailAddresses the email addresses to search for
+   * @return the {@code Employee} object or null if it could not be found
+   */
+  public Employee getEmployeeFromEmailAddress(final Set<String> emailAddresses)
+  {
+    Employee employee = datastore.find(Employee.class).filter(in(EMAIL_ADDRESSES), emailAddresses).get();
+    
+    return employee;
+  }
 
   /**
    * Retrieves an employee profile object from the database based on the given criteria.
@@ -62,18 +94,6 @@ public class MorphiaOperations
         .getProfile();
 
     return profile;
-  }
-
-  /**
-   * Forms a Morphia {@code Query<Employee>} object
-   *
-   * @param field The field to form the query on
-   * @param value The value of the field to form the query on
-   * @return the employee query
-   */
-  private <T> Query<Employee> getEmployeeQuery(final String field, final T value)
-  {
-    return datastore.find(Employee.class, field, value);
   }
   
   /**
@@ -93,5 +113,15 @@ public class MorphiaOperations
   public void updateEmployee(Employee employee)
   {
     datastore.save(employee);
+  }
+
+  private <T> Query<Employee> getEmployeeQuery(final String field, final T value)
+  {
+    return datastore.find(Employee.class, field, value);
+  }
+
+  private String in(String field)
+  {
+    return field.concat(" in");
   }
 }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -33,7 +34,7 @@ public class EmployeeProfile implements Serializable
   private String username;
 
   /** String Property - Represents the employee emailAddress. */
-  private String emailAddress;
+  private Set<String> emailAddresses;
 
   /** boolean Property - Represents if the employee is a manager. */
   private boolean isManager;
@@ -41,14 +42,8 @@ public class EmployeeProfile implements Serializable
   /** boolean Property - Represents if the employee has access to the hr dashboard. */
   private boolean hasHRDash;
 
-  /** String Property - Represents the GUID from the AD. */
-  private String guid;
-
   /** String Property - Represents the employee company. */
   private String company;
-
-  /** String Property - Represents the employee sopraDepartment. */
-  private String sopraDepartment;
 
   /** String Property - Represents the employee steriaDepartment. */
   private String steriaDepartment;
@@ -83,12 +78,10 @@ public class EmployeeProfile implements Serializable
     this.surname = builder.surname;
     this.forename = builder.forename;
     this.username = builder.username;
-    this.emailAddress = builder.emailAddress;
+    this.emailAddresses = builder.emailAddresses;
     this.isManager = builder.isManager;
     this.hasHRDash = builder.hasHRDash;
-    this.guid = builder.guid;
     this.company = builder.company;
-    this.sopraDepartment = builder.sopraDepartment;
     this.steriaDepartment = builder.steriaDepartment;
     this.sector = builder.sector;
     this.superSector = builder.superSector;
@@ -145,15 +138,15 @@ public class EmployeeProfile implements Serializable
   }
 
   /** @return the emailAddress */
-  public String getEmailAddress()
+  public Set<String> getEmailAddresses()
   {
-    return emailAddress;
+    return emailAddresses;
   }
 
   /** @param emailAddress The value to set. */
-  public void setEmailAddress(String emailAddress)
+  public void setEmailAddresses(Set<String> emailAddresses)
   {
-    this.emailAddress = emailAddress;
+    this.emailAddresses = emailAddresses;
   }
 
   /** @return the isManager */
@@ -180,18 +173,6 @@ public class EmployeeProfile implements Serializable
     this.hasHRDash = hasHRDash;
   }
 
-  /** @return the guid */
-  public String getGuid()
-  {
-    return guid;
-  }
-
-  /** @param guid The value to set. */
-  public void setGuid(String guid)
-  {
-    this.guid = guid;
-  }
-
   /** @return the company */
   public String getCompany()
   {
@@ -202,18 +183,6 @@ public class EmployeeProfile implements Serializable
   public void setCompany(String company)
   {
     this.company = company;
-  }
-
-  /** @return the sopraDepartment */
-  public String getSopraDepartment()
-  {
-    return sopraDepartment;
-  }
-
-  /** @param sopraDepartment The value to set. */
-  public void setSopraDepartment(String sopraDepartment)
-  {
-    this.sopraDepartment = sopraDepartment;
   }
 
   /** @return the steriaDepartment */
@@ -331,7 +300,7 @@ public class EmployeeProfile implements Serializable
 
     return employeeID == employeeProfile.employeeID && Objects.equals(surname, employeeProfile.surname)
         && Objects.equals(forename, employeeProfile.forename) && Objects.equals(username, employeeProfile.username)
-        && Objects.equals(emailAddress, employeeProfile.emailAddress) && isManager == employeeProfile.isManager
+        && Objects.equals(emailAddresses, employeeProfile.emailAddresses) && isManager == employeeProfile.isManager
         && Objects.equals(hasHRDash, employeeProfile.hasHRDash) && Objects.equals(company, employeeProfile.company)
         && Objects.equals(steriaDepartment, employeeProfile.steriaDepartment)
         && Objects.equals(sector, employeeProfile.sector) && Objects.equals(superSector, employeeProfile.superSector)
@@ -349,7 +318,7 @@ public class EmployeeProfile implements Serializable
   @Override
   public int hashCode()
   {
-    return Objects.hash(employeeID, surname, forename, username, emailAddress, isManager, hasHRDash, company,
+    return Objects.hash(employeeID, surname, forename, username, emailAddresses, isManager, hasHRDash, company,
         steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
   }
 
@@ -357,7 +326,7 @@ public class EmployeeProfile implements Serializable
   public String toString()
   {
     return "EmployeeProfile [employeeID=" + employeeID + ", surname=" + surname + ", forename=" + forename
-        + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager=" + isManager + ", hasHRDash="
+        + ", username=" + username + ", emailAddress=" + emailAddresses + ", isManager=" + isManager + ", hasHRDash="
         + hasHRDash + ", company=" + company + ", steriaDepartment=" + steriaDepartment + ", sector=" + sector
         + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + ", accountExpires=" + accountExpires + "]";
   }
@@ -378,7 +347,7 @@ public class EmployeeProfile implements Serializable
     private String username;
 
     /** String Property - Represents the employee emailAddress. */
-    private String emailAddress;
+    private Set<String> emailAddresses;
 
     /** boolean Property - Represents if the employee is a manager. */
     private boolean isManager;
@@ -386,14 +355,8 @@ public class EmployeeProfile implements Serializable
     /** boolean Property - Represents if the employee has access to the hr dashboard. */
     private boolean hasHRDash;
 
-    /** String Property - Represents the GUID from the AD. */
-    private String guid;
-
     /** String Property - Represents the employee company. */
     private String company;
-
-    /** String Property - Represents the employee sopraDepartment. */
-    private String sopraDepartment;
 
     /** String Property - Represents the employee steriaDepartment. */
     private String steriaDepartment;
@@ -438,10 +401,10 @@ public class EmployeeProfile implements Serializable
       return this;
     }
 
-    /** @param emailAddress The value to set. */
-    public Builder emailAddress(String emailAddress)
+    /** @param emailAddresses The value to set. */
+    public Builder emailAddresses(Set<String> emailAddresses)
     {
-      this.emailAddress = emailAddress;
+      this.emailAddresses = emailAddresses;
       return this;
     }
 
@@ -459,24 +422,10 @@ public class EmployeeProfile implements Serializable
       return this;
     }
 
-    /** @param gUID The value to set. */
-    public Builder guid(String guid)
-    {
-      this.guid = guid;
-      return this;
-    }
-
     /** @param company The value to set. */
     public Builder company(String company)
     {
       this.company = company;
-      return this;
-    }
-
-    /** @param sopraDepartment The value to set. */
-    public Builder sopraDepartment(String sopraDepartment)
-    {
-      this.sopraDepartment = sopraDepartment;
       return this;
     }
 

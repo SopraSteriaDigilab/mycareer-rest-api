@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.management.InvalidAttributeValueException;
 import javax.validation.constraints.Min;
@@ -70,7 +72,6 @@ public class EmployeeService
   public static final String FEEDBACK_REQUEST = "Feedback Request";
 
   private static final String EMPLOYEE_ID = "profile.employeeID";
-  private static final String EMAIL_ADDRESS = "profile.emailAddress";
   private static final String NOTES = "notes";
   private static final String OBJECTIVES = "objectives";
   private static final String DEVELOPMENT_NEEDS = "developmentNeeds";
@@ -131,7 +132,7 @@ public class EmployeeService
    */
   public Employee getEmployee(final String email) throws EmployeeNotFoundException
   {
-    Employee employee = morphiaOperations.getEmployee(EMAIL_ADDRESS, email);
+    Employee employee = morphiaOperations.getEmployeeFromEmailAddress(email);
     if (employee == null)
     {
       throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + email);
@@ -258,7 +259,7 @@ public class EmployeeService
     {
       long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
 
-      reporteeList.add(matchADWithMongoData(employeeProfileService.fetchEmployeeProfile(temp)));
+      reporteeList.add(employeeProfileService.fetchEmployeeProfile(temp));
     }
     return reporteeList;
   }
@@ -408,7 +409,7 @@ public class EmployeeService
   {
     addNote(reporteeEmployeeID, note);
 
-    String reporteeEmail = getEmployee(reporteeEmployeeID).getProfile().getEmailAddress();
+    Set<String> reporteeEmail = getEmployee(reporteeEmployeeID).getProfile().getEmailAddresses();
     String subject = String.format("Note added from %s", note.getProviderName());
     try
     {
@@ -618,6 +619,14 @@ public class EmployeeService
         employee.getFeedbackRequestsList());
   }
 
+  public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
+      boolean isFeedbackRequest) throws Exception
+
+  {
+    final Set<String> recipientEmails = Stream.of(recipientEmail).collect(Collectors.toSet());
+    addFeedback(providerEmail, recipientEmails, feedbackDescription, isFeedbackRequest);
+  }
+
   /**
    * Add a feedback to an employee
    *
@@ -626,12 +635,13 @@ public class EmployeeService
    * @param feedbackDescription
    * @throws Exception
    */
-  public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
+  public void addFeedback(String providerEmail, Set<String> recipientEmail, String feedbackDescription,
       boolean isFeedbackRequest) throws Exception
 
   {
-    Validate.areStringsEmptyorNull(providerEmail, recipientEmail, feedbackDescription);
-    Employee employee = morphiaOperations.getEmployee(EMAIL_ADDRESS, recipientEmail);
+    Validate.areStringsEmptyorNull(providerEmail, feedbackDescription);
+    Validate.areStringsEmptyorNull(recipientEmail.toArray(new String[0]));
+    Employee employee = morphiaOperations.getEmployeeFromEmailAddress(recipientEmail);
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
     String providerName = null;
 
@@ -681,7 +691,7 @@ public class EmployeeService
 
     employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
     morphiaOperations.updateEmployee(employeeID, FEEDBACK_REQUESTS, employee.getFeedbackRequestsList());
-    addFeedback(providerEmail, employee.getProfile().getEmailAddress(), feedbackDescription, true);
+    addFeedback(providerEmail, employee.getProfile().getEmailAddresses(), feedbackDescription, true);
   }
 
   /**
