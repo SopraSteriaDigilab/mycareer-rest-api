@@ -781,10 +781,8 @@ public class Employee implements Serializable
     this.newObjectives = newObjectives;
   }
 
-  public boolean addObjectiveNEW(Objective_NEW objective) throws InvalidAttributeValueException
+  public boolean addObjectiveNEW(Objective_NEW objective)
   {
-    if (objective == null) throw new InvalidAttributeValueException("Objective is invalid.");
-
     objective.setId(nextObjectiveID());
 
     return this.newObjectives.add(objective);
@@ -792,7 +790,6 @@ public class Employee implements Serializable
 
   public boolean editObjectiveNEW(Objective_NEW objective) throws InvalidAttributeValueException
   {
-    if (objective == null) throw new InvalidAttributeValueException("Objective is invalid.");
 
     Objective_NEW objectiveToEdit = getObjectiveNEW(objective.getId());
     
@@ -862,10 +859,8 @@ public class Employee implements Serializable
     this.newDevelopmentNeeds = newDevelopmentNeeds;
   }
 
-  public boolean addDevelopmentNeedNEW(DevelopmentNeed_NEW developmentNeed) throws InvalidAttributeValueException
+  public boolean addDevelopmentNeedNEW(DevelopmentNeed_NEW developmentNeed)
   {
-    if (developmentNeed == null) throw new InvalidAttributeValueException("Development Need is invalid.");
-
     developmentNeed.setId(nextDevelopmentNeedID());
 
     return this.newDevelopmentNeeds.add(developmentNeed);
@@ -873,8 +868,6 @@ public class Employee implements Serializable
 
   public boolean editDevelopmentNeedNEW(DevelopmentNeed_NEW developmentNeed) throws InvalidAttributeValueException
   {
-    if (developmentNeed == null) throw new InvalidAttributeValueException("Development Need is invalid.");
-
     DevelopmentNeed_NEW developmentNeedToEdit = getDevelopmentNeedNEW(developmentNeed.getId());
 
     if (developmentNeedToEdit.getArchived() || developmentNeedToEdit.getProgress().equals(Progress.COMPLETE.getProgressStr()))

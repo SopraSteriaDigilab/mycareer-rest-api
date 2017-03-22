@@ -83,6 +83,10 @@ public class EmployeeService
   private static final String COMPETENCIES = "competencies";
   private static final String LAST_LOGON = "lastLogon";
 
+  private static final String NEW_OBJECTIVES = "newObjective";
+  private static final String NEW_DEVELOPMENT_NEEDS = "newDevelopmentNeeds";
+  
+
   // There is only 1 instance of the Datastore in the whole system
   private MorphiaOperations morphiaOperations;
 
@@ -669,7 +673,7 @@ public class EmployeeService
 
   /**
    * 
-   * @param employeeId the employee ID
+   * @param employeeId the employee IDsdfsd
    * @param data the Competency to update
    * @param title the title of the competency (max 200 characters)
    * @return true or false to establish whether the task has been completed successfully or not This method inserts a
@@ -750,179 +754,143 @@ public class EmployeeService
     morphiaOperations.updateEmployee(profile.getEmployeeID(), LAST_LOGON, employee.getLastLogon());
   }
 
-//  /**
-//   * Get Employee query with the specified id
-//   *
-//   * @param employeeId
-//   * @return
-//   */
-//  private Query<Employee> getEmployeeQuery(long employeeID)
-//  {
-//    return dbConnection.createQuery(Employee.class).filter("profile.employeeID =", employeeID);
-//  }
-//
-//  //////////////////// START NEW OBJECTIVES
-//
-//  public List<Objective_NEW> getObjectivesNEW(long employeeId) throws InvalidAttributeValueException
-//  {
-//    return getEmployee(employeeId).getObjectivesNEW();
-//  }
-//
-//  public void addObjectiveNEW(long employeeId, Objective_NEW objective) throws InvalidAttributeValueException
-//  {
-//    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
-//    Employee employee = employeeQuery.get();
-//
-//    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
-//
-//    objective.setProposedBy(employee.getProfile().getFullName());
-//    employee.addObjectiveNEW(objective);
-//
-//    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
-//        .set("newObjectives", employee.getObjectivesNEW());
-//    dbConnection.update(employeeQuery, updateOperation);
-//  }
-//
-//  public void editObjectiveNEW(long employeeId, Objective_NEW objective) throws InvalidAttributeValueException
-//  {
-//    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
-//    Employee employee = employeeQuery.get();
-//
-//    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
-//
-//    employee.editObjectiveNEW(objective);
-//
-//    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
-//        .set("newObjectives", employee.getObjectivesNEW());
-//    dbConnection.update(employeeQuery, updateOperation);
-//  }
-//
-//  public void deleteObjectiveNEW(long employeeId, int objectiveId) throws InvalidAttributeValueException
-//  {
-//    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
-//    Employee employee = employeeQuery.get();
-//
-//    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
-//
-//    employee.deleteObjectiveNEW(objectiveId);
-//
-//    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
-//        .set("newObjectives", employee.getObjectivesNEW());
-//    dbConnection.update(employeeQuery, updateOperation);
-//  }
-//
-//  public void updateObjectiveNEWProgress(long employeeId, int objectiveId, Progress progress)
-//      throws InvalidAttributeValueException
-//  {
-//    Query<Employee> querySearch = getEmployeeQuery(employeeId);
-//    Employee employee = querySearch.get();
-//
-//    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
-//
-//    employee.updateObjectiveNEWProgress(objectiveId, progress);
-//
-//    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
-//        .set("newObjectives", employee.getObjectivesNEW());
-//    dbConnection.update(querySearch, updateOperation);
-//  }
-//
-//  public void toggleObjectiveNEWArchive(long employeeId, int objectiveId) throws InvalidAttributeValueException
-//  {
-//    Query<Employee> querySearch = getEmployeeQuery(employeeId);
-//    Employee employee = querySearch.get();
-//
-//    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
-//
-//    employee.toggleObjectiveNEWArchive(objectiveId);
-//
-//    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
-//        .set("newObjectives", employee.getObjectivesNEW());
-//    dbConnection.update(querySearch, updateOperation);
-//  }
-//
-//  //////////////////// END NEW OBJECTIVES
-//
-//  //////////////////// START NEW DEVELOPMENT NEEDS
-//
-//  public List<DevelopmentNeed_NEW> getDevelopmentNeedsNEW(long employeeId) throws InvalidAttributeValueException
-//  {
-//    return getEmployee(employeeId).getDevelopmentNeedsNEW();
-//  }
-//
-//  public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed_NEW developmentNeed)
-//      throws InvalidAttributeValueException
-//  {
-//    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
-//    Employee employee = employeeQuery.get();
-//
-//    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
-//
-//    developmentNeed.setProposedBy(employee.getProfile().getFullName());
-//    employee.addDevelopmentNeedNEW(developmentNeed);
-//
-//    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
-//        .set("newDevelopmentNeeds", employee.getDevelopmentNeedsNEW());
-//    dbConnection.update(employeeQuery, updateOperation);
-//  }
-//
-//  public void editDevelopmentNeedNEW(long employeeId, DevelopmentNeed_NEW developmentNeed)
-//      throws InvalidAttributeValueException
-//  {
-//    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
-//    Employee employee = employeeQuery.get();
-//
-//    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
-//
-//    employee.editDevelopmentNeedNEW(developmentNeed);
-//
-//    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
-//        .set("newDevelopmentNeeds", employee.getDevelopmentNeedsNEW());
-//    dbConnection.update(employeeQuery, updateOperation);
-//  }
-//
-//  public void deleteDevelopmentNeedNEW(long employeeId, int developmentNeedId) throws InvalidAttributeValueException
-//  {
-//    Query<Employee> employeeQuery = getEmployeeQuery(employeeId);
-//    Employee employee = employeeQuery.get();
-//
-//    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
-//
-//    employee.deleteDevelopmentNeedNEW(developmentNeedId);
-//
-//    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
-//        .set("newDevelopmentNeeds", employee.getDevelopmentNeedsNEW());
-//    dbConnection.update(employeeQuery, updateOperation);
-//  }
-//
-//  public void updateDevelopmentNeedNEWProgress(long employeeId, int developmentNeedId, Progress progress)
-//      throws InvalidAttributeValueException
-//  {
-//    Query<Employee> querySearch = getEmployeeQuery(employeeId);
-//    Employee employee = querySearch.get();
-//
-//    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
-//
-//    employee.updateDevelopmentNeedNEWProgress(developmentNeedId, progress);
-//
-//    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
-//        .set("newDevelopmentNeeds", employee.getDevelopmentNeedsNEW());
-//    dbConnection.update(querySearch, updateOperation);
-//  }
-//
-//  public void toggleDevelopmentNeedNEWArchive(long employeeId, int developmentNeedId)
-//      throws InvalidAttributeValueException
-//  {
-//    Query<Employee> querySearch = getEmployeeQuery(employeeId);
-//    Employee employee = querySearch.get();
-//
-//    if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
-//
-//    employee.toggleDevelopmentNeedNEWArchive(developmentNeedId);
-//
-//    UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
-//        .set("newDevelopmentNeeds", employee.getDevelopmentNeedsNEW());
-//    dbConnection.update(querySearch, updateOperation);
-//  }
+  //////////////////// START NEW OBJECTIVES
+
+  public List<Objective_NEW> getObjectivesNEW(long employeeId) throws EmployeeNotFoundException
+  {
+    return getEmployee(employeeId).getObjectivesNEW();
+  }
+
+  public void addObjectiveNEW(long employeeId, Objective_NEW objective) throws EmployeeNotFoundException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    objective.setProposedBy(employee.getProfile().getFullName());
+    employee.addObjectiveNEW(objective);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());  
+  }
+
+  public void editObjectiveNEW(long employeeId, Objective_NEW objective) throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.editObjectiveNEW(objective);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
+  }
+
+  public void deleteObjectiveNEW(long employeeId, int objectiveId) throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.deleteObjectiveNEW(objectiveId);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
+  }
+
+  public void updateObjectiveNEWProgress(long employeeId, int objectiveId, Progress progress)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.updateObjectiveNEWProgress(objectiveId, progress);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
+  }
+
+  public void toggleObjectiveNEWArchive(long employeeId, int objectiveId) throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.toggleObjectiveNEWArchive(objectiveId);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
+  }
+
+  //////////////////// END NEW OBJECTIVES
+
+  //////////////////// START NEW DEVELOPMENT NEEDS
+
+  public List<DevelopmentNeed_NEW> getDevelopmentNeedsNEW(long employeeId) throws EmployeeNotFoundException
+  {
+    return getEmployee(employeeId).getDevelopmentNeedsNEW();
+  }
+
+  public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed_NEW developmentNeed)
+      throws EmployeeNotFoundException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    developmentNeed.setProposedBy(employee.getProfile().getFullName());
+    employee.addDevelopmentNeedNEW(developmentNeed);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+
+  }
+
+  public void editDevelopmentNeedNEW(long employeeId, DevelopmentNeed_NEW developmentNeed)
+      throws EmployeeNotFoundException,InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.editDevelopmentNeedNEW(developmentNeed);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+
+  }
+
+  public void deleteDevelopmentNeedNEW(long employeeId, int developmentNeedId) throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.deleteDevelopmentNeedNEW(developmentNeedId);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+
+  }
+
+  public void updateDevelopmentNeedNEWProgress(long employeeId, int developmentNeedId, Progress progress)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.updateDevelopmentNeedNEWProgress(developmentNeedId, progress);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+
+  }
+
+  public void toggleDevelopmentNeedNEWArchive(long employeeId, int developmentNeedId)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    if (employee == null) throw new EmployeeNotFoundException(ERROR_USER_NOT_FOUND);
+
+    employee.toggleDevelopmentNeedNEWArchive(developmentNeedId);
+
+    morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getObjectivesNEW());
+
+  }
 
   //////////////////// END NEW DEVELOPMENT NEEDS
 }

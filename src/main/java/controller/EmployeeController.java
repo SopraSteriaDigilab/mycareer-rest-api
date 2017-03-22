@@ -842,105 +842,105 @@ public class EmployeeController
 
   //////////////////// START NEW OBJECTIVES
 
-//  @RequestMapping(value = "/getObjectivesNEW/{employeeId}", method = GET)
-//  public ResponseEntity<?> getObjectivesNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
-//  {
-//    try
-//    {
-//      return ok(employeeService.getObjectivesNEW(employeeId));
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
-//
-//  @RequestMapping(value = "/addObjectiveNEW/{employeeId}", method = POST)
-//  public ResponseEntity<?> addObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
-//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
-//      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate)
-//  {
-//    try
-//    {
-//      employeeService.addObjectiveNEW(employeeId,
-//          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING));
-//      return ok("Objective inserted correctly");
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
-//
-//  @RequestMapping(value = "/editObjectiveNEW/{employeeId}", method = POST)
-//  public ResponseEntity<?> editObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-//      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
-//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
-//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
-//      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate)
-//  {
-//    try
-//    {
-//      employeeService.editObjectiveNEW(employeeId, new Objective_NEW(objectiveId, title, description,
-//          isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING));
-//      return ok("Objective updated correctly");
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
-//
-//  @RequestMapping(value = "/deleteObjectiveNEW/{employeeId}", method = DELETE)
-//  public ResponseEntity<?> deleteObjectiveNEW(
-//      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-//      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId)
-//  {
-//    try
-//    {
-//      employeeService.deleteObjectiveNEW(employeeId, objectiveId);
-//      return ok("Objective deleted");
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
-//
-//  @RequestMapping(value = "/updateObjectiveNEWProgress/{employeeId}", method = POST)
-//  public ResponseEntity<?> updateObjectiveNEWProgress(
-//      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-//      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
-//      @RequestParam @Min(value = 0, message = ERROR_OBJECTIVE_ID) @Max(value = 2, message = ERROR_OBJECTIVE_ID) int progress)
-//  {
-//    try
-//    {
-//      employeeService.updateObjectiveNEWProgress(employeeId, objectiveId,
-//          Objective_NEW.Progress.valueOf(PROGRESS_LIST[progress]));
-//      return ok("Objective progress updated");
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
-//
-//  @RequestMapping(value = "/toggleObjectiveNEWArchive/{employeeId}", method = POST)
-//  public ResponseEntity<?> toggleObjectiveNEWArchive(
-//      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-//      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId)
-//  {
-//    try
-//    {
-//      employeeService.toggleObjectiveNEWArchive(employeeId, objectiveId);
-//      return ok("Objective updated");
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
+  @RequestMapping(value = "/getObjectivesNEW/{employeeId}", method = GET)
+  public ResponseEntity<?> getObjectivesNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
+  {
+    try
+    {
+      return ok(employeeService.getObjectivesNEW(employeeId));
+    }
+    catch (EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/addObjectiveNEW/{employeeId}", method = POST)
+  public ResponseEntity<?> addObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate)
+  {
+    try
+    {
+      employeeService.addObjectiveNEW(employeeId,
+          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING));
+      return ok("Objective inserted correctly");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/editObjectiveNEW/{employeeId}", method = POST)
+  public ResponseEntity<?> editObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate)
+  {
+    try
+    {
+      employeeService.editObjectiveNEW(employeeId, new Objective_NEW(objectiveId, title, description,
+          isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING));
+      return ok("Objective updated correctly");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/deleteObjectiveNEW/{employeeId}", method = DELETE)
+  public ResponseEntity<?> deleteObjectiveNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId)
+  {
+    try
+    {
+      employeeService.deleteObjectiveNEW(employeeId, objectiveId);
+      return ok("Objective deleted");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/updateObjectiveNEWProgress/{employeeId}", method = POST)
+  public ResponseEntity<?> updateObjectiveNEWProgress(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
+      @RequestParam @Min(value = 0, message = ERROR_OBJECTIVE_ID) @Max(value = 2, message = ERROR_OBJECTIVE_ID) int progress)
+  {
+    try
+    {
+      employeeService.updateObjectiveNEWProgress(employeeId, objectiveId,
+          Objective_NEW.Progress.valueOf(PROGRESS_LIST[progress]));
+      return ok("Objective progress updated");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/toggleObjectiveNEWArchive/{employeeId}", method = POST)
+  public ResponseEntity<?> toggleObjectiveNEWArchive(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId)
+  {
+    try
+    {
+      employeeService.toggleObjectiveNEWArchive(employeeId, objectiveId);
+      return ok("Objective updated");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
 
 //  @RequestMapping(value = "/proposeObjectiveNEW/{employeeId}", method = POST)
 //  public ResponseEntity<?> proposeObjectiveNEW(
@@ -967,112 +967,112 @@ public class EmployeeController
 
   //////////////////// START NEW DEVELOPMENT NEEDS
 
-//  @RequestMapping(value = "/getDevelopmentNeedsNEW/{employeeId}", method = GET)
-//  public ResponseEntity<?> getDevelopmentNeedsNEW(
-//      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
-//  {
-//    try
-//    {
-//      return ok(employeeService.getDevelopmentNeedsNEW(employeeId));
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
-//
-//  @RequestMapping(value = "/addDevelopmentNeedNEW/{employeeId}", method = POST)
-//  public ResponseEntity<?> addDevelopmentNeedsNEW(
-//      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
-//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
-//      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
-//      @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
-//  {
-//    try
-//    {
-//      employeeService.addDevelopmentNeedNEW(employeeId,
-//          new DevelopmentNeed_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING,
-//              DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
-//      return ok("Development Need inserted correctly");
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
-//
-//  @RequestMapping(value = "/editDevelopmentNeedNEW/{employeeId}", method = POST)
-//  public ResponseEntity<?> editDevelopmentNeedNEW(
-//      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-//      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
-//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
-//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
-//      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
-//      @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
-//  {
-//    try
-//    {
-//      employeeService.editDevelopmentNeedNEW(employeeId,
-//          new DevelopmentNeed_NEW(developmentNeedId, title, description, isYearMonthInPast(YearMonth.parse(dueDate)),
-//              EMPTY_STRING, DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
-//      return ok("Development Need updated correctly");
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
-//
-//  @RequestMapping(value = "/deleteDevelopmentNeedNEW/{employeeId}", method = DELETE)
-//  public ResponseEntity<?> deleteDevelopmentNeedNEW(
-//      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-//      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId)
-//  {
-//    try
-//    {
-//      employeeService.deleteDevelopmentNeedNEW(employeeId, developmentNeedId);
-//      return ok("Development Need deleted");
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
-//
-//  @RequestMapping(value = "/updateDevelopmentNeedNEWProgress/{employeeId}", method = POST)
-//  public ResponseEntity<?> updateDevelopmentNeedNEWProgress(
-//      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-//      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
-//      @RequestParam @Min(value = 0, message = ERROR_DEVELOPMENT_NEED_ID) @Max(value = 2, message = ERROR_DEVELOPMENT_NEED_ID) int progress)
-//  {
-//    try
-//    {
-//      employeeService.updateDevelopmentNeedNEWProgress(employeeId, developmentNeedId,
-//          Objective_NEW.Progress.valueOf(PROGRESS_LIST[progress]));
-//      return ok("Development Need progress updated");
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
-//
-//  @RequestMapping(value = "/toggleDevelopmentNeedNEWArchive/{employeeId}", method = POST)
-//  public ResponseEntity<?> toggleDevelopmentNeedNEWArchive(
-//      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-//      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId)
-//  {
-//    try
-//    {
-//      employeeService.toggleDevelopmentNeedNEWArchive(employeeId, developmentNeedId);
-//      return ok("Development Need updated");
-//    }
-//    catch (InvalidAttributeValueException e)
-//    {
-//      return badRequest().body(error(e.getMessage()));
-//    }
-//  }
+  @RequestMapping(value = "/getDevelopmentNeedsNEW/{employeeId}", method = GET)
+  public ResponseEntity<?> getDevelopmentNeedsNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
+  {
+    try
+    {
+      return ok(employeeService.getDevelopmentNeedsNEW(employeeId));
+    }
+    catch (EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/addDevelopmentNeedNEW/{employeeId}", method = POST)
+  public ResponseEntity<?> addDevelopmentNeedsNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
+      @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
+  {
+    try
+    {
+      employeeService.addDevelopmentNeedNEW(employeeId,
+          new DevelopmentNeed_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING,
+              DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
+      return ok("Development Need inserted correctly");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/editDevelopmentNeedNEW/{employeeId}", method = POST)
+  public ResponseEntity<?> editDevelopmentNeedNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
+      @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
+  {
+    try
+    {
+      employeeService.editDevelopmentNeedNEW(employeeId,
+          new DevelopmentNeed_NEW(developmentNeedId, title, description, isYearMonthInPast(YearMonth.parse(dueDate)),
+              EMPTY_STRING, DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
+      return ok("Development Need updated correctly");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/deleteDevelopmentNeedNEW/{employeeId}", method = DELETE)
+  public ResponseEntity<?> deleteDevelopmentNeedNEW(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId)
+  {
+    try
+    {
+      employeeService.deleteDevelopmentNeedNEW(employeeId, developmentNeedId);
+      return ok("Development Need deleted");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/updateDevelopmentNeedNEWProgress/{employeeId}", method = POST)
+  public ResponseEntity<?> updateDevelopmentNeedNEWProgress(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
+      @RequestParam @Min(value = 0, message = ERROR_DEVELOPMENT_NEED_ID) @Max(value = 2, message = ERROR_DEVELOPMENT_NEED_ID) int progress)
+  {
+    try
+    {
+      employeeService.updateDevelopmentNeedNEWProgress(employeeId, developmentNeedId,
+          Objective_NEW.Progress.valueOf(PROGRESS_LIST[progress]));
+      return ok("Development Need progress updated");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/toggleDevelopmentNeedNEWArchive/{employeeId}", method = POST)
+  public ResponseEntity<?> toggleDevelopmentNeedNEWArchive(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId)
+  {
+    try
+    {
+      employeeService.toggleDevelopmentNeedNEWArchive(employeeId, developmentNeedId);
+      return ok("Development Need updated");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
 
   //////////////////// END NEW DEVELOPMENT NEEDS
 
