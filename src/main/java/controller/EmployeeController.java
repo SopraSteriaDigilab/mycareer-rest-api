@@ -55,6 +55,7 @@ import services.EmployeeService;
 import services.ad.ADConnectionException;
 import services.ews.EmailService;
 import utils.Template;
+import utils.Utils;
 import utils.Validate;
 
 /**
@@ -88,6 +89,8 @@ public class EmployeeController
   private static final String ERROR_CATEGORY = "Category must be from 0 to 4";
 
   private static final String ERROR_OBJECTIVE_ID = "The given objective ID is invalid";
+
+  private static final String ERROR_EMAILS_EMPTY = "Emails field can not be empty";
 
   private static final String EMPTY_STRING = "";
   private static final String YEAR_MONTH_REGEX = "^\\d{4}[-](0[1-9]|1[012])$";
@@ -919,13 +922,12 @@ public class EmployeeController
   public ResponseEntity<?> addObjectiveNEW(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
-      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
-      @RequestParam @NotBlank(message = ERROR_PROPOSED_BY_EMPTY) @Size(max = 150, message = ERROR_PROPOSED_BY_LIMIT) String proposedBy)
+      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate)
   {
     try
     {
       employeeService.addObjectiveNEW(employeeId,
-          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), proposedBy));
+          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING));
       return ok("Objective inserted correctly");
     }
     catch (InvalidAttributeValueException e)
@@ -1003,6 +1005,27 @@ public class EmployeeController
     }
   }
 
+//  @RequestMapping(value = "/proposeObjectiveNEW/{employeeId}", method = POST)
+//  public ResponseEntity<?> proposeObjectiveNEW(
+//      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
+//      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+//      @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
+//      @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails)
+//  {
+//    try
+//    {
+//      Set emailSet = Utils.stringEmailsToHashSet(emails);
+//      employeeService.proposeObjectiveNEW(employeeId,
+//          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING), emailSet);
+//      return ok("Objective inserted correctly");
+//    }
+//    catch (InvalidAttributeValueException e)
+//    {
+//      return badRequest().body(error(e.getMessage()));
+//    }
+//  }
+
   //////////////////// END NEW OBJECTIVES
 
   //////////////////// START NEW DEVELOPMENT NEEDS
@@ -1027,13 +1050,12 @@ public class EmployeeController
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
       @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
       @RequestParam @Pattern(regexp = YEAR_MONTH_REGEX, message = ERROR_DATE_FORMAT) String dueDate,
-      @RequestParam @NotBlank(message = ERROR_PROPOSED_BY_EMPTY) @Size(max = 150, message = ERROR_PROPOSED_BY_LIMIT) String proposedBy,
       @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
   {
     try
     {
       employeeService.addDevelopmentNeedNEW(employeeId,
-          new DevelopmentNeed_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), proposedBy,
+          new DevelopmentNeed_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate)), EMPTY_STRING,
               DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need inserted correctly");
     }

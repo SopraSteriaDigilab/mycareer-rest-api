@@ -873,6 +873,7 @@ public class EmployeeService
 
     if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
 
+    objective.setProposedBy(employee.getProfile().getFullName());
     employee.addObjectiveNEW(objective);
 
     UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
@@ -954,6 +955,7 @@ public class EmployeeService
 
     if (employee == null) throw new InvalidAttributeValueException(ERROR_USER_NOT_FOUND);
 
+    developmentNeed.setProposedBy(employee.getProfile().getFullName());
     employee.addDevelopmentNeedNEW(developmentNeed);
 
     UpdateOperations<Employee> updateOperation = dbConnection.createUpdateOperations(Employee.class)
