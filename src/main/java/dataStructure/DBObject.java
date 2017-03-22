@@ -20,9 +20,6 @@ public abstract class DBObject implements Serializable
   /** int Property - Represents Unique ID for the object. */
   private int id;
 
-  /** String Property - Represents the timestamp of the objective. */
-  private Date createdOn;
-
   /** String Property - Represents the time the objective was last modified. */
   private Date lastModified;
 
@@ -34,7 +31,6 @@ public abstract class DBObject implements Serializable
    */
   public DBObject()
   {
-    this.setCreatedOn();
     this.setLastModified();
   }
 
@@ -48,18 +44,6 @@ public abstract class DBObject implements Serializable
   public void setId(int id)
   {
     this.id = id;
-  }
-
-  /** @return the createdOn */
-  public String getCreatedOn()
-  {
-    return Utils.DateToLocalDateTime(this.createdOn).toString();
-  }
-
-  /** @param createdOn The value to set. */
-  public void setCreatedOn()
-  {
-    this.createdOn = Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE));
   }
 
   /** @return the timeStamp. */
