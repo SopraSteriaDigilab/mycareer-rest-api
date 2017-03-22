@@ -1,6 +1,9 @@
 package dataStructure;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.management.InvalidAttributeValueException;
@@ -12,12 +15,6 @@ import utils.Utils;
  */
 public class Objective_NEW extends DBObject
 {
-  public static final String ERROR_EMPTY = "Please fill in all the required feilds.";
-  public static final String ERROR_DESCRIPTION_LIMIT_2000 = "Max Description length is 1000 characters.";
-  public static final String ERROR_NAME_LIMIT = "Max Name length is 150 characters.";
-  public static final String ERROR_TITLE_LIMIT = "Max Title is 150 characters.";
-  public static final String ERROR_PROGRESS_LIMIT = "Please enter a valid progress (Proposed, In-Progress, Complete).";
-
   /** Represents progress of any Objective object. */
   public enum Progress
   {
@@ -53,6 +50,9 @@ public class Objective_NEW extends DBObject
   /** long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = -8210647573312345743L;
 
+  /** String Property - Represents the timestamp of the objective. */
+  private Date createdOn;
+  
   /** String Property - Represents the objective title */
   private String title;
 
@@ -76,6 +76,7 @@ public class Objective_NEW extends DBObject
    */
   public Objective_NEW()
   {
+    this.setCreatedOn();
   }
 
   /**
@@ -84,6 +85,7 @@ public class Objective_NEW extends DBObject
    */
   public Objective_NEW(String title, String description, LocalDate dueDate)
   {
+    this();
     this.setTitle(title);
     this.setDescription(description);
     this.setDueDate(dueDate);
@@ -100,6 +102,18 @@ public class Objective_NEW extends DBObject
   {
     this(title, description, dueDate);
     this.setId(id);
+  }
+  
+  /** @return the createdOn */
+  public String getCreatedOn()
+  {
+    return Utils.DateToLocalDateTime(this.createdOn).toString();
+  }
+
+  /** @param createdOn The value to set. */
+  public void setCreatedOn()
+  {
+    this.createdOn = Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE));
   }
 
   /** @return the title. */
