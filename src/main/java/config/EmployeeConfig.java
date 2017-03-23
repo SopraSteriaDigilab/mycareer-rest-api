@@ -7,10 +7,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import services.ad.ADSearchSettings;
-import services.db.MorphiaOperations;
+
+import services.DataService;
 import services.EmployeeProfileService;
 import services.EmployeeService;
+import services.ad.ADSearchSettings;
+import services.db.MongoOperations;
+import services.db.MorphiaOperations;
 
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
@@ -27,6 +30,9 @@ public class EmployeeConfig
   @Autowired
   private MorphiaOperations morphiaOperations;
   
+  @Autowired
+  private MongoOperations mongoOperations;
+  
   @Bean
   public EmployeeService employeeService()
   {
@@ -37,5 +43,11 @@ public class EmployeeConfig
   public EmployeeProfileService employeeProfileService()
   {
     return new EmployeeProfileService(morphiaOperations, sopraADSearchSettings);
+  }
+  
+  @Bean
+  public DataService dataService()
+  {
+    return new DataService(mongoOperations);
   }
 }
