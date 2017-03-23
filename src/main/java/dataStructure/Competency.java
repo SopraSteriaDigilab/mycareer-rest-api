@@ -1,142 +1,122 @@
 package dataStructure;
 
-import static dataStructure.Constants.*;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-
 import javax.management.InvalidAttributeValueException;
-import org.mongodb.morphia.annotations.Embedded;
-import com.google.gson.Gson;
+
+import org.bson.Document;
 
 /**
- * This class contains the definition of the Competency object
+ * This class contains the definition of the Competency object.
  *
  */
-@Embedded
-public class Competency implements Serializable
+public class Competency extends DBObject
 {
-  private static final long serialVersionUID = 1L;
-  private int id;
-  private boolean isSelected;
-  private String title;
-  private String description;
-  private String timeStamp;
 
-  // Empty constructor
+  /** Represents competency title of any Competencyobject. */
+  public enum CompetencyTitle
+  {
+    ACCOUNTABILITY("Accountability"), EFFECTIVE_COMMUNICATION("Effective Communication"), LEADERSHIP(
+        "Leadership"), SERVICE_EXCELLENCE("Service Excellence"), BUSINESS_AWARENESS(
+            "Business Awareness"), FUTURE_ORIENTATION(
+                "Future Orientation"), INNOVATION_AND_CHANGE("Innovation and Change"), TEAMWORK("Teamwork");
+
+    private String competencyTitleStr; 
+
+    CompetencyTitle(String competencyTitleStr)
+    {
+      this.competencyTitleStr = competencyTitleStr;
+    }
+
+    public String getCompetencyTitleStr()
+    {
+      return this.competencyTitleStr;
+    }
+
+    public static CompetencyTitle getCompetencyTitleFromString(String competencyTitleStr)
+        throws InvalidAttributeValueException
+    {
+      switch (competencyTitleStr)
+      {
+        case "Accountability":
+          return CompetencyTitle.ACCOUNTABILITY;
+        case "Effective Communication":
+          return CompetencyTitle.EFFECTIVE_COMMUNICATION;
+        case "Leadership":
+          return CompetencyTitle.LEADERSHIP;
+        case "Service Excellence":
+          return CompetencyTitle.SERVICE_EXCELLENCE;
+        case "Business Awareness":
+          return CompetencyTitle.BUSINESS_AWARENESS;
+        case "Future Orientation":
+          return CompetencyTitle.FUTURE_ORIENTATION;
+        case "Innovation and Change":
+          return CompetencyTitle.INNOVATION_AND_CHANGE;
+        case "Teamwork":
+          return CompetencyTitle.TEAMWORK;
+      }
+      throw new InvalidAttributeValueException("This enum string does not exist");
+    }
+  }
+
+  /** long Constant - Represents serialVersionUID... */
+  private static final long serialVersionUID = 1327626647922503101L;
+
+  /** String Property - Represents the title of the competency. */
+  private CompetencyTitle title;
+
+  /** boolean Property - Indicates if the competenct is selected. */
+  private boolean isSelected;
+
+  /**
+   * Default Constructor - Responsible for initialising this object.
+   */
   public Competency()
   {
-    this.id = Constants.INVALID_INT;
-    this.isSelected = false;
-    this.title = Constants.INVALID_STRING;
-    this.description = Constants.INVALID_STRING;
-    this.timeStamp = null;
   }
 
-  // Constructor with Parameters
-  public Competency(int id, boolean status)
+  /**
+   * Competeny_NEW Constructor - Responsible for initialising this object.
+   *
+   * @param title
+   * @param isSelected
+   */
+  public Competency(int id, CompetencyTitle title)
   {
-    this.id = id;
-    this.isSelected = status;
-    this.title = "";
-    this.description = "";
-    this.timeStamp = null;
-    this.setTimeStamp();
+    this.setId(id);
+    this.setTitle(title);
+    this.setSelected(false);
   }
 
-  // Method to set ID
-  public void setID(int id) throws InvalidAttributeValueException
+  /** @return the title */
+  public String getTitle()
   {
-    if (id > 0) this.id = id;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
+    return title.getCompetencyTitleStr();
   }
 
-  // Method returning ID
-  public int getID()
+  /** @param title The value to set. */
+  public void setTitle(CompetencyTitle title)
   {
-    return this.id;
+    this.title = title;
+    this.setLastModified();
   }
 
-  // Method returning selected Competency based on true or false
-  public boolean getIsSelected()
+  /** @return the isSelected */
+  public boolean isSelected()
   {
     return isSelected;
   }
 
-  /**
-   * 
-   * This method saves the current DateTime inside the timeStamp object only if the object does not contain anything yet
-   */
-  private void setTimeStamp()
+  /** @param isSelected The value to set. */
+  public void setSelected(boolean isSelected)
   {
-    if (this.timeStamp == null) this.timeStamp = LocalDateTime.now(UK_TIMEZONE).toString();
+    this.isSelected = isSelected;
+    this.setLastModified();
   }
 
-  public String getTimeStamp()
+  @Override
+  public Document toDocument()
   {
-    return this.timeStamp;
+    // TODO Auto-generated method stub
+    return null;
   }
 
-  /**
-   * 
-   * This method sets the Competency based on a valid id as well as returning true for IsSelected method
-   * 
-   * @throws InvalidAttributeValueException
-   */
-  public void setTitle(int compId) throws InvalidAttributeValueException
-  {
-    if (compId >= 0 && compId < Constants.COMPETENCY_NAMES.length) this.title = Constants.COMPETENCY_NAMES[compId];
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_TITLE);
-  }
-
-  // Method to return Competency Name
-  public String getTitle()
-  {
-    return title;
-  }
-
-  /**
-   * 
-   * This method sets the competency Description based on a valid id & returning true for IsSelected method
-   * 
-   * @throws InvalidAttributeValueException
-   */
-  public void setDescription(int compId) throws InvalidAttributeValueException
-  {
-    if (compId >= 0 && compId < Constants.COMPETENCY_NAMES.length)
-      this.description = Constants.COMPETENCY_DESCRIPTIONS[compId];
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_DESCRIPTION);
-  }
-
-  // Method to return Competency Description
-  public String getCompentencyDescription()
-  {
-    return description;
-  }
-
-  // returns boolean result determining if TimeStamp is valid
-  public boolean isValid()
-  {
-    return this.getTimeStamp() != null && this.getID() >= 0;
-  }
-
-  // Converts data type from Gson to Json
-  public String toGson()
-  {
-    Gson gsonData = new Gson();
-    return gsonData.toJson(this);
-  }
-
-  // toString method returning objects details
-  public String toString(int index)
-  {
-    String s = "";
-    s += "ID: " + id + "\n";
-    s += "Is Selected: " + isSelected + "\n";
-    s += "Title: " + Constants.COMPETENCY_NAMES[index] + "\n";
-    s += "Description: " + Constants.COMPETENCY_DESCRIPTIONS[index] + "\n";
-    s += "Time Stamp: " + timeStamp + "\n";
-    return s;
-  }
-
-}// Competencies
+}

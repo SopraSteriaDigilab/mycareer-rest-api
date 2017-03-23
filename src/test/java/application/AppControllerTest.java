@@ -13,9 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +22,11 @@ import org.springframework.http.ResponseEntity;
 
 import controller.EmployeeController;
 import dataStructure.Employee;
-import dataStructure.Objective;
+import dataStructure.Objective_OLD;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
 import services.EmployeeService;
+import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 
 /**
@@ -44,6 +43,10 @@ public class AppControllerTest
   /** Datastore Property - Mocked by Mockito. */
   @Mock
   private MorphiaOperations mockMorphiaOperations;
+  
+  /** MongoOperations Property - Mocked by Mockito. */
+  @Mock
+  private MongoOperations mockMongoOperations;
 
   /** Environment Property - Mocked by Mockito. */
   @Mock
@@ -68,7 +71,7 @@ public class AppControllerTest
 
   /** List<Objective> Property - Mocked by Mockito. */
   @Mock
-  private List<Objective> mockListOfObjectives;
+  private List<Objective_OLD> mockListOfObjectives;
 
   /** AppController Property - Represents the unit under test. */
   @InjectMocks
@@ -90,7 +93,7 @@ public class AppControllerTest
     
     when(mockMorphiaOperations.getEmployee("profile.employeeID", VALID_EMPLOYEE_ID)).thenReturn(mockEmployee);
 
-    mockEmployeeDao = new EmployeeService(mockMorphiaOperations, mockEmployeeProfileService, mockEnvironment);
+    mockEmployeeDao = new EmployeeService(mockMorphiaOperations, mockMongoOperations, mockEmployeeProfileService, mockEnvironment);
   }
 
   /**

@@ -1,6 +1,5 @@
 package services;
 
-import static application.GlobalExceptionHandler.error;
 import static dataStructure.Constants.DEVELOPMENTNEED_NOTADDED_ERROR;
 import static dataStructure.Constants.INVALID_CONTEXT_PROGRESS;
 import static dataStructure.Constants.INVALID_DEVNEEDID_CONTEXT;
@@ -8,10 +7,10 @@ import static dataStructure.Constants.INVALID_DEVNEED_OR_EMPLOYEEID;
 import static dataStructure.Constants.INVALID_OBJECTIVEID;
 import static dataStructure.Constants.NULL_USER_DATA;
 import static dataStructure.Constants.OBJECTIVE_NOTADDED_ERROR;
-import static org.springframework.http.ResponseEntity.badRequest;
-import static org.springframework.http.ResponseEntity.ok;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static dataStructure.Constants.UK_TIMEZONE;
+import static services.db.MongoOperations.objectiveHistoryIdFilter;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,30 +21,31 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.management.InvalidAttributeValueException;
-import javax.validation.constraints.Min;
 
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
+import dataStructure.Competency_OLD;
 import dataStructure.Competency;
-import dataStructure.Competency_NEW;
+import dataStructure.Competency.CompetencyTitle;
+import dataStructure.DevelopmentNeed_OLD;
 import dataStructure.DevelopmentNeed;
-import dataStructure.DevelopmentNeed_NEW;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note;
+import dataStructure.Objective_OLD;
 import dataStructure.Objective;
-import dataStructure.Objective_NEW;
-import dataStructure.Competency_NEW.CompetencyTitle;
-import dataStructure.Objective_NEW.Progress;
+import dataStructure.Objective.Progress;
+import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 import services.ews.EmailService;
 import utils.Template;
@@ -84,26 +84,30 @@ public class EmployeeService
   private static final String NEW_DEVELOPMENT_NEEDS = "newDevelopmentNeeds";
   private static final String NEW_COMPETENCIES = "newCompetencies";
 
-  // There is only 1 instance of the Datastore in the whole system
+  /** MorphiaOperations Property - Represents a reference to the database using morphia. */
   private MorphiaOperations morphiaOperations;
+
+  /** MongoOperations Property - Represents a reference to the database using mongo java driver */
+  private MongoOperations mongoOperations;
+
+  /** EmployeeProfileService Property - Represents a reference to the employee profile service. */
+  private EmployeeProfileService employeeProfileService;
 
   /** Environment Property - Reference to environment to get property details. */
   private Environment env;
-
-  /* Accesses the Active Directories */
-  private EmployeeProfileService employeeProfileService;
 
   /**
    * EmployeeService Constructor - Responsible for initialising dbConnection.
    *
    * @param dbConnection
    */
-  public EmployeeService(MorphiaOperations morphiaOperations, EmployeeProfileService employeeProfileService,
-      Environment env)
+  public EmployeeService(MorphiaOperations morphiaOperations, MongoOperations mongoOperations,
+      EmployeeProfileService employeeProfileService, Environment env)
   {
     this.morphiaOperations = morphiaOperations;
-    this.env = env;
+    this.mongoOperations = mongoOperations;
     this.employeeProfileService = employeeProfileService;
+    this.env = env;
   }
 
   /**
@@ -159,7 +163,7 @@ public class EmployeeService
    * @return
    * @throws EmployeeNotFoundException
    */
-  public List<Objective> getObjectivesForUser(long employeeID) throws EmployeeNotFoundException
+  public List<Objective_OLD> getObjectivesForUser(long employeeID) throws EmployeeNotFoundException
   {
     return getEmployee(employeeID).getLatestVersionObjectives();
   }
@@ -172,7 +176,7 @@ public class EmployeeService
    * @return
    * @throws EmployeeNotFoundException
    */
-  public Objective getSpecificObjectiveForUser(long employeeID, int objectiveID)
+  public Objective_OLD getSpecificObjectiveForUser(long employeeID, int objectiveID)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     return getEmployee(employeeID).getLatestVersionOfSpecificObjective(objectiveID);
@@ -200,7 +204,7 @@ public class EmployeeService
    * @throws InvalidAttributeValueException
    * @throws services.EmployeeNotFoundException
    */
-  public List<Competency> getCompetenciesForUser(long employeeID) throws EmployeeNotFoundException
+  public List<Competency_OLD> getCompetenciesForUser(long employeeID) throws EmployeeNotFoundException
   {
     return getEmployee(employeeID).getLatestVersionCompetencies();
   }
@@ -224,7 +228,7 @@ public class EmployeeService
    * @return
    * @throws EmployeeNotFoundException
    */
-  public List<DevelopmentNeed> getDevelopmentNeedsForUser(long employeeID) throws EmployeeNotFoundException
+  public List<DevelopmentNeed_OLD> getDevelopmentNeedsForUser(long employeeID) throws EmployeeNotFoundException
   {
     return getEmployee(employeeID).getLatestVersionDevelopmentNeeds();
   }
@@ -236,7 +240,7 @@ public class EmployeeService
    * @return
    * @throws EmployeeNotFoundException
    */
-  public List<Competency> EmployeeNotFoundException(long employeeID) throws EmployeeNotFoundException
+  public List<Competency_OLD> EmployeeNotFoundException(long employeeID) throws EmployeeNotFoundException
   {
     return getEmployee(employeeID).getLatestVersionCompetencies();
   }
@@ -270,7 +274,7 @@ public class EmployeeService
    * @return This method inserts a new objective for a specific employee given their ID
    * @throws EmployeeNotFoundException
    */
-  public boolean insertNewObjective(long employeeID, Objective data)
+  public boolean insertNewObjective(long employeeID, Objective_OLD data)
       throws InvalidAttributeValueException, services.EmployeeNotFoundException
   {
     // Retrieve Employee with the given ID
@@ -310,7 +314,7 @@ public class EmployeeService
 
     boolean updated = false;
     final Employee employee = getEmployee(employeeID);
-    final Objective objective = employee.getLatestVersionOfSpecificObjective(objectiveID);
+    final Objective_OLD objective = employee.getLatestVersionOfSpecificObjective(objectiveID);
 
     if (objective.getProgress() == progress)
     {
@@ -340,13 +344,13 @@ public class EmployeeService
    * @return
    * @throws EmployeeNotFoundException
    */
-  public boolean addNewVersionObjective(long employeeID, int objectiveID, Objective data)
+  public boolean addNewVersionObjective(long employeeID, int objectiveID, Objective_OLD data)
       throws InvalidAttributeValueException, EmployeeNotFoundException
   {
     // Retrieve Employee with the given ID
     Employee e = getEmployee(employeeID);
     // Extract its List of Objectives
-    List<List<Objective>> dataFromDB = e.getObjectiveList();
+    List<List<Objective_OLD>> dataFromDB = e.getObjectiveList();
     // Search for the objective Id within the list of objectives
     int indexObjectiveList = -1;
     for (int i = 0; i < dataFromDB.size(); i++)
@@ -363,7 +367,7 @@ public class EmployeeService
     if (indexObjectiveList != -1)
     {
       // Add the updated version of the objective
-      if (e.editObjective((Objective) data))
+      if (e.editObjective((Objective_OLD) data))
       {
         morphiaOperations.updateEmployee(e.getProfile().getEmployeeID(), OBJECTIVES, e.getObjectiveList());
         return true;
@@ -432,7 +436,7 @@ public class EmployeeService
    * @return
    * @throws EmployeeNotFoundException
    */
-  public boolean insertNewDevelopmentNeed(long employeeID, DevelopmentNeed data)
+  public boolean insertNewDevelopmentNeed(long employeeID, DevelopmentNeed_OLD data)
       throws InvalidAttributeValueException, EmployeeNotFoundException
   {
     // Retrieve Employee with the given ID
@@ -469,7 +473,7 @@ public class EmployeeService
 
     boolean updated = false;
     final Employee employee = getEmployee(employeeID);
-    final DevelopmentNeed devNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(devNeedID);
+    final DevelopmentNeed_OLD devNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(devNeedID);
 
     if (devNeed.getProgress() == progress)
     {
@@ -498,13 +502,13 @@ public class EmployeeService
    * @return
    * @throws InvalidAttributeValueException
    */
-  public boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, DevelopmentNeed data)
+  public boolean addNewVersionDevelopmentNeed(long employeeID, int devNeedID, DevelopmentNeed_OLD data)
       throws InvalidAttributeValueException, EmployeeNotFoundException
   {
     // Retrieve Employee with the given ID
     Employee e = getEmployee(employeeID);
     // Extract its List of notes
-    List<List<DevelopmentNeed>> dataFromDB = e.getDevelopmentNeedsList();
+    List<List<DevelopmentNeed_OLD>> dataFromDB = e.getDevelopmentNeedsList();
     // Search for the objective Id within the list of development needs
     int indexDevNeedList = -1;
     for (int i = 0; i < dataFromDB.size(); i++)
@@ -521,7 +525,7 @@ public class EmployeeService
     if (indexDevNeedList != -1)
     {
       // Add the updated version of the DevelopmentNeed
-      if (e.editDevelopmentNeed((DevelopmentNeed) data))
+      if (e.editDevelopmentNeed((DevelopmentNeed_OLD) data))
       {
         morphiaOperations.updateEmployee(employeeID, DEVELOPMENT_NEEDS, e.getDevelopmentNeedsList());
         return true;
@@ -541,14 +545,14 @@ public class EmployeeService
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeID);
-    DevelopmentNeed curDevNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(developmentNeedID);
+    DevelopmentNeed_OLD curDevNeed = employee.getLatestVersionOfSpecificDevelopmentNeed(developmentNeedID);
 
     if (curDevNeed == null)
     {
       throw new InvalidAttributeValueException(INVALID_DEVELOPMENT_NEED_ID);
     }
 
-    DevelopmentNeed developmentNeed = new DevelopmentNeed(curDevNeed);
+    DevelopmentNeed_OLD developmentNeed = new DevelopmentNeed_OLD(curDevNeed);
     developmentNeed.setIsArchived(!developmentNeed.getIsArchived());
 
     if (employee.editDevelopmentNeed(developmentNeed))
@@ -704,7 +708,7 @@ public class EmployeeService
    * @throws InvalidAttributeValueException
    * @throws EmployeeNotFoundException
    */
-  public boolean addNewVersionCompetency(long employeeID, Competency data, String title)
+  public boolean addNewVersionCompetency(long employeeID, Competency_OLD data, String title)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     // Retrieve Employee with the given ID
@@ -779,27 +783,40 @@ public class EmployeeService
 
   //////////////////// START NEW OBJECTIVES
 
-  public List<Objective_NEW> getObjectivesNEW(long employeeId) throws EmployeeNotFoundException
+  public List<Objective> getObjectivesNEW(long employeeId) throws EmployeeNotFoundException
   {
     return getEmployee(employeeId).getObjectivesNEW();
   }
 
-  public void addObjectiveNEW(long employeeId, Objective_NEW objective) throws EmployeeNotFoundException
+  public void addObjectiveNEW(long employeeId, Objective objective)
+      throws EmployeeNotFoundException, JsonParseException, JsonMappingException, IOException
   {
     Employee employee = getEmployee(employeeId);
 
     objective.setProposedBy(employee.getProfile().getFullName());
     employee.addObjectiveNEW(objective);
 
+    mongoOperations.objectivesHistoriesCollection().addToHistory(
+        objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
+
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
 
-  public void editObjectiveNEW(long employeeId, Objective_NEW objective)
+  public void editObjectiveNEW(long employeeId, Objective objective)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
 
+    Document update = employee.getObjectiveNEW(objective.getId()).differences(objective);
+
+    if (update.isEmpty()) return;
+
     employee.editObjectiveNEW(objective);
+
+    mongoOperations.objectivesHistoriesCollection().addToHistory(
+        objectiveHistoryIdFilter(employeeId, objective.getId(),
+            employee.getObjectiveNEW(objective.getId()).getCreatedOn()),
+        update.append("timestamp", Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
@@ -809,17 +826,29 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
 
+    Document deletedId = new Document(
+        objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()));
+
     employee.deleteObjectiveNEW(objectiveId);
+
+    mongoOperations.objectivesHistoriesCollection().addToHistory(deletedId,
+        new Document("deletedOn", Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
 
   public void updateObjectiveNEWProgress(long employeeId, int objectiveId, Progress progress)
-      throws EmployeeNotFoundException, InvalidAttributeValueException
+      throws EmployeeNotFoundException, InvalidAttributeValueException, JsonParseException, JsonMappingException,
+      IOException
   {
     Employee employee = getEmployee(employeeId);
 
     employee.updateObjectiveNEWProgress(objectiveId, progress);
+
+    mongoOperations.objectivesHistoriesCollection().addToHistory(
+        objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()),
+        new Document("progress", progress.getProgressStr()).append("timestamp",
+            Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
@@ -831,10 +860,15 @@ public class EmployeeService
 
     employee.toggleObjectiveNEWArchive(objectiveId);
 
+    mongoOperations.objectivesHistoriesCollection().addToHistory(
+        objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()),
+        new Document("isArchived", employee.getObjectiveNEW(objectiveId).getArchived()).append("timestamp",
+            Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
 
-  public void proposeObjectiveNEW(long employeeId, Objective_NEW objective, Set<String> emailSet)
+  public void proposeObjectiveNEW(long employeeId, Objective objective, Set<String> emailSet)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Set<String> successEmails = new HashSet<>();
@@ -884,13 +918,12 @@ public class EmployeeService
 
   //////////////////// START NEW DEVELOPMENT NEEDS
 
-  public List<DevelopmentNeed_NEW> getDevelopmentNeedsNEW(long employeeId) throws EmployeeNotFoundException
+  public List<DevelopmentNeed> getDevelopmentNeedsNEW(long employeeId) throws EmployeeNotFoundException
   {
     return getEmployee(employeeId).getDevelopmentNeedsNEW();
   }
 
-  public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed_NEW developmentNeed)
-      throws EmployeeNotFoundException
+  public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed developmentNeed) throws EmployeeNotFoundException
   {
     Employee employee = getEmployee(employeeId);
 
@@ -901,7 +934,7 @@ public class EmployeeService
 
   }
 
-  public void editDevelopmentNeedNEW(long employeeId, DevelopmentNeed_NEW developmentNeed)
+  public void editDevelopmentNeedNEW(long employeeId, DevelopmentNeed developmentNeed)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
@@ -948,11 +981,11 @@ public class EmployeeService
 
   //////////////////// START NEW COMPETENCIES
 
-  public List<Competency_NEW> getCompetenciesNEW(long employeeId) throws EmployeeNotFoundException
+  public List<Competency> getCompetenciesNEW(long employeeId) throws EmployeeNotFoundException
   {
     return getEmployee(employeeId).getCompetenciesNEW();
   }
-  
+
   public void toggleCompetencyNEW(long employeeId, CompetencyTitle competencyTitle)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {

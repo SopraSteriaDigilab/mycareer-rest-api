@@ -52,7 +52,7 @@ public class DevelopmentNeedTest
   private final String FUTURE_DATE = "3010-01";
   
   @InjectMocks
-  private DevelopmentNeed unitUnderTest, unitUnderTest2, unitUnderTest3;
+  private DevelopmentNeed_OLD unitUnderTest, unitUnderTest2, unitUnderTest3;
   
   /**
    * Setup method that runs once before each test method.
@@ -63,9 +63,9 @@ public class DevelopmentNeedTest
   public void setup() throws InvalidAttributeValueException
   {
    initMocks(this);
-   unitUnderTest = new DevelopmentNeed();
-   unitUnderTest2 = new DevelopmentNeed(VALID_ID,VALID_PROGRESS,VALID_CATEGORY,VALID_TITLE,VALID_DESCRIPTION);
-   unitUnderTest3 = new DevelopmentNeed(VALID_ID,VALID_PROGRESS,VALID_CATEGORY,VALID_TITLE,VALID_DESCRIPTION,FUTURE_DATE);
+   unitUnderTest = new DevelopmentNeed_OLD();
+   unitUnderTest2 = new DevelopmentNeed_OLD(VALID_ID,VALID_PROGRESS,VALID_CATEGORY,VALID_TITLE,VALID_DESCRIPTION);
+   unitUnderTest3 = new DevelopmentNeed_OLD(VALID_ID,VALID_PROGRESS,VALID_CATEGORY,VALID_TITLE,VALID_DESCRIPTION,FUTURE_DATE);
   }
   
   /**

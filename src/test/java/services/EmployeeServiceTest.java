@@ -1,7 +1,9 @@
 package services;
 
-import static model.Models.*;
+import static model.Models.EMPLOYEE_ID;
 import static model.Models.FULL_NAME;
+import static model.Models.getEmployee;
+import static model.Models.getObjective;
 //import static model.Models.getEmployee;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
@@ -15,9 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,8 @@ import org.springframework.core.env.Environment;
 
 import application.AppControllerTest;
 import dataStructure.Employee;
-import dataStructure.Objective;
+import dataStructure.Objective_OLD;
+import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 
 
@@ -41,14 +42,18 @@ public class EmployeeServiceTest
   private Employee employee;
   
   /** Objective Property - Represents an objective. */
-  private Objective objective;
+  private Objective_OLD objective;
   
   /** List<Objective> Property - Represents list of objectives */
-  private List<Objective> objectives;
+  private List<Objective_OLD> objectives;
 
   /** MorphiaOperations Property - Mocked by Mockito. */
   @Mock
   private MorphiaOperations mockMorphiaOperations;
+  
+  /** MongoOperations Property - Mocked by Mockito. */
+  @Mock
+  private MongoOperations mockMongoOperations;
 
   /** Environment Property - Mocked by Mockito. */
   @Mock
@@ -79,12 +84,11 @@ public class EmployeeServiceTest
    * Setup method that runs once before each test method.
    * @throws InvalidAttributeValueException 
    */
-  @SuppressWarnings("unchecked")
   @Before
   public void setup() throws InvalidAttributeValueException
   {
     MockitoAnnotations.initMocks(this);
-    unitUnderTest = new EmployeeService(mockMorphiaOperations, mockEmployeeProfileService, mockEnvironment);
+    unitUnderTest = new EmployeeService(mockMorphiaOperations, mockMongoOperations, mockEmployeeProfileService, mockEnvironment);
     employee = getEmployee();
     
   }

@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import services.db.MongoOperations;
-import services.db.MongoOperations.Collection;
 
 public class DataService
 {
@@ -25,8 +24,7 @@ public class DataService
 
   public List<String> getAllEmailAddresses()
   {
-    mongoOperations.setCollection(Collection.EMPLOYEE);
-    final List<String> emails = mongoOperations.getFieldAndUnwind(EMAIL_ADDRESSES, PROFILE_EMAIL_ADDRESSES);
+    final List<String> emails = mongoOperations.employeeCollection().getFieldAndUnwind(EMAIL_ADDRESSES, PROFILE_EMAIL_ADDRESSES);
 
     LOGGER.info("Email address count is {}", emails.size());
 

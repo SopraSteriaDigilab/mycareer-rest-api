@@ -42,7 +42,7 @@ public class CompetencyTest
   private final int INVALID_PERFORMANCE = 3;
  
   @InjectMocks
-  private Competency unitUnderTest, unitUnderTest2;
+  private Competency_OLD unitUnderTest, unitUnderTest2;
     
   /**
    * Setup method that runs once before each test method.
@@ -52,8 +52,8 @@ public class CompetencyTest
   public void setup()
   {
    initMocks(this);
-   unitUnderTest = new Competency();
-   unitUnderTest2 = new Competency(VALID_ID , true);
+   unitUnderTest = new Competency_OLD();
+   unitUnderTest2 = new Competency_OLD(VALID_ID , true);
   }
   
   /**

@@ -105,7 +105,7 @@ public class EmployeeTest
 
   /** TYPE Property|Constant - Represents|Indicates... */
   @Mock
-  private List<List<Objective>> mockObjectiveList;
+  private List<List<Objective_OLD>> mockObjectiveList;
 
   /** TYPE Property|Constant - Represents|Indicates... */
   @Mock
@@ -113,7 +113,7 @@ public class EmployeeTest
 
   /** TYPE Property|Constant - Represents|Indicates... */
   @Mock
-  List<List<DevelopmentNeed>> mockDevelopmentNeedsList;
+  List<List<DevelopmentNeed_OLD>> mockDevelopmentNeedsList;
 
   /** TYPE Property|Constant - Represents|Indicates... */
   @Mock
@@ -121,22 +121,22 @@ public class EmployeeTest
 
   /** TYPE Property|Constant - Represents|Indicates... */
   @Mock
-  private List<List<Competency>> mockCompetenciesList;
+  private List<List<Competency_OLD>> mockCompetenciesList;
 
   @Mock
   private Feedback mockFeedback;
 
   @Mock
-  private Competency mockCompetency;
+  private Competency_OLD mockCompetency;
 
   @Mock
   private FeedbackRequest mockFeedbackRequest;
 
   @Mock
-  private Objective mockObjective;
+  private Objective_OLD mockObjective;
 
   @Mock
-  private DevelopmentNeed mockDevelopmentNeed;
+  private DevelopmentNeed_OLD mockDevelopmentNeed;
 
   @Mock
   private Note mockNote;
@@ -284,9 +284,9 @@ public class EmployeeTest
   @Test(expected = InvalidAttributeValueException.class)
   public void testSetObjectiveListWithInvalidObjective() throws InvalidAttributeValueException
   {
-    Objective invalidObj = new Objective();
-    List<Objective> invalidObjList = Arrays.asList(invalidObj);
-    List<List<Objective>> invalidObjListList = Arrays.asList(invalidObjList);
+    Objective_OLD invalidObj = new Objective_OLD();
+    List<Objective_OLD> invalidObjList = Arrays.asList(invalidObj);
+    List<List<Objective_OLD>> invalidObjListList = Arrays.asList(invalidObjList);
     unitUnderTest.setObjectiveList(invalidObjListList);
   }
 
@@ -318,9 +318,9 @@ public class EmployeeTest
   public void testGetLatestVersionObjectivesValidObjectives() throws InvalidAttributeValueException,
       IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
   {
-    Objective obj = new Objective(1, 1, 1, "1", "1", "3010-01");
-    List<Objective> objList = Arrays.asList(obj);
-    List<List<Objective>> objListList = Arrays.asList(objList);
+    Objective_OLD obj = new Objective_OLD(1, 1, 1, "1", "1", "3010-01");
+    List<Objective_OLD> objList = Arrays.asList(obj);
+    List<List<Objective_OLD>> objListList = Arrays.asList(objList);
     unitUnderTest.setObjectiveList(objListList);
     assertEquals(unitUnderTest.getLatestVersionObjectives(), objList);
   }
@@ -355,9 +355,9 @@ public class EmployeeTest
   @Test
   public void testGetLatestVersionOfSpecificObjectiveValidObjectives() throws InvalidAttributeValueException
   {
-    Objective obj = new Objective(1, 1, 1, "1", "1", "3010-01");
-    List<Objective> objList = Arrays.asList(obj);
-    List<List<Objective>> objListList = Arrays.asList(objList);
+    Objective_OLD obj = new Objective_OLD(1, 1, 1, "1", "1", "3010-01");
+    List<Objective_OLD> objList = Arrays.asList(obj);
+    List<List<Objective_OLD>> objListList = Arrays.asList(objList);
     unitUnderTest.setObjectiveList(objListList);
     assertEquals(unitUnderTest.getLatestVersionOfSpecificObjective(obj.getID()), obj);
   }
@@ -405,8 +405,8 @@ public class EmployeeTest
   @Test(expected = InvalidAttributeValueException.class)
   public void testSetDevelopmentNeedsListWithInvalidDevelopmentNeed() throws InvalidAttributeValueException
   {
-    DevelopmentNeed invalidDevNeed = new DevelopmentNeed();
-    List<DevelopmentNeed> invalidDevNeedList = Arrays.asList(invalidDevNeed);
+    DevelopmentNeed_OLD invalidDevNeed = new DevelopmentNeed_OLD();
+    List<DevelopmentNeed_OLD> invalidDevNeedList = Arrays.asList(invalidDevNeed);
     unitUnderTest.getDevelopmentNeedsList().add(invalidDevNeedList);
     unitUnderTest.setDevelopmentNeedsList(unitUnderTest.getDevelopmentNeedsList());
   }
@@ -439,9 +439,9 @@ public class EmployeeTest
   public void testGetLatestVersionDevelopmentNeedsListValidDevelopmentNeeds() throws InvalidAttributeValueException,
       IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
   {
-    DevelopmentNeed dev = new DevelopmentNeed(1, 1, 1, "1", "1");
-    List<DevelopmentNeed> devList = Arrays.asList(dev);
-    List<List<DevelopmentNeed>> devListList = Arrays.asList(devList);
+    DevelopmentNeed_OLD dev = new DevelopmentNeed_OLD(1, 1, 1, "1", "1");
+    List<DevelopmentNeed_OLD> devList = Arrays.asList(dev);
+    List<List<DevelopmentNeed_OLD>> devListList = Arrays.asList(devList);
     unitUnderTest.setDevelopmentNeedsList(devListList);
     assertEquals(unitUnderTest.getLatestVersionDevelopmentNeeds(), devList);
   }
@@ -455,9 +455,9 @@ public class EmployeeTest
   public void testGetLatestVersionOfSpecificDevelopmentNeedsValidDevelopmentNeeds()
       throws InvalidAttributeValueException
   {
-    DevelopmentNeed dev = new DevelopmentNeed(1, 1, 1, "1", "1");
-    List<DevelopmentNeed> devList = Arrays.asList(dev);
-    List<List<DevelopmentNeed>> devListList = Arrays.asList(devList);
+    DevelopmentNeed_OLD dev = new DevelopmentNeed_OLD(1, 1, 1, "1", "1");
+    List<DevelopmentNeed_OLD> devList = Arrays.asList(dev);
+    List<List<DevelopmentNeed_OLD>> devListList = Arrays.asList(devList);
     unitUnderTest.setDevelopmentNeedsList(devListList);
     assertEquals(unitUnderTest.getLatestVersionOfSpecificDevelopmentNeed(1), dev);
   }
@@ -564,7 +564,7 @@ public class EmployeeTest
   public void testGetLatestVersionCompetenciesEmptyCompetencies() throws InvalidAttributeValueException,
       IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
   {
-    List<List<Competency>> compListList = new ArrayList<List<Competency>>();
+    List<List<Competency_OLD>> compListList = new ArrayList<List<Competency_OLD>>();
 
     Field f = unitUnderTest.getClass().getDeclaredField("competencies");
     f.setAccessible(true);
@@ -581,9 +581,9 @@ public class EmployeeTest
   public void testGetLatestVersionCompetenciesValidCompetencies() throws InvalidAttributeValueException,
       IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
   {
-    Competency comp = new Competency(1, true);
-    List<Competency> compList = Arrays.asList(comp);
-    List<List<Competency>> compListList = Arrays.asList(compList);
+    Competency_OLD comp = new Competency_OLD(1, true);
+    List<Competency_OLD> compList = Arrays.asList(comp);
+    List<List<Competency_OLD>> compListList = Arrays.asList(compList);
     unitUnderTest.setCompetenciesList(compListList);
     assertEquals(unitUnderTest.getLatestVersionCompetencies(), compList);
   }
@@ -618,9 +618,9 @@ public class EmployeeTest
   @Test
   public void testGetLatestVersionOfSpecificCompetencyValidCompetency() throws InvalidAttributeValueException
   {
-    Competency comp = new Competency(1, true);
-    List<Competency> compList = Arrays.asList(comp);
-    List<List<Competency>> compListList = Arrays.asList(compList);
+    Competency_OLD comp = new Competency_OLD(1, true);
+    List<Competency_OLD> compList = Arrays.asList(comp);
+    List<List<Competency_OLD>> compListList = Arrays.asList(compList);
     unitUnderTest.setCompetenciesList(compListList);
     assertEquals(unitUnderTest.getLatestVersionOfSpecificCompetency(1), comp);
   }
@@ -690,7 +690,7 @@ public class EmployeeTest
   @Test
   public void testAddObjectiveWithValidObjective() throws InvalidAttributeValueException
   {
-    Objective obj = new Objective(1, 1, 1, "1", "1", "3010-01");
+    Objective_OLD obj = new Objective_OLD(1, 1, 1, "1", "1", "3010-01");
     assertEquals(unitUnderTest.addObjective(obj), true);
   }
 
@@ -707,7 +707,7 @@ public class EmployeeTest
   public void testAddObjectiveCheckIfObjectivesIsNull() throws InvalidAttributeValueException, IllegalArgumentException,
       IllegalAccessException, NoSuchFieldException, SecurityException
   {
-    Objective obj = new Objective(1, 1, 1, "1", "1", "3010-01");
+    Objective_OLD obj = new Objective_OLD(1, 1, 1, "1", "1", "3010-01");
     setPrivateField("objectives", unitUnderTest, null);
     assertTrue(unitUnderTest.addObjective(obj));
   }
@@ -744,9 +744,9 @@ public class EmployeeTest
   public void testEditObjectiveWithValidObjective() throws InvalidAttributeValueException
   {
 
-    Objective obj = new Objective(1, 1, 1, "1", "1", "3010-01");
-    List<Objective> objList = Arrays.asList(obj);
-    List<List<Objective>> objListList = Arrays.asList(objList);
+    Objective_OLD obj = new Objective_OLD(1, 1, 1, "1", "1", "3010-01");
+    List<Objective_OLD> objList = Arrays.asList(obj);
+    List<List<Objective_OLD>> objListList = Arrays.asList(objList);
     unitUnderTest.setObjectiveList(objListList);
     assertEquals(unitUnderTest.editObjective(obj), true);
   }
@@ -793,7 +793,7 @@ public class EmployeeTest
   @Test
   public void testAddDevelopmentNeedWithValidObjective() throws InvalidAttributeValueException
   {
-    DevelopmentNeed dev = new DevelopmentNeed(1, 1, 1, "1", "1");
+    DevelopmentNeed_OLD dev = new DevelopmentNeed_OLD(1, 1, 1, "1", "1");
     assertEquals(unitUnderTest.addDevelopmentNeed(dev), true);
   }
 
@@ -810,7 +810,7 @@ public class EmployeeTest
   public void testAddDevelopmentNeedCheckIfDevelopmentNeedsIsNull() throws InvalidAttributeValueException,
       IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
   {
-    DevelopmentNeed dev = new DevelopmentNeed(1, 1, 1, "1", "1");
+    DevelopmentNeed_OLD dev = new DevelopmentNeed_OLD(1, 1, 1, "1", "1");
     setPrivateField("developmentNeeds", unitUnderTest, null);
     assertTrue(unitUnderTest.addDevelopmentNeed(dev));
   }
@@ -847,9 +847,9 @@ public class EmployeeTest
   public void testEditDevelopmentNeedWithValidDevelopmentNeed() throws InvalidAttributeValueException
   {
 
-    DevelopmentNeed dev = new DevelopmentNeed(1, 1, 1, "1", "1");
-    List<DevelopmentNeed> devList = Arrays.asList(dev);
-    List<List<DevelopmentNeed>> devListList = Arrays.asList(devList);
+    DevelopmentNeed_OLD dev = new DevelopmentNeed_OLD(1, 1, 1, "1", "1");
+    List<DevelopmentNeed_OLD> devList = Arrays.asList(dev);
+    List<List<DevelopmentNeed_OLD>> devListList = Arrays.asList(devList);
     unitUnderTest.setDevelopmentNeedsList(devListList);
     assertEquals(unitUnderTest.editDevelopmentNeed(dev), true);
   }
@@ -908,9 +908,9 @@ public class EmployeeTest
   @Test
   public void testUpdateCompetencyWithValidCompetency() throws InvalidAttributeValueException
   {
-    Competency comp = new Competency(1, true);
-    List<Competency> compList = Arrays.asList(comp);
-    List<List<Competency>> compListList = Arrays.asList(compList);
+    Competency_OLD comp = new Competency_OLD(1, true);
+    List<Competency_OLD> compList = Arrays.asList(comp);
+    List<List<Competency_OLD>> compListList = Arrays.asList(compList);
     unitUnderTest.setCompetenciesList(compListList);
     assertEquals(unitUnderTest.updateCompetency(comp, "1"), true);
   }
