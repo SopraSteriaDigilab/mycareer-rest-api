@@ -93,7 +93,7 @@ public class MongoOperations
   public <T> List<T> getFieldAndUnwind(String key, String reference)
   {
     List<T> result = new ArrayList<>();
-    mongoCollection.aggregate(Arrays.asList(project(excludeId().append(key, reference(value))), unwind(key)))
+    mongoCollection.aggregate(Arrays.asList(project(excludeId().append(key, reference(reference))), unwind(key)))
         .forEach((Block<Document>) d -> result.add((T) d.get(key)));
     return result;
   }
