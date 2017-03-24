@@ -4,6 +4,8 @@ import java.time.LocalDate;
 
 import javax.management.InvalidAttributeValueException;
 
+import org.bson.Document;
+
 /**
  * This class contains the definition of the Development Need object.
  */
@@ -90,5 +92,29 @@ public class DevelopmentNeed extends Objective
     this.category = category;
     this.setLastModified();
   }
+
+  /**
+   * Override of differences method.
+   *
+   * Returns a document containing the differences (only title, description, dueDate & category) of the development need.
+   *
+   * @see dataStructure.Objective#differences(dataStructure.Objective)
+   *
+   * @param objective
+   * @return
+   */
+  @Override
+  public Document differences(Objective objective)
+  {
+    DevelopmentNeed developmentNeed = (DevelopmentNeed) objective;
+    Document differences = super.differences(developmentNeed);
+    if(!this.getCategory().equals(developmentNeed.getCategory()))
+    {
+      differences.append("category", developmentNeed.getCategory());
+    }
+    return differences;
+  }
+  
+  
 
 }

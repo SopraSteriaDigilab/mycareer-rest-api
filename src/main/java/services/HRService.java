@@ -47,10 +47,7 @@ public class HRService
   public HRService(Datastore dbConnection)
   {
     HRService.dbConnection = dbConnection;
-  }
-
-  
-  
+  }  
   
   /**
    * Statistics for MyCareer from the database.
@@ -64,28 +61,7 @@ public class HRService
         countAll(empQuery, "developmentNeeds"), countAll(empQuery, "notes"), countAll(empQuery, "competencies"),
         countAll(empQuery, "feedbackRequests"), countAll(empQuery, "feedback"));
   }
-  
-  public List<Map<String, Object>> testDevNeeds()
-  {
-    List<Employee> empList = dbConnection.find(Employee.class).field("developmentNeeds").exists().asList();
-    long count = dbConnection.find(Employee.class).field("developmentNeeds").exists().countAll();
-    List<Map<String, Object>> ee = new ArrayList<>();
-    Map<String, Object> ttt = new HashMap<String, Object>();
-    ttt.put("Count all", count);
-    ee.add(ttt);
-    
-    empList.forEach(e -> {
-      Map<String, Object> m = new HashMap<>();
-      m.put("Employee", e.getProfile().getFullName());
-      m.put("DevNeeds", e.getLatestVersionDevelopmentNeeds());
-      ee.add(m);
-    });
-    return ee;
  
-
-  }
-
-
   /**
    * Statistics for employees from the database.
    *

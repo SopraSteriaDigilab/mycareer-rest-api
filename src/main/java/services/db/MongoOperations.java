@@ -1,7 +1,10 @@
 package services.db;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
@@ -11,7 +14,6 @@ import com.mongodb.Block;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 
 /**
@@ -52,9 +54,14 @@ public class MongoOperations
   private static final String OBJECTIVE_ID = "objectiveID";
   private static final String DEVELOPMENT_NEED_ID = "developmentNeedID";
   private static final String CREATED_ON = "createdOn";
-  
+  private static final String TITLE = "title";
+  private static final String IS_SELECTED = "isSelected";
+  private static final String LAST_MODIFIED = "lastModified";
+  private static final String HISTORY = "history";
+
   private static final String UNWIND = "$unwind";
   private static final String PROJECT = "$project";
+  private static final String PUSH = "$push";
 
 
 
@@ -143,30 +150,42 @@ public class MongoOperations
   }
 
   /**
-   * Method to add one of the history collections. Upsert is set to true. 
+   * Method to add to either the Objectives or Development Needs history collections. Upsert is set to true.
    *
    * @param find The filter of _id document to match
    * @param update The update to store
    */
-  public void addToHistory(Document find, Document update)
+  public void addToObjDevHistory(Document find, Document update)
   {
-    mongoCollection.updateOne(Filters.eq("_id", find), new Document("$push", new Document("history", update)),
+    mongoCollection.updateOne(eq(ID, find), push(HISTORY, update),
         new UpdateOptions().upsert(true));
+  }
+
+  /**
+   * Method to add to competencies history collections. Upsert is set to true.
+   *
+   * @param find The filter of _id document to match
+   * @param update The update to store
+   */
+  public void addToCompetenciesHistory(long employeeId, String title, boolean isSelected, String lastModified)
+  {
+    mongoCollection.insertOne(new Document(ID, new Document(EMPLOYEE_ID, employeeId).append(TITLE, title)
+        .append(IS_SELECTED, isSelected).append(LAST_MODIFIED, lastModified)));
   }
 
   /**
    * Creates an Document that represents the _id field in the objectives history collections.
    *
    * @param employeeId The employee id
-   * @param objectiveID The objective id
+   * @param objectiveId The objective id
    * @param createdOn The creation date.
    * @return A Document with the fields passed through
    */
-  public static Document objectiveHistoryIdFilter(long employeeId, int objectiveID, String createdOn)
+  public static Document objectiveHistoryIdFilter(long employeeId, int objectiveId, String createdOn)
   {
-    return new Document(EMPLOYEE_ID, employeeId).append(OBJECTIVE_ID, objectiveID).append(CREATED_ON, createdOn);
+    return new Document(EMPLOYEE_ID, employeeId).append(OBJECTIVE_ID, objectiveId).append(CREATED_ON, createdOn);
   }
-  
+
   /**
    * Creates an Document that represents the _id field in the development needs history collections.
    *
@@ -175,9 +194,10 @@ public class MongoOperations
    * @param createdOn The creation date.
    * @return A Document with the fields passed through
    */
-  public static Document developmentNeedHistoryIdFilter(long employeeId, int developmentNeedID, String createdOn)
+  public static Document developmentNeedHistoryIdFilter(long employeeId, int developmentNeedId, String createdOn)
   {
-    return new Document(EMPLOYEE_ID, employeeId).append(DEVELOPMENT_NEED_ID, developmentNeedID).append(CREATED_ON, createdOn);
+    return new Document(EMPLOYEE_ID, employeeId).append(DEVELOPMENT_NEED_ID, developmentNeedId).append(CREATED_ON,
+        createdOn);
   }
 
   private Bson project(final Bson projection)
@@ -198,6 +218,11 @@ public class MongoOperations
   private Bson unwind(final String field)
   {
     return new Document(UNWIND, reference(field));
+  }
+
+  private Bson push(String fieldName, Bson update)
+  {
+    return new Document(PUSH, new Document(fieldName, update));
   }
 
 }

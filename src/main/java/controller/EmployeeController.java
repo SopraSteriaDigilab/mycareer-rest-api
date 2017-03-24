@@ -12,9 +12,7 @@ import static utils.Validate.isYearMonthInPast;
 
 import java.io.IOException;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -42,16 +40,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mongodb.MongoException;
 
 import application.GlobalExceptionHandler;
+import dataStructure.Competency.CompetencyTitle;
 import dataStructure.Competency_OLD;
-import dataStructure.Competency;
 import dataStructure.Constants;
-import dataStructure.DevelopmentNeed_OLD;
 import dataStructure.DevelopmentNeed;
+import dataStructure.DevelopmentNeed_OLD;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
-import dataStructure.Objective_OLD;
 import dataStructure.Objective;
-import dataStructure.Competency.CompetencyTitle;
+import dataStructure.Objective_OLD;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
 import services.EmployeeService;
@@ -1007,6 +1004,11 @@ public class EmployeeController
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
     {
       return badRequest().body(error(e.getMessage()));
+    }
+    catch (IOException e)
+    {
+      LOGGER.error("Error adding objective {}", e);
+      return badRequest().body(error("Sorry there was an error adding your development need. Please try again later."));
     }
   }
 

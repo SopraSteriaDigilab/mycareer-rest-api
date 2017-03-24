@@ -961,7 +961,7 @@ public class Employee implements Serializable
     return true;
   }
   
-  private Competency getCompetencyNEW(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
+  public Competency getCompetencyNEW(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
   {
     Optional<Competency> competency = getCompetenciesNEW().stream()
         .filter(c -> c.getTitle().equals(competencyTitle.getCompetencyTitleStr())).findFirst();
@@ -970,6 +970,8 @@ public class Employee implements Serializable
 
     return competency.get();
   }
+  
+  
 
   //////////////////// END NEW COMPETENCIES
 

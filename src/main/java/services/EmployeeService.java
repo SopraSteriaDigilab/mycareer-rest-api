@@ -8,7 +8,12 @@ import static dataStructure.Constants.INVALID_OBJECTIVEID;
 import static dataStructure.Constants.NULL_USER_DATA;
 import static dataStructure.Constants.OBJECTIVE_NOTADDED_ERROR;
 import static dataStructure.Constants.UK_TIMEZONE;
+import static services.db.MongoOperations.developmentNeedHistoryIdFilter;
 import static services.db.MongoOperations.objectiveHistoryIdFilter;
+import static utils.Utils.generateFeedbackRequestID;
+import static utils.Utils.getEmployeeIDFromRequestID;
+import static utils.Utils.localDateTimetoDate;
+import static utils.Utils.stringEmailsToHashSet;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -32,24 +37,23 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import dataStructure.Competency_OLD;
 import dataStructure.Competency;
 import dataStructure.Competency.CompetencyTitle;
-import dataStructure.DevelopmentNeed_OLD;
+import dataStructure.Competency_OLD;
 import dataStructure.DevelopmentNeed;
+import dataStructure.DevelopmentNeed_OLD;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note;
-import dataStructure.Objective_OLD;
 import dataStructure.Objective;
 import dataStructure.Objective.Progress;
+import dataStructure.Objective_OLD;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 import services.ews.EmailService;
 import utils.Template;
-import utils.Utils;
 import utils.Validate;
 
 /**
@@ -572,7 +576,7 @@ public class EmployeeService
   public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception
   {
     Employee requester = getEmployee(employeeID);
-    Set<String> recipientList = Utils.stringEmailsToHashSet(emailsString);
+    Set<String> recipientList = stringEmailsToHashSet(emailsString);
 
     if (recipientList.size() > 20)
       throw new InvalidAttributeValueException("There must be less than 20 email addresses.");
@@ -582,7 +586,7 @@ public class EmployeeService
 
     for (String recipient : recipientList)
     {
-      String tempID = Utils.generateFeedbackRequestID(employeeID);
+      String tempID = generateFeedbackRequestID(employeeID);
       String subject = String.format("Feedback Request from %s - %s", requester.getProfile().getFullName(), employeeID);
       // String body = String.format("%s \n\n Feedback_Request: %s", notes, tempID);
       String body = Template.populateTemplate(env.getProperty("templates.feedback.request"), requesterName, notes,
@@ -690,7 +694,7 @@ public class EmployeeService
       throws Exception
   {
     Validate.areStringsEmptyorNull(providerEmail, feedbackRequestID, feedbackDescription);
-    long employeeID = Utils.getEmployeeIDFromRequestID(feedbackRequestID);
+    long employeeID = getEmployeeIDFromRequestID(feedbackRequestID);
     Employee employee = getEmployee(employeeID);
 
     employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
@@ -777,7 +781,7 @@ public class EmployeeService
   public void updateLastLoginDate(EmployeeProfile profile) throws EmployeeNotFoundException
   {
     Employee employee = getEmployee(profile.getEmployeeID());
-    employee.setLastLogon(Utils.localDateTimetoDate(LocalDateTime.now()));
+    employee.setLastLogon(localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE)));
     morphiaOperations.updateEmployee(profile.getEmployeeID(), LAST_LOGON, employee.getLastLogon());
   }
 
@@ -796,7 +800,7 @@ public class EmployeeService
     objective.setProposedBy(employee.getProfile().getFullName());
     employee.addObjectiveNEW(objective);
 
-    mongoOperations.objectivesHistoriesCollection().addToHistory(
+    mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
@@ -813,10 +817,10 @@ public class EmployeeService
 
     employee.editObjectiveNEW(objective);
 
-    mongoOperations.objectivesHistoriesCollection().addToHistory(
+    mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objective.getId(),
             employee.getObjectiveNEW(objective.getId()).getCreatedOn()),
-        update.append("timestamp", Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+        update.append("timestamp", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
@@ -831,8 +835,8 @@ public class EmployeeService
 
     employee.deleteObjectiveNEW(objectiveId);
 
-    mongoOperations.objectivesHistoriesCollection().addToHistory(deletedId,
-        new Document("deletedOn", Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+    mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(deletedId,
+        new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
@@ -845,10 +849,10 @@ public class EmployeeService
 
     employee.updateObjectiveNEWProgress(objectiveId, progress);
 
-    mongoOperations.objectivesHistoriesCollection().addToHistory(
+    mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()),
         new Document("progress", progress.getProgressStr()).append("timestamp",
-            Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+            localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
@@ -860,10 +864,10 @@ public class EmployeeService
 
     employee.toggleObjectiveNEWArchive(objectiveId);
 
-    mongoOperations.objectivesHistoriesCollection().addToHistory(
+    mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()),
         new Document("isArchived", employee.getObjectiveNEW(objectiveId).getArchived()).append("timestamp",
-            Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+            localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
@@ -883,6 +887,10 @@ public class EmployeeService
       {
         Employee employee = getEmployee(email);
         employee.addObjectiveNEW(objective);
+
+        mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(
+            objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
+
         morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), NEW_OBJECTIVES,
             employee.getObjectivesNEW());
 
@@ -923,12 +931,17 @@ public class EmployeeService
     return getEmployee(employeeId).getDevelopmentNeedsNEW();
   }
 
-  public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed developmentNeed) throws EmployeeNotFoundException
+  public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed developmentNeed)
+      throws EmployeeNotFoundException, JsonParseException, JsonMappingException, IOException
   {
     Employee employee = getEmployee(employeeId);
 
     developmentNeed.setProposedBy(employee.getProfile().getFullName());
     employee.addDevelopmentNeedNEW(developmentNeed);
+
+    mongoOperations.developmentNeedsHistoriesCollection().addToObjDevHistory(
+        developmentNeedHistoryIdFilter(employeeId, developmentNeed.getId(), developmentNeed.getCreatedOn()),
+        developmentNeed.toDocument());
 
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
 
@@ -939,7 +952,16 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
 
+    Document update = employee.getDevelopmentNeedNEW(developmentNeed.getId()).differences(developmentNeed);
+
+    if (update.isEmpty()) return;
+
     employee.editDevelopmentNeedNEW(developmentNeed);
+
+    mongoOperations.developmentNeedsHistoriesCollection().addToObjDevHistory(
+        developmentNeedHistoryIdFilter(employeeId, developmentNeed.getId(),
+            employee.getDevelopmentNeedNEW(developmentNeed.getId()).getCreatedOn()),
+        update.append("timestamp", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
 
@@ -950,7 +972,13 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
 
+    Document deletedId = new Document(developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
+        employee.getDevelopmentNeedNEW(developmentNeedId).getCreatedOn()));
+
     employee.deleteDevelopmentNeedNEW(developmentNeedId);
+
+    mongoOperations.developmentNeedsHistoriesCollection().addToObjDevHistory(deletedId,
+        new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
 
@@ -963,6 +991,12 @@ public class EmployeeService
 
     employee.updateDevelopmentNeedNEWProgress(developmentNeedId, progress);
 
+    mongoOperations.developmentNeedsHistoriesCollection().addToObjDevHistory(
+        developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
+            employee.getDevelopmentNeedNEW(developmentNeedId).getCreatedOn()),
+        new Document("progress", progress.getProgressStr()).append("timestamp",
+            localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
 
   }
@@ -973,6 +1007,12 @@ public class EmployeeService
     Employee employee = getEmployee(employeeId);
 
     employee.toggleDevelopmentNeedNEWArchive(developmentNeedId);
+
+    mongoOperations.developmentNeedsHistoriesCollection().addToObjDevHistory(
+        developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
+            employee.getDevelopmentNeedNEW(developmentNeedId).getCreatedOn()),
+        new Document("isArchived", employee.getDevelopmentNeedNEW(developmentNeedId).getArchived()).append("timestamp",
+            localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
   }
@@ -992,6 +1032,10 @@ public class EmployeeService
     Employee employee = getEmployee(employeeId);
 
     employee.toggleCompetencyNEW(competencyTitle);
+
+    mongoOperations.competenciesHistoriesCollection().addToCompetenciesHistory(employeeId,
+        competencyTitle.getCompetencyTitleStr(), employee.getCompetencyNEW(competencyTitle).isSelected(),
+        employee.getCompetencyNEW(competencyTitle).getLastModified());
 
     morphiaOperations.updateEmployee(employeeId, NEW_COMPETENCIES, employee.getCompetenciesNEW());
   }

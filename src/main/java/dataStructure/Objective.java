@@ -206,6 +206,12 @@ public class Objective extends DBObject
     this.setLastModified();
   }
 
+  /**
+   * Returns a document containing the differences (only title, description & dueDate) of the objectives.
+   *
+   * @param objective
+   * @return a new document
+   */
   public Document differences(Objective objective)
   {
     Document differences = new Document();
