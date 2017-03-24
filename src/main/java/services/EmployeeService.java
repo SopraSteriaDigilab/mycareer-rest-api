@@ -266,8 +266,17 @@ public class EmployeeService
     for (String str : employee.getProfile().getReporteeCNs())
     {
       long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
-
-      reporteeList.add(employeeProfileService.fetchEmployeeProfile(temp));
+      
+      try
+      {
+        reporteeList.add(employeeProfileService.fetchEmployeeProfile(temp));
+      }
+      catch (EmployeeNotFoundException e)
+      {
+        /*
+         * This employee is not perm/internal staff
+         */
+      }
     }
     return reporteeList;
   }
