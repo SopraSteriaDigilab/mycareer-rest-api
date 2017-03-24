@@ -266,10 +266,11 @@ public class EmployeeService
     for (String str : employee.getProfile().getReporteeCNs())
     {
       long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
-      
+      EmployeeProfile profile = null;
       try
       {
-        reporteeList.add(employeeProfileService.fetchEmployeeProfile(temp));
+        profile = employeeProfileService.fetchEmployeeProfile(temp);
+        reporteeList.add(profile);
       }
       catch (EmployeeNotFoundException e)
       {

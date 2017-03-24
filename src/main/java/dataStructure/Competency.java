@@ -61,7 +61,7 @@ public class Competency extends DBObject
   private static final long serialVersionUID = 1327626647922503101L;
 
   /** String Property - Represents the title of the competency. */
-  private CompetencyTitle title;
+  private String title;
 
   /** boolean Property - Indicates if the competenct is selected. */
   private boolean isSelected;
@@ -89,13 +89,13 @@ public class Competency extends DBObject
   /** @return the title */
   public String getTitle()
   {
-    return title.getCompetencyTitleStr();
+    return title;
   }
 
   /** @param title The value to set. */
   public void setTitle(CompetencyTitle title)
   {
-    this.title = title;
+    this.title = title.getCompetencyTitleStr();
     this.setLastModified();
   }
 

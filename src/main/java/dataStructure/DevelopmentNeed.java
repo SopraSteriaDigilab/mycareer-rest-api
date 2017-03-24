@@ -53,7 +53,7 @@ public class DevelopmentNeed extends Objective
   private static final long serialVersionUID = 1L;
 
   /** int Property - Represents the category of the objective */
-  private Category category;
+  private String category;
 
   /**
    * Default Constructor - Responsible for initialising this object.
@@ -83,13 +83,13 @@ public class DevelopmentNeed extends Objective
   /** @return the category */
   public String getCategory()
   {
-    return this.category.getCategoryStr();
+    return this.category;
   }
 
   /** @param the Category to set. */
   public void setCategory(Category category)
   {
-    this.category = category;
+    this.category = category.getCategoryStr();
     this.setLastModified();
   }
 

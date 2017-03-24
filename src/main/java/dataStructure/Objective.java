@@ -75,7 +75,7 @@ public class Objective extends DBObject
   private String proposedBy;
 
   /** String Property - Represents the progress of the objective */
-  private Progress progress;
+  private String progress;
 
   /** boolean Property - Represents the state of the objective */
   private boolean isArchived;
@@ -180,7 +180,7 @@ public class Objective extends DBObject
   /** @return the progress. */
   public String getProgress()
   {
-    return this.progress.getProgressStr();
+    return progress;
   }
 
   /**
@@ -189,7 +189,7 @@ public class Objective extends DBObject
    */
   public void setProgress(Progress progress)
   {
-    this.progress = progress;
+    this.progress = progress.getProgressStr();
     this.setLastModified();
   }
 

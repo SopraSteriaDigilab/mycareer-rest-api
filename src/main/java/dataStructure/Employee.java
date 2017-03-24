@@ -44,28 +44,28 @@ public class Employee implements Serializable
   private List<Feedback> feedback;
 
   @Embedded
-  private List<List<Objective_OLD>> objectives;
+  private List<List<Objective_OLD>> oldObjectives;
 
   @Embedded
-  private List<Objective> newObjectives;
+  private List<Objective> objectives;
 
   @Embedded
   private List<Note> notes;
 
   @Embedded
-  private List<List<DevelopmentNeed_OLD>> developmentNeeds;
+  private List<List<DevelopmentNeed_OLD>> oldDevelopmentNeeds;
 
   @Embedded
-  private List<DevelopmentNeed> newDevelopmentNeeds;
+  private List<DevelopmentNeed> developmentNeeds;
 
   @Embedded
   private List<FeedbackRequest> feedbackRequests;
 
   @Embedded
-  private List<List<Competency_OLD>> competencies;
+  private List<List<Competency_OLD>> oldCompetencies;
 
   @Embedded
-  private List<Competency> newCompetencies;
+  private List<Competency> competencies;
 
   /** Date Property - Represents the date of the last logon for the user */
   private Date lastLogon;
@@ -74,13 +74,13 @@ public class Employee implements Serializable
   public Employee()
   {
     this.feedback = new ArrayList<Feedback>();
-    this.objectives = new ArrayList<List<Objective_OLD>>();
-    this.newObjectives = new ArrayList<Objective>();
+    this.oldObjectives = new ArrayList<List<Objective_OLD>>();
+    this.objectives = new ArrayList<Objective>();
     this.notes = new ArrayList<Note>();
-    this.developmentNeeds = new ArrayList<List<DevelopmentNeed_OLD>>();
-    this.newDevelopmentNeeds = new ArrayList<DevelopmentNeed>();
+    this.oldDevelopmentNeeds = new ArrayList<List<DevelopmentNeed_OLD>>();
+    this.developmentNeeds = new ArrayList<DevelopmentNeed>();
     this.feedbackRequests = new ArrayList<FeedbackRequest>();
-    this.competencies = new ArrayList<List<Competency_OLD>>();
+    this.oldCompetencies = new ArrayList<List<Competency_OLD>>();
     this.setCompetenciesNEW();
   }
 
@@ -132,18 +132,18 @@ public class Employee implements Serializable
     {
       // Counter that keeps tracks of the error while adding elements
       int errorCounter = 0;
-      this.objectives = new ArrayList<List<Objective_OLD>>();
+      this.oldObjectives = new ArrayList<List<Objective_OLD>>();
       // Verify if each each objective is valid
       for (int i = 0; i < objectives.size(); i++)
       {
         // Add a new List to the list of Objectives
-        this.objectives.add(new ArrayList<Objective_OLD>());
+        this.oldObjectives.add(new ArrayList<Objective_OLD>());
         if (objectives.get(i) != null)
         {
           for (int j = 0; j < objectives.get(i).size(); j++)
           {
             if (objectives.get(i).get(j).isObjectiveValid())
-              this.objectives.get(this.objectives.size() - 1).add(objectives.get(i).get(j));
+              this.oldObjectives.get(this.oldObjectives.size() - 1).add(objectives.get(i).get(j));
             else errorCounter++;
           }
         }
@@ -157,7 +157,7 @@ public class Employee implements Serializable
 
   public List<List<Objective_OLD>> getObjectiveList()
   {
-    return this.objectives;
+    return this.oldObjectives;
   }
 
   /**
@@ -167,12 +167,12 @@ public class Employee implements Serializable
   public List<Objective_OLD> getLatestVersionObjectives()
   {
     List<Objective_OLD> organisedList = new ArrayList<Objective_OLD>();
-    if (objectives == null) return null;
+    if (oldObjectives == null) return null;
     else
     {
       // If the list if not empty, retrieve all the elements and add them to the list
       // that is going to be returned
-      for (List<Objective_OLD> subList : objectives)
+      for (List<Objective_OLD> subList : oldObjectives)
       {
         // The last element contains the latest version for the objective
         organisedList.add(subList.get(subList.size() - 1));
@@ -195,7 +195,7 @@ public class Employee implements Serializable
   public Objective_OLD getLatestVersionOfSpecificObjective(int id) throws InvalidAttributeValueException
   {
     // Search for the objective with the given ID
-    for (List<Objective_OLD> subList : objectives)
+    for (List<Objective_OLD> subList : oldObjectives)
     {
       if ((subList.get(0)).getID() == id)
       {
@@ -232,18 +232,18 @@ public class Employee implements Serializable
     {
       // Counter that keeps tracks of the error while adding elements
       int errorCounter = 0;
-      this.developmentNeeds = new ArrayList<List<DevelopmentNeed_OLD>>();
+      this.oldDevelopmentNeeds = new ArrayList<List<DevelopmentNeed_OLD>>();
       // Verify if each development need is valid
       for (int i = 0; i < developments.size(); i++)
       {
         // Add a new List to the list of developmentNeeds
-        this.developmentNeeds.add(new ArrayList<DevelopmentNeed_OLD>());
+        this.oldDevelopmentNeeds.add(new ArrayList<DevelopmentNeed_OLD>());
         if (developments.get(i) != null)
         {
           for (int j = 0; j < developments.get(i).size(); j++)
           {
             if (developments.get(i).get(j).isDevelopmentNeedValid())
-              this.developmentNeeds.get(this.developmentNeeds.size() - 1).add(developments.get(i).get(j));
+              this.oldDevelopmentNeeds.get(this.oldDevelopmentNeeds.size() - 1).add(developments.get(i).get(j));
             else errorCounter++;
           }
         }
@@ -263,7 +263,7 @@ public class Employee implements Serializable
    */
   public List<List<DevelopmentNeed_OLD>> getDevelopmentNeedsList()
   {
-    return this.developmentNeeds;
+    return this.oldDevelopmentNeeds;
   }
 
   /**
@@ -275,12 +275,12 @@ public class Employee implements Serializable
   public List<DevelopmentNeed_OLD> getLatestVersionDevelopmentNeeds()
   {
     List<DevelopmentNeed_OLD> organisedList = new ArrayList<DevelopmentNeed_OLD>();
-    if (developmentNeeds == null) return null;
+    if (oldDevelopmentNeeds == null) return null;
     else
     {
       // If the list if not empty, retrieve all the elements and add them to the list
       // that is going to be returned
-      for (List<DevelopmentNeed_OLD> subList : developmentNeeds)
+      for (List<DevelopmentNeed_OLD> subList : oldDevelopmentNeeds)
       {
         // The last element contains the latest version of the development need
         organisedList.add(subList.get(subList.size() - 1));
@@ -305,7 +305,7 @@ public class Employee implements Serializable
     // Verify if the id is valid
     if (id < 0) throw new InvalidAttributeValueException(Constants.INVALID_DEVNEEDID_CONTEXT);
     // Search for the development need with the given ID
-    for (List<DevelopmentNeed_OLD> subList : developmentNeeds)
+    for (List<DevelopmentNeed_OLD> subList : oldDevelopmentNeeds)
     {
       if ((subList.get(0)).getID() == id)
       {
@@ -402,17 +402,17 @@ public class Employee implements Serializable
     {
       // Counter that keeps tracks of the error while adding elements
       int errorCounter = 0;
-      this.competencies = new ArrayList<List<Competency_OLD>>();
+      this.oldCompetencies = new ArrayList<List<Competency_OLD>>();
       // Verify if each development need is valid
       for (int i = 0; i < comps.size(); i++)
       {
         // Add a new List to the list of competencies
-        this.competencies.add(new ArrayList<Competency_OLD>());
+        this.oldCompetencies.add(new ArrayList<Competency_OLD>());
         if (comps.get(i) != null)
         {
           for (int j = 0; j < comps.get(i).size(); j++)
           {
-            if (!this.competencies.get(this.competencies.size() - 1).add(comps.get(i).get(j))) errorCounter++;
+            if (!this.oldCompetencies.get(this.oldCompetencies.size() - 1).add(comps.get(i).get(j))) errorCounter++;
           }
         }
         else throw new InvalidAttributeValueException(Constants.INVALID_NULLCOMPETENECYLIST_CONTEXT);
@@ -431,17 +431,17 @@ public class Employee implements Serializable
    */
   public List<List<Competency_OLD>> getCompetenciesList()
   {
-    if (this.competencies.size() == 0)
+    if (this.oldCompetencies.size() == 0)
     {
       int index = 0;
-      while (competencies.size() < Constants.COMPETENCY_NAMES.length)
+      while (oldCompetencies.size() < Constants.COMPETENCY_NAMES.length)
       {
         List<Competency_OLD> tempList = new ArrayList<Competency_OLD>();
         tempList.add(new Competency_OLD(index++, false));
-        competencies.add(tempList);
+        oldCompetencies.add(tempList);
       }
     }
-    return this.competencies;
+    return this.oldCompetencies;
   }
 
   /**
@@ -453,14 +453,14 @@ public class Employee implements Serializable
   public List<Competency_OLD> getLatestVersionCompetencies()
   {
     List<Competency_OLD> organisedList = new ArrayList<Competency_OLD>();
-    if (this.competencies.size() == 0)
+    if (this.oldCompetencies.size() == 0)
     {
       int index = 0;
-      while (competencies.size() < Constants.COMPETENCY_NAMES.length)
+      while (oldCompetencies.size() < Constants.COMPETENCY_NAMES.length)
       {
         List<Competency_OLD> tempList = new ArrayList<Competency_OLD>();
         tempList.add(new Competency_OLD(index++, false));
-        competencies.add(tempList);
+        oldCompetencies.add(tempList);
       }
     }
     // If the list if not empty, retrieve all the elements and add them to the list
@@ -469,7 +469,7 @@ public class Employee implements Serializable
     {
       try
       {
-        List<Competency_OLD> subList = competencies.get(i);
+        List<Competency_OLD> subList = oldCompetencies.get(i);
         // The last element contains the latest version of the development need
         Competency_OLD temp = subList.get(subList.size() - 1);
         // Add a title and a description to the competency
@@ -515,7 +515,7 @@ public class Employee implements Serializable
     if (id < 0) return null;
     int index = 0;
     // Search for the Competency with the given ID
-    for (List<Competency_OLD> subList : competencies)
+    for (List<Competency_OLD> subList : oldCompetencies)
     {
       if ((subList.get(0)).getID() == id)
       {
@@ -557,17 +557,17 @@ public class Employee implements Serializable
    */
   public boolean addObjective(Objective_OLD obj) throws InvalidAttributeValueException
   {
-    if (objectives == null) objectives = new ArrayList<List<Objective_OLD>>();
+    if (oldObjectives == null) oldObjectives = new ArrayList<List<Objective_OLD>>();
     // Verify that the objective is not null
     if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_OBJECTIVE);
     // At this point, the objective hasn't got an ID, let's create one
-    obj.setID(objectives.size() + 1);
+    obj.setID(oldObjectives.size() + 1);
     if (obj.isObjectiveValid())
     {
       List<Objective_OLD> tempList = new ArrayList<Objective_OLD>();
       // add the first version of this objective
       boolean res1 = tempList.add(obj);
-      boolean res2 = objectives.add(tempList);
+      boolean res2 = oldObjectives.add(tempList);
       // Action completed, verify the results
       return (res1 && res2);
     }
@@ -589,14 +589,14 @@ public class Employee implements Serializable
     if (obj.isObjectiveValid())
     {
       // Step 2: Verify that the ID contained within the Objective object is in the system
-      for (int i = 0; i < objectives.size(); i++)
+      for (int i = 0; i < oldObjectives.size(); i++)
       {
-        List<Objective_OLD> listTemp = objectives.get(i);
+        List<Objective_OLD> listTemp = oldObjectives.get(i);
         // The elements within each list has all the same ID, so pick the first one and compare it
         if ((listTemp.get(0)).getID() == obj.getID())
         {
           // Add the objective to the end of the list
-          return objectives.get(i).add(obj);
+          return oldObjectives.get(i).add(obj);
         }
       }
     }
@@ -619,17 +619,17 @@ public class Employee implements Serializable
    */
   public boolean addDevelopmentNeed(DevelopmentNeed_OLD obj) throws InvalidAttributeValueException
   {
-    if (developmentNeeds == null) developmentNeeds = new ArrayList<List<DevelopmentNeed_OLD>>();
+    if (oldDevelopmentNeeds == null) oldDevelopmentNeeds = new ArrayList<List<DevelopmentNeed_OLD>>();
     // Verify that the note is not null
     if (obj == null) throw new InvalidAttributeValueException(Constants.INVALID_NULLDEVNEED_CONTEXT);
     // At this point, the note hasn't got an ID, let's create one
-    obj.setID(developmentNeeds.size() + 1);
+    obj.setID(oldDevelopmentNeeds.size() + 1);
     if (obj.isDevelopmentNeedValid())
     {
       List<DevelopmentNeed_OLD> tempList = new ArrayList<DevelopmentNeed_OLD>();
       // add the first version of this note
       boolean res1 = tempList.add(obj);
-      boolean res2 = developmentNeeds.add(tempList);
+      boolean res2 = oldDevelopmentNeeds.add(tempList);
       // Action completed, verify the results
       return (res1 && res2);
     }
@@ -652,13 +652,13 @@ public class Employee implements Serializable
     if (obj.isDevelopmentNeedValid())
     {
       // Step 2: Verify that the ID contained within the note object is in the system
-      for (int i = 0; i < developmentNeeds.size(); i++)
+      for (int i = 0; i < oldDevelopmentNeeds.size(); i++)
       {
-        List<DevelopmentNeed_OLD> listTemp = developmentNeeds.get(i);
+        List<DevelopmentNeed_OLD> listTemp = oldDevelopmentNeeds.get(i);
         // The elements within each list has all the same ID, so pick the first one and compare it
         if ((listTemp.get(0)).getID() == obj.getID())
           // Add the note to the end of the list
-          return developmentNeeds.get(i).add(obj);
+          return oldDevelopmentNeeds.get(i).add(obj);
       }
     }
     throw new InvalidAttributeValueException(Constants.INVALID_DEVNEED_CONTEXT);
@@ -690,18 +690,18 @@ public class Employee implements Serializable
   {
     // Check if the number of competencies has changed
     int index = 0;
-    while (competencies.size() < Constants.COMPETENCY_NAMES.length)
+    while (oldCompetencies.size() < Constants.COMPETENCY_NAMES.length)
     {
       List<Competency_OLD> tempList = new ArrayList<Competency_OLD>();
       tempList.add(new Competency_OLD(index++, false));
-      competencies.add(tempList);
+      oldCompetencies.add(tempList);
     }
     // Verify that the object is not null
     if (obj == null) throw new InvalidAttributeValueException(Constants.INVALID_NULLCOMPETENCY_CONTEXT);
     // Step 1: Verify that the object contains valid data
     if (obj.isValid())
       // Step 2: Verify that the ID contained within the competency object is in the system
-      return competencies.get(obj.getID()).add(obj);
+      return oldCompetencies.get(obj.getID()).add(obj);
     throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCY_CONTEXT);
   }
 
@@ -777,20 +777,20 @@ public class Employee implements Serializable
   /** @return the newObjectives */
   public List<Objective> getObjectivesNEW()
   {
-    return newObjectives;
+    return objectives;
   }
 
   /** @param newObjectives The value to set. */
   public void setObjectivesNEW(List<Objective> newObjectives)
   {
-    this.newObjectives = newObjectives;
+    this.objectives = newObjectives;
   }
 
   public boolean addObjectiveNEW(Objective objective)
   {
     objective.setId(nextObjectiveID());
 
-    return this.newObjectives.add(objective);
+    return this.objectives.add(objective);
   }
 
   public boolean editObjectiveNEW(Objective objective) throws InvalidAttributeValueException
@@ -855,20 +855,20 @@ public class Employee implements Serializable
   /** @return the newDevelopmentNeeds */
   public List<DevelopmentNeed> getDevelopmentNeedsNEW()
   {
-    return newDevelopmentNeeds;
+    return developmentNeeds;
   }
 
   /** @param newDevelopmentNeeds The value to set. */
   public void setDevelopmentNeedsNEW(List<DevelopmentNeed> newDevelopmentNeeds)
   {
-    this.newDevelopmentNeeds = newDevelopmentNeeds;
+    this.developmentNeeds = newDevelopmentNeeds;
   }
 
   public boolean addDevelopmentNeedNEW(DevelopmentNeed developmentNeed)
   {
     developmentNeed.setId(nextDevelopmentNeedID());
 
-    return this.newDevelopmentNeeds.add(developmentNeed);
+    return this.developmentNeeds.add(developmentNeed);
   }
 
   public boolean editDevelopmentNeedNEW(DevelopmentNeed developmentNeed) throws InvalidAttributeValueException
@@ -936,18 +936,18 @@ public class Employee implements Serializable
   /** @return the newCompetencies */
   public List<Competency> getCompetenciesNEW()
   {
-    return newCompetencies;
+    return competencies;
   }
 
   public void setCompetenciesNEW()
   {
-    if (newCompetencies == null)
+    if (competencies == null)
     {
-      this.newCompetencies = new ArrayList<Competency>();
+      this.competencies = new ArrayList<Competency>();
       int id = 0;
       for (CompetencyTitle competenctyTitle : CompetencyTitle.values())
       {
-        this.newCompetencies.add(new Competency(id++, competenctyTitle));
+        this.competencies.add(new Competency(id++, competenctyTitle));
       }
     }
   }
