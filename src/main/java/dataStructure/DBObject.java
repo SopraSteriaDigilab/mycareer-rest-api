@@ -2,9 +2,18 @@ package dataStructure;
 
 import static dataStructure.Constants.UK_TIMEZONE;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
+
+import org.bson.Document;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 
 import utils.Utils;
 
@@ -57,5 +66,14 @@ public abstract class DBObject implements Serializable
   {
     this.lastModified = Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE));
   }
+  
 
+  public Document toDocument() throws JsonParseException, JsonMappingException, IOException
+  {
+      Gson gson = new Gson();
+      String json = gson.toJson(this);
+      HashMap<String, Object> result = new ObjectMapper().readValue(json, HashMap.class);
+      return new Document(result);
+  }
+  
 }

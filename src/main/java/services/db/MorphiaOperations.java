@@ -6,8 +6,6 @@ import java.util.Set;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;

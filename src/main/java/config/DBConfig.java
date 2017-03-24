@@ -19,7 +19,7 @@ import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
 
-import services.DataService;
+import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 
 @Configuration
@@ -32,12 +32,6 @@ public class DBConfig
   private Environment env;
   
   @Bean
-  public DataService dataService()
-  {
-    return new DataService(mongoClient());
-  }
-  
-  @Bean
   public Datastore datastore(final MongoClient client) throws MongoException
   {
     Datastore dbConnection;
@@ -47,6 +41,12 @@ public class DBConfig
     dbConnection.ensureIndexes();
 
     return dbConnection;
+  }
+  
+  @Bean
+  public MongoOperations mongoOperations()
+  {
+    return new MongoOperations(mongoClient());
   }
   
   @Bean

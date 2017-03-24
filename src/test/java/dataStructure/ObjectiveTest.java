@@ -64,7 +64,7 @@ public class ObjectiveTest
   private final String FUTURE_DATE = "3010-01";
   
   @InjectMocks
-  private Objective unitUnderTest, unitUnderTest2, unitUnderTest3, unitUnderTest4;
+  private Objective_OLD unitUnderTest, unitUnderTest2, unitUnderTest3, unitUnderTest4;
   
   /**
    * Setup method that runs once before each test method.
@@ -75,10 +75,10 @@ public class ObjectiveTest
   public void setup() throws InvalidAttributeValueException
   {
    initMocks(this);
-   unitUnderTest = new Objective();
-   unitUnderTest2 = new Objective(VALID_EMPLOYEE_ID, VALID_PROGRESS, VALID_PERFORMANCE, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
-   unitUnderTest3 = new Objective(unitUnderTest2);
-   unitUnderTest4 = new Objective(VALID_PROGRESS, VALID_PERFORMANCE, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
+   unitUnderTest = new Objective_OLD();
+   unitUnderTest2 = new Objective_OLD(VALID_EMPLOYEE_ID, VALID_PROGRESS, VALID_PERFORMANCE, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
+   unitUnderTest3 = new Objective_OLD(unitUnderTest2);
+   unitUnderTest4 = new Objective_OLD(VALID_PROGRESS, VALID_PERFORMANCE, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
   }
   
   /**

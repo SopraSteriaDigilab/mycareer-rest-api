@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import dataStructure.DevelopmentNeed;
+import dataStructure.DevelopmentNeed_OLD;
 import dataStructure.Employee;
-import dataStructure.Objective;
+import dataStructure.Objective_OLD;
 
 /**
  * Class to hold create statistic mappings.
@@ -197,10 +197,10 @@ public class EmployeeStatistics
    * @param map
    * @param devNeeds
    */
-  private void addDevNeedsCounts(Map<String, Object> map, List<DevelopmentNeed> devNeeds)
+  private void addDevNeedsCounts(Map<String, Object> map, List<DevelopmentNeed_OLD> devNeeds)
   {
     int proposed = 0, inProgress = 0, complete = 0;
-    for (DevelopmentNeed devNeed : devNeeds)
+    for (DevelopmentNeed_OLD devNeed : devNeeds)
     {
       switch (devNeed.getProgress())
       {
@@ -227,12 +227,12 @@ public class EmployeeStatistics
    * @param map
    * @param objectives
    */
-  private void addObjectivesCounts(Map<String, Object> map, List<Objective> objectives)
+  private void addObjectivesCounts(Map<String, Object> map, List<Objective_OLD> objectives)
   {
     int proposed = 0, inProgress = 0, complete = 0, total = 0;
     if (!objectives.isEmpty())
     {
-      for (Objective objective : objectives)
+      for (Objective_OLD objective : objectives)
       {
         if (objective.getIsArchived()) continue;
         switch (objective.getProgress())

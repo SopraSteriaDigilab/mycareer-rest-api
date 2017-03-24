@@ -7,13 +7,13 @@ import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
-import dataStructure.Competency;
-import dataStructure.DevelopmentNeed;
+import dataStructure.Competency_OLD;
+import dataStructure.DevelopmentNeed_OLD;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
-import dataStructure.Objective;
+import dataStructure.Objective_OLD;
 
 /**
  * Models to be used in the tests.
@@ -116,9 +116,9 @@ public class Models
    *
    * @return
    */
-  public static Competency getCompetency()
+  public static Competency_OLD getCompetency()
   {
-    return new Competency(ID, STATUS);
+    return new Competency_OLD(ID, STATUS);
   }
 
   /**
@@ -127,9 +127,9 @@ public class Models
    * @return
    * @throws InvalidAttributeValueException
    */
-  public static DevelopmentNeed getDevelopmentNeed() throws InvalidAttributeValueException
+  public static DevelopmentNeed_OLD getDevelopmentNeed() throws InvalidAttributeValueException
   {
-    return new DevelopmentNeed(ID, ID, ID, TITLE, DESCRIPTION, DATE);
+    return new DevelopmentNeed_OLD(ID, ID, ID, TITLE, DESCRIPTION, DATE);
   }
 
   /**
@@ -158,9 +158,9 @@ public class Models
    * @return
    * @throws InvalidAttributeValueException
    */
-  public static Objective getObjective() throws InvalidAttributeValueException
+  public static Objective_OLD getObjective() throws InvalidAttributeValueException
   {
-    return new Objective(ID, ID, ID, TITLE, DESCRIPTION, DATE);
+    return new Objective_OLD(ID, ID, ID, TITLE, DESCRIPTION, DATE);
   }
 
 }

@@ -12,9 +12,7 @@ import static utils.Validate.isYearMonthInPast;
 
 import java.io.IOException;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -42,16 +40,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mongodb.MongoException;
 
 import application.GlobalExceptionHandler;
-import dataStructure.Competency;
-import dataStructure.Competency_NEW;
+import dataStructure.Competency.CompetencyTitle;
+import dataStructure.Competency_OLD;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
-import dataStructure.DevelopmentNeed_NEW;
+import dataStructure.DevelopmentNeed_OLD;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
-import dataStructure.Objective_NEW;
-import dataStructure.Competency_NEW.CompetencyTitle;
+import dataStructure.Objective_OLD;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
 import services.EmployeeService;
@@ -332,7 +329,7 @@ public class EmployeeController
   {
     try
     {
-      Objective obj = new Objective(0, 0, title, description, completedBy);
+      Objective_OLD obj = new Objective_OLD(0, 0, title, description, completedBy);
       obj.setProposedBy(proposedBy);
       boolean inserted = employeeService.insertNewObjective(employeeID, obj);
       if (inserted)
@@ -372,7 +369,7 @@ public class EmployeeController
   {
     try
     {
-      Objective obj = new Objective(objectiveID, progress, 0, title, description, completedBy);
+      Objective_OLD obj = new Objective_OLD(objectiveID, progress, 0, title, description, completedBy);
       obj.setProposedBy(proposedBy);
       boolean inserted = employeeService.addNewVersionObjective(employeeID, objectiveID, obj);
       if (inserted)
@@ -433,7 +430,7 @@ public class EmployeeController
     try
     {
       // Retrieve the object with the given ID from the DB data
-      Objective obj = employeeService.getSpecificObjectiveForUser(employeeID, objectiveID);
+      Objective_OLD obj = employeeService.getSpecificObjectiveForUser(employeeID, objectiveID);
       if (obj.getIsArchived() == isArchived)
       {
         return ok("The status of the objective has not changed");
@@ -534,7 +531,7 @@ public class EmployeeController
   {
     try
     {
-      DevelopmentNeed obj = new DevelopmentNeed(1, 0, cat, title, description, timeToCompleteBy);
+      DevelopmentNeed_OLD obj = new DevelopmentNeed_OLD(1, 0, cat, title, description, timeToCompleteBy);
       boolean inserted = employeeService.insertNewDevelopmentNeed(employeeID, obj);
       if (inserted)
       {
@@ -573,7 +570,7 @@ public class EmployeeController
   {
     try
     {
-      DevelopmentNeed obj = new DevelopmentNeed(devNeedID, progress, cat, title, description, timeToCompleteBy);
+      DevelopmentNeed_OLD obj = new DevelopmentNeed_OLD(devNeedID, progress, cat, title, description, timeToCompleteBy);
       boolean inserted = employeeService.addNewVersionDevelopmentNeed(employeeID, devNeedID, obj);
       if (inserted)
       {
@@ -681,7 +678,7 @@ public class EmployeeController
       {
         return badRequest().body("The given title does not match any valid competency");
       }
-      Competency obj = new Competency(index, status);
+      Competency_OLD obj = new Competency_OLD(index, status);
       boolean inserted = employeeService.addNewVersionCompetency(employeeID, obj, title);
       if (inserted)
       {
@@ -784,7 +781,7 @@ public class EmployeeController
         try
         {
           EmployeeProfile userInQuestion = employeeProfileService.fetchEmployeeProfile(email);
-          Objective obj = new Objective(0, 0, title, description, completedBy);
+          Objective_OLD obj = new Objective_OLD(0, 0, title, description, completedBy);
           obj.setProposedBy(proposedBy);
           boolean inserted = employeeService.insertNewObjective(userInQuestion.getEmployeeID(), obj);
           if (inserted)
@@ -863,12 +860,17 @@ public class EmployeeController
     try
     {
       employeeService.addObjectiveNEW(employeeId,
-          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate))));
+          new Objective(title, description, isYearMonthInPast(YearMonth.parse(dueDate))));
       return ok("Objective inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
     {
       return badRequest().body(error(e.getMessage()));
+    }
+    catch (IOException e)
+    {
+      LOGGER.error("Error adding objective {}", e);
+      return badRequest().body(error("Sorry there was an error adding your objective. Please try again later."));
     }
   }
 
@@ -882,7 +884,7 @@ public class EmployeeController
     try
     {
       employeeService.editObjectiveNEW(employeeId,
-          new Objective_NEW(objectiveId, title, description, isYearMonthInPast(YearMonth.parse(dueDate))));
+          new Objective(objectiveId, title, description, isYearMonthInPast(YearMonth.parse(dueDate))));
       return ok("Objective updated correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -916,12 +918,17 @@ public class EmployeeController
     try
     {
       employeeService.updateObjectiveNEWProgress(employeeId, objectiveId,
-          Objective_NEW.Progress.valueOf(PROGRESS_LIST[progress]));
+          Objective.Progress.valueOf(PROGRESS_LIST[progress]));
       return ok("Objective progress updated");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
     {
       return badRequest().body(error(e.getMessage()));
+    }
+    catch (IOException e)
+    {
+      LOGGER.error("Error adding objective {}", e);
+      return badRequest().body(error("Sorry there was an error updating your objective. Please try again later."));
     }
   }
 
@@ -953,7 +960,7 @@ public class EmployeeController
     {
       Set<String> emailSet = Utils.stringEmailsToHashSet(emails);
       employeeService.proposeObjectiveNEW(employeeId,
-          new Objective_NEW(title, description, isYearMonthInPast(YearMonth.parse(dueDate))), emailSet);
+          new Objective(title, description, isYearMonthInPast(YearMonth.parse(dueDate))), emailSet);
       return ok("Objective inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -990,13 +997,18 @@ public class EmployeeController
   {
     try
     {
-      employeeService.addDevelopmentNeedNEW(employeeId, new DevelopmentNeed_NEW(title, description,
-          isYearMonthInPast(YearMonth.parse(dueDate)), DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
+      employeeService.addDevelopmentNeedNEW(employeeId, new DevelopmentNeed(title, description,
+          isYearMonthInPast(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
     {
       return badRequest().body(error(e.getMessage()));
+    }
+    catch (IOException e)
+    {
+      LOGGER.error("Error adding objective {}", e);
+      return badRequest().body(error("Sorry there was an error adding your development need. Please try again later."));
     }
   }
 
@@ -1011,8 +1023,8 @@ public class EmployeeController
   {
     try
     {
-      employeeService.editDevelopmentNeedNEW(employeeId, new DevelopmentNeed_NEW(developmentNeedId, title, description,
-          isYearMonthInPast(YearMonth.parse(dueDate)), DevelopmentNeed_NEW.Category.valueOf(CATEGORY_LIST[category])));
+      employeeService.editDevelopmentNeedNEW(employeeId, new DevelopmentNeed(developmentNeedId, title, description,
+          isYearMonthInPast(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need updated correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -1046,7 +1058,7 @@ public class EmployeeController
     try
     {
       employeeService.updateDevelopmentNeedNEWProgress(employeeId, developmentNeedId,
-          Objective_NEW.Progress.valueOf(PROGRESS_LIST[progress]));
+          Objective.Progress.valueOf(PROGRESS_LIST[progress]));
       return ok("Development Need progress updated");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
