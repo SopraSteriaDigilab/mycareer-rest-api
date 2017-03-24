@@ -84,9 +84,9 @@ public class EmployeeService
   private static final String COMPETENCIES = "competencies";
   private static final String LAST_LOGON = "lastLogon";
 
-  private static final String NEW_OBJECTIVES = "newObjectives";
-  private static final String NEW_DEVELOPMENT_NEEDS = "newDevelopmentNeeds";
-  private static final String NEW_COMPETENCIES = "newCompetencies";
+  private static final String NEW_OBJECTIVES = "objectives";
+  private static final String NEW_DEVELOPMENT_NEEDS = "developmentNeeds";
+  private static final String NEW_COMPETENCIES = "competencies";
 
   /** MorphiaOperations Property - Represents a reference to the database using morphia. */
   private MorphiaOperations morphiaOperations;
