@@ -16,9 +16,12 @@ import static utils.Utils.localDateTimetoDate;
 import static utils.Utils.stringEmailsToHashSet;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -813,7 +816,9 @@ public class EmployeeService
 
   public List<Objective> getObjectivesNEW(long employeeId) throws EmployeeNotFoundException
   {
-    return getEmployee(employeeId).getObjectivesNEW();
+    List<Objective> objectives = getEmployee(employeeId).getObjectivesNEW();
+    sortObjectivesByDueDate(objectives);
+    return objectives;
   }
 
   public void addObjectiveNEW(long employeeId, Objective objective)
@@ -965,7 +970,9 @@ public class EmployeeService
 
   public List<DevelopmentNeed> getDevelopmentNeedsNEW(long employeeId) throws EmployeeNotFoundException
   {
-    return getEmployee(employeeId).getDevelopmentNeedsNEW();
+    List<DevelopmentNeed> developmentNeeds = getEmployee(employeeId).getDevelopmentNeedsNEW();
+    sortDevelopmentNeedsByDueDate(developmentNeeds);
+    return developmentNeeds;
   }
 
   public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed developmentNeed)
@@ -1027,8 +1034,8 @@ public class EmployeeService
         String.format(COMMENT_DELETED_DEVELOPMENT_NEED, employee.getProfile().getFullName(), title, commentAdded)));
   }
 
-  public void updateDevelopmentNeedNEWProgress(long employeeId, int developmentNeedId, Progress progress, String comment)
-      throws EmployeeNotFoundException, InvalidAttributeValueException
+  public void updateDevelopmentNeedNEWProgress(long employeeId, int developmentNeedId, Progress progress,
+      String comment) throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
 
@@ -1071,7 +1078,9 @@ public class EmployeeService
 
   public List<Competency> getCompetenciesNEW(long employeeId) throws EmployeeNotFoundException
   {
-    return getEmployee(employeeId).getCompetenciesNEW();
+    List<Competency> competencies = getEmployee(employeeId).getCompetenciesNEW();
+    sortCompetenciesBySelected(competencies);
+    return competencies; 
   }
 
   public void toggleCompetencyNEW(long employeeId, CompetencyTitle competencyTitle)
@@ -1089,4 +1098,49 @@ public class EmployeeService
   }
 
   //////////////////// END NEW COMPETENCIES
+
+  private void sortObjectivesByDueDate(List<Objective> objectives)
+  {
+    Collections.sort(objectives, new Comparator<Objective>()
+    {
+      @Override
+      public int compare(Objective o1, Objective o2)
+      {
+        LocalDate ld1 = LocalDate.parse(o1.getDueDate());
+        LocalDate ld2 = LocalDate.parse(o2.getDueDate());
+        
+        return (ld1.equals(ld2)) ? 0 : (ld1.isBefore(ld2) ? -1 : 1);
+      }
+    });
+  }
+  
+  private void sortDevelopmentNeedsByDueDate(List<DevelopmentNeed> developmentNeed)
+  {
+    Collections.sort(developmentNeed, new Comparator<DevelopmentNeed>()
+    {
+      @Override
+      public int compare(DevelopmentNeed dn1, DevelopmentNeed dn2)
+      {
+        LocalDate ld1 = LocalDate.parse(dn1.getDueDate());
+        LocalDate ld2 = LocalDate.parse(dn2.getDueDate());
+
+        return ld1.compareTo(ld2);
+      }
+    });
+  }
+  
+  private void sortCompetenciesBySelected(List<Competency> competencies)
+  {
+    Collections.sort(competencies, new Comparator<Competency>()
+    {
+      @Override
+      public int compare(Competency c1, Competency c2)
+      {
+        return Boolean.compare(!c1.isSelected(), !c2.isSelected());
+      }
+    });
+  }
+  
+  
+  
 }
