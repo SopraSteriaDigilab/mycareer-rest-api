@@ -817,9 +817,7 @@ public class EmployeeService
 
   public List<Objective> getObjectivesNEW(long employeeId) throws EmployeeNotFoundException
   {
-    List<Objective> objectives = getEmployee(employeeId).getObjectivesNEW();
-    sortObjectivesByDueDate(objectives);
-    return objectives;
+    return getEmployee(employeeId).getObjectivesNEW();
   }
 
   public void addObjectiveNEW(long employeeId, Objective objective)
@@ -971,9 +969,7 @@ public class EmployeeService
 
   public List<DevelopmentNeed> getDevelopmentNeedsNEW(long employeeId) throws EmployeeNotFoundException
   {
-    List<DevelopmentNeed> developmentNeeds = getEmployee(employeeId).getDevelopmentNeedsNEW();
-    sortDevelopmentNeedsByDueDate(developmentNeeds);
-    return developmentNeeds;
+    return getEmployee(employeeId).getDevelopmentNeedsNEW();
   }
 
   public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed developmentNeed)
@@ -1078,9 +1074,7 @@ public class EmployeeService
 
   public List<Competency> getCompetenciesNEW(long employeeId) throws EmployeeNotFoundException
   {
-    List<Competency> competencies = getEmployee(employeeId).getCompetenciesNEW();
-    sortCompetenciesBySelected(competencies);
-    return competencies; 
+    return getEmployee(employeeId).getCompetenciesNEW(); 
   }
 
   public void toggleCompetencyNEW(long employeeId, CompetencyTitle competencyTitle)
@@ -1097,50 +1091,6 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, NEW_COMPETENCIES, employee.getCompetenciesNEW());
   }
 
-  //////////////////// END NEW COMPETENCIES
-
-  private void sortObjectivesByDueDate(List<Objective> objectives)
-  {
-    Collections.sort(objectives, new Comparator<Objective>()
-    {
-      @Override
-      public int compare(Objective o1, Objective o2)
-      {
-        LocalDate ld1 = LocalDate.parse(o1.getDueDate());
-        LocalDate ld2 = LocalDate.parse(o2.getDueDate());
-        
-        return (ld1.equals(ld2)) ? 0 : (ld1.isBefore(ld2) ? -1 : 1);
-      }
-    });
-  }
-  
-  private void sortDevelopmentNeedsByDueDate(List<DevelopmentNeed> developmentNeed)
-  {
-    Collections.sort(developmentNeed, new Comparator<DevelopmentNeed>()
-    {
-      @Override
-      public int compare(DevelopmentNeed dn1, DevelopmentNeed dn2)
-      {
-        LocalDate ld1 = LocalDate.parse(dn1.getDueDate());
-        LocalDate ld2 = LocalDate.parse(dn2.getDueDate());
-
-        return ld1.compareTo(ld2);
-      }
-    });
-  }
-  
-  private void sortCompetenciesBySelected(List<Competency> competencies)
-  {
-    Collections.sort(competencies, new Comparator<Competency>()
-    {
-      @Override
-      public int compare(Competency c1, Competency c2)
-      {
-        return Boolean.compare(!c1.isSelected(), !c2.isSelected());
-      }
-    });
-  }
-  
-  
+  //////////////////// END NEW COMPETENCIES 
   
 }

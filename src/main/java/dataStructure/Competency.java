@@ -1,5 +1,9 @@
 package dataStructure;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import javax.management.InvalidAttributeValueException;
 
 import org.bson.Document;
@@ -8,7 +12,7 @@ import org.bson.Document;
  * This class contains the definition of the Competency object.
  *
  */
-public class Competency extends DBObject
+public class Competency extends DBObject implements Comparable<Competency>
 {
 
   /** Represents competency title of any Competencyobject. */
@@ -111,12 +115,11 @@ public class Competency extends DBObject
     this.isSelected = isSelected;
     this.setLastModified();
   }
-
+  
   @Override
-  public Document toDocument()
+  public int compareTo(Competency competency)
   {
-    // TODO Auto-generated method stub
-    return null;
+    return Boolean.compare(!this.isSelected(), !competency.isSelected());
   }
 
 }

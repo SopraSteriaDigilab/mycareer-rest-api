@@ -5,8 +5,11 @@ import static dataStructure.Constants.UK_TIMEZONE;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -22,7 +25,7 @@ import utils.Utils;
 /**
  * This class contains the definition of the Objective object.
  */
-public class Objective extends DBObject
+public class Objective extends DBObject implements Comparable<Objective>
 {
   /** Represents progress of any Objective object. */
   public enum Progress
@@ -204,6 +207,15 @@ public class Objective extends DBObject
   {
     this.isArchived = isArchived;
     this.setLastModified();
+  }
+  
+  @Override
+  public int compareTo(Objective objective)
+  {
+    LocalDate ld1 = LocalDate.parse(this.getDueDate());
+    LocalDate ld2 = LocalDate.parse(objective.getDueDate());
+    
+    return (ld1.equals(ld2)) ? 0 : (ld1.isBefore(ld2) ? -1 : 1);
   }
 
   /**

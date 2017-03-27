@@ -777,6 +777,7 @@ public class Employee implements Serializable
   /** @return the newObjectives */
   public List<Objective> getObjectivesNEW()
   {
+    Collections.sort(objectives);
     return objectives;
   }
 
@@ -855,6 +856,7 @@ public class Employee implements Serializable
   /** @return the newDevelopmentNeeds */
   public List<DevelopmentNeed> getDevelopmentNeedsNEW()
   {
+    Collections.sort(developmentNeeds);
     return developmentNeeds;
   }
 
@@ -936,6 +938,7 @@ public class Employee implements Serializable
   /** @return the newCompetencies */
   public List<Competency> getCompetenciesNEW()
   {
+    Collections.sort(competencies);
     return competencies;
   }
 
