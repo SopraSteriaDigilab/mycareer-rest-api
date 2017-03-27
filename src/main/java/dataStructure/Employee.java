@@ -605,7 +605,7 @@ public class Employee implements Serializable
 
   public boolean addNote(Note note)
   {
-    note.setId(this.getNotes().size());
+    note.setId(this.getNotes().size()+1);
     return this.notes.add(note);
   }
 

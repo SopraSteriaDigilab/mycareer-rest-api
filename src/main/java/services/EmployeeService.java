@@ -88,6 +88,13 @@ public class EmployeeService
   private static final String NEW_DEVELOPMENT_NEEDS = "developmentNeeds";
   private static final String NEW_COMPETENCIES = "competencies";
 
+  private static final String AUTO_GENERATED = "Auto Generated";
+  private static final String COMMENT_OBJECTIVE = "%s has deleted Objective '%s'. %s";
+  private static final String COMMENT_DEVELOPMENT_NEED = "%s has deleted Development Need '%s'. %s";
+  private static final String COMMENT_ADDED = "A comment wass added: '%s'";
+
+  private static final String EMPTY_STRING = "";
+
   /** MorphiaOperations Property - Represents a reference to the database using morphia. */
   private MorphiaOperations morphiaOperations;
 
@@ -410,7 +417,6 @@ public class EmployeeService
     Employee employee = getEmployee(employeeID);
     employee.addNote(note);
     morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), NOTES, employee.getNotes());
-
     return true;
   }
 
@@ -835,7 +841,7 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
   }
 
-  public void deleteObjectiveNEW(long employeeId, int objectiveId)
+  public void deleteObjectiveNEW(long employeeId, int objectiveId, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
@@ -843,12 +849,19 @@ public class EmployeeService
     Document deletedId = new Document(
         objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()));
 
+    String title = employee.getObjectiveNEW(objectiveId).getTitle();
+
     employee.deleteObjectiveNEW(objectiveId);
 
     mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(deletedId,
         new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
+
+    String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
+
+    addNote(employeeId, new Note(AUTO_GENERATED,
+        String.format(COMMENT_OBJECTIVE, employee.getProfile().getFullName(), title, commentAdded)));
   }
 
   public void updateObjectiveNEWProgress(long employeeId, int objectiveId, Progress progress)
@@ -977,13 +990,15 @@ public class EmployeeService
 
   }
 
-  public void deleteDevelopmentNeedNEW(long employeeId, int developmentNeedId)
+  public void deleteDevelopmentNeedNEW(long employeeId, int developmentNeedId, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
 
     Document deletedId = new Document(developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
         employee.getDevelopmentNeedNEW(developmentNeedId).getCreatedOn()));
+
+    String title = employee.getDevelopmentNeedNEW(developmentNeedId).getTitle();
 
     employee.deleteDevelopmentNeedNEW(developmentNeedId);
 
@@ -992,6 +1007,10 @@ public class EmployeeService
 
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
 
+    String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
+
+    addNote(employeeId, new Note(AUTO_GENERATED,
+        String.format(COMMENT_DEVELOPMENT_NEED, employee.getProfile().getFullName(), title, commentAdded)));
   }
 
   public void updateDevelopmentNeedNEWProgress(long employeeId, int developmentNeedId, Progress progress)
