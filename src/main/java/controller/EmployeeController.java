@@ -901,7 +901,7 @@ public class EmployeeController
     }
   }
 
-  @RequestMapping(value = "/deleteObjective/{employeeId}", method = DELETE)
+  @RequestMapping(value = "/deleteObjective/{employeeId}", method = POST)
   public ResponseEntity<?> deleteObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
       @RequestParam @Size(max = 1000, message = ERROR_COMMENT_LIMIT) String comment)
@@ -1041,7 +1041,7 @@ public class EmployeeController
     }
   }
 
-  @RequestMapping(value = "/deleteDevelopmentNeed/{employeeId}", method = DELETE)
+  @RequestMapping(value = "/deleteDevelopmentNeed/{employeeId}", method = POST)
   public ResponseEntity<?> deleteDevelopmentNeed(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
