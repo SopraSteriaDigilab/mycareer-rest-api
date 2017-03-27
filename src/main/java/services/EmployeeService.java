@@ -643,9 +643,14 @@ public class EmployeeService
         employee.getFeedbackRequestsList());
   }
 
+  public void addFeedback(long employeeId, Set<String> emailSet, String feedback, boolean isFeedbackRequest) throws Exception
+  {
+    Employee employee = getEmployee(employeeId);
+    addFeedback(employee.getProfile().getEmailAddresses().stream().findFirst().get(), emailSet, feedback, isFeedbackRequest);
+  }
+  
   public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
       boolean isFeedbackRequest) throws Exception
-
   {
     final Set<String> recipientEmails = Stream.of(recipientEmail).collect(Collectors.toSet());
     addFeedback(providerEmail, recipientEmails, feedbackDescription, isFeedbackRequest);
@@ -661,7 +666,6 @@ public class EmployeeService
    */
   public void addFeedback(String providerEmail, Set<String> recipientEmail, String feedbackDescription,
       boolean isFeedbackRequest) throws Exception
-
   {
     Validate.areStringsEmptyorNull(providerEmail, feedbackDescription);
     Validate.areStringsEmptyorNull(recipientEmail.toArray(new String[0]));
@@ -1068,6 +1072,8 @@ public class EmployeeService
 
     morphiaOperations.updateEmployee(employeeId, NEW_COMPETENCIES, employee.getCompetenciesNEW());
   }
+
+
 
   //////////////////// END NEW COMPETENCIES
 }

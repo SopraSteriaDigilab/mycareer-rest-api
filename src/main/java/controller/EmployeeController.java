@@ -83,6 +83,8 @@ public class EmployeeController
   private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
   private static final String ERROR_COMMENT_LIMIT = "Max Comment length is 1000 characters.";
   private static final String ERROR_COMPETENCY_TITLE_BLANK = "Compentency title cannot be empty";
+  private static final String ERROR_FEEDBACK_EMPTY = "The feedback cannot be empty.";
+  private static final String ERROR_FEEDBACK_LIMIT = "Max feedback length is 5000";
   private static final String ERROR_CATEGORY = "Category must be from 0 to 4";
   private static final String ERROR_COMPETENCY_TITLE = "Invalida Competency, please enter one of the following: 'Accountability', 'Effective Communication', 'Leadership', 'Service Excellence', 'Business Awareness', 'Future Orientation', 'Innovation and Change', 'Teamwork'";
   private static final String ERROR_EMAILS_EMPTY = "Emails field can not be empty";
@@ -90,7 +92,7 @@ public class EmployeeController
   private static final String REGEX_COMPETENCY_TITLE = "^(Accountability)|(Effective Communication)|(Leadership)|(Service Excellence)|(Business Awareness)|(Future Orientation)|(Innovation and Change)|(Teamwork)$";
   private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
   private static final String[] PROGRESS_LIST = { "PROPOSED", "IN_PROGRESS", "COMPLETE" };
-
+  
   @Autowired
   private EmployeeService employeeService;
 
@@ -1122,5 +1124,26 @@ public class EmployeeController
   }
 
   //////////////////// END NEW COMPETENCIES
+
+  @RequestMapping(value = "/addFeedback/{employeeId}", method = POST)
+  public ResponseEntity<?> addFeedback(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails,
+      @RequestParam @NotBlank(message = ERROR_FEEDBACK_EMPTY) @Size(max = 1000, message = ERROR_FEEDBACK_LIMIT) String feedback)
+  {
+    try
+    {
+      Set<String> emailSet = Utils.stringEmailsToHashSet(emails);
+      employeeService.addFeedback(employeeId, emailSet, feedback, false);
+      return ok("Feedback added");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+    catch (Exception e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
 
 }
