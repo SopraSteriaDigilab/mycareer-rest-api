@@ -655,6 +655,11 @@ public class EmployeeService
     Employee employee = getEmployee(employeeId);
     addFeedback(employee.getProfile().getEmailAddresses().stream().findFirst().get(), emailSet, feedback,
         isFeedbackRequest);
+    
+    String subject = String.format("Feedback from %s", employee.getProfile().getFullName());
+    String body = Template.populateTemplate(env.getProperty("templates.feedback.generic"), employee.getProfile().getFullName());
+
+    EmailService.sendEmail(emailSet, subject, body);
   }
 
   public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
