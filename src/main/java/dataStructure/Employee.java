@@ -823,8 +823,11 @@ public class Employee implements Serializable
   {
     Objective objective = getObjectiveNEW(objectiveId);
 
+    if(objective.getProgress().equals(progress.getProgressStr()))
+      throw new InvalidAttributeValueException("Progress is already at the given state: " + progress.getProgressStr());
+    
     if (objective.getArchived() || objective.getProgress().equals(Progress.COMPLETE.getProgressStr()))
-      throw new InvalidAttributeValueException("Cannot Edit archived/complete Objective.");
+      throw new InvalidAttributeValueException("Cannot update progress of archived/complete Objective.");
 
     objective.setProgress(progress);
 
@@ -903,9 +906,12 @@ public class Employee implements Serializable
       throws InvalidAttributeValueException
   {
     DevelopmentNeed developmentNeed = getDevelopmentNeedNEW(developmentNeedId);
-    System.out.println(developmentNeed.getProgress() + " = " + Progress.COMPLETE.toString());
+
+    if(developmentNeed.getProgress().equals(progress.getProgressStr()))
+      throw new InvalidAttributeValueException("Progress is already at the given state: " + progress.getProgressStr());
+    
     if (developmentNeed.getArchived() || developmentNeed.getProgress().equals(Progress.COMPLETE.getProgressStr()))
-      throw new InvalidAttributeValueException("Cannot Edit archived/complete Development Needs.");
+      throw new InvalidAttributeValueException("Cannot update progress of archived/complete Development Needs.");
 
     developmentNeed.setProgress(progress);
 

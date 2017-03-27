@@ -97,7 +97,7 @@ public class EmployeeService
   private static final String COMMENT_DELETED_DEVELOPMENT_NEED = "%s has deleted Development Need '%s'. %s";
   private static final String COMMENT_COMPLETED_OBJECTIVE = "%s has completed Objective '%s'. %s";
   private static final String COMMENT_COMPLETED_DEVELOPMENT_NEED = "%s has completed Development Need '%s'. %s";
-  private static final String COMMENT_ADDED = "A comment wass added: '%s'";
+  private static final String COMMENT_ADDED = "A comment was added: '%s'";
 
   private static final String EMPTY_STRING = "";
 
@@ -881,7 +881,7 @@ public class EmployeeService
       IOException
   {
     Employee employee = getEmployee(employeeId);
-
+    
     employee.updateObjectiveNEWProgress(objectiveId, progress);
 
     mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(
