@@ -25,7 +25,7 @@ import dataStructure.EmployeeProfile;
 
 //TODO Update map methods to user map string/chain eachother
 //TODO remove sopra
-public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, EmployeeProfile>
+public class EmployeeProfileMapper implements Mapper<SearchResult, EmployeeProfile>
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileMapper.class);
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -52,24 +52,12 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
 
   private EmployeeProfile profile = new EmployeeProfile();
 
-  public EmployeeProfile map(Optional<SearchResult> steriaEmployeeProfile, Optional<SearchResult> sopraEmployeeProfile)
+  public EmployeeProfile map(SearchResult steriaEmployeeProfile)
   {
-    // sopraEmployeeProfile.ifPresent(this::setSopraDetails);
-    steriaEmployeeProfile.ifPresent(this::setSteriaDetails);
+    setSteriaDetails(steriaEmployeeProfile);
 
     return profile;
   }
-
-  // private void setSopraDetails(SearchResult sopraEmployeeProfile) throws InvalidEmployeeProfileException
-  // {
-  // final Attributes attributes = sopraEmployeeProfile.getAttributes();
-  //
-  // profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_7))
-  // .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
-  // .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddress(mapString(MAIL, attributes))
-  // .company(mapString(COMPANY, attributes)).sopraDepartment(mapString(DEPARTMENT, attributes))
-  // .guid(mapGUID(attributes)).hasHRDash(mapHRPermission(attributes)).build();
-  // }
 
   private void setSteriaDetails(SearchResult steriaEmployeeProfile) throws InvalidEmployeeProfileException
   {

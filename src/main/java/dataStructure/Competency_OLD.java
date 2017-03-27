@@ -13,6 +13,7 @@ import com.google.gson.Gson;
  * This class contains the definition of the Competency object
  *
  */
+@Deprecated
 @Embedded
 public class Competency_OLD implements Serializable
 {

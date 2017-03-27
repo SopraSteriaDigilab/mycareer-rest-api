@@ -229,7 +229,7 @@ public class Utils
   {
     return Date.from(localDate.atStartOfDay(UK_TIMEZONE).toInstant());
   }
-  
+
   /**
    * Converts java.util.Date to a LocalDate
    *
@@ -240,7 +240,7 @@ public class Utils
   {
     return date.toInstant().atZone(UK_TIMEZONE).toLocalDate();
   }
-  
+
   /**
    * Converts LocalDateTime to a java.util.Date
    *
@@ -262,6 +262,21 @@ public class Utils
   {
     Instant instant = date.toInstant();
     return instant.atZone(UK_TIMEZONE).toLocalDateTime();
+  }
+
+  /**
+   * @param value
+   * @param otherValue
+   * @return null if value.equals(otherValue) returns true, or if value is null. Otherwise, returns otherValue.
+   */
+  public static <V> V nullIfSame(V value, V otherValue)
+  {
+    if (value != null && value.equals(otherValue))
+    {
+      return null;
+    }
+
+    return otherValue;
   }
 
 }

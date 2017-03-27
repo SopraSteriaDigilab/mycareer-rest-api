@@ -751,52 +751,6 @@ public class EmployeeService
     return false;
   }
 
-  /**
-   * TODO: Describe this method.
-   *
-   * @param profileFromAD
-   * @return
-   * @throws InvalidAttributeValueException
-   * @throws EmployeeNotFoundException
-   */
-  public EmployeeProfile matchADWithMongoData(EmployeeProfile profileFromAD)
-      throws InvalidAttributeValueException, EmployeeNotFoundException
-  {
-    if (profileFromAD == null)
-    {
-      LOGGER.warn(NULL_USER_DATA);
-      throw new InvalidAttributeValueException(NULL_USER_DATA);
-    }
-
-    if (profileFromAD.getEmployeeID() < 0)
-    {
-      LOGGER.warn(INVALID_DEVNEED_OR_EMPLOYEEID);
-      throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
-    }
-
-    Employee e = getEmployee(profileFromAD.getEmployeeID());
-
-    if (e != null)
-    {
-      final boolean needsUpdate = !e.getProfile().equals(profileFromAD);
-      LOGGER.debug("Employee (" + e.getProfile().getEmployeeID() + ") needs update: " + needsUpdate);
-      if (needsUpdate)
-      {
-        e.setProfile(profileFromAD);
-        LOGGER.debug("Updating employee: " + e.getProfile().getEmployeeID());
-        morphiaOperations.updateEmployee(e);
-      }
-    }
-    else
-    {
-      e = new Employee(profileFromAD);
-      LOGGER.debug("Inserting employee: " + e.getProfile().getEmployeeID());
-      morphiaOperations.updateEmployee(e);
-    }
-
-    return e.getProfile();
-  }
-
   public EmployeeProfile authenticateUserProfile(String usernameEmail) throws EmployeeNotFoundException
   {
     return employeeProfileService.fetchEmployeeProfile(usernameEmail);

@@ -16,6 +16,7 @@ import com.google.gson.Gson;
  * This class contains the definition of the DevelopmentNeed object
  *
  */
+@Deprecated
 @Embedded
 public class DevelopmentNeed_OLD implements Serializable
 {

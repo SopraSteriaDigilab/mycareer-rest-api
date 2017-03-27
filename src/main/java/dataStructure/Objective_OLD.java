@@ -17,6 +17,7 @@ import com.google.gson.Gson;
  * This class contains the definition of the Objective object
  *
  */
+@Deprecated
 @Embedded
 public class Objective_OLD implements Serializable
 {

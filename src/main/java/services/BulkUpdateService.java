@@ -8,19 +8,21 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
-import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchResult;
 
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import services.ad.ADConnectionException;
 import services.ad.ADSearchSettings;
+import services.db.MongoOperations;
+import services.db.MorphiaOperations;
 import services.mappers.EmployeeProfileMapper;
 import services.mappers.InvalidEmployeeProfileException;
 import utils.sequence.Sequence;
@@ -34,16 +36,24 @@ public class BulkUpdateService
   private static final String AD_TREE = "ou=UK,ou=Internal,ou=People,DC=one,DC=steria,DC=dom";
   private static final String AD_UNUSED_OBJECT_TREE = "OU=UK,OU=People,OU=Unused Objects,DC=one,DC=steria,DC=dom";
 
-  private final EmployeeService employeeService;
-  private final ADSearchSettings steriaADSearchSettings;
+  private static final String EMPLOYEE_ID = "profile.employeeID";
 
-  public BulkUpdateService(final EmployeeService employeeService, final ADSearchSettings steriaADSearchSettings)
+  private final MorphiaOperations morphiaOperations;
+  private final MongoOperations mongoOperations;
+  private final ADSearchSettings steriaADSearchSettings;
+  private final EmployeeProfileMapper employeeProfileMapper;
+
+  public BulkUpdateService(final MorphiaOperations morphiaOperations, final MongoOperations mongoOperations,
+      final ADSearchSettings steriaADSearchSettings, final EmployeeProfileMapper employeeProfileMapper)
   {
-    this.employeeService = employeeService;
+    this.morphiaOperations = morphiaOperations;
+    this.mongoOperations = mongoOperations;
     this.steriaADSearchSettings = steriaADSearchSettings;
+    this.employeeProfileMapper = employeeProfileMapper;
   }
 
-  @Scheduled(cron = "0 30 23 * * ?")
+//  @Scheduled(cron = "0 30 23 * * ?")
+  @Scheduled(fixedDelay = 1)
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
     final Instant startADOps = Instant.now();
@@ -58,16 +68,8 @@ public class BulkUpdateService
     {
       try
       {
-        employeeService.matchADWithMongoData(profile);
+        upsertEmployeeProfile(profile);
         updatedCount++;
-      }
-      catch (final EmployeeNotFoundException | InvalidAttributeValueException e)
-      {
-        /*
-         * swallow this exception as matchADWithMongoData already logs it besides, we are concerned with the hundreds,
-         * not the one
-         */
-        notUpdatedCount++;
       }
       catch (Exception e)
       {
@@ -103,12 +105,16 @@ public class BulkUpdateService
     {
       try
       {
-        EmployeeProfile profile = new EmployeeProfileMapper().map(Optional.ofNullable(result), Optional.empty());
+        EmployeeProfile profile = employeeProfileMapper.map(result);
         allEmployeeProfiles.add(profile);
       }
       catch (InvalidEmployeeProfileException e)
       {
-        LOGGER.warn(e.getMessage());
+        /*
+         * There are always a lot of objects found by the bulk AD search that are not valid employee profiles. We can
+         * just ignore these.
+         */
+        LOGGER.debug(e.getMessage());
       }
       catch (NoSuchElementException | NullPointerException e)
       {
@@ -119,6 +125,44 @@ public class BulkUpdateService
     logMetadata(steriaList, allEmployeeProfiles);
 
     return allEmployeeProfiles;
+  }
+
+  /**
+   * Matches what is stored in the database with the given employee profile.
+   * 
+   * If the employee ID of the given employee profile does not exist in the database, the employee is inserted. If the
+   * given employee profile is an exact match for an entry in the database, does nothing. Otherwise updates the employee
+   * in the database to match the given employee profile.
+   *
+   * @param employeeProfile the employee profile to upsert
+   * @return the new EmployeeProfile as stored in the MyCareer database
+   */
+  private EmployeeProfile upsertEmployeeProfile(EmployeeProfile employeeProfile)
+  {
+    Employee employee = morphiaOperations.getEmployee(EMPLOYEE_ID, employeeProfile.getEmployeeID());
+
+    if (employee == null)
+    {
+      morphiaOperations.saveEmployee(new Employee(employeeProfile));
+      return employeeProfile;
+    }
+    else if (employee.getProfile().equals(employeeProfile))
+    {
+      return employeeProfile;
+    }
+
+    updateEmployee(employee.getProfile(), employeeProfile);
+
+    return employeeProfile;
+  }
+
+  // Performs an update of an existing employee
+  private void updateEmployee(EmployeeProfile profile, EmployeeProfile employeeProfile)
+  {
+    Document filter = new Document(EmployeeProfile.EMPLOYEE_ID, profile.getEmployeeID());
+    Document newFields = profile.differences(employeeProfile);
+
+    mongoOperations.setFields(filter, newFields);
   }
 
   // TODO this doesn't belong here
