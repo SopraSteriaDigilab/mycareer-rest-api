@@ -33,15 +33,23 @@ public class BulkUpdateService
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(BulkUpdateService.class);
 
+  private static final String BEGIN_UPDATE = "Beginning bulk update service";
+  private static final String END_UPDATE = "Update service completed";
+  
   private static final String AD_TREE = "ou=UK,ou=Internal,ou=People,DC=one,DC=steria,DC=dom";
   private static final String AD_UNUSED_OBJECT_TREE = "OU=UK,OU=People,OU=Unused Objects,DC=one,DC=steria,DC=dom";
-
   private static final String EMPLOYEE_ID = "profile.employeeID";
 
   private final MorphiaOperations morphiaOperations;
   private final MongoOperations mongoOperations;
   private final ADSearchSettings steriaADSearchSettings;
   private final EmployeeProfileMapper employeeProfileMapper;
+  
+  private int inserted;
+  private int updated;
+  private int alreadyUpToDate;
+  private int notAnEmployee;
+  private int exceptionsThrown;
 
   public BulkUpdateService(final MorphiaOperations morphiaOperations, final MongoOperations mongoOperations,
       final ADSearchSettings steriaADSearchSettings, final EmployeeProfileMapper employeeProfileMapper)
@@ -52,37 +60,46 @@ public class BulkUpdateService
     this.employeeProfileMapper = employeeProfileMapper;
   }
 
-//  @Scheduled(cron = "0 30 23 * * ?")
+  // @Scheduled(cron = "0 30 23 * * ?")
   @Scheduled(fixedDelay = 1)
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
+    LOGGER.info(BEGIN_UPDATE);
+    inserted = updated = alreadyUpToDate = exceptionsThrown = notAnEmployee = 0;
+    
     final Instant startADOps = Instant.now();
     final List<EmployeeProfile> allEmployeeProfiles = fetchAllEmployeeProfiles();
     final Instant endADOps = Instant.now();
 
     final Instant startDBOps = Instant.now();
-    int updatedCount = 0;
-    int notUpdatedCount = 0;
 
     for (EmployeeProfile profile : allEmployeeProfiles)
     {
       try
       {
         upsertEmployeeProfile(profile);
-        updatedCount++;
+      }
+      catch (NullPointerException npe)
+      {
+        /*
+         * We can ignore null pointer exceptions as it is expected that some data taken from the AD is not relevant
+         */
+        LOGGER.debug("NullPointerException while updating/inserting an employee: {}", npe);
+        notAnEmployee++;
       }
       catch (Exception e)
       {
         LOGGER.warn("Bulk update error: {}", e.getMessage());
-        notUpdatedCount++;
+        exceptionsThrown++;
       }
     }
 
     final Instant endDBOps = Instant.now();
 
-    logMetadata(startADOps, endADOps, startDBOps, endDBOps, updatedCount, notUpdatedCount);
-
-    return updatedCount;
+    logMetadata(startADOps, endADOps, startDBOps, endDBOps, allEmployeeProfiles.size());
+    
+    LOGGER.info(END_UPDATE);
+    return inserted + updated + alreadyUpToDate;
   }
 
   /**
@@ -144,15 +161,18 @@ public class BulkUpdateService
     if (employee == null)
     {
       morphiaOperations.saveEmployee(new Employee(employeeProfile));
+      inserted++;
       return employeeProfile;
     }
     else if (employee.getProfile().equals(employeeProfile))
     {
+      alreadyUpToDate++;
       return employeeProfile;
     }
 
     updateEmployee(employee.getProfile(), employeeProfile);
-
+    updated++;
+    
     return employeeProfile;
   }
 
@@ -175,15 +195,18 @@ public class BulkUpdateService
         .build();
   }
 
-  private void logMetadata(Instant startADOps, Instant endADOps, Instant startDBOps, Instant endDBOps, int updatedCount,
-      int notUpdatedCount)
+  private void logMetadata(Instant startADOps, Instant endADOps, Instant startDBOps, Instant endDBOps, int entriesFound)
   {
     final Duration adOpsTime = Duration.between(startADOps, endADOps);
     final Duration dbOpsTime = Duration.between(startDBOps, endDBOps);
     final Duration totalOpsTime = adOpsTime.plus(dbOpsTime);
 
-    LOGGER.info("DB entries inserted/updated: {}", updatedCount);
-    LOGGER.info("Failed attempts to insert/update DB: {}", notUpdatedCount);
+    LOGGER.info("Total entries found: {}", entriesFound);
+    LOGGER.info("New employees inserted: {}", inserted);
+    LOGGER.info("Employees updated: {}", updated);
+    LOGGER.info("Employees already up to date: {}", alreadyUpToDate);
+    LOGGER.info("Exceptions thrown: {}", exceptionsThrown);
+    LOGGER.info("Number of entries not corresponding to an employee: {}", notAnEmployee);
     LOGGER.info("AD Operations time: {}", adOpsTime);
     LOGGER.info("DB Operations time: {}", dbOpsTime);
     LOGGER.info("Total time to sync: {}", totalOpsTime);

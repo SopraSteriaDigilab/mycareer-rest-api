@@ -4,11 +4,9 @@ import static utils.Conversions.*;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -124,13 +122,11 @@ public class EmployeeProfileMapper implements Mapper<SearchResult, EmployeeProfi
     }
     catch (NamingException | NoSuchElementException | NullPointerException e)
     {
-      LOGGER.error(EMPLOYEE_NOT_FOUND, e);
-      throw new InvalidEmployeeProfileException(e);
+      throw new InvalidEmployeeProfileException(EMPLOYEE_NOT_FOUND, e);
     }
     catch (ClassCastException e)
     {
-      LOGGER.error(EMPLOYEE_NOT_FOUND, e);
-      throw new InvalidEmployeeProfileException(e);
+      throw new InvalidEmployeeProfileException(EMPLOYEE_NOT_FOUND, e);
     }
 
     return employeeID;
