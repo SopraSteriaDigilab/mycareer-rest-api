@@ -45,6 +45,7 @@ import dataStructure.Competency.CompetencyTitle;
 import dataStructure.Competency_OLD;
 import dataStructure.DevelopmentNeed;
 import dataStructure.DevelopmentNeed_OLD;
+import dataStructure.DocumentConversionException;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
@@ -822,7 +823,7 @@ public class EmployeeService
   }
 
   public void addObjectiveNEW(long employeeId, Objective objective)
-      throws EmployeeNotFoundException, JsonParseException, JsonMappingException, IOException
+      throws EmployeeNotFoundException, DocumentConversionException
   {
     Employee employee = getEmployee(employeeId);
 
@@ -976,7 +977,7 @@ public class EmployeeService
   }
 
   public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed developmentNeed)
-      throws EmployeeNotFoundException, JsonParseException, JsonMappingException, IOException
+      throws EmployeeNotFoundException, DocumentConversionException
   {
     Employee employee = getEmployee(employeeId);
 
@@ -988,7 +989,6 @@ public class EmployeeService
         developmentNeed.toDocument());
 
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
-
   }
 
   public void editDevelopmentNeedNEW(long employeeId, DevelopmentNeed developmentNeed)

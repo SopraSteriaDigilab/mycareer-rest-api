@@ -45,6 +45,7 @@ import dataStructure.Competency_OLD;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.DevelopmentNeed_OLD;
+import dataStructure.DocumentConversionException;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
@@ -875,7 +876,7 @@ public class EmployeeController
     {
       return badRequest().body(error(e.getMessage()));
     }
-    catch (IOException e)
+    catch (DocumentConversionException e)
     {
       LOGGER.error("Error adding objective {}", e);
       return badRequest().body(error("Sorry there was an error adding your objective. Please try again later."));
@@ -1013,9 +1014,9 @@ public class EmployeeController
     {
       return badRequest().body(error(e.getMessage()));
     }
-    catch (IOException e)
+    catch (DocumentConversionException e)
     {
-      LOGGER.error("Error adding objective {}", e);
+      LOGGER.error("Error adding development need {}", e);
       return badRequest().body(error("Sorry there was an error adding your development need. Please try again later."));
     }
   }
