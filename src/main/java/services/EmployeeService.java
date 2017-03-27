@@ -89,8 +89,10 @@ public class EmployeeService
   private static final String NEW_COMPETENCIES = "competencies";
 
   private static final String AUTO_GENERATED = "Auto Generated";
-  private static final String COMMENT_OBJECTIVE = "%s has deleted Objective '%s'. %s";
-  private static final String COMMENT_DEVELOPMENT_NEED = "%s has deleted Development Need '%s'. %s";
+  private static final String COMMENT_DELTED_OBJECTIVE = "%s has deleted Objective '%s'. %s";
+  private static final String COMMENT_DELETED_DEVELOPMENT_NEED = "%s has deleted Development Need '%s'. %s";
+  private static final String COMMENT_COMPLETED_OBJECTIVE = "%s has completed Objective '%s'. %s";
+  private static final String COMMENT_COMPLETED_DEVELOPMENT_NEED = "%s has completed Development Need '%s'. %s";
   private static final String COMMENT_ADDED = "A comment wass added: '%s'";
 
   private static final String EMPTY_STRING = "";
@@ -643,12 +645,14 @@ public class EmployeeService
         employee.getFeedbackRequestsList());
   }
 
-  public void addFeedback(long employeeId, Set<String> emailSet, String feedback, boolean isFeedbackRequest) throws Exception
+  public void addFeedback(long employeeId, Set<String> emailSet, String feedback, boolean isFeedbackRequest)
+      throws Exception
   {
     Employee employee = getEmployee(employeeId);
-    addFeedback(employee.getProfile().getEmailAddresses().stream().findFirst().get(), emailSet, feedback, isFeedbackRequest);
+    addFeedback(employee.getProfile().getEmailAddresses().stream().findFirst().get(), emailSet, feedback,
+        isFeedbackRequest);
   }
-  
+
   public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
       boolean isFeedbackRequest) throws Exception
   {
@@ -865,10 +869,10 @@ public class EmployeeService
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
     addNote(employeeId, new Note(AUTO_GENERATED,
-        String.format(COMMENT_OBJECTIVE, employee.getProfile().getFullName(), title, commentAdded)));
+        String.format(COMMENT_DELTED_OBJECTIVE, employee.getProfile().getFullName(), title, commentAdded)));
   }
 
-  public void updateObjectiveNEWProgress(long employeeId, int objectiveId, Progress progress)
+  public void updateObjectiveNEWProgress(long employeeId, int objectiveId, Progress progress, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException, JsonParseException, JsonMappingException,
       IOException
   {
@@ -882,6 +886,12 @@ public class EmployeeService
             localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
+
+    if (progress.equals(Progress.COMPLETE))
+    {
+      addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_OBJECTIVE,
+          employee.getProfile().getFullName(), employee.getObjectiveNEW(objectiveId).getTitle(), comment)));
+    }
   }
 
   public void toggleObjectiveNEWArchive(long employeeId, int objectiveId)
@@ -1014,10 +1024,10 @@ public class EmployeeService
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
     addNote(employeeId, new Note(AUTO_GENERATED,
-        String.format(COMMENT_DEVELOPMENT_NEED, employee.getProfile().getFullName(), title, commentAdded)));
+        String.format(COMMENT_DELETED_DEVELOPMENT_NEED, employee.getProfile().getFullName(), title, commentAdded)));
   }
 
-  public void updateDevelopmentNeedNEWProgress(long employeeId, int developmentNeedId, Progress progress)
+  public void updateDevelopmentNeedNEWProgress(long employeeId, int developmentNeedId, Progress progress, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
@@ -1032,6 +1042,11 @@ public class EmployeeService
 
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
 
+    if (progress.equals(Progress.COMPLETE))
+    {
+      addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_OBJECTIVE,
+          employee.getProfile().getFullName(), employee.getDevelopmentNeedNEW(developmentNeedId).getTitle(), comment)));
+    }
   }
 
   public void toggleDevelopmentNeedNEWArchive(long employeeId, int developmentNeedId)
@@ -1072,8 +1087,6 @@ public class EmployeeService
 
     morphiaOperations.updateEmployee(employeeId, NEW_COMPETENCIES, employee.getCompetenciesNEW());
   }
-
-
 
   //////////////////// END NEW COMPETENCIES
 }

@@ -92,7 +92,7 @@ public class EmployeeController
   private static final String REGEX_COMPETENCY_TITLE = "^(Accountability)|(Effective Communication)|(Leadership)|(Service Excellence)|(Business Awareness)|(Future Orientation)|(Innovation and Change)|(Teamwork)$";
   private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
   private static final String[] PROGRESS_LIST = { "PROPOSED", "IN_PROGRESS", "COMPLETE" };
-  
+
   @Autowired
   private EmployeeService employeeService;
 
@@ -921,12 +921,13 @@ public class EmployeeController
   public ResponseEntity<?> updateObjectiveProgress(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
-      @RequestParam @Min(value = 0, message = ERROR_OBJECTIVE_ID) @Max(value = 2, message = ERROR_OBJECTIVE_ID) int progress)
+      @RequestParam @Min(value = 0, message = ERROR_OBJECTIVE_ID) @Max(value = 2, message = ERROR_OBJECTIVE_ID) int progress,
+      @RequestParam @Size(max = 1000, message = ERROR_COMMENT_LIMIT) String comment)
   {
     try
     {
       employeeService.updateObjectiveNEWProgress(employeeId, objectiveId,
-          Objective.Progress.valueOf(PROGRESS_LIST[progress]));
+          Objective.Progress.valueOf(PROGRESS_LIST[progress]), comment);
       return ok("Objective progress updated");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -1061,12 +1062,13 @@ public class EmployeeController
   public ResponseEntity<?> updateDevelopmentNeedProgress(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
-      @RequestParam @Min(value = 0, message = ERROR_DEVELOPMENT_NEED_ID) @Max(value = 2, message = ERROR_DEVELOPMENT_NEED_ID) int progress)
+      @RequestParam @Min(value = 0, message = ERROR_DEVELOPMENT_NEED_ID) @Max(value = 2, message = ERROR_DEVELOPMENT_NEED_ID) int progress,
+      @RequestParam @Size(max = 1000, message = ERROR_COMMENT_LIMIT) String comment)
   {
     try
     {
       employeeService.updateDevelopmentNeedNEWProgress(employeeId, developmentNeedId,
-          Objective.Progress.valueOf(PROGRESS_LIST[progress]));
+          Objective.Progress.valueOf(PROGRESS_LIST[progress]), comment);
       return ok("Development Need progress updated");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -1128,7 +1130,7 @@ public class EmployeeController
   @RequestMapping(value = "/addFeedback/{employeeId}", method = POST)
   public ResponseEntity<?> addFeedback(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails,
-      @RequestParam @NotBlank(message = ERROR_FEEDBACK_EMPTY) @Size(max = 1000, message = ERROR_FEEDBACK_LIMIT) String feedback)
+      @RequestParam @NotBlank(message = ERROR_FEEDBACK_EMPTY) @Size(max = 5000, message = ERROR_FEEDBACK_LIMIT) String feedback)
   {
     try
     {
