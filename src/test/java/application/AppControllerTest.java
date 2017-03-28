@@ -43,10 +43,18 @@ public class AppControllerTest
   /** Datastore Property - Mocked by Mockito. */
   @Mock
   private MorphiaOperations mockMorphiaOperations;
-  
+
   /** MongoOperations Property - Mocked by Mockito. */
   @Mock
-  private MongoOperations mockMongoOperations;
+  private MongoOperations mockObjectivesHistoriesOperations;
+
+  /** MongoOperations Property - Mocked by Mockito. */
+  @Mock
+  private MongoOperations mockDevelopmentNeedsHistoriesOperations;
+
+  /** MongoOperations Property - Mocked by Mockito. */
+  @Mock
+  private MongoOperations mockCompetenciesHistoriesOperations;
 
   /** Environment Property - Mocked by Mockito. */
   @Mock
@@ -55,7 +63,7 @@ public class AppControllerTest
   /** EmployeeDAO Property - Mocked by Mockito. */
   @Mock
   private EmployeeService mockEmployeeDao;
-  
+
   /** EmployeeProfileSerivce Property - Mocked by Mockito. */
   @Mock
   private EmployeeProfileService mockEmployeeProfileService;
@@ -77,7 +85,6 @@ public class AppControllerTest
   @InjectMocks
   private EmployeeController unitUnderTest;
 
-
   /**
    * Setup method that runs once before each test method.
    */
@@ -90,10 +97,12 @@ public class AppControllerTest
     unitUnderTest = new EmployeeController();
 
     MockitoAnnotations.initMocks(this);
-    
+
     when(mockMorphiaOperations.getEmployee("profile.employeeID", VALID_EMPLOYEE_ID)).thenReturn(mockEmployee);
 
-    mockEmployeeDao = new EmployeeService(mockMorphiaOperations, mockMongoOperations, mockEmployeeProfileService, mockEnvironment);
+    mockEmployeeDao = new EmployeeService(mockMorphiaOperations, mockObjectivesHistoriesOperations,
+        mockDevelopmentNeedsHistoriesOperations, mockCompetenciesHistoriesOperations, mockEmployeeProfileService,
+        mockEnvironment);
   }
 
   /**
@@ -112,7 +121,7 @@ public class AppControllerTest
    * Unit test for the testGetObjectives method
    * 
    * @throws InvalidAttributeValueException
-   * @throws EmployeeNotFoundException 
+   * @throws EmployeeNotFoundException
    */
   @SuppressWarnings({ "static-access" })
   @Test

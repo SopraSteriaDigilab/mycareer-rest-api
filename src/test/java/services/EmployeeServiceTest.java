@@ -29,7 +29,6 @@ import dataStructure.Objective_OLD;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 
-
 /**
  * Unit tests for the EmployeeDAO class.
  */
@@ -37,28 +36,36 @@ public class EmployeeServiceTest
 {
   /** Logger Property - Represents an implementation of the Logger interface that may be used here. */
   private static final Logger LOG = LoggerFactory.getLogger(AppControllerTest.class);
-  
+
   /** Employee Property - Represents an Employee object... */
   private Employee employee;
-  
+
   /** Objective Property - Represents an objective. */
   private Objective_OLD objective;
-  
+
   /** List<Objective> Property - Represents list of objectives */
   private List<Objective_OLD> objectives;
 
   /** MorphiaOperations Property - Mocked by Mockito. */
   @Mock
   private MorphiaOperations mockMorphiaOperations;
-  
+
   /** MongoOperations Property - Mocked by Mockito. */
   @Mock
-  private MongoOperations mockMongoOperations;
+  private MongoOperations mockObjectivesHistoriesOperations;
+
+  /** MongoOperations Property - Mocked by Mockito. */
+  @Mock
+  private MongoOperations mockDevelopmentNeedsHistoriesOperations;
+
+  /** MongoOperations Property - Mocked by Mockito. */
+  @Mock
+  private MongoOperations mockCompetenciesHistoriesOperations;
 
   /** Environment Property - Mocked by Mockito. */
   @Mock
   private Environment mockEnvironment;
-  
+
   /** EmployeeProfileSerivce Property - Mocked by Mockito. */
   @Mock
   private EmployeeProfileService mockEmployeeProfileService;
@@ -82,15 +89,18 @@ public class EmployeeServiceTest
 
   /**
    * Setup method that runs once before each test method.
-   * @throws InvalidAttributeValueException 
+   * 
+   * @throws InvalidAttributeValueException
    */
   @Before
   public void setup() throws InvalidAttributeValueException
   {
     MockitoAnnotations.initMocks(this);
-    unitUnderTest = new EmployeeService(mockMorphiaOperations, mockMongoOperations, mockEmployeeProfileService, mockEnvironment);
+    unitUnderTest = new EmployeeService(mockMorphiaOperations, mockObjectivesHistoriesOperations,
+        mockDevelopmentNeedsHistoriesOperations, mockCompetenciesHistoriesOperations, mockEmployeeProfileService,
+        mockEnvironment);
     employee = getEmployee();
-    
+
   }
 
   /**
@@ -116,7 +126,7 @@ public class EmployeeServiceTest
     when(mockMorphiaOperations.getEmployee("profile.employeeID", EMPLOYEE_ID)).thenReturn(null);
     unitUnderTest.getEmployee(EMPLOYEE_ID);
   }
-  
+
   /**
    * Unit test for the getFullNameUser method.
    * 
@@ -128,20 +138,19 @@ public class EmployeeServiceTest
     when(mockMorphiaOperations.getEmployee("profile.employeeID", EMPLOYEE_ID)).thenReturn(mockEmployee);
     assertEquals(FULL_NAME, unitUnderTest.getFullNameUser(EMPLOYEE_ID));
   }
-  
+
   /**
    * Unit test for the getFullNameUser method.
    * 
    * @throws InvalidAttributeValueException
    */
-  @Test(expected=EmployeeNotFoundException.class)
+  @Test(expected = EmployeeNotFoundException.class)
   public void testgetFullNameUserWithNulls() throws EmployeeNotFoundException
   {
     when(mockMorphiaOperations.getEmployee("profile.employeeID", EMPLOYEE_ID)).thenReturn(null);
     unitUnderTest.getFullNameUser(EMPLOYEE_ID);
   }
-  
-  
+
   /**
    * Unit test for the getFullNameUser method.
    * 
@@ -150,71 +159,26 @@ public class EmployeeServiceTest
   @Test
   public void testgetObjectivesForUserWorkAsExpected() throws EmployeeNotFoundException, InvalidAttributeValueException
   {
-    
+
     objective = getObjective();
     objectives = Arrays.asList(objective);
-    
+
     employee.addObjective(objective);
     when(mockMorphiaOperations.getEmployee("profile.employeeID", EMPLOYEE_ID)).thenReturn(mockEmployee);
-    
+
     assertEquals(objectives, unitUnderTest.getObjectivesForUser(EMPLOYEE_ID));
   }
-  
+
   /**
    * Unit test for the getFullNameUser method.
    * 
    * @throws InvalidAttributeValueException
    */
-  @Test(expected=InvalidAttributeValueException.class)
+  @Test(expected = InvalidAttributeValueException.class)
   public void testgetObjectivesForUserWithNulls() throws EmployeeNotFoundException
   {
     when(mockMorphiaOperations.getEmployee("profile.employeeID", EMPLOYEE_ID)).thenReturn(mockEmployee);
     unitUnderTest.getObjectivesForUser(EMPLOYEE_ID);
   }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 
 }
