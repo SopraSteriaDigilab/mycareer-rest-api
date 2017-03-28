@@ -25,7 +25,7 @@ public class BulkUpdateConfig
   private MorphiaOperations morphiaOperations;
   
   @Autowired
-  private MongoOperations mongoOperations;
+  private MongoOperations employeeOperations;
   
   @Autowired
   private ADSearchSettings steriaADSearchSettings;
@@ -33,7 +33,7 @@ public class BulkUpdateConfig
   @Bean
   public BulkUpdateService bulkUpdateService() throws SequenceException
   {
-    return new BulkUpdateService(morphiaOperations, mongoOperations, steriaADSearchSettings,employeeProfileMapper());
+    return new BulkUpdateService(morphiaOperations, employeeOperations, steriaADSearchSettings,employeeProfileMapper());
   }
   
   @Bean

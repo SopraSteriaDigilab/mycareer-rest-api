@@ -35,7 +35,7 @@ public class BulkUpdateService
 
   private static final String BEGIN_UPDATE = "Beginning bulk update service";
   private static final String END_UPDATE = "Update service completed";
-  
+
   private static final String AD_TREE = "ou=UK,ou=Internal,ou=People,DC=one,DC=steria,DC=dom";
   private static final String AD_UNUSED_OBJECT_TREE = "OU=UK,OU=People,OU=Unused Objects,DC=one,DC=steria,DC=dom";
   private static final String EMPLOYEE_ID = "profile.employeeID";
@@ -44,7 +44,7 @@ public class BulkUpdateService
   private final MongoOperations employeeOperations;
   private final ADSearchSettings steriaADSearchSettings;
   private final EmployeeProfileMapper employeeProfileMapper;
-  
+
   private int inserted;
   private int updated;
   private int alreadyUpToDate;
@@ -60,13 +60,12 @@ public class BulkUpdateService
     this.employeeProfileMapper = employeeProfileMapper;
   }
 
-  // @Scheduled(cron = "0 30 23 * * ?")
-  @Scheduled(fixedDelay = 1)
+  @Scheduled(cron = "0 30 23 * * ?")
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
     LOGGER.info(BEGIN_UPDATE);
     inserted = updated = alreadyUpToDate = exceptionsThrown = notAnEmployee = 0;
-    
+
     final Instant startADOps = Instant.now();
     final List<EmployeeProfile> allEmployeeProfiles = fetchAllEmployeeProfiles();
     final Instant endADOps = Instant.now();
@@ -82,7 +81,6 @@ public class BulkUpdateService
       catch (Exception e)
       {
         LOGGER.warn("Bulk update error: {}", e.getMessage());
-        e.printStackTrace();
         exceptionsThrown++;
       }
     }
@@ -90,7 +88,7 @@ public class BulkUpdateService
     final Instant endDBOps = Instant.now();
 
     logMetadata(startADOps, endADOps, startDBOps, endDBOps, allEmployeeProfiles.size());
-    
+
     LOGGER.info(END_UPDATE);
     return inserted + updated + alreadyUpToDate;
   }
@@ -167,7 +165,7 @@ public class BulkUpdateService
 
     updateEmployee(employee.getProfile(), employeeProfile);
     updated++;
-    
+
     return employeeProfile;
   }
 
