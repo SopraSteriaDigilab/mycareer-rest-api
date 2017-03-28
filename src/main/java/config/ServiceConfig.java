@@ -25,40 +25,50 @@ public class ServiceConfig
 
   @Autowired
   private Environment env;
-  
+
   @Autowired
-  private Datastore dbConnection;
+  private Datastore datastore;
   
   @Autowired
   private MorphiaOperations morphiaOperations;
-  
+
   @Autowired
-  private MongoOperations mongoOperations;
-  
+  private MongoOperations employeeOperations;
+
+  @Autowired
+  private MongoOperations objectivesHistoriesOperations;
+
+  @Autowired
+  private MongoOperations developmentNeedsHistoriesOperations;
+
+  @Autowired
+  private MongoOperations competenciesHistoriesOperations;
+
   @Autowired
   private ADSearchSettings sopraADSearchSettings;
-  
+
   @Bean
   public EmployeeService employeeService()
   {
-    return new EmployeeService(morphiaOperations, mongoOperations, employeeProfileService(), env);
+    return new EmployeeService(morphiaOperations, objectivesHistoriesOperations, developmentNeedsHistoriesOperations,
+        competenciesHistoriesOperations, employeeProfileService(), env);
   }
-  
+
   @Bean
   public EmployeeProfileService employeeProfileService()
   {
     return new EmployeeProfileService(morphiaOperations, sopraADSearchSettings);
   }
-  
+
   @Bean
   public HRService hrDataDAO()
   {
-    return new HRService(dbConnection);
+    return new HRService(datastore);
   }
-  
+
   @Bean
   public DataService dataService()
   {
-    return new DataService(mongoOperations);
+    return new DataService(employeeOperations);
   }
 }

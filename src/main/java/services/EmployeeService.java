@@ -109,7 +109,13 @@ public class EmployeeService
   private MorphiaOperations morphiaOperations;
 
   /** MongoOperations Property - Represents a reference to the database using mongo java driver */
-  private MongoOperations mongoOperations;
+  private MongoOperations objectivesHistoriesOperations;
+
+  /** MongoOperations Property - Represents a reference to the database using mongo java driver */
+  private MongoOperations developmentNeedsHistoriesOperations;
+
+  /** MongoOperations Property - Represents a reference to the database using mongo java driver */
+  private MongoOperations competenciesHistoriesOperations;
 
   /** EmployeeProfileService Property - Represents a reference to the employee profile service. */
   private EmployeeProfileService employeeProfileService;
@@ -122,11 +128,14 @@ public class EmployeeService
    *
    * @param dbConnection
    */
-  public EmployeeService(MorphiaOperations morphiaOperations, MongoOperations mongoOperations,
-      EmployeeProfileService employeeProfileService, Environment env)
+  public EmployeeService(MorphiaOperations morphiaOperations,
+      MongoOperations objectivesHistoriesOperations, MongoOperations developmentNeedsHistoriesOperations,
+      MongoOperations competenciesHistoriesOperations, EmployeeProfileService employeeProfileService, Environment env)
   {
     this.morphiaOperations = morphiaOperations;
-    this.mongoOperations = mongoOperations;
+    this.objectivesHistoriesOperations = objectivesHistoriesOperations;
+    this.developmentNeedsHistoriesOperations = developmentNeedsHistoriesOperations;
+    this.competenciesHistoriesOperations = competenciesHistoriesOperations;
     this.employeeProfileService = employeeProfileService;
     this.env = env;
   }
@@ -792,7 +801,7 @@ public class EmployeeService
     objective.setProposedBy(employee.getProfile().getFullName());
     employee.addObjectiveNEW(objective);
 
-    mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(
+    objectivesHistoriesOperations.addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
@@ -809,7 +818,7 @@ public class EmployeeService
 
     employee.editObjectiveNEW(objective);
 
-    mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(
+    objectivesHistoriesOperations.addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objective.getId(),
             employee.getObjectiveNEW(objective.getId()).getCreatedOn()),
         update.append("timestamp", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
@@ -829,7 +838,7 @@ public class EmployeeService
 
     employee.deleteObjectiveNEW(objectiveId);
 
-    mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(deletedId,
+    objectivesHistoriesOperations.addToObjDevHistory(deletedId,
         new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
@@ -848,7 +857,7 @@ public class EmployeeService
 
     employee.updateObjectiveNEWProgress(objectiveId, progress);
 
-    mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(
+    objectivesHistoriesOperations.addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()),
         new Document("progress", progress.getProgressStr()).append("timestamp",
             localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
@@ -869,7 +878,7 @@ public class EmployeeService
 
     employee.toggleObjectiveNEWArchive(objectiveId);
 
-    mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(
+    objectivesHistoriesOperations.addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()),
         new Document("isArchived", employee.getObjectiveNEW(objectiveId).getArchived()).append("timestamp",
             localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
@@ -893,7 +902,7 @@ public class EmployeeService
         Employee employee = getEmployee(email);
         employee.addObjectiveNEW(objective);
 
-        mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(
+        objectivesHistoriesOperations.addToObjDevHistory(
             objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
 
         morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), NEW_OBJECTIVES,
@@ -944,7 +953,7 @@ public class EmployeeService
     developmentNeed.setProposedBy(employee.getProfile().getFullName());
     employee.addDevelopmentNeedNEW(developmentNeed);
 
-    mongoOperations.developmentNeedsHistoriesCollection().addToObjDevHistory(
+    developmentNeedsHistoriesOperations.addToObjDevHistory(
         developmentNeedHistoryIdFilter(employeeId, developmentNeed.getId(), developmentNeed.getCreatedOn()),
         developmentNeed.toDocument());
 
@@ -962,7 +971,7 @@ public class EmployeeService
 
     employee.editDevelopmentNeedNEW(developmentNeed);
 
-    mongoOperations.developmentNeedsHistoriesCollection().addToObjDevHistory(
+    developmentNeedsHistoriesOperations.addToObjDevHistory(
         developmentNeedHistoryIdFilter(employeeId, developmentNeed.getId(),
             employee.getDevelopmentNeedNEW(developmentNeed.getId()).getCreatedOn()),
         update.append("timestamp", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
@@ -983,7 +992,7 @@ public class EmployeeService
 
     employee.deleteDevelopmentNeedNEW(developmentNeedId);
 
-    mongoOperations.developmentNeedsHistoriesCollection().addToObjDevHistory(deletedId,
+    developmentNeedsHistoriesOperations.addToObjDevHistory(deletedId,
         new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
@@ -1001,7 +1010,7 @@ public class EmployeeService
 
     employee.updateDevelopmentNeedNEWProgress(developmentNeedId, progress);
 
-    mongoOperations.developmentNeedsHistoriesCollection().addToObjDevHistory(
+    developmentNeedsHistoriesOperations.addToObjDevHistory(
         developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
             employee.getDevelopmentNeedNEW(developmentNeedId).getCreatedOn()),
         new Document("progress", progress.getProgressStr()).append("timestamp",
@@ -1023,7 +1032,7 @@ public class EmployeeService
 
     employee.toggleDevelopmentNeedNEWArchive(developmentNeedId);
 
-    mongoOperations.developmentNeedsHistoriesCollection().addToObjDevHistory(
+    developmentNeedsHistoriesOperations.addToObjDevHistory(
         developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
             employee.getDevelopmentNeedNEW(developmentNeedId).getCreatedOn()),
         new Document("isArchived", employee.getDevelopmentNeedNEW(developmentNeedId).getArchived()).append("timestamp",
@@ -1048,7 +1057,7 @@ public class EmployeeService
 
     employee.toggleCompetencyNEW(competencyTitle);
 
-    mongoOperations.competenciesHistoriesCollection().addToCompetenciesHistory(employeeId,
+    competenciesHistoriesOperations.addToCompetenciesHistory(employeeId,
         competencyTitle.getCompetencyTitleStr(), employee.getCompetencyNEW(competencyTitle).isSelected(),
         employee.getCompetencyNEW(competencyTitle).getLastModified());
 

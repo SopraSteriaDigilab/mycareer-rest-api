@@ -74,63 +74,10 @@ public class MongoOperations
    *
    * @param mongoClient
    */
-  public MongoOperations(final MongoClient mongoClient)
+  public MongoOperations(final MongoClient mongoClient, Collection collection)
   {
     this.mongoDB = mongoClient.getDatabase(DB_NAME);
-  }
-
-  /**
-   * Use this for operations on the employee collection.
-   * 
-   * @return A MongoCollection reference to the employee collection.
-   */
-  private void setCollection(Collection collection)
-  {
     this.mongoCollection = this.mongoDB.getCollection(collection.getCollectionStr());
-  }
-
-  /**
-   * Sets the collection to the employee collection.
-   *
-   * @return this
-   */
-  public MongoOperations employeeCollection()
-  {
-    this.setCollection(Collection.EMPLOYEE);
-    return this;
-  }
-
-  /**
-   * Sets the collection to the employee collection.
-   *
-   * @return this
-   */
-  public MongoOperations objectivesHistoriesCollection()
-  {
-    this.setCollection(Collection.OBJECTIVES_HISTORY);
-    return this;
-  }
-
-  /**
-   * Sets the collection to the employee collection.
-   *
-   * @return this
-   */
-  public MongoOperations developmentNeedsHistoriesCollection()
-  {
-    this.setCollection(Collection.DEVELOPMENT_NEEDS_HISTORY);
-    return this;
-  }
-
-  /**
-   * Sets the collection to the employee collection.
-   *
-   * @return this
-   */
-  public MongoOperations competenciesHistoriesCollection()
-  {
-    this.setCollection(Collection.COMPETENCIES_HISTORY);
-    return this;
   }
 
   /**

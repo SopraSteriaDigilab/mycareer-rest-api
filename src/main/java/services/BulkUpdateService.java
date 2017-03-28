@@ -41,7 +41,7 @@ public class BulkUpdateService
   private static final String EMPLOYEE_ID = "profile.employeeID";
 
   private final MorphiaOperations morphiaOperations;
-  private final MongoOperations mongoOperations;
+  private final MongoOperations employeeOperations;
   private final ADSearchSettings steriaADSearchSettings;
   private final EmployeeProfileMapper employeeProfileMapper;
   
@@ -51,11 +51,11 @@ public class BulkUpdateService
   private int notAnEmployee;
   private int exceptionsThrown;
 
-  public BulkUpdateService(final MorphiaOperations morphiaOperations, final MongoOperations mongoOperations,
+  public BulkUpdateService(final MorphiaOperations morphiaOperations, final MongoOperations employeeOperations,
       final ADSearchSettings steriaADSearchSettings, final EmployeeProfileMapper employeeProfileMapper)
   {
     this.morphiaOperations = morphiaOperations;
-    this.mongoOperations = mongoOperations;
+    this.employeeOperations = employeeOperations;
     this.steriaADSearchSettings = steriaADSearchSettings;
     this.employeeProfileMapper = employeeProfileMapper;
   }
@@ -177,7 +177,7 @@ public class BulkUpdateService
     Document filter = new Document(EmployeeProfile.EMPLOYEE_ID, profile.getEmployeeID());
     Document newFields = profile.differences(employeeProfile);
 
-    mongoOperations.employeeCollection().setFields(filter, newFields);
+    employeeOperations.setFields(filter, newFields);
   }
 
   // TODO this doesn't belong here

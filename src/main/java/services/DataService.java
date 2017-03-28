@@ -15,16 +15,16 @@ public class DataService
   private static final String EMAIL_ADDRESSES = "emailAddresses";
   private static final String PROFILE_EMAIL_ADDRESSES = "profile.emailAddresses";
 
-  private final MongoOperations mongoOperations;
+  private final MongoOperations employeeOperations;
 
-  public DataService(final MongoOperations mongoOperations)
+  public DataService(final MongoOperations employeeOperations)
   {
-    this.mongoOperations = mongoOperations;
+    this.employeeOperations = employeeOperations;
   }
 
   public List<String> getAllEmailAddresses()
   {
-    final List<String> emails = mongoOperations.employeeCollection().getFieldAndUnwind(EMAIL_ADDRESSES, PROFILE_EMAIL_ADDRESSES);
+    final List<String> emails = employeeOperations.getFieldAndUnwind(EMAIL_ADDRESSES, PROFILE_EMAIL_ADDRESSES);
 
     LOGGER.info("Email address count is {}", emails.size());
 
