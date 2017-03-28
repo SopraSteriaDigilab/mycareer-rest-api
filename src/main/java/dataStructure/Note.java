@@ -5,6 +5,10 @@ import static dataStructure.Constants.UK_TIMEZONE;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This class contains the definition of the Note object
@@ -25,14 +29,22 @@ public class Note implements Serializable
   /** String Property - Represents the description of the note. */
   private String noteDescription;
 
+  /** The objective ids tagged */
+  private Set<Integer> taggedObjectiveIds;
+
+  /** The development need ids tagged */
+  private Set<Integer> taggedDevelopmentNeedIds;
+
   /** String Property - Represents the timestamp of the note. */
   private String timestamp;
 
-  /** 
+  /**
    * Default Constructor - Responsible for initialising this object.
    */
   public Note()
   {
+    taggedObjectiveIds = new HashSet<>();
+    taggedDevelopmentNeedIds = new HashSet<>();
   }
 
   /**
@@ -45,6 +57,8 @@ public class Note implements Serializable
     this.setProviderName(providerName);
     this.setNoteDescription(noteDescription);
     this.setTimestamp();
+    taggedObjectiveIds = new HashSet<>();
+    taggedDevelopmentNeedIds = new HashSet<>();
   }
 
   /** @return the id */
@@ -81,6 +95,30 @@ public class Note implements Serializable
   public void setNoteDescription(String noteDescription)
   {
     this.noteDescription = noteDescription;
+  }
+
+  /** @return the taggedObjectiveIds */
+  public Set<Integer> getTaggedObjectiveIds()
+  {
+    return taggedObjectiveIds;
+  }
+
+  /** @param taggedObjectiveIds The value to set. */
+  public void setTaggedObjectiveIds(Set<Integer> taggedObjectiveIds)
+  {
+    this.taggedObjectiveIds = taggedObjectiveIds;
+  }
+
+  /** @return the taggedDevelopmentNeedIds */
+  public Set<Integer> getTaggedDevelopmentNeedIds()
+  {
+    return taggedDevelopmentNeedIds;
+  }
+
+  /** @param taggedDevelopmentNeedIds The value to set. */
+  public void setTaggedDevelopmentNeedIds(Set<Integer> taggedDevelopmentNeedIds)
+  {
+    this.taggedDevelopmentNeedIds = taggedDevelopmentNeedIds;
   }
 
   /** @return the timestamp */
