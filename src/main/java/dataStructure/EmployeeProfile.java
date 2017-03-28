@@ -1,11 +1,14 @@
 package dataStructure;
 
 import static dataStructure.Constants.INVALID_NULLREPORTEE;
+import static utils.Utils.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -312,7 +315,9 @@ public class EmployeeProfile implements Serializable
   {
     Document differences = toDocument();
     Document otherDocument = other.toDocument();
-
+    
+    removeNullValues(differences);
+    removeNullValues(otherDocument);
     otherDocument.forEach((ok, ov) -> differences.merge(ok, ov, Utils::nullIfSame));
 
     return differences;

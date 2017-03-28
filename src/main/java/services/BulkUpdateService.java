@@ -79,17 +79,10 @@ public class BulkUpdateService
       {
         upsertEmployeeProfile(profile);
       }
-      catch (NullPointerException npe)
-      {
-        /*
-         * We can ignore null pointer exceptions as it is expected that some data taken from the AD is not relevant
-         */
-        LOGGER.debug("NullPointerException while updating/inserting an employee: {}", npe);
-        notAnEmployee++;
-      }
       catch (Exception e)
       {
         LOGGER.warn("Bulk update error: {}", e.getMessage());
+        e.printStackTrace();
         exceptionsThrown++;
       }
     }
@@ -132,10 +125,12 @@ public class BulkUpdateService
          * just ignore these.
          */
         LOGGER.debug(e.getMessage());
+        notAnEmployee++;
       }
       catch (NoSuchElementException | NullPointerException e)
       {
         LOGGER.error("Exception caught: ", e);
+        exceptionsThrown++;
       }
     }
 
@@ -182,7 +177,7 @@ public class BulkUpdateService
     Document filter = new Document(EmployeeProfile.EMPLOYEE_ID, profile.getEmployeeID());
     Document newFields = profile.differences(employeeProfile);
 
-    mongoOperations.setFields(filter, newFields);
+    mongoOperations.employeeCollection().setFields(filter, newFields);
   }
 
   // TODO this doesn't belong here

@@ -63,6 +63,7 @@ public class MongoOperations
   private static final String UNWIND = "$unwind";
   private static final String PROJECT = "$project";
   private static final String PUSH = "$push";
+  private static final String SET = "$set";
 
   private final MongoDatabase mongoDB;
 
@@ -167,7 +168,7 @@ public class MongoOperations
    */
   public void setFields(Document filter, Document keyValuePairs)
   {
-    mongoCollection.updateOne(filter, setMultipleFields(keyValuePairs));
+    mongoCollection.updateOne(filter, set(keyValuePairs));
   }
 
   /**
@@ -209,17 +210,6 @@ public class MongoOperations
         createdOn);
   }
 
-  private Bson setMultipleFields(Document keyValuePairs)
-  {
-    List<Bson> updateList = Arrays.asList();
-    for (Map.Entry<String, Object> entry : keyValuePairs.entrySet())
-    {
-      updateList.add(set(entry.getKey(), entry.getValue()));
-    }
-
-    return combine(updateList);
-  }
-
   private Bson project(final Bson projection)
   {
     return new Document(PROJECT, projection);
@@ -244,5 +234,9 @@ public class MongoOperations
   {
     return new Document(PUSH, new Document(fieldName, update));
   }
-
+  
+  private Bson set(Bson bson)
+  {
+    return new Document(SET, bson);
+  }
 }

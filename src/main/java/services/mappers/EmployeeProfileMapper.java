@@ -4,6 +4,7 @@ import static utils.Conversions.*;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -65,7 +66,8 @@ public class EmployeeProfileMapper implements Mapper<SearchResult, EmployeeProfi
         .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
         .username(mapString(SAM_ACCOUNT_NAME, attributes))
         .emailAddresses(
-            Stream.of(mapString(MAIL, attributes), mapString(TARGET_ADDRESS, attributes)).collect(Collectors.toSet()))
+            Stream.of(mapString(MAIL, attributes).toLowerCase(), mapString(TARGET_ADDRESS, attributes).toLowerCase())
+                .collect(Collectors.toSet()))
         .company(mapString(COMPANY, attributes)).superSector(mapString(OU, attributes)).sector(mapSector(attributes))
         .steriaDepartment(mapString(DEPARTMENT, attributes)).manager(mapIsManager(attributes))
         .reporteeCNs(mapReporteeCNs(attributes)).accountExpires(mapAccountExpires(attributes)).build();
@@ -106,6 +108,8 @@ public class EmployeeProfileMapper implements Mapper<SearchResult, EmployeeProfi
     {
       LOGGER.warn(REPORTEES_NOT_FOUND, e.getMessage());
     }
+
+    Collections.sort(reporteeCNs);
 
     return reporteeCNs;
   }

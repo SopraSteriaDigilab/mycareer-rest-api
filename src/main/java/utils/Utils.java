@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -278,5 +280,37 @@ public class Utils
 
     return otherValue;
   }
-
+  
+  /**
+   * Removes the key and value from the map if the value is null.
+  *
+  * @param map
+  * @param key
+  * @param value
+  */
+ public static <K, V> void removeNullValues(Map<K, V> map)
+ {
+   @SuppressWarnings("unchecked")
+  final K[] keys = (K[]) map.keySet().toArray();
+   
+   for (K key : keys)
+   {
+     removeIfNull(map, key, map.get(key));
+   }
+ }
+  
+  /**
+   * Removes the key and value from the map if the value is null.
+   *
+   * @param map
+   * @param key
+   * @param value
+   */
+  public static <K, V> void removeIfNull(Map<K, V> map, K key, V value)
+  {
+    if (value == null)
+    {
+      map.remove(key);
+    }
+  }
 }
