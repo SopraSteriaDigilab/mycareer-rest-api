@@ -1,5 +1,8 @@
 package config;
 
+
+import static services.db.MongoOperations.Collection.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,9 +47,27 @@ public class DBConfig
   }
   
   @Bean
-  public MongoOperations mongoOperations()
+  public MongoOperations employeeOperations()
   {
-    return new MongoOperations(mongoClient());
+    return new MongoOperations(mongoClient(), EMPLOYEE);
+  }
+  
+  @Bean
+  public MongoOperations objectivesHistoriesOperations()
+  {
+    return new MongoOperations(mongoClient(), OBJECTIVES_HISTORY);
+  }
+  
+  @Bean
+  public MongoOperations developmentNeedsHistoriesOperations()
+  {
+    return new MongoOperations(mongoClient(), DEVELOPMENT_NEEDS_HISTORY);
+  }
+  
+  @Bean
+  public MongoOperations competenciesHistoriesOperations()
+  {
+    return new MongoOperations(mongoClient(), COMPETENCIES_HISTORY);
   }
   
   @Bean

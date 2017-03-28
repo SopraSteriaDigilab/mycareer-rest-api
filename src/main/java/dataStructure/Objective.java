@@ -34,7 +34,7 @@ public class Objective extends DBObject implements Comparable<Objective>
       return this.progressStr;
     }
 
-    public static Progress getProgressFromString(String progressString) throws InvalidAttributeValueException
+    public static Progress getProgressFromString(String progressString)
     {
       switch (progressString)
       {
@@ -45,7 +45,7 @@ public class Objective extends DBObject implements Comparable<Objective>
         case "Complete":
           return Progress.COMPLETE;
       }
-      throw new InvalidAttributeValueException("This enum string does not exist");
+      throw new IllegalArgumentException("The String provided does not match a valid Progress enum");
     }
   }
 

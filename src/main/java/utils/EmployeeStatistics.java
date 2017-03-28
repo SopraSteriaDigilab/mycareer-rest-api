@@ -1,14 +1,18 @@
 package utils;
 
+import static dataStructure.Objective.Progress.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import dataStructure.DevelopmentNeed_OLD;
+import javax.management.InvalidAttributeValueException;
+
+import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
-import dataStructure.Objective_OLD;
+import dataStructure.Objective;
 
 /**
  * Class to hold create statistic mappings.
@@ -31,11 +35,8 @@ public class EmployeeStatistics
   public final static String[] DEVELOPMENT_NEEDS_FIELDS = { "developmentNeeds" };
 
   /** String[] Constant - Represents fields to be used in the sector statistics */
-  public final static String[] SECTOR_FIELDS = { "profile.employeeID", "profile.superSector", "objectives", "developmentNeeds" };
-
-  /** String[] Constant - Represents fields to be used in the developmentNeeds statistics */
-  public final static String[] DEVELOPMENT_NEED_CATEGORIES = { "On Job Training", "Classroom Training",
-      "Online or E-Learning", "Self-Study", "Other", "INVALID" };
+  public final static String[] SECTOR_FIELDS = { "profile.employeeID", "profile.superSector", "objectives",
+      "developmentNeeds" };
 
   /**
    * Statistics from my career.
@@ -110,7 +111,7 @@ public class EmployeeStatistics
     List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> {
       Map<String, Object> map = getBasicMap(e);
-      addObjectivesCounts(map, e.getLatestVersionObjectives());
+      addObjectivesCounts(map, e.getObjectivesNEW());
       statistics.add(map);
     });
     return statistics;
@@ -127,7 +128,7 @@ public class EmployeeStatistics
     List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> {
       Map<String, Object> map = getBasicMap(e);
-      addDevNeedsCounts(map, e.getLatestVersionDevelopmentNeeds());
+      addDevNeedsCounts(map, e.getDevelopmentNeedsNEW());
       statistics.add(map);
     });
     return statistics;
@@ -143,11 +144,11 @@ public class EmployeeStatistics
   {
     List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> {
-      e.getLatestVersionDevelopmentNeeds().forEach(d -> {
-        if (d.getProgress() == 2) return;
+      e.getDevelopmentNeedsNEW().forEach(d -> {
+        if (getProgressFromString(d.getProgress()).equals(COMPLETE)) return;
         Map<String, Object> map = getBasicMap(e);
         map.put("title", d.getTitle());
-        map.put("category", DEVELOPMENT_NEED_CATEGORIES[d.getCategory()]);
+        map.put("category", d.getCategory());
         statistics.add(map);
       });
     });
@@ -196,21 +197,22 @@ public class EmployeeStatistics
    *
    * @param map
    * @param devNeeds
+   * @throws InvalidAttributeValueException 
    */
-  private void addDevNeedsCounts(Map<String, Object> map, List<DevelopmentNeed_OLD> devNeeds)
+  private void addDevNeedsCounts(Map<String, Object> map, List<DevelopmentNeed> devNeeds)
   {
     int proposed = 0, inProgress = 0, complete = 0;
-    for (DevelopmentNeed_OLD devNeed : devNeeds)
+    for (DevelopmentNeed devNeed : devNeeds)
     {
-      switch (devNeed.getProgress())
+      switch (getProgressFromString(devNeed.getProgress()))
       {
-        case 0:
+        case PROPOSED:
           proposed++;
           break;
-        case 1:
+        case IN_PROGRESS:
           inProgress++;
           break;
-        case 2:
+        case COMPLETE:
           complete++;
           break;
       }
@@ -226,24 +228,25 @@ public class EmployeeStatistics
    *
    * @param map
    * @param objectives
+   * @throws InvalidAttributeValueException
    */
-  private void addObjectivesCounts(Map<String, Object> map, List<Objective_OLD> objectives)
+  private void addObjectivesCounts(Map<String, Object> map, List<Objective> objectives)
   {
     int proposed = 0, inProgress = 0, complete = 0, total = 0;
     if (!objectives.isEmpty())
     {
-      for (Objective_OLD objective : objectives)
+      for (Objective objective : objectives)
       {
-        if (objective.getIsArchived()) continue;
-        switch (objective.getProgress())
+        if (objective.getArchived()) continue;
+        switch (getProgressFromString(objective.getProgress()))
         {
-          case 0:
+          case PROPOSED:
             proposed++;
             break;
-          case 1:
+          case IN_PROGRESS:
             inProgress++;
             break;
-          case 2:
+          case COMPLETE:
             complete++;
             break;
         }
@@ -263,32 +266,33 @@ public class EmployeeStatistics
    * @param employee
    */
   private void groupSector(List<Map<String, Object>> statistics, Employee employee)
-  { 
+  {
     Map<String, Object> map = new HashMap<>();
-    
+
     String profileSector = employee.getProfile().getSuperSector();
     String sector = (profileSector == null) ? "unknown" : profileSector;
-    
-    Optional<Map<String, Object>> optionalMap = statistics.stream().filter(m -> m.get("sector").equals(sector)).findFirst();
+
+    Optional<Map<String, Object>> optionalMap = statistics.stream().filter(m -> m.get("sector").equals(sector))
+        .findFirst();
     if (optionalMap.isPresent())
     {
       optionalMap.get().put("employees", (Integer) optionalMap.get().get("employees") + 1);
-      if (!employee.getLatestVersionObjectives().isEmpty())
+      if (!employee.getObjectivesNEW().isEmpty())
       {
         optionalMap.get().put("noWithObjs", (Integer) optionalMap.get().get("noWithObjs") + 1);
       }
-      if (!employee.getLatestVersionDevelopmentNeeds().isEmpty())
+      if (!employee.getDevelopmentNeedsNEW().isEmpty())
       {
         optionalMap.get().put("noWithDevNeeds", (Integer) optionalMap.get().get("noWithDevNeeds") + 1);
       }
     }
     else
     {
-      
+
       map.put("sector", sector);
       map.put("employees", 1);
-      map.put("noWithObjs", (employee.getLatestVersionObjectives().isEmpty()) ? 0 : 1 );
-      map.put("noWithDevNeeds", (employee.getLatestVersionDevelopmentNeeds().isEmpty()) ? 0 : 1 );
+      map.put("noWithObjs", (employee.getObjectivesNEW().isEmpty()) ? 0 : 1);
+      map.put("noWithDevNeeds", (employee.getDevelopmentNeedsNEW().isEmpty()) ? 0 : 1);
       statistics.add(map);
     }
   }

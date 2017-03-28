@@ -2,6 +2,7 @@ package controller;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +20,8 @@ import services.HRService;
 public class HRController
 {
   /** HRDataDAO Constant - Represents the service to be user for hr data. */
-  private final HRService hrService = new HRService();
+  @Autowired
+  private HRService hrService;
 
   /**
    * GET End Point - Gets overview of my career stats
