@@ -1072,8 +1072,8 @@ public class EmployeeService
     return tags;
   }
 
-  public void updateFeedbackTags(long employeeId, int feedbackId, List<Integer> objectiveIds,
-      List<Integer> developmentNeedIds) throws services.EmployeeNotFoundException, InvalidAttributeValueException
+  public void updateFeedbackTags(long employeeId, int feedbackId, Set<Integer> objectiveIds,
+      Set<Integer> developmentNeedIds) throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
 
@@ -1086,6 +1086,23 @@ public class EmployeeService
     employee.updateFeedbackTags(feedbackId, objectiveIds, developmentNeedIds);
 
     morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
+  }
+
+  public void updateNotesTags(long employeeId, int noteId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    for (int id : objectiveIds)
+      employee.getObjectiveNEW(id);
+
+    for (int id : developmentNeedIds)
+      employee.getDevelopmentNeedNEW(id);
+
+    employee.updateNotesTags(noteId, objectiveIds, developmentNeedIds);
+
+    morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
+
   }
 
 }

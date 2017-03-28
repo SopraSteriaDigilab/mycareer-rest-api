@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -983,7 +984,7 @@ public class Employee implements Serializable
 
   //////////////////// END NEW COMPETENCIES
 
-  public void updateFeedbackTags(int feedbackId, List<Integer> objectiveIds, List<Integer> developmentNeedIds)
+  public void updateFeedbackTags(int feedbackId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
       throws InvalidAttributeValueException
   {
     Feedback feedback = getFeedback(feedbackId);
@@ -995,11 +996,31 @@ public class Employee implements Serializable
   public Feedback getFeedback(int feedbackId) throws InvalidAttributeValueException
   {
     Optional<Feedback> feedback = getFeedback().stream()
-        .filter(c -> c.getId() == feedbackId).findFirst();
+        .filter(f -> f.getId() == feedbackId).findFirst();
 
     if (!feedback.isPresent()) throw new InvalidAttributeValueException("Feedback not found.");
 
     return feedback.get();
+  }
+
+  
+  public void updateNotesTags(int noteId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
+      throws InvalidAttributeValueException
+  {
+    Note note = getNote(noteId);
+    
+    note.setTaggedObjectiveIds(objectiveIds);
+    note.setTaggedDevelopmentNeedIds(developmentNeedIds);
+  }
+  
+  public Note getNote(int noteId) throws InvalidAttributeValueException
+  {
+    Optional<Note> note = getNotes().stream()
+        .filter(n -> n.getId() == noteId).findFirst();
+
+    if (!note.isPresent()) throw new InvalidAttributeValueException("Note not found.");
+
+    return note.get();
   }
 
 }

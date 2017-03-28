@@ -4,12 +4,14 @@ import static dataStructure.Constants.UK_TIMEZONE;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
 /**
- * This class contains the definition of the feedback in MyCareer. 
+ * This class contains the definition of the feedback in MyCareer.
  */
 public class Feedback extends DBObject
 {
@@ -23,22 +25,21 @@ public class Feedback extends DBObject
 
   /** The feedback */
   private String feedbackDescription;
-  
-  /** The objective ids tagged*/
-  private List<Integer> taggedObjectiveIds;
-  
-  /** The development need ids tagged*/
-  private List<Integer> taggedDevelopmentNeedIds;
 
-  
+  /** The objective ids tagged */
+  private Set<Integer> taggedObjectiveIds;
+
+  /** The development need ids tagged */
+  private Set<Integer> taggedDevelopmentNeedIds;
+
   /** Time stamp of feedback */
   private String timestamp;
 
   /** Empty Constructor */
   public Feedback()
   {
-    taggedObjectiveIds = new ArrayList<>();
-    taggedDevelopmentNeedIds = new ArrayList<>();
+    taggedObjectiveIds = new HashSet<>();
+    taggedDevelopmentNeedIds = new HashSet<>();
   }
 
   /**
@@ -54,8 +55,8 @@ public class Feedback extends DBObject
     this.setFeedbackDescription(feedbackDescription);
     this.setProviderName("");
     this.setTimestamp();
-    taggedObjectiveIds = new ArrayList<>();
-    taggedDevelopmentNeedIds = new ArrayList<>();
+    taggedObjectiveIds = new HashSet<>();
+    taggedDevelopmentNeedIds = new HashSet<>();
   }
 
   /**
@@ -72,8 +73,8 @@ public class Feedback extends DBObject
     this.setFeedbackDescription(feedbackDescription);
     this.setProviderName(providerName);
     this.setTimestamp();
-    taggedObjectiveIds = new ArrayList<>();
-    taggedDevelopmentNeedIds = new ArrayList<>();
+    taggedObjectiveIds = new HashSet<>();
+    taggedDevelopmentNeedIds = new HashSet<>();
   }
 
   /** @return the providerEmail */
@@ -116,25 +117,25 @@ public class Feedback extends DBObject
   }
 
   /** @return the taggedObjectiveIds */
-  public List<Integer> getTaggedObjectiveIds()
+  public Set<Integer> getTaggedObjectiveIds()
   {
     return taggedObjectiveIds;
   }
 
   /** @param taggedObjectiveIds The value to set. */
-  public void setTaggedObjectiveIds(List<Integer> taggedObjectiveIds)
+  public void setTaggedObjectiveIds(Set<Integer> taggedObjectiveIds)
   {
     this.taggedObjectiveIds = taggedObjectiveIds;
   }
 
   /** @return the taggedDevelopmentNeedIds */
-  public List<Integer> getTaggedDevelopmentNeedIds()
+  public Set<Integer> getTaggedDevelopmentNeedIds()
   {
     return taggedDevelopmentNeedIds;
   }
 
   /** @param taggedDevelopmentNeedIds The value to set. */
-  public void setTaggedDevelopmentNeedIds(List<Integer> taggedDevelopmentNeedIds)
+  public void setTaggedDevelopmentNeedIds(Set<Integer> taggedDevelopmentNeedIds)
   {
     this.taggedDevelopmentNeedIds = taggedDevelopmentNeedIds;
   }
@@ -149,6 +150,6 @@ public class Feedback extends DBObject
   public void setTimestamp()
   {
     this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
-  } 
+  }
 
 }

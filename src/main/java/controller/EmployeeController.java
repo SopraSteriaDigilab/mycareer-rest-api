@@ -1161,7 +1161,7 @@ public class EmployeeController
   public ResponseEntity<?> updateFeedbackTags(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) int feedbackId,
-      @RequestParam List<Integer> objectiveIds, @RequestParam List<Integer> developmentNeedIds)
+      @RequestParam Set<Integer> objectiveIds, @RequestParam Set<Integer> developmentNeedIds)
       throws EmployeeNotFoundException
   {
     try
@@ -1173,7 +1173,24 @@ public class EmployeeController
     {
       return badRequest().body(error(e.getMessage()));
     }
-
+  }
+  
+  @RequestMapping(value = "/updateNotesTags/{employeeId}", method = POST)
+  public ResponseEntity<?> updateNotesTags(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) int noteId,
+      @RequestParam Set<Integer> objectiveIds, @RequestParam Set<Integer> developmentNeedIds)
+      throws EmployeeNotFoundException
+  {
+    try
+    {
+      employeeService.updateNotesTags(employeeId, noteId, objectiveIds, developmentNeedIds);
+      return ok("Tags Updated");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
   }
 
 }
