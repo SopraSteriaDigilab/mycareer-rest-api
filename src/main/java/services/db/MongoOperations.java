@@ -1,10 +1,12 @@
 package services.db;
 
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Updates.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -61,8 +63,7 @@ public class MongoOperations
   private static final String UNWIND = "$unwind";
   private static final String PROJECT = "$project";
   private static final String PUSH = "$push";
-
-
+  private static final String SET = "$set";
 
   private final MongoDatabase mongoDB;
 
@@ -156,8 +157,18 @@ public class MongoOperations
    */
   public void addToObjDevHistory(Document find, Document update)
   {
-    mongoCollection.updateOne(eq(ID, find), push(HISTORY, update),
-        new UpdateOptions().upsert(true));
+    mongoCollection.updateOne(eq(ID, find), push(HISTORY, update), new UpdateOptions().upsert(true));
+  }
+
+  /**
+   * Performs an update of a single document using the given filter, setting the field/value pairs in keyValuePairs.
+   *
+   * @param filter the filter to find the document to update
+   * @param keyValuePairs a document representing zero or more fields to update in the document matching the filter
+   */
+  public void setFields(Document filter, Document keyValuePairs)
+  {
+    mongoCollection.updateOne(filter, set(keyValuePairs));
   }
 
   /**
@@ -223,5 +234,9 @@ public class MongoOperations
   {
     return new Document(PUSH, new Document(fieldName, update));
   }
-
+  
+  private Bson set(Bson bson)
+  {
+    return new Document(SET, bson);
+  }
 }

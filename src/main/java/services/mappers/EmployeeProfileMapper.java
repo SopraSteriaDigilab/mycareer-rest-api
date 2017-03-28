@@ -4,11 +4,10 @@ import static utils.Conversions.*;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,7 +24,7 @@ import dataStructure.EmployeeProfile;
 
 //TODO Update map methods to user map string/chain eachother
 //TODO remove sopra
-public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, EmployeeProfile>
+public class EmployeeProfileMapper implements Mapper<SearchResult, EmployeeProfile>
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileMapper.class);
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -52,24 +51,12 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
 
   private EmployeeProfile profile = new EmployeeProfile();
 
-  public EmployeeProfile map(Optional<SearchResult> steriaEmployeeProfile, Optional<SearchResult> sopraEmployeeProfile)
+  public EmployeeProfile map(SearchResult steriaEmployeeProfile)
   {
-    // sopraEmployeeProfile.ifPresent(this::setSopraDetails);
-    steriaEmployeeProfile.ifPresent(this::setSteriaDetails);
+    setSteriaDetails(steriaEmployeeProfile);
 
     return profile;
   }
-
-  // private void setSopraDetails(SearchResult sopraEmployeeProfile) throws InvalidEmployeeProfileException
-  // {
-  // final Attributes attributes = sopraEmployeeProfile.getAttributes();
-  //
-  // profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_7))
-  // .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
-  // .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddress(mapString(MAIL, attributes))
-  // .company(mapString(COMPANY, attributes)).sopraDepartment(mapString(DEPARTMENT, attributes))
-  // .guid(mapGUID(attributes)).hasHRDash(mapHRPermission(attributes)).build();
-  // }
 
   private void setSteriaDetails(SearchResult steriaEmployeeProfile) throws InvalidEmployeeProfileException
   {
@@ -79,7 +66,8 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
         .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
         .username(mapString(SAM_ACCOUNT_NAME, attributes))
         .emailAddresses(
-            Stream.of(mapString(MAIL, attributes), mapString(TARGET_ADDRESS, attributes)).collect(Collectors.toSet()))
+            Stream.of(mapString(MAIL, attributes).toLowerCase(), mapString(TARGET_ADDRESS, attributes).toLowerCase())
+                .collect(Collectors.toSet()))
         .company(mapString(COMPANY, attributes)).superSector(mapString(OU, attributes)).sector(mapSector(attributes))
         .steriaDepartment(mapString(DEPARTMENT, attributes)).manager(mapIsManager(attributes))
         .reporteeCNs(mapReporteeCNs(attributes)).accountExpires(mapAccountExpires(attributes)).build();
@@ -121,6 +109,8 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
       LOGGER.warn(REPORTEES_NOT_FOUND, e.getMessage());
     }
 
+    Collections.sort(reporteeCNs);
+
     return reporteeCNs;
   }
 
@@ -136,13 +126,11 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
     }
     catch (NamingException | NoSuchElementException | NullPointerException e)
     {
-      LOGGER.error(EMPLOYEE_NOT_FOUND, e);
-      throw new InvalidEmployeeProfileException(e);
+      throw new InvalidEmployeeProfileException(EMPLOYEE_NOT_FOUND, e);
     }
     catch (ClassCastException e)
     {
-      LOGGER.error(EMPLOYEE_NOT_FOUND, e);
-      throw new InvalidEmployeeProfileException(e);
+      throw new InvalidEmployeeProfileException(EMPLOYEE_NOT_FOUND, e);
     }
 
     return employeeID;

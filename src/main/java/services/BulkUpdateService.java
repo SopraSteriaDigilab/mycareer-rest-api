@@ -8,19 +8,21 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
-import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchResult;
 
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import services.ad.ADConnectionException;
 import services.ad.ADSearchSettings;
+import services.db.MongoOperations;
+import services.db.MorphiaOperations;
 import services.mappers.EmployeeProfileMapper;
 import services.mappers.InvalidEmployeeProfileException;
 import utils.sequence.Sequence;
@@ -31,56 +33,66 @@ public class BulkUpdateService
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(BulkUpdateService.class);
 
+  private static final String BEGIN_UPDATE = "Beginning bulk update service";
+  private static final String END_UPDATE = "Update service completed";
+  
   private static final String AD_TREE = "ou=UK,ou=Internal,ou=People,DC=one,DC=steria,DC=dom";
   private static final String AD_UNUSED_OBJECT_TREE = "OU=UK,OU=People,OU=Unused Objects,DC=one,DC=steria,DC=dom";
+  private static final String EMPLOYEE_ID = "profile.employeeID";
 
-  private final EmployeeService employeeService;
+  private final MorphiaOperations morphiaOperations;
+  private final MongoOperations mongoOperations;
   private final ADSearchSettings steriaADSearchSettings;
+  private final EmployeeProfileMapper employeeProfileMapper;
+  
+  private int inserted;
+  private int updated;
+  private int alreadyUpToDate;
+  private int notAnEmployee;
+  private int exceptionsThrown;
 
-  public BulkUpdateService(final EmployeeService employeeService, final ADSearchSettings steriaADSearchSettings)
+  public BulkUpdateService(final MorphiaOperations morphiaOperations, final MongoOperations mongoOperations,
+      final ADSearchSettings steriaADSearchSettings, final EmployeeProfileMapper employeeProfileMapper)
   {
-    this.employeeService = employeeService;
+    this.morphiaOperations = morphiaOperations;
+    this.mongoOperations = mongoOperations;
     this.steriaADSearchSettings = steriaADSearchSettings;
+    this.employeeProfileMapper = employeeProfileMapper;
   }
 
-  @Scheduled(cron = "0 30 23 * * ?")
+  // @Scheduled(cron = "0 30 23 * * ?")
+  @Scheduled(fixedDelay = 1)
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
+    LOGGER.info(BEGIN_UPDATE);
+    inserted = updated = alreadyUpToDate = exceptionsThrown = notAnEmployee = 0;
+    
     final Instant startADOps = Instant.now();
     final List<EmployeeProfile> allEmployeeProfiles = fetchAllEmployeeProfiles();
     final Instant endADOps = Instant.now();
 
     final Instant startDBOps = Instant.now();
-    int updatedCount = 0;
-    int notUpdatedCount = 0;
 
     for (EmployeeProfile profile : allEmployeeProfiles)
     {
       try
       {
-        employeeService.matchADWithMongoData(profile);
-        updatedCount++;
-      }
-      catch (final EmployeeNotFoundException | InvalidAttributeValueException e)
-      {
-        /*
-         * swallow this exception as matchADWithMongoData already logs it besides, we are concerned with the hundreds,
-         * not the one
-         */
-        notUpdatedCount++;
+        upsertEmployeeProfile(profile);
       }
       catch (Exception e)
       {
         LOGGER.warn("Bulk update error: {}", e.getMessage());
-        notUpdatedCount++;
+        e.printStackTrace();
+        exceptionsThrown++;
       }
     }
 
     final Instant endDBOps = Instant.now();
 
-    logMetadata(startADOps, endADOps, startDBOps, endDBOps, updatedCount, notUpdatedCount);
-
-    return updatedCount;
+    logMetadata(startADOps, endADOps, startDBOps, endDBOps, allEmployeeProfiles.size());
+    
+    LOGGER.info(END_UPDATE);
+    return inserted + updated + alreadyUpToDate;
   }
 
   /**
@@ -103,22 +115,69 @@ public class BulkUpdateService
     {
       try
       {
-        EmployeeProfile profile = new EmployeeProfileMapper().map(Optional.ofNullable(result), Optional.empty());
+        EmployeeProfile profile = employeeProfileMapper.map(result);
         allEmployeeProfiles.add(profile);
       }
       catch (InvalidEmployeeProfileException e)
       {
-        LOGGER.warn(e.getMessage());
+        /*
+         * There are always a lot of objects found by the bulk AD search that are not valid employee profiles. We can
+         * just ignore these.
+         */
+        LOGGER.debug(e.getMessage());
+        notAnEmployee++;
       }
       catch (NoSuchElementException | NullPointerException e)
       {
         LOGGER.error("Exception caught: ", e);
+        exceptionsThrown++;
       }
     }
 
     logMetadata(steriaList, allEmployeeProfiles);
 
     return allEmployeeProfiles;
+  }
+
+  /**
+   * Matches what is stored in the database with the given employee profile.
+   * 
+   * If the employee ID of the given employee profile does not exist in the database, the employee is inserted. If the
+   * given employee profile is an exact match for an entry in the database, does nothing. Otherwise updates the employee
+   * in the database to match the given employee profile.
+   *
+   * @param employeeProfile the employee profile to upsert
+   * @return the new EmployeeProfile as stored in the MyCareer database
+   */
+  private EmployeeProfile upsertEmployeeProfile(EmployeeProfile employeeProfile)
+  {
+    Employee employee = morphiaOperations.getEmployee(EMPLOYEE_ID, employeeProfile.getEmployeeID());
+
+    if (employee == null)
+    {
+      morphiaOperations.saveEmployee(new Employee(employeeProfile));
+      inserted++;
+      return employeeProfile;
+    }
+    else if (employee.getProfile().equals(employeeProfile))
+    {
+      alreadyUpToDate++;
+      return employeeProfile;
+    }
+
+    updateEmployee(employee.getProfile(), employeeProfile);
+    updated++;
+    
+    return employeeProfile;
+  }
+
+  // Performs an update of an existing employee
+  private void updateEmployee(EmployeeProfile profile, EmployeeProfile employeeProfile)
+  {
+    Document filter = new Document(EmployeeProfile.EMPLOYEE_ID, profile.getEmployeeID());
+    Document newFields = profile.differences(employeeProfile);
+
+    mongoOperations.employeeCollection().setFields(filter, newFields);
   }
 
   // TODO this doesn't belong here
@@ -131,15 +190,18 @@ public class BulkUpdateService
         .build();
   }
 
-  private void logMetadata(Instant startADOps, Instant endADOps, Instant startDBOps, Instant endDBOps, int updatedCount,
-      int notUpdatedCount)
+  private void logMetadata(Instant startADOps, Instant endADOps, Instant startDBOps, Instant endDBOps, int entriesFound)
   {
     final Duration adOpsTime = Duration.between(startADOps, endADOps);
     final Duration dbOpsTime = Duration.between(startDBOps, endDBOps);
     final Duration totalOpsTime = adOpsTime.plus(dbOpsTime);
 
-    LOGGER.info("DB entries inserted/updated: {}", updatedCount);
-    LOGGER.info("Failed attempts to insert/update DB: {}", notUpdatedCount);
+    LOGGER.info("Total entries found: {}", entriesFound);
+    LOGGER.info("New employees inserted: {}", inserted);
+    LOGGER.info("Employees updated: {}", updated);
+    LOGGER.info("Employees already up to date: {}", alreadyUpToDate);
+    LOGGER.info("Exceptions thrown: {}", exceptionsThrown);
+    LOGGER.info("Number of entries not corresponding to an employee: {}", notAnEmployee);
     LOGGER.info("AD Operations time: {}", adOpsTime);
     LOGGER.info("DB Operations time: {}", dbOpsTime);
     LOGGER.info("Total time to sync: {}", totalOpsTime);

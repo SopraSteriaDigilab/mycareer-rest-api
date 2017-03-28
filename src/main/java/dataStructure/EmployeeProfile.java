@@ -1,17 +1,23 @@
 package dataStructure;
 
 import static dataStructure.Constants.INVALID_NULLREPORTEE;
+import static utils.Utils.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
+import org.bson.Document;
+
 import services.mappers.InvalidEmployeeProfileException;
+import utils.Utils;
 
 /**
  * This class contains the definition of the EmployeeProfile object
@@ -20,6 +26,20 @@ import services.mappers.InvalidEmployeeProfileException;
 public class EmployeeProfile implements Serializable
 {
   private static final long serialVersionUID = 1L;
+
+  public static final String EMPLOYEE_ID = "profile.employeeID";
+  public static final String SURNAME = "profile.surname";
+  public static final String FORENAME = "profile.forename";
+  public static final String USERNAME = "profile.username";
+  public static final String EMAIL_ADDRESSES = "profile.emailAddresses";
+  public static final String IS_MANAGER = "profile.isManager";
+  public static final String HAS_HR_DASH = "profile.hasHRDash";
+  public static final String COMPANY = "profile.company";
+  public static final String DEPARTMENT = "profile.steriaDepartment";
+  public static final String SECTOR = "profile.sector";
+  public static final String SUPER_SECTOR = "profile.superSector";
+  public static final String REPORTEE_CNS = "profile.reporteeCNs";
+  public static final String ACCOUNT_EXPIRES = "profile.accountExpires";
 
   /** long Property - Represents the employee id */
   private long employeeID;
@@ -273,6 +293,34 @@ public class EmployeeProfile implements Serializable
     {
       throw new InvalidAttributeValueException(INVALID_NULLREPORTEE);
     }
+  }
+
+  /**
+   * @return A {@code Document} representation of this employee profile.
+   */
+  public Document toDocument()
+  {
+    return new Document(EMPLOYEE_ID, employeeID).append(SURNAME, surname).append(FORENAME, forename)
+        .append(USERNAME, username).append(EMAIL_ADDRESSES, emailAddresses).append(IS_MANAGER, isManager)
+        .append(HAS_HR_DASH, hasHRDash).append(COMPANY, company).append(DEPARTMENT, steriaDepartment)
+        .append(SECTOR, sector).append(SUPER_SECTOR, superSector).append(REPORTEE_CNS, reporteeCNs)
+        .append(ACCOUNT_EXPIRES, accountExpires);
+  }
+
+  /**
+   * @param other
+   * @return a document containing only the key values pairs which represent differences between this and other.
+   */
+  public Document differences(final EmployeeProfile other)
+  {
+    Document differences = toDocument();
+    Document otherDocument = other.toDocument();
+    
+    removeNullValues(differences);
+    removeNullValues(otherDocument);
+    otherDocument.forEach((ok, ov) -> differences.merge(ok, ov, Utils::nullIfSame));
+
+    return differences;
   }
 
   /**

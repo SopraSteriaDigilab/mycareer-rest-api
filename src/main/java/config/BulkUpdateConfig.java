@@ -9,6 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import services.BulkUpdateService;
 import services.EmployeeService;
 import services.ad.ADSearchSettings;
+import services.db.MongoOperations;
+import services.db.MorphiaOperations;
+import services.mappers.EmployeeProfileMapper;
 import utils.sequence.Sequence;
 import utils.sequence.SequenceException;
 import utils.sequence.StringSequence;
@@ -19,7 +22,10 @@ public class BulkUpdateConfig
   private static final Logger LOGGER = LoggerFactory.getLogger(BulkUpdateConfig.class);
   
   @Autowired
-  private EmployeeService employeeService;
+  private MorphiaOperations morphiaOperations;
+  
+  @Autowired
+  private MongoOperations mongoOperations;
   
   @Autowired
   private ADSearchSettings steriaADSearchSettings;
@@ -27,6 +33,12 @@ public class BulkUpdateConfig
   @Bean
   public BulkUpdateService bulkUpdateService() throws SequenceException
   {
-    return new BulkUpdateService(employeeService, steriaADSearchSettings);
+    return new BulkUpdateService(morphiaOperations, mongoOperations, steriaADSearchSettings,employeeProfileMapper());
+  }
+  
+  @Bean
+  public EmployeeProfileMapper employeeProfileMapper()
+  {
+    return new EmployeeProfileMapper();
   }
 }

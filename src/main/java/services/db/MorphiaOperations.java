@@ -108,7 +108,7 @@ public class MorphiaOperations
     datastore.update(getEmployeeQuery(EMPLOYEE_ID, employeeID), ops);
   }
 
-  public void updateEmployee(Employee employee)
+  public void saveEmployee(final Employee employee)
   {
     datastore.save(employee);
   }
