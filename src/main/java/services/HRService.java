@@ -36,8 +36,8 @@ public class HRService
   public HRService(final Datastore datastore)
   {
     this.datastore = datastore;
-  }  
-  
+  }
+
   /**
    * Statistics for MyCareer from the database.
    *
@@ -50,7 +50,7 @@ public class HRService
         countAll(empQuery, "developmentNeeds"), countAll(empQuery, "notes"), countAll(empQuery, "competencies"),
         countAll(empQuery, "feedbackRequests"), countAll(empQuery, "feedback"));
   }
- 
+
   /**
    * Statistics for employees from the database.
    *
@@ -81,8 +81,8 @@ public class HRService
    */
   public List<Map<String, Object>> getObjectiveStats()
   {
-    List<Employee> employees = datastore.find(Employee.class).retrievedFields(true, addAll(EMPLOYEE_FIELDS, OBJECTIVES_FIELDS))
-        .asList();
+    List<Employee> employees = datastore.find(Employee.class)
+        .retrievedFields(true, addAll(EMPLOYEE_FIELDS, OBJECTIVES_FIELDS)).asList();
     return employeeStats.getObjectiveStats(employees);
   }
 
@@ -118,7 +118,8 @@ public class HRService
    */
   public List<Map<String, Object>> getSectorBreakDown()
   {
-    List<Employee> employees = datastore.find(Employee.class).retrievedFields(true, SECTOR_FIELDS).asList();
+    List<Employee> employees = datastore.find(Employee.class).filter("profile.accountExpires exists", 0)
+        .retrievedFields(true, SECTOR_FIELDS).asList();
     return employeeStats.getSectorBreakDown(employees);
   }
 
