@@ -226,7 +226,8 @@ public class Employee implements Serializable
    * @param developments the List<List<DevelopmentNeed> to copy the data from
    * @throws InvalidAttributeValueException
    */
-  public void setDevelopmentNeedsList(List<List<DevelopmentNeed_OLD>> developments) throws InvalidAttributeValueException
+  public void setDevelopmentNeedsList(List<List<DevelopmentNeed_OLD>> developments)
+      throws InvalidAttributeValueException
   {
     if (developments != null)
     {
@@ -605,7 +606,7 @@ public class Employee implements Serializable
 
   public boolean addNote(Note note)
   {
-    note.setId(this.getNotes().size()+1);
+    note.setId(this.getNotes().size() + 1);
     return this.notes.add(note);
   }
 
@@ -823,9 +824,9 @@ public class Employee implements Serializable
   {
     Objective objective = getObjectiveNEW(objectiveId);
 
-    if(objective.getProgress().equals(progress.getProgressStr()))
+    if (objective.getProgress().equals(progress.getProgressStr()))
       throw new InvalidAttributeValueException("Progress is already at the given state: " + progress.getProgressStr());
-    
+
     if (objective.getArchived() || objective.getProgress().equals(Progress.COMPLETE.getProgressStr()))
       throw new InvalidAttributeValueException("Cannot update progress of archived/complete Objective.");
 
@@ -907,9 +908,9 @@ public class Employee implements Serializable
   {
     DevelopmentNeed developmentNeed = getDevelopmentNeedNEW(developmentNeedId);
 
-    if(developmentNeed.getProgress().equals(progress.getProgressStr()))
+    if (developmentNeed.getProgress().equals(progress.getProgressStr()))
       throw new InvalidAttributeValueException("Progress is already at the given state: " + progress.getProgressStr());
-    
+
     if (developmentNeed.getArchived() || developmentNeed.getProgress().equals(Progress.COMPLETE.getProgressStr()))
       throw new InvalidAttributeValueException("Cannot update progress of archived/complete Development Needs.");
 
@@ -960,7 +961,7 @@ public class Employee implements Serializable
       }
     }
   }
-  
+
   public boolean toggleCompetencyNEW(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
   {
     Competency competency = getCompetencyNEW(competencyTitle);
@@ -969,19 +970,36 @@ public class Employee implements Serializable
 
     return true;
   }
-  
+
   public Competency getCompetencyNEW(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
   {
     Optional<Competency> competency = getCompetenciesNEW().stream()
         .filter(c -> c.getTitle().equals(competencyTitle.getCompetencyTitleStr())).findFirst();
 
-    if (!competency.isPresent()) throw new InvalidAttributeValueException("Competency Need not found.");
+    if (!competency.isPresent()) throw new InvalidAttributeValueException("Competency not found.");
 
     return competency.get();
   }
-  
-  
 
   //////////////////// END NEW COMPETENCIES
+
+  public void updateFeedbackTags(int feedbackId, List<Integer> objectiveIds, List<Integer> developmentNeedIds)
+      throws InvalidAttributeValueException
+  {
+    Feedback feedback = getFeedback(feedbackId);
+    
+    feedback.setTaggedObjectiveIds(objectiveIds);
+    feedback.setTaggedDevelopmentNeedIds(developmentNeedIds);
+  }
+  
+  public Feedback getFeedback(int feedbackId) throws InvalidAttributeValueException
+  {
+    Optional<Feedback> feedback = getFeedback().stream()
+        .filter(c -> c.getId() == feedbackId).findFirst();
+
+    if (!feedback.isPresent()) throw new InvalidAttributeValueException("Feedback not found.");
+
+    return feedback.get();
+  }
 
 }

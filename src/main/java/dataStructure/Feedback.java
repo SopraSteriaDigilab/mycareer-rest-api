@@ -2,24 +2,18 @@ package dataStructure;
 
 import static dataStructure.Constants.UK_TIMEZONE;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.management.InvalidAttributeValueException;
 
-import utils.Validate;
-
 /**
- * Feedback object for MyCareer
- * 
+ * This class contains the definition of the feedback in MyCareer. 
  */
-public class Feedback implements Serializable
+public class Feedback extends DBObject
 {
   private static final long serialVersionUID = 1L;
-
-  /** Unique ID for the object. */
-  private int id;
 
   /** Email address of feedback provider */
   private String providerEmail;
@@ -29,13 +23,22 @@ public class Feedback implements Serializable
 
   /** The feedback */
   private String feedbackDescription;
+  
+  /** The objective ids tagged*/
+  private List<Integer> taggedObjectiveIds;
+  
+  /** The development need ids tagged*/
+  private List<Integer> taggedDevelopmentNeedIds;
 
+  
   /** Time stamp of feedback */
   private String timestamp;
 
   /** Empty Constructor */
   public Feedback()
   {
+    taggedObjectiveIds = new ArrayList<>();
+    taggedDevelopmentNeedIds = new ArrayList<>();
   }
 
   /**
@@ -46,11 +49,13 @@ public class Feedback implements Serializable
   public Feedback(int id, String providerEmail, String feedbackDescription)
   {
     super();
-    this.id = id;
-    this.providerEmail = providerEmail;
-    this.feedbackDescription = feedbackDescription;
-    this.providerName = "";
-    setTimestamp();
+    this.setId(id);
+    this.setProviderEmail(providerEmail);
+    this.setFeedbackDescription(feedbackDescription);
+    this.setProviderName("");
+    this.setTimestamp();
+    taggedObjectiveIds = new ArrayList<>();
+    taggedDevelopmentNeedIds = new ArrayList<>();
   }
 
   /**
@@ -62,23 +67,13 @@ public class Feedback implements Serializable
   public Feedback(int id, String providerEmail, String providerName, String feedbackDescription)
   {
     super();
-    this.id = id;
-    this.providerEmail = providerEmail;
-    this.feedbackDescription = feedbackDescription;
-    this.providerName = providerName;
-    setTimestamp();
-  }
-
-  /** @return the id */
-  public int getId()
-  {
-    return id;
-  }
-
-  /** @param id the id to set */
-  public void setId(int id)
-  {
-    this.id = id;
+    this.setId(id);
+    this.setProviderEmail(providerEmail);
+    this.setFeedbackDescription(feedbackDescription);
+    this.setProviderName(providerName);
+    this.setTimestamp();
+    taggedObjectiveIds = new ArrayList<>();
+    taggedDevelopmentNeedIds = new ArrayList<>();
   }
 
   /** @return the providerEmail */
@@ -91,12 +86,9 @@ public class Feedback implements Serializable
    * @param providerEmail the providerEmail to set
    * @throws InvalidAttributeValueException
    */
-  public void setProviderEmail(String providerEmail) throws InvalidAttributeValueException
+  public void setProviderEmail(String providerEmail)
   {
-    if (Validate.isValidEmailSyntax(providerEmail)) this.providerEmail = providerEmail;
-    else {
-      throw new InvalidAttributeValueException("This email address is not valid syntax.");
-    }
+    this.providerEmail = providerEmail;
   }
 
   /** @return the providerName */
@@ -123,8 +115,32 @@ public class Feedback implements Serializable
     this.feedbackDescription = feedbackDescription;
   }
 
+  /** @return the taggedObjectiveIds */
+  public List<Integer> getTaggedObjectiveIds()
+  {
+    return taggedObjectiveIds;
+  }
+
+  /** @param taggedObjectiveIds The value to set. */
+  public void setTaggedObjectiveIds(List<Integer> taggedObjectiveIds)
+  {
+    this.taggedObjectiveIds = taggedObjectiveIds;
+  }
+
+  /** @return the taggedDevelopmentNeedIds */
+  public List<Integer> getTaggedDevelopmentNeedIds()
+  {
+    return taggedDevelopmentNeedIds;
+  }
+
+  /** @param taggedDevelopmentNeedIds The value to set. */
+  public void setTaggedDevelopmentNeedIds(List<Integer> taggedDevelopmentNeedIds)
+  {
+    this.taggedDevelopmentNeedIds = taggedDevelopmentNeedIds;
+  }
+
   /** @return the timestamp */
-  public String getTimeStamp()
+  public String getTimestamp()
   {
     return timestamp;
   }
@@ -133,6 +149,6 @@ public class Feedback implements Serializable
   public void setTimestamp()
   {
     this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
-  }
+  } 
 
 }

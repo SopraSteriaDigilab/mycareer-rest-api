@@ -10,8 +10,6 @@ import java.util.HashMap;
 
 import org.bson.Document;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
@@ -19,7 +17,6 @@ import utils.Utils;
 
 /**
  * This class contains the definition of an object to be stored in the DB.
- *
  */
 public abstract class DBObject implements Serializable
 {

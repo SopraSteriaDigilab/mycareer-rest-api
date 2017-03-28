@@ -1,12 +1,6 @@
 package dataStructure;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import javax.management.InvalidAttributeValueException;
-
-import org.bson.Document;
 
 /**
  * This class contains the definition of the Competency object.

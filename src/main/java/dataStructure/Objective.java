@@ -2,23 +2,13 @@ package dataStructure;
 
 import static dataStructure.Constants.UK_TIMEZONE;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 import javax.management.InvalidAttributeValueException;
 
 import org.bson.Document;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 
 import utils.Utils;
 
