@@ -22,15 +22,19 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.management.InvalidAttributeValueException;
+import javax.naming.directory.InvalidAttributesException;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.PropertySource;
@@ -655,9 +659,10 @@ public class EmployeeService
     Employee employee = getEmployee(employeeId);
     addFeedback(employee.getProfile().getEmailAddresses().stream().findFirst().get(), emailSet, feedback,
         isFeedbackRequest);
-    
+
     String subject = String.format("Feedback from %s", employee.getProfile().getFullName());
-    String body = Template.populateTemplate(env.getProperty("templates.feedback.generic"), employee.getProfile().getFullName());
+    String body = Template.populateTemplate(env.getProperty("templates.feedback.generic"),
+        employee.getProfile().getFullName());
 
     EmailService.sendEmail(emailSet, subject, body);
   }
@@ -886,7 +891,7 @@ public class EmployeeService
       IOException
   {
     Employee employee = getEmployee(employeeId);
-    
+
     employee.updateObjectiveNEWProgress(objectiveId, progress);
 
     mongoOperations.objectivesHistoriesCollection().addToObjDevHistory(
@@ -1079,7 +1084,7 @@ public class EmployeeService
 
   public List<Competency> getCompetenciesNEW(long employeeId) throws EmployeeNotFoundException
   {
-    return getEmployee(employeeId).getCompetenciesNEW(); 
+    return getEmployee(employeeId).getCompetenciesNEW();
   }
 
   public void toggleCompetencyNEW(long employeeId, CompetencyTitle competencyTitle)
@@ -1096,6 +1101,37 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, NEW_COMPETENCIES, employee.getCompetenciesNEW());
   }
 
-  //////////////////// END NEW COMPETENCIES 
-  
+  //////////////////// END NEW COMPETENCIES
+
+  public Map<String, Map<Integer, String>> getTags(long employeeId) throws services.EmployeeNotFoundException
+  {
+    Map<String, Map<Integer, String>> tags = new HashMap<>();
+    Map<Integer, String> objectivesTags = new HashMap<>();
+    Map<Integer, String> developmentNeedsTags = new HashMap<>();
+
+    getObjectivesNEW(employeeId).forEach(o -> objectivesTags.put(o.getId(), o.getTitle()));
+    getDevelopmentNeedsNEW(employeeId).forEach(d -> developmentNeedsTags.put(d.getId(), d.getTitle()));
+
+    tags.put("objectivesTags", objectivesTags);
+    tags.put("developmentNeedsTags", developmentNeedsTags);
+
+    return tags;
+  }
+
+  public void updateFeedbackTags(long employeeId, int feedbackId, List<Integer> objectiveIds,
+      List<Integer> developmentNeedIds) throws services.EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    for (int id : objectiveIds)
+      employee.getObjectiveNEW(id);
+
+    for (int id : developmentNeedIds)
+      employee.getDevelopmentNeedNEW(id);
+
+    employee.updateFeedbackTags(feedbackId, objectiveIds, developmentNeedIds);
+
+    morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
+  }
+
 }

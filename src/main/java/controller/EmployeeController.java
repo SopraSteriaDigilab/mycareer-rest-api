@@ -1,18 +1,16 @@
 package controller;
 
 import static application.GlobalExceptionHandler.error;
-import static dataStructure.Constants.UK_TIMEZONE;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
-import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static utils.Validate.isYearMonthInPast;
 
 import java.io.IOException;
 import java.time.YearMonth;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -39,24 +37,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
-import application.GlobalExceptionHandler;
 import dataStructure.Competency.CompetencyTitle;
-import dataStructure.Competency_OLD;
 import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
-import dataStructure.DevelopmentNeed_OLD;
 import dataStructure.DocumentConversionException;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
-import dataStructure.Objective_OLD;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
 import services.EmployeeService;
-import services.ews.EmailService;
-import utils.Template;
 import utils.Utils;
-import utils.Validate;
 
 /**
  * This class contains all the available roots of the web service
@@ -74,31 +65,29 @@ public class EmployeeController
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
   private static final String ERROR_OBJECTIVE_ID = "The given Objective ID is invalid";
   private static final String ERROR_DEVELOPMENT_NEED_ID = "The given Development Need ID is invalid";
-  private static final String ERROR_TITLE_LIMIT = "Max Title length is 150 characters";
-  private static final String ERROR_TITLE_EMPTY = "Title can not be empty";
-  private static final String ERROR_PROVIDER_NAME_LIMIT = "Max Provider Name length is 150 characters.";
-  private static final String ERROR_EMAIL_RECIPIENTS_EMPTY = "The emailsTo field can not be empty";
+  private static final String ERROR_LIMIT_TITLE = "Max Title length is 150 characters";
+  private static final String ERROR_EMPTY_TITLE = "Title can not be empty";
+  private static final String ERROR_LIMIT_PROVIDER_NAME = "Max Provider Name length is 150 characters.";
+  private static final String ERROR_EMPTY_EMAIL_RECIPIENTS = "The emailsTo field can not be empty";
   private static final String ERROR_DATE_FORMAT = "The date format is incorrect";
-  private static final String ERROR_NOTE_PROVIDER_NAME_EMPTY = "Provider name can not be empty.";
-  private static final String ERROR_NOTE_DESCRIPTION_EMPTY = "Note description can not be empty.";
-  private static final String ERROR_NOTE_DESCRIPTION_LIMIT = "Max Description length is 1000 characters.";
-  private static final String ERROR_COMMENT_LIMIT = "Max Comment length is 1000 characters.";
-  private static final String ERROR_COMPETENCY_TITLE_BLANK = "Compentency title cannot be empty";
-  private static final String ERROR_FEEDBACK_EMPTY = "The feedback cannot be empty.";
-  private static final String ERROR_FEEDBACK_LIMIT = "Max feedback length is 5000";
+  private static final String ERROR_EMPTY_NOTE_PROVIDER_NAME = "Provider name can not be empty.";
+  private static final String ERROR_EMPTY_NOTE_DESCRIPTION = "Note description can not be empty.";
+  private static final String ERROR_LIMIT_NOTE_DESCRIPTION = "Max Description length is 1000 characters.";
+  private static final String ERROR_LIMIT_COMMENT = "Max Comment length is 1000 characters.";
+  private static final String ERROR_EMPTY_COMPETENCY_TITLE = "Compentency title cannot be empty";
+  private static final String ERROR_EMPTY_FEEDBACK = "The feedback cannot be empty.";
+  private static final String ERROR_LIMIT_FEEDBACK = "Max feedback length is 5000";
   private static final String ERROR_CATEGORY = "Category must be from 0 to 4";
   private static final String ERROR_COMPETENCY_TITLE = "Invalid Competency, please enter one of the following: 'Accountability', 'Effective Communication', 'Leadership', 'Service Excellence', 'Business Awareness', 'Future Orientation', 'Innovation and Change', 'Teamwork'";
   private static final String ERROR_EMAILS_EMPTY = "Emails field can not be empty";
   private static final String REGEX_YEAR_MONTH = "^\\d{4}[-](0[1-9]|1[012])$";
   private static final String REGEX_COMPETENCY_TITLE = "^(Accountability)|(Effective Communication)|(Leadership)|(Service Excellence)|(Business Awareness)|(Future Orientation)|(Innovation and Change)|(Teamwork)$";
-  private static final String ERROR_DESCRIPTION_LIMIT = "Max Description is 200 characters";
-  private static final String ERROR_DESCRIPTION_EMPTY = "Description cannot be empty";
+  private static final String ERROR_LIMIT_DESCRIPTION = "Max Description is 2000 characters";
+  private static final String ERROR_EMPTY_DESCRIPTION = "Description cannot be empty";
   private static final String ERROR_PROGRESS = "Progress must be a value from 0-2.";
-  
+
   private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
   private static final String[] PROGRESS_LIST = { "PROPOSED", "IN_PROGRESS", "COMPLETE" };
-
-
 
   @Autowired
   private EmployeeService employeeService;
@@ -485,8 +474,8 @@ public class EmployeeController
    */
   @RequestMapping(value = "/addNote/{employeeID}", method = POST)
   public ResponseEntity<String> addNote(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
-      @RequestParam @NotBlank(message = ERROR_NOTE_PROVIDER_NAME_EMPTY) @Size(max = 150, message = ERROR_PROVIDER_NAME_LIMIT) String providerName,
-      @RequestParam @NotBlank(message = ERROR_NOTE_DESCRIPTION_EMPTY) @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT) String noteDescription)
+      @RequestParam @NotBlank(message = ERROR_EMPTY_NOTE_PROVIDER_NAME) @Size(max = 150, message = ERROR_LIMIT_PROVIDER_NAME) String providerName,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_NOTE_DESCRIPTION) @Size(max = 1000, message = ERROR_LIMIT_NOTE_DESCRIPTION) String noteDescription)
   {
     try
     {
@@ -510,8 +499,8 @@ public class EmployeeController
   public ResponseEntity<String> addNoteToReportee(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
       @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeEmployeeID,
-      @NotBlank(message = ERROR_NOTE_PROVIDER_NAME_EMPTY) @Size(max = 150, message = ERROR_PROVIDER_NAME_LIMIT) String providerName,
-      @NotBlank(message = ERROR_NOTE_DESCRIPTION_EMPTY) @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT) String noteDescription)
+      @NotBlank(message = ERROR_EMPTY_NOTE_PROVIDER_NAME) @Size(max = 150, message = ERROR_LIMIT_PROVIDER_NAME) String providerName,
+      @NotBlank(message = ERROR_EMPTY_NOTE_DESCRIPTION) @Size(max = 1000, message = ERROR_LIMIT_NOTE_DESCRIPTION) String noteDescription)
   {
     try
     {
@@ -652,8 +641,8 @@ public class EmployeeController
   @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
   public ResponseEntity<String> createFeedbackRequest(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
-      @RequestParam @NotBlank(message = ERROR_EMAIL_RECIPIENTS_EMPTY) String emailsTo,
-      @RequestParam @Size(max = 1000, message = ERROR_NOTE_DESCRIPTION_LIMIT) String notes)
+      @RequestParam @NotBlank(message = ERROR_EMPTY_EMAIL_RECIPIENTS) String emailsTo,
+      @RequestParam @Size(max = 1000, message = ERROR_LIMIT_NOTE_DESCRIPTION) String notes)
   {
     try
     {
@@ -868,8 +857,8 @@ public class EmployeeController
 
   @RequestMapping(value = "/addObjective/{employeeId}", method = POST)
   public ResponseEntity<?> addObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
-      @RequestParam @NotBlank(message = ERROR_DESCRIPTION_EMPTY) @Size(max = 2000, message = ERROR_DESCRIPTION_LIMIT) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_DESCRIPTION) @Size(max = 2000, message = ERROR_LIMIT_DESCRIPTION) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate)
   {
     try
@@ -892,8 +881,8 @@ public class EmployeeController
   @RequestMapping(value = "/editObjective/{employeeId}", method = POST)
   public ResponseEntity<?> editObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
-      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
-      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 2000, message = ERROR_LIMIT_TITLE) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate)
   {
     try
@@ -911,7 +900,7 @@ public class EmployeeController
   @RequestMapping(value = "/deleteObjective/{employeeId}", method = POST)
   public ResponseEntity<?> deleteObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
-      @RequestParam @Size(max = 1000, message = ERROR_COMMENT_LIMIT) String comment)
+      @RequestParam @Size(max = 1000, message = ERROR_LIMIT_COMMENT) String comment)
   {
     try
     {
@@ -929,7 +918,7 @@ public class EmployeeController
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
       @RequestParam @Min(value = 0, message = ERROR_PROGRESS) @Max(value = 2, message = ERROR_PROGRESS) int progress,
-      @RequestParam @Size(max = 1000, message = ERROR_COMMENT_LIMIT) String comment)
+      @RequestParam @Size(max = 1000, message = ERROR_LIMIT_COMMENT) String comment)
   {
     try
     {
@@ -966,8 +955,8 @@ public class EmployeeController
 
   @RequestMapping(value = "/proposeObjective/{employeeId}", method = POST)
   public ResponseEntity<?> proposeObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
-      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 2000, message = ERROR_LIMIT_TITLE) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
       @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails)
   {
@@ -1005,8 +994,8 @@ public class EmployeeController
   @RequestMapping(value = "/addDevelopmentNeed/{employeeId}", method = POST)
   public ResponseEntity<?> addDevelopmentNeeds(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
-      @RequestParam @NotBlank(message = ERROR_DESCRIPTION_EMPTY) @Size(max = 2000, message = ERROR_DESCRIPTION_LIMIT) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_DESCRIPTION) @Size(max = 2000, message = ERROR_LIMIT_DESCRIPTION) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
       @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
   {
@@ -1031,8 +1020,8 @@ public class EmployeeController
   public ResponseEntity<?> editDevelopmentNeed(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
-      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 150, message = ERROR_TITLE_LIMIT) String title,
-      @RequestParam @NotBlank(message = ERROR_TITLE_EMPTY) @Size(max = 2000, message = ERROR_TITLE_LIMIT) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_DESCRIPTION) @Size(max = 2000, message = ERROR_LIMIT_DESCRIPTION) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
       @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
   {
@@ -1052,7 +1041,7 @@ public class EmployeeController
   public ResponseEntity<?> deleteDevelopmentNeed(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
-      @RequestParam @Size(max = 1000, message = ERROR_COMMENT_LIMIT) String comment)
+      @RequestParam @Size(max = 1000, message = ERROR_LIMIT_COMMENT) String comment)
   {
     try
     {
@@ -1070,7 +1059,7 @@ public class EmployeeController
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
       @RequestParam @Min(value = 0, message = ERROR_PROGRESS) @Max(value = 2, message = ERROR_PROGRESS) int progress,
-      @RequestParam @Size(max = 1000, message = ERROR_COMMENT_LIMIT) String comment)
+      @RequestParam @Size(max = 1000, message = ERROR_LIMIT_COMMENT) String comment)
   {
     try
     {
@@ -1137,7 +1126,7 @@ public class EmployeeController
   @RequestMapping(value = "/addFeedback/{employeeId}", method = POST)
   public ResponseEntity<?> addFeedback(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails,
-      @RequestParam @NotBlank(message = ERROR_FEEDBACK_EMPTY) @Size(max = 5000, message = ERROR_FEEDBACK_LIMIT) String feedback)
+      @RequestParam @NotBlank(message = ERROR_EMPTY_FEEDBACK) @Size(max = 5000, message = ERROR_LIMIT_FEEDBACK) String feedback)
   {
     try
     {
@@ -1153,6 +1142,38 @@ public class EmployeeController
     {
       return badRequest().body(error(e.getMessage()));
     }
+  }
+
+  @RequestMapping(value = "/getTags/{employeeId}", method = GET)
+  public ResponseEntity<?> getTags(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
+  {
+    try
+    {
+      return ok(employeeService.getTags(employeeId));
+    }
+    catch (EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/updateFeedbackTags/{employeeId}", method = POST)
+  public ResponseEntity<?> updateFeedbackTags(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) int feedbackId,
+      @RequestParam List<Integer> objectiveIds, @RequestParam List<Integer> developmentNeedIds)
+      throws EmployeeNotFoundException
+  {
+    try
+    {
+      employeeService.updateFeedbackTags(employeeId, feedbackId, objectiveIds, developmentNeedIds);
+      return ok("Tags Updated");
+    }
+    catch (InvalidAttributeValueException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+
   }
 
 }
