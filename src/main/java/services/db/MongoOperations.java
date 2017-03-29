@@ -67,7 +67,7 @@ public class MongoOperations
 
   private final MongoDatabase mongoDB;
 
-  private MongoCollection<Document> mongoCollection;
+  private final MongoCollection<Document> mongoCollection;
 
   /**
    * MongoOperations Constructor - Responsible for initialising this object.
