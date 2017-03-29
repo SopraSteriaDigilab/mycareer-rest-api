@@ -77,7 +77,6 @@ public class EmployeeStatistics
       Map<String, Object> map = getBasicMap(e);
       map.put("lastLogon",
           (e.getLastLogon() == null) ? "Never" : Utils.DateToLocalDateTime(e.getLastLogon()).toString());
-      map.put("currentEmployee", e.getProfile().getAccountExpires() == null);
       statistics.add(map);
     });
     return statistics;
@@ -189,6 +188,7 @@ public class EmployeeStatistics
     map.put("company", employee.getProfile().getCompany());
     map.put("superSector", employee.getProfile().getSuperSector());
     map.put("department", employee.getProfile().getSteriaDepartment());
+    map.put("currentEmployee", employee.getProfile().getAccountExpires() == null);
     return map;
   }
 

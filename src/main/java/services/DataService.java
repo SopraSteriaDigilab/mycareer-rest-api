@@ -26,7 +26,7 @@ public class DataService
   {
     final List<String> emails = employeeOperations.getFieldAndUnwind(EMAIL_ADDRESSES, PROFILE_EMAIL_ADDRESSES);
 
-    LOGGER.info("Email address count is {}", emails.size());
+    LOGGER.debug("Email address count is {}", emails.size());
 
     return emails;
   }
