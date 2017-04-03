@@ -866,8 +866,10 @@ public class EmployeeService
 
     if (progress.equals(Progress.COMPLETE))
     {
+      String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
+      
       addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_OBJECTIVE,
-          employee.getProfile().getFullName(), employee.getObjectiveNEW(objectiveId).getTitle(), comment)));
+          employee.getProfile().getFullName(), employee.getObjectiveNEW(objectiveId).getTitle(), commentAdded)));
     }
   }
 
@@ -1020,7 +1022,7 @@ public class EmployeeService
 
     if (progress.equals(Progress.COMPLETE))
     {
-      addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_OBJECTIVE,
+      addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_DEVELOPMENT_NEED,
           employee.getProfile().getFullName(), employee.getDevelopmentNeedNEW(developmentNeedId).getTitle(), comment)));
     }
   }
