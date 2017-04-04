@@ -225,14 +225,14 @@ public class EmployeeService
   }
 
   /**
-   * TODO: Describe this method.
+   * Fetches a list of an employee's line reports as EmployeeProfile objects.
    *
-   * @param employeeID
-   * @return
-   * @throws InvalidAttributeValueException
+   * @param employeeID the employee
+   * @return list of the employee's line reports
+   * @throws EmployeeNotFoundException if the employee was not found in the database
    */
   public List<EmployeeProfile> getReporteesForUser(long employeeID)
-      throws EmployeeNotFoundException, InvalidAttributeValueException
+      throws EmployeeNotFoundException
   {
     Employee employee = getEmployee(employeeID);
 
@@ -241,8 +241,18 @@ public class EmployeeService
     for (String str : employee.getProfile().getReporteeCNs())
     {
       long temp = Long.parseLong(str.substring(str.indexOf('-') + 1).trim());
-
-      reporteeList.add(matchADWithMongoData(employeeProfileService.fetchEmployeeProfile(temp)));
+      EmployeeProfile profile = null;
+      try
+      {
+        profile = employeeProfileService.fetchEmployeeProfile(temp);
+        reporteeList.add(profile);
+      }
+      catch (EmployeeNotFoundException e)
+      {
+        /*
+         * This employee is not perm/internal staff
+         */
+      }
     }
     return reporteeList;
   }

@@ -51,7 +51,7 @@ public final class ADOperations
     {
       result = allResults.next();
     }
-    catch (final NamingException e)
+    catch (final NamingException | NullPointerException e)
     {
       LOGGER.error(UNKNOWN_ERROR, e);
       throw new ADConnectionException(UNKNOWN_ERROR, e);
