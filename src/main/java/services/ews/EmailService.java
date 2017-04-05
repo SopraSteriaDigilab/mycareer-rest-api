@@ -297,7 +297,7 @@ public class EmailService
       {
         employeeService.addFeedback(from, recipient.getAddress(), body, false);
       }
-      catch (InvalidAttributeValueException | NamingException | RuntimeException e)
+      catch (InvalidAttributeValueException | RuntimeException e)
       {
         errorRecipients.add(recipient);
         LOGGER.error("Exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e);
