@@ -128,9 +128,9 @@ public class EmployeeService
    *
    * @param dbConnection
    */
-  public EmployeeService(MorphiaOperations morphiaOperations,
-      MongoOperations objectivesHistoriesOperations, MongoOperations developmentNeedsHistoriesOperations,
-      MongoOperations competenciesHistoriesOperations, EmployeeProfileService employeeProfileService, Environment env)
+  public EmployeeService(MorphiaOperations morphiaOperations, MongoOperations objectivesHistoriesOperations,
+      MongoOperations developmentNeedsHistoriesOperations, MongoOperations competenciesHistoriesOperations,
+      EmployeeProfileService employeeProfileService, Environment env)
   {
     this.morphiaOperations = morphiaOperations;
     this.objectivesHistoriesOperations = objectivesHistoriesOperations;
@@ -687,45 +687,66 @@ public class EmployeeService
    * Add a feedback to an employee
    *
    * @param providerEmail
-   * @param recipientEmail
+   * @param recipientEmails
    * @param feedbackDescription
    * @throws Exception
    */
-  public void addFeedback(String providerEmail, Set<String> recipientEmail, String feedbackDescription,
+  public void addFeedback(String providerEmail, Set<String> recipientEmails, String feedbackDescription,
       boolean isFeedbackRequest) throws Exception
   {
     Validate.areStringsEmptyorNull(providerEmail, feedbackDescription);
-    Validate.areStringsEmptyorNull(recipientEmail.toArray(new String[0]));
-    Employee employee = morphiaOperations.getEmployeeFromEmailAddress(recipientEmail);
-    Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
-    String providerName = null;
+    Validate.areStringsEmptyorNull(recipientEmails.toArray(new String[0]));
+    List<String> errorRecipientList = new ArrayList<String>();
+    List<String> successfullRecipientList = new ArrayList<String>();
 
-    try
+    for (String employeeEmailAddress : recipientEmails)
     {
-      providerName = employeeProfileService.fetchEmployeeProfileFromEmailAddress(providerEmail).getFullName();
+      Employee employee = morphiaOperations.getEmployeeFromEmailAddress(employeeEmailAddress);
+      if (employee == null)
+      {
+        errorRecipientList.add(employeeEmailAddress);
+        continue;
+      }
+
+      Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
+      String providerName = null;
+
+      try
+      {
+        providerName = employeeProfileService.fetchEmployeeProfileFromEmailAddress(providerEmail).getFullName();
+      }
+      catch (final EmployeeNotFoundException e)
+      {
+        /*
+         * If this happens the provider email address is external (not SopraSteria). This is a normal operation so just
+         * swallow the exception and set provider name to provider email address
+         */
+        providerName = providerEmail;
+      }
+
+      feedback.setProviderName(providerName);
+      employee.addFeedback(feedback);
+      morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK, employee.getFeedback());
+      successfullRecipientList.add(employeeEmailAddress);
+
+      if (isFeedbackRequest)
+      {
+        String provider = (!feedback.getProviderName().isEmpty()) ? feedback.getProviderName() : providerEmail;
+        String subject = String.format("Feedback Request reply from %s", provider);
+        String body = Template.populateTemplate(env.getProperty("templates.feedback.reply"), provider);
+
+        EmailService.sendEmail(recipientEmails, subject, body);
+      }
     }
-    catch (final EmployeeNotFoundException e)
+
+    if (!errorRecipientList.isEmpty())
     {
-      /*
-       * If this happens the provider email address is external (not SopraSteria). This is a normal operation so just
-       * swallow the exception and set provider name to provider email address
-       */
-      providerName = providerEmail;
+      if (successfullRecipientList.isEmpty()) throw new InvalidAttributeValueException(
+          "Employees not found for the following Email Addresses: " + errorRecipientList.toString());
+      throw new InvalidAttributeValueException("Feedback Added for: " + successfullRecipientList.toString()
+          + ". Employees not found for the following Email Addresses: " + errorRecipientList.toString());
     }
 
-    feedback.setProviderName(providerName);
-    employee.addFeedback(feedback);
-    morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK, employee.getFeedback());
-
-    if (isFeedbackRequest)
-    {
-
-      String provider = (!feedback.getProviderName().isEmpty()) ? feedback.getProviderName() : providerEmail;
-      String subject = String.format("Feedback Request reply from %s", provider);
-      String body = Template.populateTemplate(env.getProperty("templates.feedback.reply"), provider);
-
-      EmailService.sendEmail(recipientEmail, subject, body);
-    }
   }
 
   /**
@@ -867,7 +888,7 @@ public class EmployeeService
     if (progress.equals(Progress.COMPLETE))
     {
       String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
-      
+
       addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_OBJECTIVE,
           employee.getProfile().getFullName(), employee.getObjectiveNEW(objectiveId).getTitle(), commentAdded)));
     }
@@ -1059,8 +1080,8 @@ public class EmployeeService
 
     employee.toggleCompetencyNEW(competencyTitle);
 
-    competenciesHistoriesOperations.addToCompetenciesHistory(employeeId,
-        competencyTitle.getCompetencyTitleStr(), employee.getCompetencyNEW(competencyTitle).isSelected(),
+    competenciesHistoriesOperations.addToCompetenciesHistory(employeeId, competencyTitle.getCompetencyTitleStr(),
+        employee.getCompetencyNEW(competencyTitle).isSelected(),
         employee.getCompetencyNEW(competencyTitle).getLastModified());
 
     morphiaOperations.updateEmployee(employeeId, NEW_COMPETENCIES, employee.getCompetenciesNEW());
