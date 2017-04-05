@@ -15,6 +15,7 @@ import static utils.Utils.getEmployeeIDFromRequestID;
 import static utils.Utils.localDateTimetoDate;
 import static utils.Utils.stringEmailsToHashSet;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -662,83 +663,42 @@ public class EmployeeService
         employee.getFeedbackRequestsList());
   }
 
+  /**
+   * Adding feedback from the MyCareer App.
+   *
+   * @param employeeId
+   * @param emailSet
+   * @param feedback
+   * @param isFeedbackRequest
+   * @throws Exception
+   */
   public void addFeedback(long employeeId, Set<String> emailSet, String feedback, boolean isFeedbackRequest)
       throws Exception
   {
     Employee employee = getEmployee(employeeId);
-    addFeedback(employee.getProfile().getEmailAddresses().stream().findFirst().get(), emailSet, feedback,
-        isFeedbackRequest);
-
-    String subject = String.format("Feedback from %s", employee.getProfile().getFullName());
-    String body = Template.populateTemplate(env.getProperty("templates.feedback.generic"),
-        employee.getProfile().getFullName());
-
-    EmailService.sendEmail(emailSet, subject, body);
-  }
-
-  public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
-      boolean isFeedbackRequest) throws Exception
-  {
-    final Set<String> recipientEmails = Stream.of(recipientEmail).collect(Collectors.toSet());
-    addFeedback(providerEmail, recipientEmails, feedbackDescription, isFeedbackRequest);
-  }
-
-  /**
-   * Add a feedback to an employee
-   *
-   * @param providerEmail
-   * @param recipientEmails
-   * @param feedbackDescription
-   * @throws Exception
-   */
-  public void addFeedback(String providerEmail, Set<String> recipientEmails, String feedbackDescription,
-      boolean isFeedbackRequest) throws Exception
-  {
-    Validate.areStringsEmptyorNull(providerEmail, feedbackDescription);
-    Validate.areStringsEmptyorNull(recipientEmails.toArray(new String[0]));
+    String employeeEmail = employee.getProfile().getEmailAddresses().stream().findFirst().get();
     List<String> errorRecipientList = new ArrayList<String>();
     List<String> successfullRecipientList = new ArrayList<String>();
 
-    for (String employeeEmailAddress : recipientEmails)
+    for (String email : emailSet)
     {
-      Employee employee = morphiaOperations.getEmployeeFromEmailAddress(employeeEmailAddress);
-      if (employee == null)
-      {
-        errorRecipientList.add(employeeEmailAddress);
-        continue;
-      }
-
-      Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
-      String providerName = null;
-
       try
       {
-        providerName = employeeProfileService.fetchEmployeeProfileFromEmailAddress(providerEmail).getFullName();
+        addFeedback(employeeEmail, email, feedback, isFeedbackRequest);
+        successfullRecipientList.add(email);
+
+        String subject = String.format("Feedback from %s", employee.getProfile().getFullName());
+        String body = Template.populateTemplate(env.getProperty("templates.feedback.generic"),
+            employee.getProfile().getFullName());
+
+        EmailService.sendEmail(email, subject, body);
       }
-      catch (final EmployeeNotFoundException e)
+      catch (EmployeeNotFoundException e)
       {
-        /*
-         * If this happens the provider email address is external (not SopraSteria). This is a normal operation so just
-         * swallow the exception and set provider name to provider email address
-         */
-        providerName = providerEmail;
-      }
-
-      feedback.setProviderName(providerName);
-      employee.addFeedback(feedback);
-      morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK, employee.getFeedback());
-      successfullRecipientList.add(employeeEmailAddress);
-
-      if (isFeedbackRequest)
-      {
-        String provider = (!feedback.getProviderName().isEmpty()) ? feedback.getProviderName() : providerEmail;
-        String subject = String.format("Feedback Request reply from %s", provider);
-        String body = Template.populateTemplate(env.getProperty("templates.feedback.reply"), provider);
-
-        EmailService.sendEmail(recipientEmails, subject, body);
+        errorRecipientList.add(email);
       }
     }
-
+    
     if (!errorRecipientList.isEmpty())
     {
       if (successfullRecipientList.isEmpty()) throw new InvalidAttributeValueException(
@@ -746,12 +706,52 @@ public class EmployeeService
       throw new InvalidAttributeValueException("Feedback Added for: " + successfullRecipientList.toString()
           + ". Employees not found for the following Email Addresses: " + errorRecipientList.toString());
     }
-
+    
   }
 
   /**
-   * Method that updates requested feedback to acknowledge feedback has been received then adds the feedback to the
-   * employee
+   * Adding generic feedback from feedback.uk inbox.
+   *
+   * @param providerEmail
+   * @param recipientEmail
+   * @param feedbackDescription
+   * @param isFeedbackRequest
+   * @throws Exception
+   */
+  // public void addFeedback(String providerEmail, Set<String> recipientEmails, String feedbackDescription,
+  // boolean isFeedbackRequest) throws Exception
+  // {
+  // addFeedback(providerEmail, recipientEmails, feedbackDescription, isFeedbackRequest);
+  // }
+
+  /**
+   * Add a feedback to an employee
+   *
+   * @param providerEmail
+   * @param recipientEmails
+   * @param feedbackDescription
+   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
+   */
+  public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
+      boolean isFeedbackRequest) throws InvalidAttributeValueException, EmployeeNotFoundException
+  {
+    Validate.areStringsEmptyorNull(providerEmail, feedbackDescription, recipientEmail);
+    Employee employee = morphiaOperations.getEmployeeFromEmailAddress(recipientEmail);
+    if (employee == null) throw new EmployeeNotFoundException("Employee not found with email: " + recipientEmail);
+
+    Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
+
+    String providerName = (getFullNameFromEmail(providerEmail) != null) ? getFullNameFromEmail(providerEmail)
+        : providerEmail;
+
+    feedback.setProviderName(providerName);
+    employee.addFeedback(feedback);
+    morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK, employee.getFeedback());
+  }
+
+  /**
+   * Method that adds requested feedback to an employee
    *
    * @param providerEmail
    * @param feedbackRequestID
@@ -767,12 +767,32 @@ public class EmployeeService
 
     employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
     morphiaOperations.updateEmployee(employeeID, FEEDBACK_REQUESTS, employee.getFeedbackRequestsList());
-    addFeedback(providerEmail, employee.getProfile().getEmailAddresses(), feedbackDescription, true);
+    addFeedback(providerEmail, employee.getProfile().getEmailAddresses().stream().findFirst().get(),
+        feedbackDescription, true);
+
+    String provider = (getFullNameFromEmail(providerEmail) != null) ? getFullNameFromEmail(providerEmail)
+        : providerEmail;
+
+    String subject = String.format("Feedback Request reply from %s", provider);
+    String body = Template.populateTemplate(env.getProperty("templates.feedback.reply"), provider);
+    EmailService.sendEmail(employee.getProfile().getEmailAddresses(), subject, body);
+  }
+
+  private String getFullNameFromEmail(String email)
+  {
+    try
+    {
+      return employeeProfileService.fetchEmployeeProfileFromEmailAddress(email).getFullName();
+    }
+    catch (final EmployeeNotFoundException e)
+    {
+      return null;
+    }
   }
 
   /**
    * 
-   * @param employeeId the employee IDsdfsd
+   * @param employeeId the employee ID
    * @param data the Competency to update
    * @param title the title of the competency (max 200 characters)
    * @return true or false to establish whether the task has been completed successfully or not This method inserts a
