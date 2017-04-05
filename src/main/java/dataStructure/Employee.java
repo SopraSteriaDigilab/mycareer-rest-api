@@ -127,6 +127,7 @@ public class Employee implements Serializable
    * @param objectives the list of objectives to assign to an employee
    * @throws InvalidAttributeValueException
    */
+  @Deprecated
   public void setObjectiveList(List<List<Objective_OLD>> objectives) throws InvalidAttributeValueException
   {
     if (objectives != null)
@@ -156,6 +157,7 @@ public class Employee implements Serializable
     else throw new InvalidAttributeValueException(Constants.NULL_OBJECTIVELIST);
   }
 
+  @Deprecated
   public List<List<Objective_OLD>> getObjectiveList()
   {
     return this.oldObjectives;
@@ -165,6 +167,7 @@ public class Employee implements Serializable
    * 
    * @return a list containing only the latest version of each objective
    */
+  @Deprecated
   public List<Objective_OLD> getLatestVersionObjectives()
   {
     List<Objective_OLD> organisedList = new ArrayList<Objective_OLD>();
@@ -193,6 +196,7 @@ public class Employee implements Serializable
    * @return the objective data
    * @throws InvalidAttributeValueException
    */
+  @Deprecated
   public Objective_OLD getLatestVersionOfSpecificObjective(int id) throws InvalidAttributeValueException
   {
     // Search for the objective with the given ID
@@ -227,6 +231,7 @@ public class Employee implements Serializable
    * @param developments the List<List<DevelopmentNeed> to copy the data from
    * @throws InvalidAttributeValueException
    */
+  @Deprecated
   public void setDevelopmentNeedsList(List<List<DevelopmentNeed_OLD>> developments)
       throws InvalidAttributeValueException
   {
@@ -263,6 +268,7 @@ public class Employee implements Serializable
    * 
    * @return List<List<DevelopmentNeed>
    */
+  @Deprecated
   public List<List<DevelopmentNeed_OLD>> getDevelopmentNeedsList()
   {
     return this.oldDevelopmentNeeds;
@@ -274,6 +280,7 @@ public class Employee implements Serializable
    * 
    * @return List<DevelopmentNeed>
    */
+  @Deprecated
   public List<DevelopmentNeed_OLD> getLatestVersionDevelopmentNeeds()
   {
     List<DevelopmentNeed_OLD> organisedList = new ArrayList<DevelopmentNeed_OLD>();
@@ -302,6 +309,7 @@ public class Employee implements Serializable
    * 
    * @param id development need ID @return the DevelopmentNeed data object @throws
    */
+  @Deprecated
   public DevelopmentNeed_OLD getLatestVersionOfSpecificDevelopmentNeed(int id) throws InvalidAttributeValueException
   {
     // Verify if the id is valid
@@ -363,34 +371,6 @@ public class Employee implements Serializable
     throw new InvalidAttributeValueException("Feedback Request does not exist.");
   }
 
-  // /**
-  // *
-  // * This method retrieves a specific feedback request based
-  // *
-  // * @param id
-  // * @return
-  // * @throws InvalidAttributeValueException
-  // */
-  // public String removeSpecificFeedbackRequest(String fbID) throws InvalidAttributeValueException{
-  // if(fbID!=null && !fbID.equals("")){
-  // for(int i=0; i<groupFeedbackRequests.size(); i++){
-  // if(groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID)!=null){
-  // //Remove the full group Request Feedback if it contains only 1 feedback request
-  // String emailRecipient=groupFeedbackRequests.get(i).searchFeedbackRequestID(fbID).getRecipient();
-  // if(groupFeedbackRequests.get(i).getRequestList().size()==1)
-  // groupFeedbackRequests.remove(i);
-  // //Alternatively, remove the given feedback request
-  // else
-  // groupFeedbackRequests.get(i).removeFeedbackRequest(fbID);
-  // //Return the email address found
-  // return emailRecipient;
-  // }
-  // }
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_NOTFOUND_CONTEXT);
-  // }
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKREQ_ID_CONTEXT);
-  // }
-
   /**
    * 
    * This method inserts all the competencies from another list, validating each element before inserting
@@ -398,6 +378,7 @@ public class Employee implements Serializable
    * @param developments the List<List<Competencies> to copy the data from
    * @throws InvalidAttributeValueException
    */
+  @Deprecated
   public void setCompetenciesList(List<List<Competency_OLD>> comps) throws InvalidAttributeValueException
   {
     if (comps != null)
@@ -431,6 +412,7 @@ public class Employee implements Serializable
    * 
    * @return List<List<competencies>
    */
+  @Deprecated
   public List<List<Competency_OLD>> getCompetenciesList()
   {
     if (this.oldCompetencies.size() == 0)
@@ -452,6 +434,7 @@ public class Employee implements Serializable
    * 
    * @return List<Competencies>
    */
+  @Deprecated
   public List<Competency_OLD> getLatestVersionCompetencies()
   {
     List<Competency_OLD> organisedList = new ArrayList<Competency_OLD>();
@@ -511,6 +494,7 @@ public class Employee implements Serializable
    * @return the Competency data object
    * @throws InvalidAttributeValueException
    */
+  @Deprecated
   public Competency_OLD getLatestVersionOfSpecificCompetency(int id) throws InvalidAttributeValueException
   {
     // Verify if the id is valid
@@ -557,6 +541,7 @@ public class Employee implements Serializable
    * @return
    * @throws InvalidAttributeValueException
    */
+  @Deprecated
   public boolean addObjective(Objective_OLD obj) throws InvalidAttributeValueException
   {
     if (oldObjectives == null) oldObjectives = new ArrayList<List<Objective_OLD>>();
@@ -583,6 +568,7 @@ public class Employee implements Serializable
    * @return
    * @throws InvalidAttributeValueException
    */
+  @Deprecated
   public boolean editObjective(Objective_OLD obj) throws InvalidAttributeValueException
   {
     // Verify that the object is not null
@@ -619,6 +605,7 @@ public class Employee implements Serializable
    * @return a boolean value that indicates whether the task has been successfully or not
    * @throws InvalidAttributeValueException
    */
+  @Deprecated
   public boolean addDevelopmentNeed(DevelopmentNeed_OLD obj) throws InvalidAttributeValueException
   {
     if (oldDevelopmentNeeds == null) oldDevelopmentNeeds = new ArrayList<List<DevelopmentNeed_OLD>>();
@@ -646,6 +633,7 @@ public class Employee implements Serializable
    * @return a boolean value that indicates whether the task has been successfully or not
    * @throws InvalidAttributeValueException
    */
+  @Deprecated
   public boolean editDevelopmentNeed(DevelopmentNeed_OLD obj) throws InvalidAttributeValueException
   {
     // Verify that the object is not null
@@ -688,6 +676,7 @@ public class Employee implements Serializable
    * @return a boolean value that indicates whether the task has been successfully or not
    * @throws InvalidAttributeValueException
    */
+  @Deprecated
   public boolean updateCompetency(Competency_OLD obj, String title) throws InvalidAttributeValueException
   {
     // Check if the number of competencies has changed
@@ -740,6 +729,7 @@ public class Employee implements Serializable
    * @param o (An Objective or Development Need)
    * @return List (or Objectives or Development Needs)
    */
+  @Deprecated
   private static void sortObjectivesByTimeToComplete(List<Objective_OLD> objectivesList)
   {
     Collections.sort(objectivesList, new Comparator<Objective_OLD>()
@@ -757,6 +747,7 @@ public class Employee implements Serializable
     });
   }
 
+  @Deprecated
   private static void sortDevNeedsByTimeToComplete(List<DevelopmentNeed_OLD> devNeeds)
   {
     Collections.sort(devNeeds, new Comparator<DevelopmentNeed_OLD>()
@@ -814,10 +805,12 @@ public class Employee implements Serializable
   public boolean deleteObjectiveNEW(int objectiveId) throws InvalidAttributeValueException
   {
     Objective objective = getObjectiveNEW(objectiveId);
+    
+    if (!objective.getArchived()){
+      throw new InvalidAttributeValueException("Objective must be archived before deleting.");}
 
-    if (!objective.getArchived())
-      throw new InvalidAttributeValueException("Objective must be archived before deleting.");
-
+    notes.forEach(n -> n.removeObjectiveTag(objectiveId));
+    
     return this.getObjectivesNEW().remove(objective);
   }
 
@@ -901,6 +894,8 @@ public class Employee implements Serializable
     if (!developmentNeed.getArchived())
       throw new InvalidAttributeValueException("Development Need must be archived before deleting.");
 
+    notes.forEach(n -> n.removeDevelopmentNeedTag(developmentNeedId));
+    
     return this.getDevelopmentNeedsNEW().remove(developmentNeed);
   }
 

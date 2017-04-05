@@ -1,13 +1,10 @@
 package dataStructure;
 
-import static application.GlobalExceptionHandler.*;
 import static dataStructure.Constants.UK_TIMEZONE;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -59,6 +56,28 @@ public class Note implements Serializable
     this.setTimestamp();
     taggedObjectiveIds = new HashSet<>();
     taggedDevelopmentNeedIds = new HashSet<>();
+  }  
+  
+  /**
+   * Removes a development need from taggedDevelopmentNeedIds.
+   *
+   * @param id
+   * @return {@code true} if the developmentNeedId existed in the map and was succesfully removed. {@code false} otherwise.
+   */
+  public boolean removeDevelopmentNeedTag(final Integer id)
+  {
+    return taggedDevelopmentNeedIds.remove(id);
+  }
+  
+  /**
+   * Removes an objective from taggedObjectiveIds.
+   *
+   * @param id
+   * @return {@code true} if the objectiveId existed in the map and was succesfully removed. {@code false} otherwise.
+   */
+  public boolean removeObjectiveTag(final Integer id)
+  {
+    return taggedObjectiveIds.remove(id);
   }
 
   /** @return the id */

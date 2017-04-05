@@ -698,7 +698,7 @@ public class EmployeeService
         errorRecipientList.add(email);
       }
     }
-    
+
     if (!errorRecipientList.isEmpty())
     {
       if (successfullRecipientList.isEmpty()) throw new InvalidAttributeValueException(
@@ -706,7 +706,7 @@ public class EmployeeService
       throw new InvalidAttributeValueException("Feedback Added for: " + successfullRecipientList.toString()
           + ". Employees not found for the following Email Addresses: " + errorRecipientList.toString());
     }
-    
+
   }
 
   /**
@@ -871,18 +871,18 @@ public class EmployeeService
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-
     Document deletedId = new Document(
         objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()));
-
     String title = employee.getObjectiveNEW(objectiveId).getTitle();
 
     employee.deleteObjectiveNEW(objectiveId);
-
     objectivesHistoriesOperations.addToObjDevHistory(deletedId,
         new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
+    // TODO Make these update operations a single call to the db. As it stands this has the potential to cause
+    // inconsistency or undesirable results in the db as one call may succeed when the other doesn't.
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
+    morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
 
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
@@ -1027,19 +1027,19 @@ public class EmployeeService
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-
     Document deletedId = new Document(developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
         employee.getDevelopmentNeedNEW(developmentNeedId).getCreatedOn()));
-
     String title = employee.getDevelopmentNeedNEW(developmentNeedId).getTitle();
 
     employee.deleteDevelopmentNeedNEW(developmentNeedId);
-
     developmentNeedsHistoriesOperations.addToObjDevHistory(deletedId,
         new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
+    // TODO Make these update operations a single call to the db. As it stands this has the potential to cause
+    // inconsistency or undesirable results in the db as one call may succeed when the other doesn't.
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
-
+    morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
+    
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
     addNote(employeeId, new Note(AUTO_GENERATED,

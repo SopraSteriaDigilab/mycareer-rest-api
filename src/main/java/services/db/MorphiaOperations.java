@@ -1,12 +1,14 @@
 package services.db;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 
+import dataStructure.DBObject;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 
@@ -50,7 +52,7 @@ public class MorphiaOperations
 
     return employee;
   }
-  
+
   /**
    * Retrieves an employee object from the database by matching the given email address
    *
@@ -64,7 +66,7 @@ public class MorphiaOperations
 
     return getEmployeeFromEmailAddress(emailAddresses);
   }
-  
+
   /**
    * 
    * Retrieves an employee object from the database by matching the given email addresses
@@ -75,7 +77,7 @@ public class MorphiaOperations
   public Employee getEmployeeFromEmailAddress(final Set<String> emailAddresses)
   {
     Employee employee = datastore.find(Employee.class).filter(in(EMAIL_ADDRESSES), emailAddresses).get();
-    
+
     return employee;
   }
 
@@ -93,9 +95,19 @@ public class MorphiaOperations
 
     return profile;
   }
-  
+
+  // This currently is private, untested and unused, but may be used in future to update multiple fields in a single db
+  // call
+  private <T extends DBObject> void updateEmployee(final long employeeID, final Map<String, T> updates)
+  {
+    UpdateOperations<Employee> ops = datastore.createUpdateOperations(Employee.class);
+    updates.forEach((k, v) -> ops.set(k, v));
+    datastore.update(getEmployeeQuery(EMPLOYEE_ID, employeeID), ops);
+  }
+
   /**
-   * Updates an aspect of an employee's data using the given criteria.  These include Objectives, Notes, and Development Needs.
+   * Updates an aspect of an employee's data using the given criteria. These include Objectives, Notes, and Development
+   * Needs.
    *
    * @param employeeID the employee ID of the employee to update
    * @param updateField the field/aspect to update
@@ -103,8 +115,7 @@ public class MorphiaOperations
    */
   public <T> void updateEmployee(final long employeeID, final String updateField, final T updateObject)
   {
-    UpdateOperations<Employee> ops = datastore.createUpdateOperations(Employee.class).set(updateField,
-        updateObject);
+    UpdateOperations<Employee> ops = datastore.createUpdateOperations(Employee.class).set(updateField, updateObject);
     datastore.update(getEmployeeQuery(EMPLOYEE_ID, employeeID), ops);
   }
 
