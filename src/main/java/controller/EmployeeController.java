@@ -65,6 +65,8 @@ public class EmployeeController
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
   private static final String ERROR_OBJECTIVE_ID = "The given Objective ID is invalid";
   private static final String ERROR_DEVELOPMENT_NEED_ID = "The given Development Need ID is invalid";
+  private static final String ERROR_NOTE_ID = "The given Note ID is invalid";
+  private static final String ERROR_FEEDBACK_ID = "The given Feedback ID is invalid";
   private static final String ERROR_LIMIT_TITLE = "Max Title length is 150 characters";
   private static final String ERROR_EMPTY_TITLE = "Title can not be empty";
   private static final String ERROR_LIMIT_PROVIDER_NAME = "Max Provider Name length is 150 characters.";
@@ -88,6 +90,7 @@ public class EmployeeController
 
   private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
   private static final String[] PROGRESS_LIST = { "PROPOSED", "IN_PROGRESS", "COMPLETE" };
+
 
   @Autowired
   private EmployeeService employeeService;
@@ -1160,7 +1163,7 @@ public class EmployeeController
   @RequestMapping(value = "/updateFeedbackTags/{employeeId}", method = POST)
   public ResponseEntity<?> updateFeedbackTags(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) int feedbackId,
+      @RequestParam @Min(value = 1, message = ERROR_FEEDBACK_ID) int feedbackId,
       @RequestParam Set<Integer> objectiveIds, @RequestParam Set<Integer> developmentNeedIds)
       throws EmployeeNotFoundException
   {
@@ -1178,7 +1181,7 @@ public class EmployeeController
   @RequestMapping(value = "/updateNotesTags/{employeeId}", method = POST)
   public ResponseEntity<?> updateNotesTags(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) int noteId,
+      @RequestParam @Min(value = 0, message = ERROR_NOTE_ID) int noteId,
       @RequestParam Set<Integer> objectiveIds, @RequestParam Set<Integer> developmentNeedIds)
       throws EmployeeNotFoundException
   {
