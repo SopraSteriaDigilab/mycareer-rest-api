@@ -122,6 +122,11 @@ public class EmployeeService
 
     return employee;
   }
+  
+  public Employee getEmployeeNullable(final long employeeID)
+  {
+    return morphiaOperations.getEmployee(EMPLOYEE_ID, employeeID);
+  }
 
   /**
    * Gets full name of a user from the database
@@ -726,8 +731,8 @@ public class EmployeeService
       throw new InvalidAttributeValueException(INVALID_DEVNEED_OR_EMPLOYEEID);
     }
 
-    Employee e = getEmployee(profileFromAD.getEmployeeID());
-
+    Employee e = getEmployeeNullable(profileFromAD.getEmployeeID());
+    
     if (e != null)
     {
       final boolean needsUpdate = !e.getProfile().equals(profileFromAD);

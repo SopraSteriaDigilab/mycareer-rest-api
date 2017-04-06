@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -19,21 +18,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dataStructure.EmployeeProfile;
+import services.EmployeeProfileService;
 
 //TODO Update map methods to user map string/chain eachother
 //TODO remove sopra
-public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, EmployeeProfile>
+public class EmployeeProfileMapper// implements Mapper<SearchResult, EmployeeProfile>
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileMapper.class);
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
   private static final String REPORTEES_NOT_FOUND = "Exception while fetching reportees: {}";
+  private static final String NOT_AN_EMPLOYEE = "Cannot create an EmployeeProfile: employeeType is not \"EMP\"";
   private static final String EMPLOYEE_NOT_FOUND = "Cannot create an EmployeeProfile: Exception thrown while fetching employeeID: ";
   private static final String HR_PERMISSION_NOT_FOUND = "Exception while fetching HR Dashboard Permission: {}";
-  private static final String SECTOR_NOT_FOUND = "Exception while fetching sector: {}";
   private static final String ATTRIBUTE_NOT_FOUND = "Exception while fetching attribute, {}: {}";
-  private static final String ACCOUNT_EXPIRES_NOT_FOUND = "Exception while fetching account expires: {}";
 
+  private static final String EMPLOYEE_TYPE = "employeeType";
+  private static final String EMPLOYEE = "EMP";
   private static final String SN = "sn";
   private static final String GIVEN_NAME = "givenName";
   private static final String MAIL = "mail";
@@ -51,38 +52,41 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
 
   private EmployeeProfile profile = new EmployeeProfile();
 
-  public EmployeeProfile map(Optional<SearchResult> steriaEmployeeProfile, Optional<SearchResult> sopraEmployeeProfile)
+  public EmployeeProfile map(final SearchResult steriaEmployeeProfile)
   {
-    // sopraEmployeeProfile.ifPresent(this::setSopraDetails);
-    steriaEmployeeProfile.ifPresent(this::setSteriaDetails);
+    setSteriaDetails(steriaEmployeeProfile);
 
     return profile;
   }
-
-  // private void setSopraDetails(SearchResult sopraEmployeeProfile) throws InvalidEmployeeProfileException
-  // {
-  // final Attributes attributes = sopraEmployeeProfile.getAttributes();
-  //
-  // profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_7))
-  // .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
-  // .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddress(mapString(MAIL, attributes))
-  // .company(mapString(COMPANY, attributes)).sopraDepartment(mapString(DEPARTMENT, attributes))
-  // .guid(mapGUID(attributes)).hasHRDash(mapHRPermission(attributes)).build();
-  // }
 
   private void setSteriaDetails(SearchResult steriaEmployeeProfile) throws InvalidEmployeeProfileException
   {
     final Attributes attributes = steriaEmployeeProfile.getAttributes();
 
+    // The following is to be added once non-employees are confirmed to have been purged from the db
+    // if (isEmployee(attributes))
+    // {
+    // throw new InvalidEmployeeProfileException(NOT_AN_EMPLOYEE);
+    // }
+
     profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_2))
-        .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
-        .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddress(mapString(MAIL, attributes))
-        .company(mapString(COMPANY, attributes)).superSector(mapString(OU, attributes)).sector(mapSector(attributes))
+        .employeeType(mapString(EMPLOYEE_TYPE, attributes)).forename(mapString(GIVEN_NAME, attributes))
+        .surname(mapString(SN, attributes)).username(mapString(SAM_ACCOUNT_NAME, attributes))
+        .emailAddress(mapString(MAIL, attributes)).company(mapString(COMPANY, attributes))
+        .superSector(mapString(OU, attributes)).sector(mapSector(attributes))
         .steriaDepartment(mapString(DEPARTMENT, attributes)).manager(mapIsManager(attributes))
         .reporteeCNs(mapReporteeCNs(attributes)).accountExpires(mapAccountExpires(attributes)).build();
   }
 
-  private boolean mapIsManager(Attributes attributes)
+  private boolean isEmployee(final Attributes attributes)
+  {
+    final String employeeType = mapString(EMPLOYEE_TYPE, attributes);
+    final boolean isEmployee = EMPLOYEE.equals(employeeType);
+
+    return isEmployee;
+  }
+
+  private boolean mapIsManager(final Attributes attributes)
   {
     final Attribute directReports = attributes.get(DIRECT_REPORTS);
 
@@ -90,7 +94,7 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
   }
 
   @SuppressWarnings("unchecked")
-  private List<String> mapReporteeCNs(Attributes attributes)
+  private List<String> mapReporteeCNs(final Attributes attributes)
   {
     if (!mapIsManager(attributes))
     {
@@ -181,14 +185,12 @@ public class EmployeeProfileMapper implements Mapper<Optional<SearchResult>, Emp
   private Date mapAccountExpires(final Attributes attributes)
   {
     final String result = mapString(ACCOUNT_EXPIRES, attributes);
-    
-    // the date is returned as micros since unix epoch in String form
-    // the leaving date should be recent
+
     if (result.length() < 18)
     {
       return null;
     }
-    
+
     return ldapTimestampToDate(result);
   }
 

@@ -18,9 +18,6 @@ import org.springframework.context.annotation.Configuration;
 
 import services.ad.ADSearchSettings;
 import services.ad.ADSearchSettingsImpl;
-import utils.sequence.Sequence;
-import utils.sequence.SequenceException;
-import utils.sequence.StringSequence;
 
 @Configuration
 public class ADConfig
@@ -46,8 +43,8 @@ public class ADConfig
   private static final String AD_STERIA_LOGIN_TREE = "OU=Service Accounts,OU=UKCentral,OU=UK,OU=Resources,DC=one,DC=steria,DC=dom";
   private static final String AD_STERIA_PRINCIPAL = new StringBuilder("cn=").append(AD_STERIA_USERNAME).append(",")
       .append(AD_STERIA_LOGIN_TREE).toString();
-  private static final String[] AD_STERIA_ATTRIBUTES = { "sn", "givenName", "mail", "targetAddress",
-      "extensionAttribute2", "sAMAccountName", "directReports", "department", "SteriaSectorUnit", "ou", "company",
+  private static final String[] AD_STERIA_ATTRIBUTES = { "extensionAttribute2", "employeeType", "sn", "givenName",
+      "sAMAccountName", "mail", "targetAddress", "company", "department", "SteriaSectorUnit", "ou", "directReports",
       "accountExpires" };
 
   @Bean
@@ -69,14 +66,14 @@ public class ADConfig
   public Hashtable<String, String> sopraADSettings()
   {
     final Hashtable<String, String> sopraADSettings = new Hashtable<>();
-    
+
     sopraADSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
     sopraADSettings.put(PROVIDER_URL, AD_SOPRA_URL);
     sopraADSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
     sopraADSettings.put(SECURITY_PRINCIPAL, AD_SOPRA_PRINCIPAL);
     sopraADSettings.put(SECURITY_CREDENTIALS, AD_SOPRA_PASSWORD);
     sopraADSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
-    
+
     return sopraADSettings;
   }
 

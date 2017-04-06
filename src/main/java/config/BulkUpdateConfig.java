@@ -9,9 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import services.BulkUpdateService;
 import services.EmployeeService;
 import services.ad.ADSearchSettings;
-import utils.sequence.Sequence;
 import utils.sequence.SequenceException;
-import utils.sequence.StringSequence;
 
 @Configuration
 public class BulkUpdateConfig
