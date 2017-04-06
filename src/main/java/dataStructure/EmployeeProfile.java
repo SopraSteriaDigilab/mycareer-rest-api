@@ -23,6 +23,9 @@ public class EmployeeProfile implements Serializable
   /** long Property - Represents the employee id */
   private long employeeID;
 
+  /** String property - Represents the employee type */
+  private String employeeType;
+
   /** String Property - Represents the employee surname. */
   private String surname;
 
@@ -80,6 +83,7 @@ public class EmployeeProfile implements Serializable
   public EmployeeProfile(Builder builder)
   {
     this.employeeID = builder.employeeID;
+    this.employeeType = builder.employeeType;
     this.surname = builder.surname;
     this.forename = builder.forename;
     this.username = builder.username;
@@ -106,6 +110,18 @@ public class EmployeeProfile implements Serializable
   public void setEmployeeID(long employeeID)
   {
     this.employeeID = employeeID;
+  }
+
+  /** @return the employeeType */
+  public String getEmployeeType()
+  {
+    return employeeType;
+  }
+
+  /** @param employeeType The value to set. */
+  public void setEmployeeType(String employeeType)
+  {
+    this.employeeType = employeeType;
   }
 
   /** @return the surname */
@@ -329,8 +345,9 @@ public class EmployeeProfile implements Serializable
 
     EmployeeProfile employeeProfile = (EmployeeProfile) o;
 
-    return employeeID == employeeProfile.employeeID && Objects.equals(surname, employeeProfile.surname)
-        && Objects.equals(forename, employeeProfile.forename) && Objects.equals(username, employeeProfile.username)
+    return employeeID == employeeProfile.employeeID && Objects.equals(employeeType, employeeProfile.employeeType)
+        && Objects.equals(surname, employeeProfile.surname) && Objects.equals(forename, employeeProfile.forename)
+        && Objects.equals(username, employeeProfile.username)
         && Objects.equals(emailAddress, employeeProfile.emailAddress) && isManager == employeeProfile.isManager
         && Objects.equals(hasHRDash, employeeProfile.hasHRDash) && Objects.equals(company, employeeProfile.company)
         && Objects.equals(steriaDepartment, employeeProfile.steriaDepartment)
@@ -349,17 +366,18 @@ public class EmployeeProfile implements Serializable
   @Override
   public int hashCode()
   {
-    return Objects.hash(employeeID, surname, forename, username, emailAddress, isManager, hasHRDash, company,
-        steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
+    return Objects.hash(employeeID, employeeType, surname, forename, username, emailAddress, isManager, hasHRDash,
+        company, steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
   }
 
   @Override
   public String toString()
   {
-    return "EmployeeProfile [employeeID=" + employeeID + ", surname=" + surname + ", forename=" + forename
-        + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager=" + isManager + ", hasHRDash="
-        + hasHRDash + ", company=" + company + ", steriaDepartment=" + steriaDepartment + ", sector=" + sector
-        + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + ", accountExpires=" + accountExpires + "]";
+    return "EmployeeProfile [employeeID=" + employeeID + ", employeeType=" + employeeType + ", surname=" + surname
+        + ", forename=" + forename + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager="
+        + isManager + ", hasHRDash=" + hasHRDash + ", company=" + company + ", steriaDepartment=" + steriaDepartment
+        + ", sector=" + sector + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + ", accountExpires="
+        + accountExpires + "]";
   }
 
   public static class Builder
@@ -367,6 +385,9 @@ public class EmployeeProfile implements Serializable
 
     /** long Property - Represents the employee id */
     private long employeeID;
+
+    /** String Property - Represents the employee type. */
+    private String employeeType;
 
     /** String Property - Represents the employee surname. */
     private String surname;
@@ -414,6 +435,13 @@ public class EmployeeProfile implements Serializable
     public Builder employeeID(long employeeID)
     {
       this.employeeID = employeeID;
+      return this;
+    }
+
+    /** @param employeeType The value to set. */
+    public Builder employeeType(String employeeType)
+    {
+      this.employeeType = employeeType;
       return this;
     }
 

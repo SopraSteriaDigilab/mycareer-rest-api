@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
@@ -43,7 +42,8 @@ public class BulkUpdateService
     this.steriaADSearchSettings = steriaADSearchSettings;
   }
 
-  @Scheduled(cron = "0 30 23 * * ?")
+//  @Scheduled(cron = "0 30 23 * * ?")
+  @Scheduled(fixedRate = 1_000_000_000)
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
     final Instant startADOps = Instant.now();
@@ -97,13 +97,13 @@ public class BulkUpdateService
     // There are approximately 6,200 employees, hence initial capacity of 10,000
     final List<EmployeeProfile> allEmployeeProfiles = new ArrayList<>(10_000);
     final List<SearchResult> steriaList = searchAD(steriaADSearchSettings, AD_TREE, steriaFilterSequence());
-    steriaList.addAll(searchADAsList(steriaADSearchSettings, AD_UNUSED_OBJECT_TREE, "CN=*"));
+    steriaList.addAll(searchADAsList(steriaADSearchSettings, AD_UNUSED_OBJECT_TREE, "(&(CN=*)(extensionAttribute2=*)(employeeType=*))"));
 
     for (final SearchResult result : steriaList)
     {
       try
       {
-        EmployeeProfile profile = new EmployeeProfileMapper().map(Optional.ofNullable(result), Optional.empty());
+        EmployeeProfile profile = new EmployeeProfileMapper().map(result);
         allEmployeeProfiles.add(profile);
       }
       catch (InvalidEmployeeProfileException e)
@@ -124,8 +124,8 @@ public class BulkUpdateService
   // TODO this doesn't belong here
   private Sequence<String> steriaFilterSequence() throws SequenceException
   {
-    return new StringSequence.StringSequenceBuilder().initial("CN=A*") // first call to next() will return this
-        .characterToChange(3) // 'A'
+    return new StringSequence.StringSequenceBuilder().initial("(&(CN=A*)(extensionAttribute2=*)(employeeType=*))") // first call to next() will return this
+        .characterToChange(6) // 'A'
         .increment(1) // increment by one character
         .size(26) // 26 Strings in the sequence
         .build();
