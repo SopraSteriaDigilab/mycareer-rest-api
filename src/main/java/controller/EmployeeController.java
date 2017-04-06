@@ -732,8 +732,7 @@ public class EmployeeController
       {
         try
         {
-          EmployeeProfile userInQuestion = employeeService
-              .matchADWithMongoData(employeeProfileService.fetchEmployeeProfile(email));
+          EmployeeProfile userInQuestion = employeeProfileService.fetchEmployeeProfile(email);
           Objective obj = new Objective(0, 0, title, description, completedBy);
           obj.setProposedBy(proposedBy);
           boolean inserted = employeeService.insertNewObjective(userInQuestion.getEmployeeID(), obj);

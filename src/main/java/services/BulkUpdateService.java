@@ -42,8 +42,7 @@ public class BulkUpdateService
     this.steriaADSearchSettings = steriaADSearchSettings;
   }
 
-//  @Scheduled(cron = "0 30 23 * * ?")
-  @Scheduled(fixedRate = 1_000_000_000)
+  @Scheduled(cron = "0 30 23 * * ?")
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
     final Instant startADOps = Instant.now();
@@ -67,6 +66,7 @@ public class BulkUpdateService
          * swallow this exception as matchADWithMongoData already logs it besides, we are concerned with the hundreds,
          * not the one
          */
+        LOGGER.info(profile.toString());
         notUpdatedCount++;
       }
       catch (Exception e)
