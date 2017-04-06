@@ -27,7 +27,7 @@ public class ADConfig
   private static final String AUTHENTICATION = "simple";
   private static final String LDAP_CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
   private static final String TIMEOUT_ATTRIBUTE_KEY = "com.sun.jndi.ldap.read.timeout";
-  private static final String TIMEOUT_ATTRIBUTE = "30_000";
+  private static final String TIMEOUT_ATTRIBUTE = "30000";
 
   private static final String AD_SOPRA_HOST = "ldap://duns.ldap-ad.dmsi.corp.sopra";
   private static final String AD_SOPRA_URL = AD_SOPRA_HOST.concat(":389");
