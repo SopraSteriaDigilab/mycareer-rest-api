@@ -63,11 +63,10 @@ public class EmployeeProfileMapper// implements Mapper<SearchResult, EmployeePro
   {
     final Attributes attributes = steriaEmployeeProfile.getAttributes();
 
-    // The following is to be added once non-employees are confirmed to have been purged from the db
-    // if (isEmployee(attributes))
-    // {
-    // throw new InvalidEmployeeProfileException(NOT_AN_EMPLOYEE);
-    // }
+    if (!isEmployee(attributes))
+    {
+      throw new InvalidEmployeeProfileException(NOT_AN_EMPLOYEE);
+    }
 
     profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_2))
         .employeeType(mapString(EMPLOYEE_TYPE, attributes)).forename(mapString(GIVEN_NAME, attributes))
