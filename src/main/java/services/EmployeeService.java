@@ -883,6 +883,7 @@ public class EmployeeService
     // inconsistency or undesirable results in the db as one call may succeed when the other doesn't.
     morphiaOperations.updateEmployee(employeeId, NEW_OBJECTIVES, employee.getObjectivesNEW());
     morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
+    morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
 
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
@@ -1039,6 +1040,7 @@ public class EmployeeService
     // inconsistency or undesirable results in the db as one call may succeed when the other doesn't.
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
     morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
+    morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
     
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
