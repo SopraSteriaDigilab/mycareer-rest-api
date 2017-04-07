@@ -42,8 +42,7 @@ public class BulkUpdateService
     this.steriaADSearchSettings = steriaADSearchSettings;
   }
 
-//  @Scheduled(cron = "0 30 23 * * ?")
-  @Scheduled(fixedRate = 1_000_000_000)
+  @Scheduled(cron = "0 30 23 * * ?")
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
     final Instant startADOps = Instant.now();
