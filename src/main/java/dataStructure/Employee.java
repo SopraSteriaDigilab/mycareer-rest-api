@@ -810,6 +810,7 @@ public class Employee implements Serializable
       throw new InvalidAttributeValueException("Objective must be archived before deleting.");}
 
     notes.forEach(n -> n.removeObjectiveTag(objectiveId));
+    feedback.forEach(f -> f.removeObjectiveTag(objectiveId));
     
     return this.getObjectivesNEW().remove(objective);
   }
@@ -895,6 +896,7 @@ public class Employee implements Serializable
       throw new InvalidAttributeValueException("Development Need must be archived before deleting.");
 
     notes.forEach(n -> n.removeDevelopmentNeedTag(developmentNeedId));
+    feedback.forEach(f -> f.removeDevelopmentNeedTag(developmentNeedId));
     
     return this.getDevelopmentNeedsNEW().remove(developmentNeed);
   }

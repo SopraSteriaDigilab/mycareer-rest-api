@@ -151,5 +151,27 @@ public class Feedback extends DBObject
   {
     this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
+  
+  /**
+   * Removes a development need from taggedDevelopmentNeedIds.
+   *
+   * @param id
+   * @return {@code true} if the developmentNeedId existed in the map and was succesfully removed. {@code false} otherwise.
+   */
+  public boolean removeDevelopmentNeedTag(final Integer id)
+  {
+    return taggedDevelopmentNeedIds.remove(id);
+  }
+  
+  /**
+   * Removes an objective from taggedObjectiveIds.
+   *
+   * @param id
+   * @return {@code true} if the objectiveId existed in the map and was succesfully removed. {@code false} otherwise.
+   */
+  public boolean removeObjectiveTag(final Integer id)
+  {
+    return taggedObjectiveIds.remove(id);
+  }
 
 }
