@@ -68,6 +68,9 @@ public class Employee implements Serializable
   @Embedded
   private List<Competency> competencies;
 
+  @Embedded
+  private List<Rating> ratings;
+
   /** Date Property - Represents the date of the last logon for the user */
   private Date lastLogon;
 
@@ -83,6 +86,7 @@ public class Employee implements Serializable
     this.feedbackRequests = new ArrayList<FeedbackRequest>();
     this.oldCompetencies = new ArrayList<List<Competency_OLD>>();
     this.setCompetenciesNEW();
+    this.ratings = new ArrayList<Rating>();
   }
 
   /** Default Constructor - Responsible for initialising this object. */
@@ -529,6 +533,18 @@ public class Employee implements Serializable
     this.lastLogon = lastLogon;
   }
 
+  /** @return the ratings */
+  public List<Rating> getRatings()
+  {
+    return ratings;
+  }
+
+  /** @param ratings The value to set. */
+  public void setRatings(List<Rating> ratings)
+  {
+    this.ratings = ratings;
+  }
+
   public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException
   {
     isNull(feedback);
@@ -805,13 +821,15 @@ public class Employee implements Serializable
   public boolean deleteObjectiveNEW(int objectiveId) throws InvalidAttributeValueException
   {
     Objective objective = getObjectiveNEW(objectiveId);
-    
-    if (!objective.getArchived()){
-      throw new InvalidAttributeValueException("Objective must be archived before deleting.");}
+
+    if (!objective.getArchived())
+    {
+      throw new InvalidAttributeValueException("Objective must be archived before deleting.");
+    }
 
     notes.forEach(n -> n.removeObjectiveTag(objectiveId));
     feedback.forEach(f -> f.removeObjectiveTag(objectiveId));
-    
+
     return this.getObjectivesNEW().remove(objective);
   }
 
@@ -897,7 +915,7 @@ public class Employee implements Serializable
 
     notes.forEach(n -> n.removeDevelopmentNeedTag(developmentNeedId));
     feedback.forEach(f -> f.removeDevelopmentNeedTag(developmentNeedId));
-    
+
     return this.getDevelopmentNeedsNEW().remove(developmentNeed);
   }
 
@@ -985,39 +1003,71 @@ public class Employee implements Serializable
       throws InvalidAttributeValueException
   {
     Feedback feedback = getFeedback(feedbackId);
-    
+
     feedback.setTaggedObjectiveIds(objectiveIds);
     feedback.setTaggedDevelopmentNeedIds(developmentNeedIds);
   }
-  
+
   public Feedback getFeedback(int feedbackId) throws InvalidAttributeValueException
   {
-    Optional<Feedback> feedback = getFeedback().stream()
-        .filter(f -> f.getId() == feedbackId).findFirst();
+    Optional<Feedback> feedback = getFeedback().stream().filter(f -> f.getId() == feedbackId).findFirst();
 
     if (!feedback.isPresent()) throw new InvalidAttributeValueException("Feedback not found.");
 
     return feedback.get();
   }
 
-  
   public void updateNotesTags(int noteId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
       throws InvalidAttributeValueException
   {
     Note note = getNote(noteId);
-    
+
     note.setTaggedObjectiveIds(objectiveIds);
     note.setTaggedDevelopmentNeedIds(developmentNeedIds);
   }
-  
+
   public Note getNote(int noteId) throws InvalidAttributeValueException
   {
-    Optional<Note> note = getNotes().stream()
-        .filter(n -> n.getId() == noteId).findFirst();
+    Optional<Note> note = getNotes().stream().filter(n -> n.getId() == noteId).findFirst();
 
     if (!note.isPresent()) throw new InvalidAttributeValueException("Note not found.");
 
     return note.get();
+  }
+
+  public void addManagerEvaluation(int year, String managerEvaluation, int score)
+  {
+    Rating rating = getRating(year);
+
+    rating.setManagerEvaluation(managerEvaluation);
+    rating.setScore(score);
+  }
+
+  public void addSelfEvaluation(int year, String selfEvaluation)
+  {
+    Rating rating = getRating(year);
+
+    rating.setSelfEvaluation(selfEvaluation);
+  }
+
+  public void addRating(int year)
+  {
+    this.ratings.add(new Rating(year));
+  }
+
+  /**
+   * Gets Rating with the requested year. If yeard does not exists, it will creat one.
+   *
+   * @param year
+   * @return
+   */
+  public Rating getRating(int year)
+  {
+    Optional<Rating> rating = getRatings().stream().filter(r -> r.getYear() == year).findFirst();
+
+    if (!rating.isPresent()) return new Rating(year);
+
+    return rating.get();
   }
 
 }

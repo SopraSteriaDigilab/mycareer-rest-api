@@ -96,6 +96,7 @@ public class EmployeeService
   private static final String NEW_OBJECTIVES = "objectives";
   private static final String NEW_DEVELOPMENT_NEEDS = "developmentNeeds";
   private static final String NEW_COMPETENCIES = "competencies";
+  private static final String RATING = "ratings";
 
   private static final String AUTO_GENERATED = "Auto Generated";
   private static final String COMMENT_DELTED_OBJECTIVE = "%s has deleted Objective '%s'. %s";
@@ -1158,5 +1159,7 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
 
   }
+  
+  
 
 }
