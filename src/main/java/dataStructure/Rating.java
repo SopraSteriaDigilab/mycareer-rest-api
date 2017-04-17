@@ -1,6 +1,8 @@
 package dataStructure;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.Month;
 
 public class Rating implements Serializable
 {
@@ -8,7 +10,7 @@ public class Rating implements Serializable
 
   /** TYPE Property|Constant - Represents|Indicates... */
   private static final long serialVersionUID = 1L;
-  
+
   /** int property - Represents the year of the rating. */
   private int year;
 
@@ -20,7 +22,7 @@ public class Rating implements Serializable
 
   /** String Property - Represents the users score. */
   private int score;
-  
+
   /**
    * Default Constructor - Responsible for initialising this object.
    */
@@ -78,6 +80,20 @@ public class Rating implements Serializable
   public void setScore(int score)
   {
     this.score = score;
+  }
+
+  /**
+   * Gets the rating year based on the current date. If it is the first two months of the year, the rating year is for
+   * the previous year. Other wise it is the current year.
+   *
+   * @return the rating year.
+   */
+  public static int getRatingYear()
+  {
+    LocalDate date = LocalDate.now();
+
+    if (date.getMonth().equals(Month.JANUARY) || date.getMonth().equals(Month.FEBRUARY)) return date.getYear() - 1;
+    return date.getYear();
   }
 
 }

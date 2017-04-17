@@ -59,6 +59,7 @@ import dataStructure.Note;
 import dataStructure.Objective;
 import dataStructure.Objective.Progress;
 import dataStructure.Objective_OLD;
+import dataStructure.Rating;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 import services.ews.EmailService;
@@ -96,7 +97,7 @@ public class EmployeeService
   private static final String NEW_OBJECTIVES = "objectives";
   private static final String NEW_DEVELOPMENT_NEEDS = "developmentNeeds";
   private static final String NEW_COMPETENCIES = "competencies";
-  private static final String RATING = "ratings";
+  private static final String RATINGS = "ratings";
 
   private static final String AUTO_GENERATED = "Auto Generated";
   private static final String COMMENT_DELTED_OBJECTIVE = "%s has deleted Objective '%s'. %s";
@@ -1042,7 +1043,7 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, NEW_DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
     morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
     morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
-    
+
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
     addNote(employeeId, new Note(AUTO_GENERATED,
@@ -1159,7 +1160,21 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
 
   }
-  
-  
+
+  public void addManagerEvaluation(long reporteeId, int year, String managerEvaluation, int score)
+      throws services.EmployeeNotFoundException
+  {
+    Employee employee = getEmployee(reporteeId);
+    employee.addManagerEvaluation(year, managerEvaluation, score);
+    morphiaOperations.updateEmployee(reporteeId, RATINGS, employee.getRatings());
+  }
+
+  public void addSelfEvaluation(long employeeId, int year, String selfEvaluation)
+      throws services.EmployeeNotFoundException
+  {
+    Employee employee = getEmployee(employeeId);
+    employee.addSelfEvaluation(year, selfEvaluation);
+    morphiaOperations.updateEmployee(employeeId, RATINGS, employee.getRatings());
+  }
 
 }
