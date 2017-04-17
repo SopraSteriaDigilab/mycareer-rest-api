@@ -26,6 +26,17 @@ public class Rating implements Serializable
   /**
    * Default Constructor - Responsible for initialising this object.
    */
+  public Rating()
+  {
+    this.setYear(getRatingYear());
+    this.setScore(0);
+    this.setSelfEvaluation(EMPTY_STRING);
+    this.setManagerEvaluation(EMPTY_STRING);
+  }
+  
+  /**
+   * Rating Constructor - Responsible for initialising this object.
+   */
   public Rating(int year)
   {
     this.setYear(year);

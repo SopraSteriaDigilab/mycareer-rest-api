@@ -1035,19 +1035,23 @@ public class Employee implements Serializable
     return note.get();
   }
 
-  public void addManagerEvaluation(int year, String managerEvaluation, int score)
+  public boolean addManagerEvaluation(int year, String managerEvaluation, int score)
   {
     Rating rating = getRating(year);
-
+    
     rating.setManagerEvaluation(managerEvaluation);
     rating.setScore(score);
+    
+    return ratings.add(rating);
   }
 
-  public void addSelfEvaluation(int year, String selfEvaluation)
+  public boolean addSelfEvaluation(int year, String selfEvaluation)
   {
     Rating rating = getRating(year);
 
     rating.setSelfEvaluation(selfEvaluation);
+    
+    return ratings.add(rating);
   }
 
   public void addRating(int year)

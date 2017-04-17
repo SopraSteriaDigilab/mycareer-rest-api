@@ -1161,16 +1161,21 @@ public class EmployeeService
 
   }
 
+  public Rating getRating(long employeeId, int year) throws EmployeeNotFoundException
+  {
+    Employee employee = getEmployee(employeeId);
+    return employee.getRating(year);
+  }
+
   public void addManagerEvaluation(long reporteeId, int year, String managerEvaluation, int score)
-      throws services.EmployeeNotFoundException
+      throws EmployeeNotFoundException
   {
     Employee employee = getEmployee(reporteeId);
     employee.addManagerEvaluation(year, managerEvaluation, score);
     morphiaOperations.updateEmployee(reporteeId, RATINGS, employee.getRatings());
   }
 
-  public void addSelfEvaluation(long employeeId, int year, String selfEvaluation)
-      throws services.EmployeeNotFoundException
+  public void addSelfEvaluation(long employeeId, int year, String selfEvaluation) throws EmployeeNotFoundException
   {
     Employee employee = getEmployee(employeeId);
     employee.addSelfEvaluation(year, selfEvaluation);

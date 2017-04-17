@@ -1195,6 +1195,21 @@ public class EmployeeController
     }
   }
 
+  @RequestMapping(value = "/getCurrentRating/{employeeId}", method = GET)
+  public ResponseEntity<?> addManagerEvaluation(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
+  {
+    try
+    {
+      int year = Rating.getRatingYear();
+      return ok(employeeService.getRating(employeeId, year));
+    }
+    catch (EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
   @RequestMapping(value = "/addManagerEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> addManagerEvaluation(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -1205,6 +1220,7 @@ public class EmployeeController
 
     try
     {
+      //TODO will have to add validation so this can only be edited in the right time of year.
       int year = Rating.getRatingYear();
       employeeService.addManagerEvaluation(reporteeId, year, managerEvaluation, score);
       return ok("Evaluation Added");
@@ -1217,12 +1233,13 @@ public class EmployeeController
   }
 
   @RequestMapping(value = "/addSelfEvaluation/{employeeId}", method = POST)
-  public ResponseEntity<?> addManagerEvaluation(
+  public ResponseEntity<?> addSelfEvaluation(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Size(max = 5000, message = ERROR_LIMIT_EVALUATION) String selfEvaluation)
   {
     try
     {
+      //TODO will have to add validation so this can only be edited in the right time of year.
       int year = Rating.getRatingYear();
       employeeService.addSelfEvaluation(employeeId, year, selfEvaluation);
       return ok("Evaluation Added");
