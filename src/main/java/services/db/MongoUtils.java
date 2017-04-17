@@ -1,5 +1,6 @@
 package services.db;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,6 +45,20 @@ public final class MongoUtils
   public static Document project(final Bson projection)
   {
     return new Document(PROJECT, projection);
+  }
+  
+  public static Document projectFieldsToArray(String arrayName, String... fieldNames)
+  {
+    List<String> toArray = new ArrayList<>();
+    
+    for (String fieldName : fieldNames)
+    {
+      toArray.add(reference(fieldName));
+    }
+    
+    Document projection = excludeId().append(arrayName, toArray);
+    
+    return project(projection);
   }
 
   public static Document concat(final Object... objects)

@@ -85,31 +85,31 @@ public class Models
   /** TYPE Property|Constant - Represents|Indicates... */
   public static final boolean STATUS = true;
 
-  /**
-   * Get an employee profile object.
-   *
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public static EmployeeProfile getProfile() throws InvalidAttributeValueException
-  {
-    Set<String> emailAddresses = new HashSet<>();
-    emailAddresses.add(EMAIL_ADRESS);
-    return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).forename(FIRST_NAME).surname(LAST_NAME)
-        .emailAddresses(emailAddresses).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR).sector(SECTOR)
-        .steriaDepartment(STERIA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER).build();
-  }
-
-  /**
-   * Get an employee object populated by the {@linkplain #getProfile() getProfile()} method.
-   *
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public static Employee getEmployee() throws InvalidAttributeValueException
-  {
-    return new Employee(getProfile());
-  }
+//  /**
+//   * Get an employee profile object.
+//   *
+//   * @return
+//   * @throws InvalidAttributeValueException
+//   */
+//  public static EmployeeProfile getProfile() throws InvalidAttributeValueException
+//  {
+//    Set<String> emailAddresses = new HashSet<>();
+//    emailAddresses.add(EMAIL_ADRESS);
+//    return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).forename(FIRST_NAME).surname(LAST_NAME)
+//        .emailAddresses(emailAddresses).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR).sector(SECTOR)
+//        .steriaDepartment(STERIA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER).build();
+//  }
+//
+//  /**
+//   * Get an employee object populated by the {@linkplain #getProfile() getProfile()} method.
+//   *
+//   * @return
+//   * @throws InvalidAttributeValueException
+//   */
+//  public static Employee getEmployee() throws InvalidAttributeValueException
+//  {
+//    return new Employee(getProfile());
+//  }
 
   /**
    * Get a competency

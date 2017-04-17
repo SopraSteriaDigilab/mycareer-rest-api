@@ -6,9 +6,12 @@ import static services.db.MongoUtils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.bson.Document;
+import org.hibernate.validator.internal.util.privilegedactions.GetDeclaredFields;
 
 import com.mongodb.Block;
 import com.mongodb.MongoClient;
@@ -82,11 +85,11 @@ public class MongoOperations
    * @param reference The reference field in the database
    * @return An List<T> of the results.
    */
-  public <T> List<T> getFieldAndUnwind(String key, String reference)
+  public <T> Set<T> getFieldValuesAsSet(String listName, String... fieldNames)
   {
-    List<T> result = new ArrayList<>();
-    mongoCollection.aggregate(Arrays.asList(project(excludeId().append(key, reference(reference))), unwind(key)))
-        .forEach((Block<Document>) d -> result.add((T) d.get(key)));
+    Set<T> result = new HashSet<>();
+    mongoCollection.aggregate(Arrays.asList(projectFieldsToArray(listName, fieldNames), unwind(listName)))
+        .forEach((Block<Document>) d -> result.add((T) d.get(listName)));
     return result;
   }
 

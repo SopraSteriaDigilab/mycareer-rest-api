@@ -3,7 +3,7 @@ package controller;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +32,10 @@ public class DataController
   }
   
   @RequestMapping(value = "/getAllEmailAddresses", method = GET)
-  public ResponseEntity<List<String>> getAllEmailAddresses()
+  public ResponseEntity<Set<String>> getAllEmailAddresses()
   {
     LOGGER.debug("Retrieving all email addresses");
-    final List<String> emailAddresses = dataService.getAllEmailAddresses();
+    final Set<String> emailAddresses = dataService.getAllEmailAddresses();
     
     return ok(emailAddresses);
   }
