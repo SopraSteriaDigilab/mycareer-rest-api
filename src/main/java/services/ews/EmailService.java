@@ -341,9 +341,9 @@ public class EmailService
     Employee employee = employeeService.getEmployee(employeeID);
     String intendedRecipient = Utils.getRecipientFromUndeliverableEmail(body);
 
-    Set<String> errorRecipient = employee.getProfile().getEmailAddresses();
+    Set<String> errorRecipient = employee.getProfile().getEmailAddresses().toSet();
     String errorSubject = "Feedback Request Issue";
-    // String errorBody = String.format("There was an issue proccessing your feedback to %s, please make sure the email
+    // String errorBody = String.format("There was an issue processing your feedback to %s, please make sure the email
     // address is correct and try again",intendedRecipient);
     String errorBody = Template.populateTemplate(env.getProperty("templates.error.invalidemail"), intendedRecipient);
 

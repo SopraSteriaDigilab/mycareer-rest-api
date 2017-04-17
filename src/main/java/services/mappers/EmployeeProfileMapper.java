@@ -20,6 +20,7 @@ import javax.naming.directory.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dataStructure.EmailAddresses;
 import dataStructure.EmployeeProfile;
 
 //TODO Update map methods to user map string/chain eachother
@@ -61,13 +62,12 @@ public class EmployeeProfileMapper implements Mapper<SearchResult, EmployeeProfi
   private void setSteriaDetails(SearchResult steriaEmployeeProfile) throws InvalidEmployeeProfileException
   {
     final Attributes attributes = steriaEmployeeProfile.getAttributes();
+    final EmailAddresses emailAddresses = new EmailAddresses.Builder().mail(mapString(MAIL, attributes))
+        .targetAddress(mapString(TARGET_ADDRESS, attributes)).build();
 
     profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_2))
         .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
-        .username(mapString(SAM_ACCOUNT_NAME, attributes))
-        .emailAddresses(
-            Stream.of(mapString(MAIL, attributes).toLowerCase(), mapString(TARGET_ADDRESS, attributes).toLowerCase())
-                .collect(Collectors.toSet()))
+        .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddresses(emailAddresses)
         .company(mapString(COMPANY, attributes)).superSector(mapString(OU, attributes)).sector(mapSector(attributes))
         .steriaDepartment(mapString(DEPARTMENT, attributes)).manager(mapIsManager(attributes))
         .reporteeCNs(mapReporteeCNs(attributes)).accountExpires(mapAccountExpires(attributes)).build();

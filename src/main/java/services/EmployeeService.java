@@ -455,7 +455,7 @@ public class EmployeeService
   {
     addNote(reporteeEmployeeID, note);
 
-    Set<String> reporteeEmail = getEmployee(reporteeEmployeeID).getProfile().getEmailAddresses();
+    Set<String> reporteeEmail = getEmployee(reporteeEmployeeID).getProfile().getEmailAddresses().toSet();
     String subject = String.format("Note added from %s", note.getProviderName());
     try
     {
@@ -678,7 +678,7 @@ public class EmployeeService
       throws Exception
   {
     Employee employee = getEmployee(employeeId);
-    String employeeEmail = employee.getProfile().getEmailAddresses().stream().findFirst().get();
+    String employeeEmail = employee.getProfile().getEmailAddresses().toSet().stream().findFirst().get();
     List<String> errorRecipientList = new ArrayList<String>();
     List<String> successfullRecipientList = new ArrayList<String>();
 
@@ -769,7 +769,7 @@ public class EmployeeService
 
     employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
     morphiaOperations.updateEmployee(employeeID, FEEDBACK_REQUESTS, employee.getFeedbackRequestsList());
-    addFeedback(providerEmail, employee.getProfile().getEmailAddresses().stream().findFirst().get(),
+    addFeedback(providerEmail, employee.getProfile().getEmailAddresses().toSet().stream().findFirst().get(),
         feedbackDescription, true);
 
     String provider = (getFullNameFromEmail(providerEmail) != null) ? getFullNameFromEmail(providerEmail)
@@ -777,7 +777,7 @@ public class EmployeeService
 
     String subject = String.format("Feedback Request reply from %s", provider);
     String body = Template.populateTemplate(env.getProperty("templates.feedback.reply"), provider);
-    EmailService.sendEmail(employee.getProfile().getEmailAddresses(), subject, body);
+    EmailService.sendEmail(employee.getProfile().getEmailAddresses().toSet(), subject, body);
   }
 
   private String getFullNameFromEmail(String email)

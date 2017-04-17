@@ -40,6 +40,9 @@ public class EmployeeProfile implements Serializable
   public static final String SUPER_SECTOR = "profile.superSector";
   public static final String REPORTEE_CNS = "profile.reporteeCNs";
   public static final String ACCOUNT_EXPIRES = "profile.accountExpires";
+  private static final String USER_ADDRESS = "profile.emailAddresses.userAddress";
+  private static final String TARGET_ADDRESS = "profile.emailAddresses.targetAddress";
+  private static final String MAIL = "profile.emailAddresses.mail";
 
   /** long Property - Represents the employee id */
   private long employeeID;
@@ -54,7 +57,7 @@ public class EmployeeProfile implements Serializable
   private String username;
 
   /** String Property - Represents the employee emailAddress. */
-  private Set<String> emailAddresses;
+  private EmailAddresses emailAddresses;
 
   /** boolean Property - Represents if the employee is a manager. */
   private boolean isManager;
@@ -158,13 +161,13 @@ public class EmployeeProfile implements Serializable
   }
 
   /** @return the emailAddress */
-  public Set<String> getEmailAddresses()
+  public EmailAddresses getEmailAddresses()
   {
     return emailAddresses;
   }
 
   /** @param emailAddress The value to set. */
-  public void setEmailAddresses(Set<String> emailAddresses)
+  public void setEmailAddresses(EmailAddresses emailAddresses)
   {
     this.emailAddresses = emailAddresses;
   }
@@ -301,13 +304,17 @@ public class EmployeeProfile implements Serializable
   public Document toDocument()
   {
     return new Document(EMPLOYEE_ID, employeeID).append(SURNAME, surname).append(FORENAME, forename)
-        .append(USERNAME, username).append(EMAIL_ADDRESSES, emailAddresses).append(IS_MANAGER, isManager)
-        .append(HAS_HR_DASH, hasHRDash).append(COMPANY, company).append(DEPARTMENT, steriaDepartment)
-        .append(SECTOR, sector).append(SUPER_SECTOR, superSector).append(REPORTEE_CNS, reporteeCNs)
-        .append(ACCOUNT_EXPIRES, accountExpires);
+        .append(USERNAME, username).append(MAIL, emailAddresses.getMail())
+        .append(TARGET_ADDRESS, emailAddresses.getTargetAddress()).append(USER_ADDRESS, emailAddresses.getUserAddress())
+        .append(IS_MANAGER, isManager).append(HAS_HR_DASH, hasHRDash).append(COMPANY, company)
+        .append(DEPARTMENT, steriaDepartment).append(SECTOR, sector).append(SUPER_SECTOR, superSector)
+        .append(REPORTEE_CNS, reporteeCNs).append(ACCOUNT_EXPIRES, accountExpires);
   }
 
   /**
+   * Returns a document with only the key-value pairs which have a different value in this than that contained in other.
+   * 
+   * Fields which exist in this but do not exist in other are not included in the return value.
    * @param other
    * @return a document containing only the key values pairs which represent differences between this and other.
    */
@@ -315,7 +322,7 @@ public class EmployeeProfile implements Serializable
   {
     Document differences = toDocument();
     Document otherDocument = other.toDocument();
-    
+
     removeNullValues(differences);
     removeNullValues(otherDocument);
     otherDocument.forEach((ok, ov) -> differences.merge(ok, ov, Utils::nullIfSame));
@@ -374,7 +381,7 @@ public class EmployeeProfile implements Serializable
   public String toString()
   {
     return "EmployeeProfile [employeeID=" + employeeID + ", surname=" + surname + ", forename=" + forename
-        + ", username=" + username + ", emailAddress=" + emailAddresses + ", isManager=" + isManager + ", hasHRDash="
+        + ", username=" + username + ", emailAddresses=" + emailAddresses + ", isManager=" + isManager + ", hasHRDash="
         + hasHRDash + ", company=" + company + ", steriaDepartment=" + steriaDepartment + ", sector=" + sector
         + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + ", accountExpires=" + accountExpires + "]";
   }
@@ -395,7 +402,7 @@ public class EmployeeProfile implements Serializable
     private String username;
 
     /** String Property - Represents the employee emailAddress. */
-    private Set<String> emailAddresses;
+    private EmailAddresses emailAddresses;
 
     /** boolean Property - Represents if the employee is a manager. */
     private boolean isManager;
@@ -450,7 +457,7 @@ public class EmployeeProfile implements Serializable
     }
 
     /** @param emailAddresses The value to set. */
-    public Builder emailAddresses(Set<String> emailAddresses)
+    public Builder emailAddresses(EmailAddresses emailAddresses)
     {
       this.emailAddresses = emailAddresses;
       return this;

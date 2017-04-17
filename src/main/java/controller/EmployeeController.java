@@ -88,7 +88,7 @@ public class EmployeeController
   private static final String ERROR_LIMIT_DESCRIPTION = "Max Description is 2000 characters";
   private static final String ERROR_EMPTY_DESCRIPTION = "Description cannot be empty";
   private static final String ERROR_PROGRESS = "Progress must be a value from 0-2.";
-  private static final String ERROR_LIMIT_EVALUATION = "Max Evaluation lenght is 10,000 characters";
+  private static final String ERROR_LIMIT_EVALUATION = "Max Evaluation length is 10,000 characters";
   private static final String ERROR_SCORE = "Score must be a number from 0 to 5.";
 
   private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
@@ -1196,7 +1196,7 @@ public class EmployeeController
   }
 
   @RequestMapping(value = "/getCurrentRating/{employeeId}", method = GET)
-  public ResponseEntity<?> addManagerEvaluation(
+  public ResponseEntity<?> getCurrentRating(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
   {
     try
@@ -1214,7 +1214,7 @@ public class EmployeeController
   public ResponseEntity<?> addManagerEvaluation(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeId,
-      @RequestParam @Size(max = 5000, message = ERROR_LIMIT_EVALUATION) String managerEvaluation,
+      @RequestParam @Size(max = 10_000, message = ERROR_LIMIT_EVALUATION) String managerEvaluation,
       @RequestParam @Min(value = 0, message = ERROR_SCORE) @Max(value = 5, message = ERROR_SCORE) int score)
   {
 
@@ -1235,7 +1235,7 @@ public class EmployeeController
   @RequestMapping(value = "/addSelfEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> addSelfEvaluation(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-      @RequestParam @Size(max = 5000, message = ERROR_LIMIT_EVALUATION) String selfEvaluation)
+      @RequestParam @Size(max = 10_000, message = ERROR_LIMIT_EVALUATION) String selfEvaluation)
   {
     try
     {
