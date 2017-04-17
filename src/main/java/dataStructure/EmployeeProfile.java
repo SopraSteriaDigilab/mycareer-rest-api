@@ -542,6 +542,12 @@ public class EmployeeProfile implements Serializable
       {
         this.reporteeCNs = new ArrayList<>();
       }
+      
+      if (emailAddresses == null)
+      {
+        this.emailAddresses = new EmailAddresses.Builder().build();
+      }
+      
       return (this.employeeID > 0);
     }
 

@@ -1,6 +1,5 @@
 package services;
 
-import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -29,7 +28,7 @@ public class DataService
   {
     final Set<String> emails = employeeOperations.getFieldValuesAsSet(EMAIL_ADDRESSES, MAIL, TARGET_ADDRESS,
         USER_ADDRESS);
-
+    emails.remove(null);
     LOGGER.debug("Email address count is {}", emails.size());
 
     return emails;
