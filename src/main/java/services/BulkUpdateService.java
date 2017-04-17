@@ -60,8 +60,7 @@ public class BulkUpdateService
     this.employeeProfileMapper = employeeProfileMapper;
   }
 
-//  @Scheduled(cron = "0 30 23 * * ?")
-  @Scheduled(fixedRate = 1_000_000_000)
+  @Scheduled(cron = "0 30 23 * * ?")
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
     LOGGER.info(BEGIN_UPDATE);
