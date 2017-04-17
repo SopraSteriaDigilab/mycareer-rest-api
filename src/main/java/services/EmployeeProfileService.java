@@ -1,16 +1,23 @@
 package services;
 
+import static dataStructure.EmployeeProfile.*;
+import static dataStructure.EmailAddresses.*;
 import static services.ad.ADOperations.*;
 import static services.mappers.EmployeeProfileMapper.*;
+import static com.mongodb.client.model.Filters.*;
 
 import javax.naming.directory.SearchResult;
 
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mongodb.MongoException;
 
 import dataStructure.EmployeeProfile;
 import services.ad.ADConnectionException;
 import services.ad.ADSearchSettings;
+import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 
 /**
@@ -30,24 +37,23 @@ public class EmployeeProfileService
   private static final String INVALID_USERNAME = "Not a valid username";
   private static final String EMPLOYEE_NOT_FOUND_LOG = "Employee not found based on the criteria: {} {} ";
   private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: ";
+  private static final String ADD_EMAIL_EXCEPTION = "Exception caught while updating user email address.";
   private static final String HR_PERMISSION_EXCEPTION = "Exception caught while trying to find HR Dashboard Permission for employee with ID {}";
 
   // Sopra AD Details
   private static final String AD_SOPRA_TREE = "ou=usersemea,DC=emea,DC=msad,DC=sopra";
   private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
 
-  // DB fields
-  private static final String EMPLOYEE_ID = "profile.employeeID";
-  private static final String USERNAME = "profile.username";
-  private static final String EMAIL_ADDRESS = "profile.emailAddresses";
-
 
   private final ADSearchSettings sopraADSearchSettings;
   private final MorphiaOperations morphiaOperations;
+  private final MongoOperations employeeOperations;
 
-  public EmployeeProfileService(final MorphiaOperations morphiaOperations, final ADSearchSettings sopraADSearchSettings)
+  public EmployeeProfileService(final MorphiaOperations morphiaOperations, final MongoOperations employeeOperations,
+      final ADSearchSettings sopraADSearchSettings)
   {
     this.morphiaOperations = morphiaOperations;
+    this.employeeOperations = employeeOperations;
     this.sopraADSearchSettings = sopraADSearchSettings;
   }
 
@@ -59,8 +65,7 @@ public class EmployeeProfileService
    * @throws IllegalArgumentException if the employee ID is in an invalid format
    * @throws EmployeeNotFoundException if the given employee ID could not be found in the database
    */
-  public EmployeeProfile fetchEmployeeProfile(final long employeeID)
-      throws EmployeeNotFoundException
+  public EmployeeProfile fetchEmployeeProfile(final long employeeID) throws EmployeeNotFoundException
   {
     final EmployeeProfile profile = fetchEmployeeProfile(EMPLOYEE_ID, employeeID);
     setHasHRDash(profile);
@@ -87,7 +92,7 @@ public class EmployeeProfileService
     {
       throw new IllegalArgumentException(INVALID_USERNAME_OR_EMAIL_ADDRESS);
     }
-    
+
     EmployeeProfile profile;
 
     if (usernameEmail.contains("@"))
@@ -139,10 +144,35 @@ public class EmployeeProfileService
       throw new IllegalArgumentException(INVALID_EMAIL_ADDRESS);
     }
 
-    final EmployeeProfile profile = fetchEmployeeProfile(EMAIL_ADDRESS, emailAddress);
+    final EmployeeProfile profile = fetchEmployeeProfile(EMAIL_ADDRESSES, emailAddress);
     setHasHRDash(profile);
 
     return profile;
+  }
+
+  /**
+   * Adds a user provided email address to the given user profile.
+   * 
+   * The email address is added to the "profile.emailAddresses.userAddress" field and overwrites any existing value in
+   * that field.
+   *
+   * @param employeeId The employee ID of the user profile to amend
+   * @param emailAddress The email address to add, provided by the user
+   */
+  public boolean editUserEmailAddress(final Long employeeId, final String emailAddress)
+  {
+    boolean updated = false;
+    
+    try
+    {
+      updated = employeeOperations.setFields(eq(EMPLOYEE_ID, employeeId), new Document(USER_ADDRESS, emailAddress));
+    }
+    catch (final MongoException me)
+    {
+      LOGGER.error(ADD_EMAIL_EXCEPTION, me);
+    }
+    
+    return updated;
   }
 
   private <T> EmployeeProfile fetchEmployeeProfile(final String field, final T value) throws EmployeeNotFoundException

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.hibernate.validator.internal.util.privilegedactions.GetDeclaredFields;
 
 import com.mongodb.Block;
@@ -18,6 +19,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
 
 /**
  * This class contains the definition of the MongoOperations object
@@ -107,12 +109,15 @@ public class MongoOperations
   /**
    * Performs an update of a single document using the given filter, setting the field/value pairs in keyValuePairs.
    *
-   * @param filter the filter to find the document to update
+   * @param bson the filter to find the document to update
    * @param keyValuePairs a document representing zero or more fields to update in the document matching the filter
+   * @return true if the field was updated, false otherwise
    */
-  public void setFields(Document filter, Document keyValuePairs)
+  public boolean setFields(Bson filter, Document keyValuePairs)
   {
-    mongoCollection.updateOne(filter, set(keyValuePairs));
+    UpdateResult result = mongoCollection.updateOne(filter, set(keyValuePairs));
+    
+    return result.getModifiedCount() == 1;
   }
 
   /**

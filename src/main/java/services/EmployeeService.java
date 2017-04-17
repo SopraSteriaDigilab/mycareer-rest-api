@@ -1181,5 +1181,4 @@ public class EmployeeService
     employee.addSelfEvaluation(year, selfEvaluation);
     morphiaOperations.updateEmployee(employeeId, RATINGS, employee.getRatings());
   }
-
 }

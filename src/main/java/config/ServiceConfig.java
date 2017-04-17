@@ -57,7 +57,7 @@ public class ServiceConfig
   @Bean
   public EmployeeProfileService employeeProfileService()
   {
-    return new EmployeeProfileService(morphiaOperations, sopraADSearchSettings);
+    return new EmployeeProfileService(morphiaOperations, employeeOperations, sopraADSearchSettings);
   }
 
   @Bean

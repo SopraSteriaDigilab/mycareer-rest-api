@@ -6,6 +6,10 @@ import java.util.Set;
 
 public class EmailAddresses
 {
+  public static final String MAIL = "profile.emailAddresses.mail";
+  public static final String TARGET_ADDRESS = "profile.emailAddresses.targetAddress";
+  public static final String USER_ADDRESS = "profile.emailAddresses.userAddress";
+  
   private String mail;
   private String targetAddress;
   private String userAddress;
