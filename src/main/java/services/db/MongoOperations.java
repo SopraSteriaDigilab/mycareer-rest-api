@@ -2,14 +2,13 @@ package services.db;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.*;
+import static services.db.MongoUtils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.bson.Document;
-import org.bson.conversions.Bson;
 
 import com.mongodb.Block;
 import com.mongodb.MongoClient;
@@ -59,11 +58,6 @@ public class MongoOperations
   private static final String IS_SELECTED = "isSelected";
   private static final String LAST_MODIFIED = "lastModified";
   private static final String HISTORY = "history";
-
-  private static final String UNWIND = "$unwind";
-  private static final String PROJECT = "$project";
-  private static final String PUSH = "$push";
-  private static final String SET = "$set";
 
   private final MongoDatabase mongoDB;
 
@@ -155,35 +149,5 @@ public class MongoOperations
   {
     return new Document(EMPLOYEE_ID, employeeId).append(DEVELOPMENT_NEED_ID, developmentNeedId).append(CREATED_ON,
         createdOn);
-  }
-
-  private Bson project(final Bson projection)
-  {
-    return new Document(PROJECT, projection);
-  }
-
-  private Document excludeId()
-  {
-    return new Document(ID, 0);
-  }
-
-  private String reference(final String field)
-  {
-    return "$".concat(field);
-  }
-
-  private Bson unwind(final String field)
-  {
-    return new Document(UNWIND, reference(field));
-  }
-
-  private Bson push(String fieldName, Bson update)
-  {
-    return new Document(PUSH, new Document(fieldName, update));
-  }
-  
-  private Bson set(Bson bson)
-  {
-    return new Document(SET, bson);
   }
 }
