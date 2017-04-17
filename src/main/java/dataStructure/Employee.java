@@ -1035,23 +1035,19 @@ public class Employee implements Serializable
     return note.get();
   }
 
-  public boolean addManagerEvaluation(int year, String managerEvaluation, int score)
+  public void addManagerEvaluation(int year, String managerEvaluation, int score)
   {
     Rating rating = getRating(year);
     
     rating.setManagerEvaluation(managerEvaluation);
     rating.setScore(score);
-    
-    return ratings.add(rating);
   }
 
-  public boolean addSelfEvaluation(int year, String selfEvaluation)
+  public void addSelfEvaluation(int year, String selfEvaluation)
   {
     Rating rating = getRating(year);
 
     rating.setSelfEvaluation(selfEvaluation);
-    
-    return ratings.add(rating);
   }
 
   public void addRating(int year)
@@ -1060,7 +1056,7 @@ public class Employee implements Serializable
   }
 
   /**
-   * Gets Rating with the requested year. If yeard does not exists, it will creat one.
+   * Gets Rating with the requested year. If rating does not exists, it will create one.
    *
    * @param year
    * @return
@@ -1069,7 +1065,11 @@ public class Employee implements Serializable
   {
     Optional<Rating> rating = getRatings().stream().filter(r -> r.getYear() == year).findFirst();
 
-    if (!rating.isPresent()) return new Rating(year);
+    if (!rating.isPresent()){
+      Rating r = new Rating(year);
+      ratings.add(r);
+      return r;
+    }
 
     return rating.get();
   }
