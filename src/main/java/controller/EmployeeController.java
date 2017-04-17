@@ -44,6 +44,7 @@ import dataStructure.DocumentConversionException;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
+import dataStructure.Rating;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
 import services.EmployeeService;
@@ -87,10 +88,11 @@ public class EmployeeController
   private static final String ERROR_LIMIT_DESCRIPTION = "Max Description is 2000 characters";
   private static final String ERROR_EMPTY_DESCRIPTION = "Description cannot be empty";
   private static final String ERROR_PROGRESS = "Progress must be a value from 0-2.";
+  private static final String ERROR_LIMIT_EVALUATION = "Max Evaluation lenght is 10,000 characters";
+  private static final String ERROR_SCORE = "Score must be a number from 0 to 5.";
 
   private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
   private static final String[] PROGRESS_LIST = { "PROPOSED", "IN_PROGRESS", "COMPLETE" };
-
 
   @Autowired
   private EmployeeService employeeService;
@@ -1165,32 +1167,84 @@ public class EmployeeController
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_FEEDBACK_ID) int feedbackId,
       @RequestParam Set<Integer> objectiveIds, @RequestParam Set<Integer> developmentNeedIds)
-      throws EmployeeNotFoundException
   {
     try
     {
       employeeService.updateFeedbackTags(employeeId, feedbackId, objectiveIds, developmentNeedIds);
       return ok("Tags Updated");
     }
-    catch (InvalidAttributeValueException e)
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
     {
       return badRequest().body(error(e.getMessage()));
     }
   }
-  
+
   @RequestMapping(value = "/updateNotesTags/{employeeId}", method = POST)
-  public ResponseEntity<?> updateNotesTags(
-      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-      @RequestParam @Min(value = 0, message = ERROR_NOTE_ID) int noteId,
-      @RequestParam Set<Integer> objectiveIds, @RequestParam Set<Integer> developmentNeedIds)
-      throws EmployeeNotFoundException
+  public ResponseEntity<?> updateNotesTags(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 0, message = ERROR_NOTE_ID) int noteId, @RequestParam Set<Integer> objectiveIds,
+      @RequestParam Set<Integer> developmentNeedIds)
   {
     try
     {
       employeeService.updateNotesTags(employeeId, noteId, objectiveIds, developmentNeedIds);
       return ok("Tags Updated");
     }
-    catch (InvalidAttributeValueException e)
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/getCurrentRating/{employeeId}", method = GET)
+  public ResponseEntity<?> addManagerEvaluation(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
+  {
+    try
+    {
+      int year = Rating.getRatingYear();
+      return ok(employeeService.getRating(employeeId, year));
+    }
+    catch (EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/addManagerEvaluation/{employeeId}", method = POST)
+  public ResponseEntity<?> addManagerEvaluation(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeId,
+      @RequestParam @Size(max = 5000, message = ERROR_LIMIT_EVALUATION) String managerEvaluation,
+      @RequestParam @Min(value = 0, message = ERROR_SCORE) @Max(value = 5, message = ERROR_SCORE) int score)
+  {
+
+    try
+    {
+      //TODO will have to add validation so this can only be edited in the right time of year.
+      int year = Rating.getRatingYear();
+      employeeService.addManagerEvaluation(reporteeId, year, managerEvaluation, score);
+      return ok("Evaluation Added");
+    }
+    catch (EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+
+  }
+
+  @RequestMapping(value = "/addSelfEvaluation/{employeeId}", method = POST)
+  public ResponseEntity<?> addSelfEvaluation(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Size(max = 5000, message = ERROR_LIMIT_EVALUATION) String selfEvaluation)
+  {
+    try
+    {
+      //TODO will have to add validation so this can only be edited in the right time of year.
+      int year = Rating.getRatingYear();
+      employeeService.addSelfEvaluation(employeeId, year, selfEvaluation);
+      return ok("Evaluation Added");
+    }
+    catch (EmployeeNotFoundException e)
     {
       return badRequest().body(error(e.getMessage()));
     }
