@@ -87,6 +87,7 @@ public class EmployeeProfile implements Serializable
   public EmployeeProfile()
   {
     reporteeCNs = new ArrayList<String>();
+    emailAddresses = new EmailAddresses.Builder().build();
   }
 
   /**
