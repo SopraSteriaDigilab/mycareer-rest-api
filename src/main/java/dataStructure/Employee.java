@@ -33,6 +33,8 @@ public class Employee implements Serializable
 {
   private static final long serialVersionUID = 1L;
   private static final String INVALID_OBJECTIVE_ID = "No objective ID matches the user data";
+  
+  public static final String PROFILE = "profile";
 
   // Global Variables
   @Id

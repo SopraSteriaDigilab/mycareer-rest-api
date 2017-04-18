@@ -3,11 +3,10 @@ package services;
 import static dataStructure.Constants.DEVELOPMENTNEED_NOTADDED_ERROR;
 import static dataStructure.Constants.INVALID_CONTEXT_PROGRESS;
 import static dataStructure.Constants.INVALID_DEVNEEDID_CONTEXT;
-import static dataStructure.Constants.INVALID_DEVNEED_OR_EMPLOYEEID;
 import static dataStructure.Constants.INVALID_OBJECTIVEID;
-import static dataStructure.Constants.NULL_USER_DATA;
 import static dataStructure.Constants.OBJECTIVE_NOTADDED_ERROR;
 import static dataStructure.Constants.UK_TIMEZONE;
+import static dataStructure.EmployeeProfile.*;
 import static services.db.MongoOperations.developmentNeedHistoryIdFilter;
 import static services.db.MongoOperations.objectiveHistoryIdFilter;
 import static utils.Utils.generateFeedbackRequestID;
@@ -15,27 +14,19 @@ import static utils.Utils.getEmployeeIDFromRequestID;
 import static utils.Utils.localDateTimetoDate;
 import static utils.Utils.stringEmailsToHashSet;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.management.InvalidAttributeValueException;
-import javax.naming.directory.InvalidAttributesException;
 
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.PropertySource;
@@ -85,7 +76,6 @@ public class EmployeeService
   /** String Constant - Represents Feedback Request */
   public static final String FEEDBACK_REQUEST = "Feedback Request";
 
-  private static final String EMPLOYEE_ID = "profile.employeeID";
   private static final String NOTES = "notes";
   private static final String OBJECTIVES = "objectives";
   private static final String DEVELOPMENT_NEEDS = "developmentNeeds";

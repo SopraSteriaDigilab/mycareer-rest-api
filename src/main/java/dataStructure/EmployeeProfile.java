@@ -2,15 +2,13 @@ package dataStructure;
 
 import static dataStructure.Constants.INVALID_NULLREPORTEE;
 import static utils.Utils.*;
+import static dataStructure.EmailAddresses.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -40,9 +38,6 @@ public class EmployeeProfile implements Serializable
   public static final String SUPER_SECTOR = "profile.superSector";
   public static final String REPORTEE_CNS = "profile.reporteeCNs";
   public static final String ACCOUNT_EXPIRES = "profile.accountExpires";
-  private static final String USER_ADDRESS = "profile.emailAddresses.userAddress";
-  private static final String TARGET_ADDRESS = "profile.emailAddresses.targetAddress";
-  private static final String MAIL = "profile.emailAddresses.mail";
 
   /** long Property - Represents the employee id */
   private long employeeID;

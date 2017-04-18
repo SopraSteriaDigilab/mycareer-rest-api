@@ -1,6 +1,7 @@
 package utils;
 
 import static dataStructure.Objective.Progress.*;
+import static dataStructure.EmployeeProfile.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,8 +23,8 @@ public class EmployeeStatistics
 {
 
   /** String[] Constant - Indicates fields to be used in the employee statistics */
-  public final static String[] EMPLOYEE_FIELDS = { "profile.employeeID", "profile.forename", "profile.surname",
-      "profile.company", "profile.superSector", "profile.steriaDepartment", "profile.accountExpires", "lastLogon" };
+  public final static String[] EMPLOYEE_FIELDS = { EMPLOYEE_ID, FORENAME, SURNAME,
+      COMPANY, SUPER_SECTOR, DEPARTMENT, ACCOUNT_EXPIRES, "lastLogon" };
 
   /** String[] Constant - Represents fields to be used in the feedback statistics */
   public final static String[] FEEDBACK_FIELDS = { "feedback" };
@@ -35,7 +36,7 @@ public class EmployeeStatistics
   public final static String[] DEVELOPMENT_NEEDS_FIELDS = { "developmentNeeds" };
 
   /** String[] Constant - Represents fields to be used in the sector statistics */
-  public final static String[] SECTOR_FIELDS = { "profile.employeeID", "profile.superSector", "objectives",
+  public final static String[] SECTOR_FIELDS = { EMPLOYEE_ID, SUPER_SECTOR, "objectives",
       "developmentNeeds" };
 
   /**
