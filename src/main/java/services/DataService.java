@@ -1,5 +1,8 @@
 package services;
 
+import static dataStructure.EmployeeProfile.*;
+import static dataStructure.EmailAddresses.*;
+
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -11,11 +14,6 @@ public class DataService
 {
   /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
   private static final Logger LOGGER = LoggerFactory.getLogger(DataService.class);
-
-  private static final String EMAIL_ADDRESSES = "emailAddresses";
-  private static final String MAIL = "profile.emailAddresses.mail";
-  private static final String TARGET_ADDRESS = "profile.emailAddresses.targetAddress";
-  private static final String USER_ADDRESS = "profile.emailAddresses.userAddress";
 
   private final MongoOperations employeeOperations;
 

@@ -16,6 +16,7 @@ import org.hibernate.validator.internal.util.privilegedactions.GetDeclaredFields
 
 import com.mongodb.Block;
 import com.mongodb.MongoClient;
+import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.UpdateOptions;
@@ -78,6 +79,19 @@ public class MongoOperations
     this.mongoDB = mongoClient.getDatabase(DB_NAME);
     this.mongoCollection = this.mongoDB.getCollection(collection.getCollectionStr());
   }
+  
+  /**
+   * Performs an aggregation using the given pipeline and returns the results as a List.
+   *
+   * @param aggregationStages The aggregation pipeline stages
+   * @return The results of the aggregation query
+   */
+  public <T> List<T> aggregateAsList(String fieldToList, Document... aggregationStages)
+  {
+    AggregateIterable<Document> rawResults = mongoCollection.aggregate(Arrays.asList(aggregationStages));
+    
+    return aggregationResultsToList(rawResults, fieldToList);
+  }
 
   /**
    * Method that returns an List of all the values of a given field in the database. This method assumes the field is a
@@ -89,10 +103,27 @@ public class MongoOperations
    */
   public <T> Set<T> getFieldValuesAsSet(String listName, String... fieldNames)
   {
-    Set<T> result = new HashSet<>();
-    mongoCollection.aggregate(Arrays.asList(projectFieldsToArray(listName, fieldNames), unwind(listName)))
-        .forEach((Block<Document>) d -> result.add((T) d.get(listName)));
-    return result;
+    AggregateIterable<Document> rawResults = mongoCollection.aggregate(Arrays.asList(projectFieldsToArray(listName, fieldNames), unwind(listName)));
+    
+    return aggregationResultsToSet(rawResults, listName);
+  }
+  
+  @SuppressWarnings("unchecked")
+  private <T> List<T> aggregationResultsToList(final AggregateIterable<Document> aggregationResults, final String fieldToGet)
+  {
+    List<T> resultList = new ArrayList<>();
+    aggregationResults.forEach((Block<Document>) d -> resultList.add((T) d.get(fieldToGet)));
+    
+    return resultList;
+  }
+  
+  @SuppressWarnings("unchecked")
+  private <T> Set<T> aggregationResultsToSet(final AggregateIterable<Document> aggregationResults, final String fieldToGet)
+  {
+    Set<T> resultSet = new HashSet<>();
+    aggregationResults.forEach((Block<Document>) d -> resultSet.add((T) d.get(fieldToGet)));
+    
+    return resultSet;
   }
 
   /**

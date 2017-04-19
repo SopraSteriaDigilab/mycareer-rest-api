@@ -1,12 +1,8 @@
 package dataStructure;
 
-import static dataStructure.Constants.UK_TIMEZONE;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
 
-import javax.management.InvalidAttributeValueException;
 
 import org.bson.Document;
 
@@ -115,7 +111,7 @@ public class Objective extends DBObject implements Comparable<Objective>
   /** @param createdOn The value to set. */
   public void setCreatedOn()
   {
-    this.createdOn = Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE));
+    this.createdOn = getLastModifiedAsDate();
   }
 
   /** @return the title. */
