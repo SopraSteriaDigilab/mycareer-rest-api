@@ -93,13 +93,12 @@ public class EmployeeController
   private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
   private static final String[] PROGRESS_LIST = { "PROPOSED", "IN_PROGRESS", "COMPLETE" };
 
-
   @Autowired
   private EmployeeService employeeService;
 
   @Autowired
   private EmployeeProfileService employeeProfileService;
-  
+
   @RequestMapping(value = "/", method = GET)
   public ResponseEntity<String> welcomePage()
   {
@@ -683,7 +682,7 @@ public class EmployeeController
       employeeService.addManagerEvaluation(reporteeId, year, managerEvaluation, score);
       return ok("Evaluation Added");
     }
-    catch (EmployeeNotFoundException e)
+    catch (EmployeeNotFoundException | InvalidAttributeValueException e)
     {
       return badRequest().body(error(e.getMessage()));
     }
@@ -701,7 +700,42 @@ public class EmployeeController
       employeeService.addSelfEvaluation(employeeId, year, selfEvaluation);
       return ok("Evaluation Added");
     }
+    catch (EmployeeNotFoundException | InvalidAttributeValueException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/submitSelfEvaluation/{employeeId}", method = POST)
+  public ResponseEntity<?> submitSelfEvaluation(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
+  {
+    try
+    {
+      // TODO will have to add validation so this can only be edited in the right time of year.
+      int year = Rating.getRatingYear();
+      employeeService.submitSelfEvaluation(employeeId, year);
+      return ok("Evaluation Submitted");
+    }
     catch (EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/submitManagerEvaluation/{employeeId}", method = POST)
+  public ResponseEntity<?> submitManagerEvaluation(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeId)
+  {
+    try
+    {
+      // TODO will have to add validation so this can only be edited in the right time of year.
+      int year = Rating.getRatingYear();
+      employeeService.submitManagerEvaluation(reporteeId, year);
+      return ok("Evaluation Submitted");
+    }
+    catch (EmployeeNotFoundException | InvalidAttributeValueException e)
     {
       return badRequest().body(error(e.getMessage()));
     }
@@ -714,7 +748,7 @@ public class EmployeeController
   {
     boolean updated = employeeProfileService.editUserEmailAddress(employeeId, emailAddress);
     String retVal = updated ? "Email address updated" : "Email address not updated";
-    
+
     return ok(retVal);
   }
 }
