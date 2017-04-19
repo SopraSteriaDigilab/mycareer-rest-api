@@ -290,7 +290,7 @@ public class EmployeeController
     {
       if (userName != null && !userName.equals("") && userName.length() < 300)
       {
-        return ok(employeeService.authenticateUserProfile(userName));
+        return ok(employeeService.authenticateUserProfile(userName.toLowerCase()));
       }
       else
       {
