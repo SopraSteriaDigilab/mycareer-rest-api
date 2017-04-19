@@ -22,6 +22,12 @@ public class Rating implements Serializable
 
   /** String Property - Represents the users score. */
   private int score;
+  
+  /** boolean Property - Indicates if the self evaluation has submitted. */
+  private boolean isSelfEvaluationSubmitted;
+  
+  /** boolean Property - Indicated if the manager evaluation has been submitted. */
+  private boolean isManagerEvaluationSubmitted;
 
   /**
    * Default Constructor - Responsible for initialising this object.
@@ -32,8 +38,10 @@ public class Rating implements Serializable
     this.setScore(0);
     this.setSelfEvaluation(EMPTY_STRING);
     this.setManagerEvaluation(EMPTY_STRING);
+    this.setSelfEvaluationSubmitted(false);
+    this.setManagerEvaluationSubmitted(false);
   }
-  
+
   /**
    * Rating Constructor - Responsible for initialising this object.
    */
@@ -43,6 +51,8 @@ public class Rating implements Serializable
     this.setScore(0);
     this.setSelfEvaluation(EMPTY_STRING);
     this.setManagerEvaluation(EMPTY_STRING);
+    this.setSelfEvaluationSubmitted(false);
+    this.setManagerEvaluationSubmitted(false);
   }
 
   /** @return the year */
@@ -91,6 +101,30 @@ public class Rating implements Serializable
   public void setScore(int score)
   {
     this.score = score;
+  }
+  
+  /** @return the isSelfEvaluationSubmitted */
+  public boolean isSelfEvaluationSubmitted()
+  {
+    return isSelfEvaluationSubmitted;
+  }
+
+  /** @param isSelfEvaluationSubmitted The value to set. */
+  public void setSelfEvaluationSubmitted(boolean isSelfEvaluationSubmitted)
+  {
+    this.isSelfEvaluationSubmitted = isSelfEvaluationSubmitted;
+  }
+
+  /** @return the isManagerEvaluationSubmitted */
+  public boolean isManagerEvaluationSubmitted()
+  {
+    return isManagerEvaluationSubmitted;
+  }
+
+  /** @param isManagerEvaluationSubmitted The value to set. */
+  public void setManagerEvaluationSubmitted(boolean isManagerEvaluationSubmitted)
+  {
+    this.isManagerEvaluationSubmitted = isManagerEvaluationSubmitted;
   }
 
   /**

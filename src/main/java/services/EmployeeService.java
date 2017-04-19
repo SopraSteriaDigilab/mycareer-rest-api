@@ -1168,17 +1168,34 @@ public class EmployeeService
   }
 
   public void addManagerEvaluation(long reporteeId, int year, String managerEvaluation, int score)
-      throws EmployeeNotFoundException
+      throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(reporteeId);
     employee.addManagerEvaluation(year, managerEvaluation, score);
     morphiaOperations.updateEmployee(reporteeId, RATINGS, employee.getRatings());
   }
 
-  public void addSelfEvaluation(long employeeId, int year, String selfEvaluation) throws EmployeeNotFoundException
+  public void addSelfEvaluation(long employeeId, int year, String selfEvaluation)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
     employee.addSelfEvaluation(year, selfEvaluation);
     morphiaOperations.updateEmployee(employeeId, RATINGS, employee.getRatings());
   }
+
+  public void submitSelfEvaluation(long employeeId, int year) throws EmployeeNotFoundException
+  {
+    Employee employee = getEmployee(employeeId);
+    employee.submitSelfEvaluation(year);
+    morphiaOperations.updateEmployee(employeeId, RATINGS, employee.getRatings());
+  }
+
+  public void submitManagerEvaluation(long employeeId, int year)
+      throws InvalidAttributeValueException, EmployeeNotFoundException
+  {
+    Employee employee = getEmployee(employeeId);
+    employee.submitManagerEvaluation(year);
+    morphiaOperations.updateEmployee(employeeId, RATINGS, employee.getRatings());
+  }
+
 }

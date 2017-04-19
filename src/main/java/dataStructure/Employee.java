@@ -1035,25 +1035,43 @@ public class Employee implements Serializable
     return note.get();
   }
 
-  public void addManagerEvaluation(int year, String managerEvaluation, int score)
+  public void addManagerEvaluation(int year, String managerEvaluation, int score) throws InvalidAttributeValueException
   {
     Rating rating = getRating(year);
-    
+
+    if (rating.isManagerEvaluationSubmitted())
+      throw new InvalidAttributeValueException("The Manager evaluation has been submitted and can no longer be updated.");
+
     rating.setManagerEvaluation(managerEvaluation);
     rating.setScore(score);
   }
 
-  public void addSelfEvaluation(int year, String selfEvaluation)
+  public void addSelfEvaluation(int year, String selfEvaluation) throws InvalidAttributeValueException
   {
     Rating rating = getRating(year);
+    
+    if (rating.isSelfEvaluationSubmitted())
+      throw new InvalidAttributeValueException("The self evaluation has been submitted and can no longer be updated.");
 
     rating.setSelfEvaluation(selfEvaluation);
   }
 
-  public void addRating(int year)
+  public void submitSelfEvaluation(int year)
   {
-    this.ratings.add(new Rating(year));
+    Rating rating = getRating(year);
+    rating.setSelfEvaluationSubmitted(true);
   }
+  
+  public void submitManagerEvaluation(int year) throws InvalidAttributeValueException
+  {
+    Rating rating = getRating(year);
+    
+    if(rating.getScore() == 0)
+      throw new InvalidAttributeValueException("You must enter a rating from 1 to 5.");
+    
+    rating.setManagerEvaluationSubmitted(true);
+  }
+  
 
   /**
    * Gets Rating with the requested year. If rating does not exists, it will create one.
@@ -1065,7 +1083,8 @@ public class Employee implements Serializable
   {
     Optional<Rating> rating = getRatings().stream().filter(r -> r.getYear() == year).findFirst();
 
-    if (!rating.isPresent()){
+    if (!rating.isPresent())
+    {
       Rating r = new Rating(year);
       ratings.add(r);
       return r;
