@@ -710,7 +710,7 @@ public class EmployeeController
   @RequestMapping(value = "/editUserEmailAddress/{employeeId}", method = POST)
   public ResponseEntity<?> editUserEmailAddress(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-      @RequestParam @NotBlank @Size(min = 3, max = 254, message = ERROR_EMAIL_ADDRESS) @Email String emailAddress)
+      @RequestParam @Email String emailAddress)
   {
     boolean updated = employeeProfileService.editUserEmailAddress(employeeId, emailAddress);
     String retVal = updated ? "Email address updated" : "Email address not updated";
