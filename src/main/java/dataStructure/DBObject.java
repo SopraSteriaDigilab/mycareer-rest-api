@@ -84,7 +84,6 @@ public abstract class DBObject implements Serializable
       {
         throw new DocumentConversionException(DOCUMENT_CONVERSION_EXCPETION, e);
       }
-      
   }
   
 }

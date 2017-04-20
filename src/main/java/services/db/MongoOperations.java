@@ -111,7 +111,7 @@ public class MongoOperations
    * @param aggregationStages The aggregation pipeline stages
    * @return The results of the aggregation query
    */
-  public <T> T aggregateSingleResult(String fieldToGet, Class<T> fieldClass, Document... aggregationStages)
+  public <T> T aggregateSingleResult(String fieldToGet, Class<T> fieldClass, Document... aggregationStages) throws NullPointerException
   {
     AggregateIterable<Document> rawResults = mongoCollection.aggregate(Arrays.asList(aggregationStages));
     

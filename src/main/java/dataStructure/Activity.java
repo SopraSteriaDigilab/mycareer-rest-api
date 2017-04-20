@@ -1,14 +1,13 @@
 package dataStructure;
 
 import static dataStructure.Employee.*;
+import static utils.Utils.*;
 
 import java.util.Date;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import org.bson.Document;
-
-import utils.Utils;
 
 public class Activity implements Serializable
 {
@@ -23,7 +22,6 @@ public class Activity implements Serializable
 
   public Activity()
   {
-    this("", new Date());
   }
 
   public Activity(final String description, final Date timestamp)
@@ -36,7 +34,7 @@ public class Activity implements Serializable
   {
     this.description = description;
     LocalDateTime localDateTime = LocalDateTime.parse(timestamp);
-    this.timestamp = Utils.localDateTimetoDate(localDateTime);
+    this.timestamp = localDateTimetoDate(localDateTime);
   }
   
   public static Activity ofDocument(final Document document)
@@ -63,9 +61,9 @@ public class Activity implements Serializable
     this.description = description;
   }
 
-  public Date getTimestamp()
+  public String getTimestamp()
   {
-    return timestamp;
+    return dateToLocalDateTime(timestamp).toString();
   }
 
   public void setTimestamp(Date timestamp)

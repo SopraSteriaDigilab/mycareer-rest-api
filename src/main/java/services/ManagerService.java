@@ -214,16 +214,25 @@ public class ManagerService
   @SuppressWarnings("unchecked")
   private List<Long> getReportees(final long employeeID)
   {
+    final List<Long> reporteeIDs = new ArrayList<>();
     final String reportees = "reportees";
     final Document matchEmployeeID = matchField(EMPLOYEE_ID, employeeID);
     final Document projectReporteeCNs = projectRenamedField(reportees, REPORTEE_CNS);
     final Document unwindReporteeCNs = unwind(reportees);
     final Document groupReporteeStrings = addSubstringToSet(reportees, "6", 6);
     final Document projectExcludeId = projectExcludeId();
-    final List<String> reporteeIDStrings = (List<String>) employeeOperations.aggregateSingleResult(reportees, List.class, matchEmployeeID,
-        projectReporteeCNs, unwindReporteeCNs, groupReporteeStrings, projectExcludeId);
-    final List<Long> reporteeIDs = new ArrayList<>();
-
+    List<String> reporteeIDStrings = null;
+    
+    try
+    {
+      reporteeIDStrings = (List<String>) employeeOperations.aggregateSingleResult(reportees, List.class, matchEmployeeID,
+          projectReporteeCNs, unwindReporteeCNs, groupReporteeStrings, projectExcludeId);
+    }
+    catch(NullPointerException e)
+    {
+      return reporteeIDs;
+    }    
+    
     reporteeIDStrings.forEach(s -> reporteeIDs.add(Long.parseLong(s)));
 
     return reporteeIDs;
