@@ -57,7 +57,7 @@ public abstract class DBObject implements Serializable
   /** @return the timeStamp. */
   public String getLastModified()
   {
-    return Utils.DateToLocalDateTime(this.lastModified).toString();
+    return Utils.dateToLocalDateTime(this.lastModified).toString();
   }
 
   /** @param lastModified */

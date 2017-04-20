@@ -51,7 +51,7 @@ public class ServiceConfig
   @Bean
   public EmployeeService employeeService()
   {
-    return new EmployeeService(morphiaOperations, objectivesHistoriesOperations, developmentNeedsHistoriesOperations,
+    return new EmployeeService(morphiaOperations, employeeOperations, objectivesHistoriesOperations, developmentNeedsHistoriesOperations,
         competenciesHistoriesOperations, employeeProfileService(), env);
   }
 
@@ -64,7 +64,7 @@ public class ServiceConfig
   @Bean
   public ManagerService managerService()
   {
-    return new ManagerService(employeeService(), morphiaOperations, objectivesHistoriesOperations,
+    return new ManagerService(employeeService(), morphiaOperations, employeeOperations, objectivesHistoriesOperations,
         employeeProfileService(), env);
   }
 

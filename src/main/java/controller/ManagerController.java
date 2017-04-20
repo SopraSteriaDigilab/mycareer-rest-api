@@ -149,4 +149,10 @@ public class ManagerController
       return badRequest().body(error(e.getMessage()));
     }
   }
+  
+  @RequestMapping(value = "/getActivityFeed/{employeeId}", method = GET)
+  public ResponseEntity<?> getActivityFeed(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
+  {
+    return ok(managerService.getActivityFeed(employeeId));
+  }
 }

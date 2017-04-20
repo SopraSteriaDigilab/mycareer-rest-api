@@ -1,7 +1,10 @@
 package services;
 
 import static services.db.MongoOperations.objectiveHistoryIdFilter;
+import static services.db.MongoUtils.*;
 import static dataStructure.Employee.*;
+import static dataStructure.EmployeeProfile.*;
+import static dataStructure.Activity.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,10 +13,12 @@ import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
+import dataStructure.Activity;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
@@ -34,6 +39,9 @@ public class ManagerService
   /** MorphiaOperations Property - Represents a reference to the database using morphia. */
   private MorphiaOperations morphiaOperations;
 
+  /** MorphiaOperations Property - Represents a reference to the database using mongo java driver. */
+  private MongoOperations employeeOperations;
+
   /** MongoOperations Property - Represents a reference to the database using mongo java driver */
   private MongoOperations objectivesHistoriesOperations;
 
@@ -49,10 +57,12 @@ public class ManagerService
    * @param dbConnection
    */
   public ManagerService(EmployeeService employeeService, MorphiaOperations morphiaOperations,
-      MongoOperations objectivesHistoriesOperations, EmployeeProfileService employeeProfileService, Environment env)
+      MongoOperations employeeOperations, MongoOperations objectivesHistoriesOperations,
+      EmployeeProfileService employeeProfileService, Environment env)
   {
     this.employeeService = employeeService;
     this.morphiaOperations = morphiaOperations;
+    this.employeeOperations = employeeOperations;
     this.objectivesHistoriesOperations = objectivesHistoriesOperations;
     this.employeeProfileService = employeeProfileService;
     this.env = env;
@@ -139,8 +149,7 @@ public class ManagerService
         objectivesHistoriesOperations.addToObjDevHistory(
             objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
 
-        morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), OBJECTIVES,
-            employee.getObjectivesNEW());
+        morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), OBJECTIVES, employee.getObjectives());
 
         successEmails.add(email);
 
@@ -176,5 +185,39 @@ public class ManagerService
     Employee employee = employeeService.getEmployee(reporteeId);
     employee.addManagerEvaluation(year, managerEvaluation, score);
     morphiaOperations.updateEmployee(reporteeId, RATINGS, employee.getRatings());
+  }
+
+  public List<Activity> getActivityFeed(final long employeeID)
+  {
+    final List<Long> reporteeIDs = getReportees(employeeID);
+    final Document matchEmployeeIDs = matchField(EMPLOYEE_ID, in(reporteeIDs));
+    final Document projectActivityFeeds = projectField(ACTIVITY_FEED);
+    final Document unwindActivityFeeds = unwind(ACTIVITY_FEED);
+    final Document sortMostRecent = sortDescending(TIMESTAMP);
+    final List<Document> resultsDocuments = employeeOperations.aggregateAsList(matchEmployeeIDs, projectActivityFeeds,
+        unwindActivityFeeds, sortMostRecent);
+    final List<Activity> activityFeed = new ArrayList<>();
+    
+    resultsDocuments.forEach(d -> activityFeed.add(Activity.ofDocument(d)));
+    
+    return activityFeed;
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<Long> getReportees(final long employeeID)
+  {
+    final String reportees = "reportees";
+    final Document matchEmployeeID = matchField(EMPLOYEE_ID, employeeID);
+    final Document projectReporteeCNs = projectRenamedField(reportees, REPORTEE_CNS);
+    final Document unwindReporteeCNs = unwind(reportees);
+    final Document groupReporteeStrings = addSubstringToSet(reportees, "6", 6);
+    final Document projectExcludeId = projectExcludeId();
+    final List<String> reporteeIDStrings = (List<String>) employeeOperations.aggregateSingleResult(reportees, List.class, matchEmployeeID,
+        projectReporteeCNs, unwindReporteeCNs, groupReporteeStrings, projectExcludeId);
+    final List<Long> reporteeIDs = new ArrayList<>();
+
+    reporteeIDStrings.forEach(s -> reporteeIDs.add(Long.parseLong(s)));
+
+    return reporteeIDs;
   }
 }

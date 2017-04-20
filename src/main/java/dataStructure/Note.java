@@ -4,6 +4,7 @@ import static dataStructure.Constants.UK_TIMEZONE;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +17,8 @@ public class Note implements Serializable
 {
   /** long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = 1L;
+
+  private static final Object NOTE = "note";
 
   /** int Property - Represents Unique ID for the object. */
   private int id;
@@ -151,5 +154,12 @@ public class Note implements Serializable
   {
     return taggedObjectiveIds.remove(id);
   }
-
+  
+  public Activity createActivity(final CRUD activityType, final EmployeeProfile profile)
+  {
+    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb()).append(" ")
+        .append(NOTE).append(" #").append(getId()).append(": ").append(noteDescription).toString();
+    
+    return new Activity(activityString, timestamp);
+  }
 }

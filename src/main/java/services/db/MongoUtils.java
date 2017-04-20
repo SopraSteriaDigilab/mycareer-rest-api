@@ -22,6 +22,7 @@ public final class MongoUtils
   private static final String PROJECT = "$project";
   private static final String MATCH = "$match";
   private static final String GROUP = "$group";
+  private static final String SORT = "$sort";
   private static final String PUSH = "$push";
   private static final String SET = "$set";
   private static final String DATE_TO_STRING = "$dateToString";
@@ -33,6 +34,7 @@ public final class MongoUtils
   private static final String INDEX_OF_CP = "$indexOfCP";
   private static final String SUBSTR_CP = "$substrCP";
   private static final String ADD_TO_SET = "$addToSet";
+  private static final String IN = "$in";
 
   
   private MongoUtils() {}
@@ -78,6 +80,11 @@ public final class MongoUtils
     return project(new Document(newName, reference(field)));
   }
   
+  public static Document projectField(final String field)
+  {
+    return projectRenamedField(field, field);
+  }
+  
   public static Document addSubstringToSet(final String field, final String indexString, final int substringLength)
   {
     Document indexOfCP = indexOfCP(field, indexString);
@@ -101,6 +108,16 @@ public final class MongoUtils
   public static <T> Document addToSet(T value)
   {
     return new Document(ADD_TO_SET, value);
+  }
+  
+  public static Document sortDescending(final String fieldName)
+  {
+    return sort(new Document(fieldName, -1));
+  }
+  
+  public static Document sort(final Document sortDocument)
+  {
+    return new Document(SORT, sortDocument);
   }
 
   public static Document substrCP(String field, Document startIndex, int substringLength)
@@ -181,6 +198,11 @@ public final class MongoUtils
   public static Document set(Bson bson)
   {
     return new Document(SET, bson);
+  }
+  
+  public static <T> Document in(List<T> list)
+  {
+    return new Document(IN, list);
   }
 
   public static Document excludeId()

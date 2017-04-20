@@ -92,4 +92,11 @@ public class FeedbackRequest implements Serializable
     this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
+  public Activity createActivity(final EmployeeProfile profile)
+  {
+    final String activityString = new StringBuilder(profile.getFullName()).append(" requested feedback from ")
+        .append(recipient).toString();
+
+    return new Activity(activityString, timestamp);
+  }
 }

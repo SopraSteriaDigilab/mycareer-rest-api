@@ -1,6 +1,7 @@
 package dataStructure;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -47,6 +48,8 @@ public class Objective extends DBObject implements Comparable<Objective>
 
   /** long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = -8210647573312345743L;
+
+  private static final Object OBJECTIVE = "objective";
 
   /** String Property - Represents the timestamp of the objective. */
   private Date createdOn;
@@ -105,7 +108,7 @@ public class Objective extends DBObject implements Comparable<Objective>
   /** @return the createdOn */
   public String getCreatedOn()
   {
-    return Utils.DateToLocalDateTime(this.createdOn).toString();
+    return Utils.dateToLocalDateTime(this.createdOn).toString();
   }
 
   /** @param createdOn The value to set. */
@@ -143,7 +146,7 @@ public class Objective extends DBObject implements Comparable<Objective>
   /** @return the dueDate. */
   public String getDueDate()
   {
-    return Utils.DateToLocalDate(this.dueDate).toString();
+    return Utils.dateToLocalDate(this.dueDate).toString();
   }
 
   /** @param dueDate The value to set the named property to. */
@@ -226,5 +229,13 @@ public class Objective extends DBObject implements Comparable<Objective>
       differences.append("dueDate", objective.getDueDate());
     }
     return differences;
+  }
+  
+  public Activity createActivity(final CRUD activityType, final EmployeeProfile profile)
+  {
+    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb()).append(" ")
+        .append(OBJECTIVE).append(" #").append(getId()).append(": ").append(title).toString();
+
+    return new Activity(activityString, getLastModified());
   }
 }

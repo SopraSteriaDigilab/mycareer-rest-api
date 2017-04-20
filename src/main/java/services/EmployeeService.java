@@ -1,19 +1,17 @@
 package services;
 
-import static dataStructure.Constants.DEVELOPMENTNEED_NOTADDED_ERROR;
-import static dataStructure.Constants.INVALID_CONTEXT_PROGRESS;
-import static dataStructure.Constants.INVALID_DEVNEEDID_CONTEXT;
-import static dataStructure.Constants.INVALID_OBJECTIVEID;
-import static dataStructure.Constants.OBJECTIVE_NOTADDED_ERROR;
 import static dataStructure.Constants.UK_TIMEZONE;
 import static dataStructure.EmployeeProfile.*;
 import static dataStructure.Employee.*;
+import static dataStructure.CRUD.*;
 import static services.db.MongoOperations.developmentNeedHistoryIdFilter;
 import static services.db.MongoOperations.objectiveHistoryIdFilter;
 import static utils.Utils.generateFeedbackRequestID;
 import static utils.Utils.getEmployeeIDFromRequestID;
 import static utils.Utils.localDateTimetoDate;
 import static utils.Utils.stringEmailsToHashSet;
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Updates.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -35,7 +33,9 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.mongodb.client.model.Updates;
 
+import dataStructure.CRUD;
 import dataStructure.Competency;
 import dataStructure.Competency.CompetencyTitle;
 import dataStructure.DevelopmentNeed;
@@ -79,9 +79,11 @@ public class EmployeeService
 
   private static final String EMPTY_STRING = "";
 
-
   /** MorphiaOperations Property - Represents a reference to the database using morphia. */
   private MorphiaOperations morphiaOperations;
+
+  /** MongoOperations Property - Represents a reference to the database using mongo java driver */
+  private MongoOperations employeeOperations;
 
   /** MongoOperations Property - Represents a reference to the database using mongo java driver */
   private MongoOperations objectivesHistoriesOperations;
@@ -103,11 +105,12 @@ public class EmployeeService
    *
    * @param dbConnection
    */
-  public EmployeeService(MorphiaOperations morphiaOperations, MongoOperations objectivesHistoriesOperations,
-      MongoOperations developmentNeedsHistoriesOperations, MongoOperations competenciesHistoriesOperations,
-      EmployeeProfileService employeeProfileService, Environment env)
+  public EmployeeService(MorphiaOperations morphiaOperations, MongoOperations employeeOperations,
+      MongoOperations objectivesHistoriesOperations, MongoOperations developmentNeedsHistoriesOperations,
+      MongoOperations competenciesHistoriesOperations, EmployeeProfileService employeeProfileService, Environment env)
   {
     this.morphiaOperations = morphiaOperations;
+    this.employeeOperations = employeeOperations;
     this.objectivesHistoriesOperations = objectivesHistoriesOperations;
     this.developmentNeedsHistoriesOperations = developmentNeedsHistoriesOperations;
     this.competenciesHistoriesOperations = competenciesHistoriesOperations;
@@ -198,8 +201,11 @@ public class EmployeeService
   public boolean addNote(long employeeID, Note note) throws EmployeeNotFoundException
   {
     Employee employee = getEmployee(employeeID);
+    EmployeeProfile profile = employee.getProfile();
     employee.addNote(note);
-    morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), NOTES, employee.getNotes());
+    employee.addActivity(note.createActivity(ADD, profile));
+    morphiaOperations.updateEmployee(profile.getEmployeeID(), NOTES, employee.getNotes());
+    updateActivityFeed(employee);
     return true;
   }
 
@@ -261,8 +267,10 @@ public class EmployeeService
   {
     Validate.isNull(employee, feedbackRequest);
     employee.addFeedbackRequest(feedbackRequest);
+    employee.addActivity(feedbackRequest.createActivity(employee.getProfile()));
     morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK_REQUESTS,
-        employee.getFeedbackRequestsList());
+        employee.getFeedbackRequests());
+    updateActivityFeed(employee);
   }
 
   /**
@@ -353,7 +361,7 @@ public class EmployeeService
     Employee employee = getEmployee(employeeID);
 
     employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
-    morphiaOperations.updateEmployee(employeeID, FEEDBACK_REQUESTS, employee.getFeedbackRequestsList());
+    morphiaOperations.updateEmployee(employeeID, FEEDBACK_REQUESTS, employee.getFeedbackRequests());
     addFeedback(providerEmail, employee.getProfile().getEmailAddresses().toSet().stream().findFirst().get(),
         feedbackDescription, true);
 
@@ -393,40 +401,42 @@ public class EmployeeService
 
   public List<Objective> getObjectivesNEW(long employeeId) throws EmployeeNotFoundException
   {
-    return getEmployee(employeeId).getObjectivesNEW();
+    return getEmployee(employeeId).getObjectives();
   }
 
   public void addObjectiveNEW(long employeeId, Objective objective)
       throws EmployeeNotFoundException, DocumentConversionException
   {
     Employee employee = getEmployee(employeeId);
-
-    objective.setProposedBy(employee.getProfile().getFullName());
+    EmployeeProfile profile = employee.getProfile();
+    
+    objective.setProposedBy(profile.getFullName());
     employee.addObjectiveNEW(objective);
+    employee.addActivity(objective.createActivity(ADD, profile));
 
     objectivesHistoriesOperations.addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
-
-    morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectivesNEW());
+    morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
+    updateActivityFeed(employee);
   }
 
   public void editObjectiveNEW(long employeeId, Objective objective)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-
     Document update = employee.getObjectiveNEW(objective.getId()).differences(objective);
 
-    if (update.isEmpty()) return;
+    if (update.isEmpty()) { return; }
 
     employee.editObjectiveNEW(objective);
+    employee.addActivity(objective.createActivity(EDIT, employee.getProfile()));
 
     objectivesHistoriesOperations.addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objective.getId(),
             employee.getObjectiveNEW(objective.getId()).getCreatedOn()),
         update.append("timestamp", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
-
-    morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectivesNEW());
+    morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
+    updateActivityFeed(employee);
   }
 
   public void deleteObjectiveNEW(long employeeId, int objectiveId, String comment)
@@ -436,19 +446,19 @@ public class EmployeeService
     Document deletedId = new Document(
         objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()));
     String title = employee.getObjectiveNEW(objectiveId).getTitle();
-
-    employee.deleteObjectiveNEW(objectiveId);
-    objectivesHistoriesOperations.addToObjDevHistory(deletedId,
-        new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
-
-    // TODO Make these update operations a single call to the db. As it stands this has the potential to cause
-    // inconsistency or undesirable results in the db as one call may succeed when the other doesn't.
-    morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectivesNEW());
-    morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
-    morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
-
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
+    employee.addActivity(employee.getObjectiveNEW(objectiveId).createActivity(DELETE, employee.getProfile()));
+    employee.deleteObjectiveNEW(objectiveId);
+    
+    objectivesHistoriesOperations.addToObjDevHistory(deletedId,
+        new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+    // TODO Make these update operations a single call to the db. As it stands this has the potential to cause
+    // inconsistency or undesirable results in the db as one call may succeed when the other doesn't.
+    morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
+    morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
+    morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
+    updateActivityFeed(employee);
     addNote(employeeId, new Note(AUTO_GENERATED,
         String.format(COMMENT_DELTED_OBJECTIVE, employee.getProfile().getFullName(), title, commentAdded)));
   }
@@ -466,7 +476,7 @@ public class EmployeeService
         new Document("progress", progress.getProgressStr()).append("timestamp",
             localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
-    morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectivesNEW());
+    morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
 
     if (progress.equals(Progress.COMPLETE))
     {
@@ -481,15 +491,16 @@ public class EmployeeService
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-
+    
+    employee.addActivity(employee.getObjectiveNEW(objectiveId).createActivity(ARCHIVE, employee.getProfile()));
     employee.toggleObjectiveNEWArchive(objectiveId);
 
     objectivesHistoriesOperations.addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()),
         new Document("isArchived", employee.getObjectiveNEW(objectiveId).getArchived()).append("timestamp",
             localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
-
-    morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectivesNEW());
+    morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
+    updateActivityFeed(employee);
   }
 
   //////////////////// END NEW OBJECTIVES
@@ -498,7 +509,7 @@ public class EmployeeService
 
   public List<DevelopmentNeed> getDevelopmentNeedsNEW(long employeeId) throws EmployeeNotFoundException
   {
-    return getEmployee(employeeId).getDevelopmentNeedsNEW();
+    return getEmployee(employeeId).getDevelopmentNeeds();
   }
 
   public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed developmentNeed)
@@ -508,32 +519,32 @@ public class EmployeeService
 
     developmentNeed.setProposedBy(employee.getProfile().getFullName());
     employee.addDevelopmentNeedNEW(developmentNeed);
+    employee.addActivity(developmentNeed.createActivity(ADD, employee.getProfile()));
 
     developmentNeedsHistoriesOperations.addToObjDevHistory(
         developmentNeedHistoryIdFilter(employeeId, developmentNeed.getId(), developmentNeed.getCreatedOn()),
         developmentNeed.toDocument());
-
-    morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
+    morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
+    updateActivityFeed(employee);
   }
 
   public void editDevelopmentNeedNEW(long employeeId, DevelopmentNeed developmentNeed)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-
     Document update = employee.getDevelopmentNeedNEW(developmentNeed.getId()).differences(developmentNeed);
 
-    if (update.isEmpty()) return;
+    if (update.isEmpty()) { return; }
 
     employee.editDevelopmentNeedNEW(developmentNeed);
-
+    employee.addActivity(developmentNeed.createActivity(EDIT, employee.getProfile()));
+    
     developmentNeedsHistoriesOperations.addToObjDevHistory(
         developmentNeedHistoryIdFilter(employeeId, developmentNeed.getId(),
             employee.getDevelopmentNeedNEW(developmentNeed.getId()).getCreatedOn()),
         update.append("timestamp", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
-
-    morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
-
+    morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
+    updateActivityFeed(employee);
   }
 
   public void deleteDevelopmentNeedNEW(long employeeId, int developmentNeedId, String comment)
@@ -543,19 +554,20 @@ public class EmployeeService
     Document deletedId = new Document(developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
         employee.getDevelopmentNeedNEW(developmentNeedId).getCreatedOn()));
     String title = employee.getDevelopmentNeedNEW(developmentNeedId).getTitle();
-
-    employee.deleteDevelopmentNeedNEW(developmentNeedId);
-    developmentNeedsHistoriesOperations.addToObjDevHistory(deletedId,
-        new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
-
-    // TODO Make these update operations a single call to the db. As it stands this has the potential to cause
-    // inconsistency or undesirable results in the db as one call may succeed when the other doesn't.
-    morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
-    morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
-    morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
-
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
+    employee.addActivity(employee.getDevelopmentNeedNEW(developmentNeedId).createActivity(DELETE, employee.getProfile()));
+    employee.deleteDevelopmentNeedNEW(developmentNeedId);
+    
+    developmentNeedsHistoriesOperations.addToObjDevHistory(deletedId,
+        new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+    // TODO Make these update operations a single call to the db. As it stands this has the potential to cause
+    // inconsistency or undesirable results in the db as one call may succeed when the other doesn't.
+    morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
+    morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
+    morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
+    updateActivityFeed(employee);
+    
     addNote(employeeId, new Note(AUTO_GENERATED,
         String.format(COMMENT_DELETED_DEVELOPMENT_NEED, employee.getProfile().getFullName(), title, commentAdded)));
   }
@@ -573,7 +585,7 @@ public class EmployeeService
         new Document("progress", progress.getProgressStr()).append("timestamp",
             localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
-    morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
+    morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
 
     if (progress.equals(Progress.COMPLETE))
     {
@@ -587,6 +599,7 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
 
+    employee.addActivity(employee.getDevelopmentNeedNEW(developmentNeedId).createActivity(ARCHIVE, employee.getProfile()));
     employee.toggleDevelopmentNeedNEWArchive(developmentNeedId);
 
     developmentNeedsHistoriesOperations.addToObjDevHistory(
@@ -594,8 +607,8 @@ public class EmployeeService
             employee.getDevelopmentNeedNEW(developmentNeedId).getCreatedOn()),
         new Document("isArchived", employee.getDevelopmentNeedNEW(developmentNeedId).getArchived()).append("timestamp",
             localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
-
-    morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeedsNEW());
+    morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
+    updateActivityFeed(employee);
   }
 
   //////////////////// END NEW DEVELOPMENT NEEDS
@@ -604,7 +617,7 @@ public class EmployeeService
 
   public List<Competency> getCompetenciesNEW(long employeeId) throws EmployeeNotFoundException
   {
-    return getEmployee(employeeId).getCompetenciesNEW();
+    return getEmployee(employeeId).getCompetencies();
   }
 
   public void toggleCompetencyNEW(long employeeId, CompetencyTitle competencyTitle)
@@ -618,7 +631,7 @@ public class EmployeeService
         employee.getCompetencyNEW(competencyTitle).isSelected(),
         employee.getCompetencyNEW(competencyTitle).getLastModified());
 
-    morphiaOperations.updateEmployee(employeeId, COMPETENCIES, employee.getCompetenciesNEW());
+    morphiaOperations.updateEmployee(employeeId, COMPETENCIES, employee.getCompetencies());
   }
 
   //////////////////// END NEW COMPETENCIES
@@ -682,5 +695,11 @@ public class EmployeeService
     Employee employee = getEmployee(employeeId);
     employee.addSelfEvaluation(year, selfEvaluation);
     morphiaOperations.updateEmployee(employeeId, RATINGS, employee.getRatings());
+  }
+
+  private void updateActivityFeed(Employee employee)
+  {
+    employeeOperations.setFields(eq(EMPLOYEE_ID, employee.getProfile().getEmployeeID()),
+        employee.getActivityFeedAsDocument());
   }
 }

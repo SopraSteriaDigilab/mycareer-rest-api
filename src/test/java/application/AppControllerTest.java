@@ -45,6 +45,10 @@ public class AppControllerTest
 
   /** MongoOperations Property - Mocked by Mockito. */
   @Mock
+  private MongoOperations mockEmployeeOperations;
+
+  /** MongoOperations Property - Mocked by Mockito. */
+  @Mock
   private MongoOperations mockObjectivesHistoriesOperations;
 
   /** MongoOperations Property - Mocked by Mockito. */
@@ -99,7 +103,7 @@ public class AppControllerTest
 
     when(mockMorphiaOperations.getEmployee("profile.employeeID", VALID_EMPLOYEE_ID)).thenReturn(mockEmployee);
 
-    mockEmployeeDao = new EmployeeService(mockMorphiaOperations, mockObjectivesHistoriesOperations,
+    mockEmployeeDao = new EmployeeService(mockMorphiaOperations, mockEmployeeOperations, mockObjectivesHistoriesOperations,
         mockDevelopmentNeedsHistoriesOperations, mockCompetenciesHistoriesOperations, mockEmployeeProfileService,
         mockEnvironment);
   }

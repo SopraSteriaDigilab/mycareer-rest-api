@@ -1,6 +1,7 @@
 package dataStructure;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -51,6 +52,8 @@ public class DevelopmentNeed extends Objective
 
   /** long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = 1L;
+
+  private static final Object DEVELOPMENT_NEED = "development need";
 
   /** int Property - Represents the category of the objective */
   private String category;
@@ -115,6 +118,11 @@ public class DevelopmentNeed extends Objective
     return differences;
   }
   
-  
+  public Activity createActivity(final CRUD activityType, final EmployeeProfile profile)
+  {
+    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb()).append(" ")
+        .append(DEVELOPMENT_NEED).append(" #").append(getId()).append(": ").append(getTitle()).toString();
 
+    return new Activity(activityString, getLastModified());
+  }
 }

@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.hibernate.validator.internal.util.privilegedactions.GetDeclaredFields;
 
 import com.mongodb.Block;
 import com.mongodb.MongoClient;
@@ -92,6 +91,32 @@ public class MongoOperations
     
     return aggregationResultsToList(rawResults, fieldToList);
   }
+  
+  /**
+   * Performs an aggregation using the given pipeline and returns the results as a List.
+   *
+   * @param aggregationStages The aggregation pipeline stages
+   * @return The results of the aggregation query
+   */
+  public List<Document> aggregateAsList(Document... aggregationStages)
+  {
+    AggregateIterable<Document> rawResults = mongoCollection.aggregate(Arrays.asList(aggregationStages));
+    
+    return aggregationResultsToList(rawResults);
+  }
+  
+  /**
+   * Performs an aggregation using the given pipeline and returns the results as a List.
+   *
+   * @param aggregationStages The aggregation pipeline stages
+   * @return The results of the aggregation query
+   */
+  public <T> T aggregateSingleResult(String fieldToGet, Class<T> fieldClass, Document... aggregationStages)
+  {
+    AggregateIterable<Document> rawResults = mongoCollection.aggregate(Arrays.asList(aggregationStages));
+    
+    return rawResults.first().get(fieldToGet, fieldClass);
+  }
 
   /**
    * Method that returns an List of all the values of a given field in the database. This method assumes the field is a
@@ -113,6 +138,15 @@ public class MongoOperations
   {
     List<T> resultList = new ArrayList<>();
     aggregationResults.forEach((Block<Document>) d -> resultList.add((T) d.get(fieldToGet)));
+    
+    return resultList;
+  }
+  
+  @SuppressWarnings("unchecked")
+  private List<Document> aggregationResultsToList(final AggregateIterable<Document> aggregationResults)
+  {
+    List<Document> resultList = new ArrayList<>();
+    aggregationResults.forEach((Block<Document>) d -> resultList.add(d));
     
     return resultList;
   }

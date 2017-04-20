@@ -4,10 +4,8 @@ import static utils.Validate.isNull;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +15,7 @@ import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
@@ -34,21 +33,20 @@ import dataStructure.DevelopmentNeed.Category;
 public class Employee implements Serializable
 {
   private static final long serialVersionUID = 1L;
-  private static final String INVALID_OBJECTIVE_ID = "No objective ID matches the user data";
-  
+
   public static final String PROFILE = "profile";
-  public static final String FEEDBACK_REQUEST = "Feedback Request";
-  public static final String NOTES = "notes";
   public static final String OBJECTIVES = "objectives";
   public static final String DEVELOPMENT_NEEDS = "developmentNeeds";
-  public static final String FEEDBACK_REQUESTS = "feedbackRequests";
-  public static final String FEEDBACK = "feedback";
   public static final String COMPETENCIES = "competencies";
-  public static final String LAST_LOGON = "lastLogon";
+  public static final String NOTES = "notes";
+  public static final String FEEDBACK = "feedback";
+  public static final String FEEDBACK_REQUESTS = "feedbackRequests";
   public static final String RATINGS = "ratings";
+  public static final String LAST_LOGON = "lastLogon";
   public static final String ACTIVITY_FEED = "activityFeed";
 
-  // Global Variables
+  private static final int MAX_ACTIVITY_FEED_SIZE = 50;
+
   @Id
   private ObjectId id;
 
@@ -56,30 +54,32 @@ public class Employee implements Serializable
   private EmployeeProfile profile;
 
   @Embedded
-  private List<Feedback> feedback;
-
-  @Embedded
   private List<Objective> objectives;
-
-  @Embedded
-  private List<Note> notes;
 
   @Embedded
   private List<DevelopmentNeed> developmentNeeds;
 
   @Embedded
-  private List<FeedbackRequest> feedbackRequests;
-
-  @Embedded
   private List<Competency> competencies;
 
   @Embedded
+  private List<Note> notes;
+
+  @Embedded
+  private List<Feedback> feedback;
+
+  @Embedded
+  private List<FeedbackRequest> feedbackRequests;
+
+  @Embedded
   private List<Rating> ratings;
-  
-  private Queue<String> activityFeed;
 
   /** Date Property - Represents the date of the last logon for the user */
   private Date lastLogon;
+
+  /** Queue<String> Property - Represents the last 50 actions performed by this employee */
+  @Embedded
+  private List<Activity> activityFeed;
 
   /** Default Constructor - Responsible for initialising this object. */
   public Employee()
@@ -89,9 +89,9 @@ public class Employee implements Serializable
     this.notes = new ArrayList<Note>();
     this.developmentNeeds = new ArrayList<DevelopmentNeed>();
     this.feedbackRequests = new ArrayList<FeedbackRequest>();
-    this.setCompetenciesNEW();
+    this.setCompetencies();
     this.ratings = new ArrayList<Rating>();
-    this.activityFeed = new LinkedList<>();
+    this.activityFeed = new ArrayList<Activity>();
   }
 
   /** Default Constructor - Responsible for initialising this object. */
@@ -101,181 +101,9 @@ public class Employee implements Serializable
     this.profile = profile;
   }
 
-  /** @return The _id created by MongoDB when inserting this object in the Collection */
-  public ObjectId getId()
-  {
-    return id;
-  }
-
-  /** @return the profile */
-  public EmployeeProfile getProfile()
-  {
-    return profile;
-  }
-
-  /** @param profile The profile to set. */
-  public void setProfile(EmployeeProfile profile)
-  {
-    this.profile = profile;
-  }
-
-  /** @return the feedback */
-  public List<Feedback> getFeedback()
-  {
-    return this.feedback;
-  }
-
-  /** @param feedback The feedback to set. */
-  public void setFeedback(List<Feedback> feedback)
-  {
-    this.feedback = feedback;
-  }
-
-  /** @return the notes */
-  public List<Note> getNotes()
-  {
-    return notes;
-  }
-
-  /** @param newNotes */
-  public void setNotes(List<Note> notes)
-  {
-    this.notes = notes;
-  }
-
-  /**
-   * @param data the list of feedback request object
-   * @throws InvalidAttributeValueException
-   */
-  public void setFeedbackRequestsList(List<FeedbackRequest> feedbackRequestList) throws InvalidAttributeValueException
-  {
-
-    if (feedbackRequestList == null /* || feedbackRequestList.isEmpty() */)
-      throw new InvalidAttributeValueException("The list is invalid. Please try again with a valid list.");
-
-    for (FeedbackRequest feedbackRequest : feedbackRequestList)
-    {
-      if (feedbackRequest == null) throw new InvalidAttributeValueException(
-          "One or more items in this list is invalid. Please try again with a valid list.");
-    }
-
-    this.feedbackRequests = new ArrayList<>(feedbackRequestList);
-  }
-
-  /**
-   * 
-   * This method returns the list of feedbackRequests
-   * 
-   * @return
-   */
-  public List<FeedbackRequest> getFeedbackRequestsList()
-  {
-    return this.feedbackRequests;
-  }
-
-  /**
-   * @param id
-   * @return Returns the feedback request with the given id.
-   * @throws InvalidAttributeValueException
-   */
-  public FeedbackRequest getFeedbackRequest(String id) throws InvalidAttributeValueException
-  {
-    for (FeedbackRequest feedbackRequest : this.feedbackRequests)
-    {
-      if (feedbackRequest.getId().equals(id)) return feedbackRequest;
-    }
-    throw new InvalidAttributeValueException("Feedback Request does not exist.");
-  }
-
-  /** @return the last login */
-  public Date getLastLogon()
-  {
-    return this.lastLogon;
-  }
-
-  /** @param lastLoginDate The value to set the named property to. */
-  public void setLastLogon(Date lastLogon)
-  {
-    this.lastLogon = lastLogon;
-  }
-
-  /** @return the ratings */
-  public List<Rating> getRatings()
-  {
-    return ratings;
-  }
-
-  /** @param ratings The value to set. */
-  public void setRatings(List<Rating> ratings)
-  {
-    this.ratings = ratings;
-  }
-
-  public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException
-  {
-    isNull(feedback);
-    return this.feedback.add(feedback);
-  }
-
-  public boolean addNote(Note note)
-  {
-    note.setId(this.getNotes().size() + 1);
-    return this.notes.add(note);
-  }
-
-  /**
-   * Add feedback request to employee
-   * 
-   * @param feedbackRequest
-   * @return true if it was added, false otherwise
-   * @throws InvalidAttributeValueException if feedbackRequest is null
-   */
-  public boolean addFeedbackRequest(FeedbackRequest feedbackRequest) throws InvalidAttributeValueException
-  {
-    if (feedbackRequest == null) throw new InvalidAttributeValueException("This object is invalid.");
-
-    return this.feedbackRequests.add(feedbackRequest);
-  }
-
-  public int nextFeedbackID()
-  {
-    return this.feedback.size() + 1;
-  }
-
-  public int nextObjectiveID()
-  {
-    int max = 0;
-    for (Objective objective : this.getObjectivesNEW())
-    {
-      if (objective.getId() > max) max = objective.getId();
-    }
-    return ++max;
-  }
-
-  public int nextDevelopmentNeedID()
-  {
-    int max = 0;
-    for (DevelopmentNeed developmentNeed : this.getDevelopmentNeedsNEW())
-    {
-      if (developmentNeed.getId() > max) max = developmentNeed.getId();
-    }
-    return ++max;
-  }
-
-  //////////////////// START NEW OBJECTIVES
-
-  /** @return the newObjectives */
-  public List<Objective> getObjectivesNEW()
-  {
-    Collections.sort(objectives);
-    return objectives;
-  }
-
-  /** @param newObjectives The value to set. */
-  public void setObjectivesNEW(List<Objective> newObjectives)
-  {
-    this.objectives = newObjectives;
-  }
+  ///////////////////////////////////////////////////////////////////////////
+  ///////////////////// OBJECTIVES METHODS FOLLOW ///////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   public boolean addObjectiveNEW(Objective objective)
   {
@@ -311,7 +139,7 @@ public class Employee implements Serializable
     notes.forEach(n -> n.removeObjectiveTag(objectiveId));
     feedback.forEach(f -> f.removeObjectiveTag(objectiveId));
 
-    return this.getObjectivesNEW().remove(objective);
+    return this.getObjectives().remove(objective);
   }
 
   public boolean updateObjectiveNEWProgress(int objectiveId, Progress progress) throws InvalidAttributeValueException
@@ -340,29 +168,26 @@ public class Employee implements Serializable
 
   public Objective getObjectiveNEW(int objectiveId) throws InvalidAttributeValueException
   {
-    Optional<Objective> objective = getObjectivesNEW().stream().filter(o -> o.getId() == objectiveId).findFirst();
+    Optional<Objective> objective = getObjectives().stream().filter(o -> o.getId() == objectiveId).findFirst();
 
     if (!objective.isPresent()) throw new InvalidAttributeValueException("Objective not found.");
 
     return objective.get();
   }
 
-  //////////////////// END NEW OBJECTIVES
-
-  //////////////////// START NEW DEVELOPMENT NEEDS
-
-  /** @return the newDevelopmentNeeds */
-  public List<DevelopmentNeed> getDevelopmentNeedsNEW()
+  public int nextObjectiveID()
   {
-    Collections.sort(developmentNeeds);
-    return developmentNeeds;
+    int max = 0;
+    for (Objective objective : this.getObjectives())
+    {
+      if (objective.getId() > max) max = objective.getId();
+    }
+    return ++max;
   }
 
-  /** @param newDevelopmentNeeds The value to set. */
-  public void setDevelopmentNeedsNEW(List<DevelopmentNeed> newDevelopmentNeeds)
-  {
-    this.developmentNeeds = newDevelopmentNeeds;
-  }
+  ///////////////////////////////////////////////////////////////////////////
+  ///////////////// DEVELOPMENT NEEDS METHODS FOLLOW ////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   public boolean addDevelopmentNeedNEW(DevelopmentNeed developmentNeed)
   {
@@ -397,7 +222,7 @@ public class Employee implements Serializable
     notes.forEach(n -> n.removeDevelopmentNeedTag(developmentNeedId));
     feedback.forEach(f -> f.removeDevelopmentNeedTag(developmentNeedId));
 
-    return this.getDevelopmentNeedsNEW().remove(developmentNeed);
+    return this.getDevelopmentNeeds().remove(developmentNeed);
   }
 
   public boolean updateDevelopmentNeedNEWProgress(int developmentNeedId, Progress progress)
@@ -427,7 +252,7 @@ public class Employee implements Serializable
 
   public DevelopmentNeed getDevelopmentNeedNEW(int developmentNeedId) throws InvalidAttributeValueException
   {
-    Optional<DevelopmentNeed> developmentNeed = getDevelopmentNeedsNEW().stream()
+    Optional<DevelopmentNeed> developmentNeed = getDevelopmentNeeds().stream()
         .filter(d -> d.getId() == developmentNeedId).findFirst();
 
     if (!developmentNeed.isPresent()) throw new InvalidAttributeValueException("Development Need not found.");
@@ -435,29 +260,19 @@ public class Employee implements Serializable
     return developmentNeed.get();
   }
 
-  //////////////////// END NEW DEVELOPMENT NEEDS
-
-  //////////////////// START NEW COMPETENCIES
-
-  /** @return the newCompetencies */
-  public List<Competency> getCompetenciesNEW()
+  public int nextDevelopmentNeedID()
   {
-    Collections.sort(competencies);
-    return competencies;
-  }
-
-  public void setCompetenciesNEW()
-  {
-    if (competencies == null)
+    int max = 0;
+    for (DevelopmentNeed developmentNeed : this.getDevelopmentNeeds())
     {
-      this.competencies = new ArrayList<Competency>();
-      int id = 0;
-      for (CompetencyTitle competenctyTitle : CompetencyTitle.values())
-      {
-        this.competencies.add(new Competency(id++, competenctyTitle));
-      }
+      if (developmentNeed.getId() > max) max = developmentNeed.getId();
     }
+    return ++max;
   }
+
+  ///////////////////////////////////////////////////////////////////////////
+  //////////////////// COMPETENCIES METHODS FOLLOW //////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   public boolean toggleCompetencyNEW(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
   {
@@ -470,7 +285,7 @@ public class Employee implements Serializable
 
   public Competency getCompetencyNEW(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
   {
-    Optional<Competency> competency = getCompetenciesNEW().stream()
+    Optional<Competency> competency = getCompetencies().stream()
         .filter(c -> c.getTitle().equals(competencyTitle.getCompetencyTitleStr())).findFirst();
 
     if (!competency.isPresent()) throw new InvalidAttributeValueException("Competency not found.");
@@ -478,24 +293,14 @@ public class Employee implements Serializable
     return competency.get();
   }
 
-  //////////////////// END NEW COMPETENCIES
+  ///////////////////////////////////////////////////////////////////////////
+  //////////////////////// NOTES METHODS FOLLOW /////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
-  public void updateFeedbackTags(int feedbackId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
-      throws InvalidAttributeValueException
+  public boolean addNote(Note note)
   {
-    Feedback feedback = getFeedback(feedbackId);
-
-    feedback.setTaggedObjectiveIds(objectiveIds);
-    feedback.setTaggedDevelopmentNeedIds(developmentNeedIds);
-  }
-
-  public Feedback getFeedback(int feedbackId) throws InvalidAttributeValueException
-  {
-    Optional<Feedback> feedback = getFeedback().stream().filter(f -> f.getId() == feedbackId).findFirst();
-
-    if (!feedback.isPresent()) throw new InvalidAttributeValueException("Feedback not found.");
-
-    return feedback.get();
+    note.setId(this.getNotes().size() + 1);
+    return this.notes.add(note);
   }
 
   public void updateNotesTags(int noteId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
@@ -516,10 +321,79 @@ public class Employee implements Serializable
     return note.get();
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  ////////////////////// FEEDBACK METHODS FOLLOW ////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException
+  {
+    isNull(feedback);
+    return this.feedback.add(feedback);
+  }
+
+  public int nextFeedbackID()
+  {
+    return this.feedback.size() + 1;
+  }
+
+  public void updateFeedbackTags(int feedbackId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
+      throws InvalidAttributeValueException
+  {
+    Feedback feedback = getFeedback(feedbackId);
+
+    feedback.setTaggedObjectiveIds(objectiveIds);
+    feedback.setTaggedDevelopmentNeedIds(developmentNeedIds);
+  }
+
+  public Feedback getFeedback(int feedbackId) throws InvalidAttributeValueException
+  {
+    Optional<Feedback> feedback = getFeedback().stream().filter(f -> f.getId() == feedbackId).findFirst();
+
+    if (!feedback.isPresent()) throw new InvalidAttributeValueException("Feedback not found.");
+
+    return feedback.get();
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  ////////////////// FEEDBACK REQUESTS METHODS FOLLOW ///////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * @param id
+   * @return Returns the feedback request with the given id.
+   * @throws InvalidAttributeValueException
+   */
+  public FeedbackRequest getFeedbackRequest(String id) throws InvalidAttributeValueException
+  {
+    for (FeedbackRequest feedbackRequest : this.feedbackRequests)
+    {
+      if (feedbackRequest.getId().equals(id)) return feedbackRequest;
+    }
+    throw new InvalidAttributeValueException("Feedback Request does not exist.");
+  }
+
+  /**
+   * Add feedback request to employee
+   * 
+   * @param feedbackRequest
+   * @return true if it was added, false otherwise
+   * @throws InvalidAttributeValueException if feedbackRequest is null
+   */
+  public boolean addFeedbackRequest(FeedbackRequest feedbackRequest) throws InvalidAttributeValueException
+  {
+    if (feedbackRequest == null) throw new InvalidAttributeValueException("This object is invalid.");
+
+    return this.feedbackRequests.add(feedbackRequest);
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  /////////////////////// RATINGS METHODS FOLLOW ////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
   public void addManagerEvaluation(int year, String managerEvaluation, int score)
   {
     Rating rating = getRating(year);
-    
+
     rating.setManagerEvaluation(managerEvaluation);
     rating.setScore(score);
   }
@@ -546,12 +420,207 @@ public class Employee implements Serializable
   {
     Optional<Rating> rating = getRatings().stream().filter(r -> r.getYear() == year).findFirst();
 
-    if (!rating.isPresent()){
+    if (!rating.isPresent())
+    {
       Rating r = new Rating(year);
       ratings.add(r);
       return r;
     }
 
     return rating.get();
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  ////////////////////// LAST LOGON METHODS FOLLOW //////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  // None!
+
+  ///////////////////////////////////////////////////////////////////////////
+  //////////////////// ACTIVITY FEED METHODS FOLLOW /////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Adds the given string to the activity feed queue, ensuring the max capacity of the queue is not exceeded.
+   *
+   * @param activityString the string to add to the queue
+   * @return true if the string was successfully added to the queue
+   */
+  public boolean addActivity(final Activity activityString)
+  {
+    while (activityFeed.size() >= MAX_ACTIVITY_FEED_SIZE)
+    {
+      activityFeed.remove(0);
+    }
+
+    return activityFeed.add(activityString);
+  }
+  
+  public Document getActivityFeedAsDocument()
+  {
+    List<Document> activityFeedList = new ArrayList<>();
+    
+    for (final Activity activity : activityFeed)
+    {
+      activityFeedList.add(activity.toDocument());
+    }
+    
+    return new Document(ACTIVITY_FEED, activityFeedList);
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  ///////////////// HORRIBLE GETTERS AND SETTERS FOLLOW /////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  /** @return The _id created by MongoDB when inserting this object in the Collection */
+  public ObjectId getId()
+  {
+    return id;
+  }
+
+  /** @return the profile */
+  public EmployeeProfile getProfile()
+  {
+    return profile;
+  }
+
+  /** @param profile The profile to set. */
+  public void setProfile(EmployeeProfile profile)
+  {
+    this.profile = profile;
+  }
+
+  /** @return the newObjectives */
+  public List<Objective> getObjectives()
+  {
+    Collections.sort(objectives);
+    return objectives;
+  }
+
+  /** @param newObjectives The value to set. */
+  public void setObjectives(List<Objective> newObjectives)
+  {
+    this.objectives = newObjectives;
+  }
+
+  /** @return the newDevelopmentNeeds */
+  public List<DevelopmentNeed> getDevelopmentNeeds()
+  {
+    Collections.sort(developmentNeeds);
+    return developmentNeeds;
+  }
+
+  /** @param newDevelopmentNeeds The value to set. */
+  public void setDevelopmentNeeds(List<DevelopmentNeed> newDevelopmentNeeds)
+  {
+    this.developmentNeeds = newDevelopmentNeeds;
+  }
+
+  /** @return the newCompetencies */
+  public List<Competency> getCompetencies()
+  {
+    Collections.sort(competencies);
+    return competencies;
+  }
+
+  public void setCompetencies()
+  {
+    if (competencies == null)
+    {
+      this.competencies = new ArrayList<Competency>();
+      int id = 0;
+      for (CompetencyTitle competenctyTitle : CompetencyTitle.values())
+      {
+        this.competencies.add(new Competency(id++, competenctyTitle));
+      }
+    }
+  }
+
+  /** @return the notes */
+  public List<Note> getNotes()
+  {
+    return notes;
+  }
+
+  /** @param newNotes */
+  public void setNotes(List<Note> notes)
+  {
+    this.notes = notes;
+  }
+
+  /** @return the feedback */
+  public List<Feedback> getFeedback()
+  {
+    return this.feedback;
+  }
+
+  /** @param feedback The feedback to set. */
+  public void setFeedback(List<Feedback> feedback)
+  {
+    this.feedback = feedback;
+  }
+
+  /**
+   * 
+   * This method returns the list of feedbackRequests
+   * 
+   * @return
+   */
+  public List<FeedbackRequest> getFeedbackRequests()
+  {
+    return this.feedbackRequests;
+  }
+
+  /**
+   * @param data the list of feedback request object
+   * @throws InvalidAttributeValueException
+   */
+  public void setFeedbackRequests(List<FeedbackRequest> feedbackRequestList) throws InvalidAttributeValueException
+  {
+
+    if (feedbackRequestList == null /* || feedbackRequestList.isEmpty() */)
+      throw new InvalidAttributeValueException("The list is invalid. Please try again with a valid list.");
+
+    for (FeedbackRequest feedbackRequest : feedbackRequestList)
+    {
+      if (feedbackRequest == null) throw new InvalidAttributeValueException(
+          "One or more items in this list is invalid. Please try again with a valid list.");
+    }
+
+    this.feedbackRequests = new ArrayList<>(feedbackRequestList);
+  }
+
+  /** @return the ratings */
+  public List<Rating> getRatings()
+  {
+    return ratings;
+  }
+
+  /** @param ratings The value to set. */
+  public void setRatings(List<Rating> ratings)
+  {
+    this.ratings = ratings;
+  }
+
+  /** @return the last login */
+  public Date getLastLogon()
+  {
+    return this.lastLogon;
+  }
+
+  /** @param lastLoginDate The value to set the named property to. */
+  public void setLastLogon(Date lastLogon)
+  {
+    this.lastLogon = lastLogon;
+  }
+
+  public List<Activity> getActivityFeed()
+  {
+    return activityFeed;
+  }
+
+  public void setActivityFeed(final List<Activity> activityFeed)
+  {
+    this.activityFeed = activityFeed;
   }
 }

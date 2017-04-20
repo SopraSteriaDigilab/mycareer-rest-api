@@ -238,7 +238,7 @@ public class Utils
    * @param localDateTime
    * @return
    */
-  public static LocalDate DateToLocalDate(Date date)
+  public static LocalDate dateToLocalDate(Date date)
   {
     return date.toInstant().atZone(UK_TIMEZONE).toLocalDate();
   }
@@ -260,7 +260,7 @@ public class Utils
    * @param localDateTime
    * @return
    */
-  public static LocalDateTime DateToLocalDateTime(Date date)
+  public static LocalDateTime dateToLocalDateTime(Date date)
   {
     Instant instant = date.toInstant();
     return instant.atZone(UK_TIMEZONE).toLocalDateTime();
