@@ -35,6 +35,7 @@ public final class MongoUtils
   private static final String SUBSTR_CP = "$substrCP";
   private static final String ADD_TO_SET = "$addToSet";
   private static final String IN = "$in";
+  private static final String OR = "$or";
 
   
   private MongoUtils() {}

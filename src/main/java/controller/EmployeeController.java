@@ -88,6 +88,7 @@ public class EmployeeController
   private static final String ERROR_PROGRESS = "Progress must be a value from 0-2.";
   private static final String ERROR_LIMIT_EVALUATION = "Max Evaluation length is 10,000 characters";
   private static final String ERROR_EMAIL_ADDRESS = "Not a valid email address";
+  private static final String ERROR_LIMIT_USERNAME_EMAIL = "The username or email address provided is invalid";
 
   private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
   private static final String[] PROGRESS_LIST = { "PROPOSED", "IN_PROGRESS", "COMPLETE" };
@@ -235,18 +236,12 @@ public class EmployeeController
   }
 
   @RequestMapping(value = "/authenticateUserProfile", method = GET)
-  public ResponseEntity<?> authenticateUserProfile(@RequestParam(value = "userName_Email") String userName)
+  public ResponseEntity<?> authenticateUserProfile(
+      @RequestParam(value = "userName_Email") @NotBlank @Size(max = 300, message = ERROR_LIMIT_USERNAME_EMAIL) String userNameEmail)
   {
     try
     {
-      if (userName != null && !userName.equals("") && userName.length() < 300)
-      {
-        return ok(employeeService.authenticateUserProfile(userName.toLowerCase()));
-      }
-      else
-      {
-        return badRequest().body("The username given is invalid");
-      }
+      return ok(employeeProfileService.fetchEmployeeProfile(userNameEmail.toLowerCase()));
     }
     catch (EmployeeNotFoundException e)
     {
@@ -597,7 +592,7 @@ public class EmployeeController
       return badRequest().body(error(e.getMessage()));
     }
   }
-  
+
   @RequestMapping(value = "/addSelfEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> addSelfEvaluation(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Size(max = 10_000, message = ERROR_LIMIT_EVALUATION) String selfEvaluation)

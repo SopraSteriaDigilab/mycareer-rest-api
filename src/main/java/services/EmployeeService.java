@@ -203,9 +203,14 @@ public class EmployeeService
     Employee employee = getEmployee(employeeID);
     EmployeeProfile profile = employee.getProfile();
     employee.addNote(note);
-    employee.addActivity(note.createActivity(ADD, profile));
+    
+    if (profile.getFullName().equals(note.getProviderName()))
+    {
+      employee.addActivity(note.createActivity(ADD, profile));
+      updateActivityFeed(employee);
+    }
+    
     morphiaOperations.updateEmployee(profile.getEmployeeID(), NOTES, employee.getNotes());
-    updateActivityFeed(employee);
     return true;
   }
 
@@ -383,11 +388,6 @@ public class EmployeeService
     {
       return null;
     }
-  }
-
-  public EmployeeProfile authenticateUserProfile(String usernameEmail) throws EmployeeNotFoundException
-  {
-    return employeeProfileService.fetchEmployeeProfile(usernameEmail);
   }
 
   public void updateLastLoginDate(EmployeeProfile profile) throws EmployeeNotFoundException
@@ -605,9 +605,11 @@ public class EmployeeService
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-
+    DevelopmentNeed developmentNeed = employee.getDevelopmentNeedNEW(developmentNeedId);
+    CRUD crud = developmentNeed.getArchived() ? RESTORE : ARCHIVE;
+    
     employee
-        .addActivity(employee.getDevelopmentNeedNEW(developmentNeedId).createActivity(ARCHIVE, employee.getProfile()));
+        .addActivity(employee.getDevelopmentNeedNEW(developmentNeedId).createActivity(crud, employee.getProfile()));
     employee.toggleDevelopmentNeedNEWArchive(developmentNeedId);
 
     developmentNeedsHistoriesOperations.addToObjDevHistory(

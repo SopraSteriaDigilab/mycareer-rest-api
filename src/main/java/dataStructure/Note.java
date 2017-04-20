@@ -23,7 +23,7 @@ public class Note implements Serializable
   /** int Property - Represents Unique ID for the object. */
   private int id;
 
-  /** String Property - Represents name of the not provider. */
+  /** String Property - Represents name of the note provider. */
   private String providerName;
 
   /** String Property - Represents the description of the note. */

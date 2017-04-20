@@ -35,7 +35,8 @@ public class EmployeeProfileService
   private static final String INVALID_USERNAME_OR_EMAIL_ADDRESS = "Not a valid username or email address";
   private static final String INVALID_EMAIL_ADDRESS = "Not a valid email address";
   private static final String INVALID_USERNAME = "Not a valid username";
-  private static final String EMPLOYEE_NOT_FOUND_LOG = "Employee not found based on the criteria: {} {} ";
+  private static final String EMAIL_ADDRESS_NOT_FOUND_LOG = "Employee not found based on the email address: {}";
+  private static final String EMPLOYEE_NOT_FOUND_LOG = "Employee not found based on the criteria: {} {}";
   private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: ";
   private static final String ADD_EMAIL_EXCEPTION = "Exception caught while updating user email address.";
   private static final String HR_PERMISSION_EXCEPTION = "Exception caught while trying to find HR Dashboard Permission for employee with ID {}";
@@ -43,6 +44,7 @@ public class EmployeeProfileService
   // Sopra AD Details
   private static final String AD_SOPRA_TREE = "ou=usersemea,DC=emea,DC=msad,DC=sopra";
   private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
+
 
 
   private final ADSearchSettings sopraADSearchSettings;
@@ -88,11 +90,6 @@ public class EmployeeProfileService
   public EmployeeProfile fetchEmployeeProfile(final String usernameEmail)
       throws EmployeeNotFoundException, IllegalArgumentException
   {
-    if (usernameEmail == null || usernameEmail.isEmpty())
-    {
-      throw new IllegalArgumentException(INVALID_USERNAME_OR_EMAIL_ADDRESS);
-    }
-
     EmployeeProfile profile;
 
     if (usernameEmail.contains("@"))
@@ -144,7 +141,18 @@ public class EmployeeProfileService
       throw new IllegalArgumentException(INVALID_EMAIL_ADDRESS);
     }
 
-    final EmployeeProfile profile = fetchEmployeeProfile(EMAIL_ADDRESSES, emailAddress);
+    EmployeeProfile profile = null;
+
+    try
+    {
+      profile = morphiaOperations.getEmployeeFromEmailAddress(emailAddress).getProfile();
+    }
+    catch (final NullPointerException e)
+    {
+      LOGGER.error(EMAIL_ADDRESS_NOT_FOUND_LOG, emailAddress);
+      throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND.concat(emailAddress));
+    }
+    
     setHasHRDash(profile);
 
     return profile;

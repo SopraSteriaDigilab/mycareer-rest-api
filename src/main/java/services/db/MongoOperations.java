@@ -12,10 +12,12 @@ import java.util.Set;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.BasicBSONList;
 
 import com.mongodb.Block;
 import com.mongodb.MongoClient;
 import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.UpdateOptions;
@@ -78,7 +80,7 @@ public class MongoOperations
     this.mongoDB = mongoClient.getDatabase(DB_NAME);
     this.mongoCollection = this.mongoDB.getCollection(collection.getCollectionStr());
   }
-  
+
   /**
    * Performs an aggregation using the given pipeline and returns the results as a List.
    *
@@ -88,10 +90,10 @@ public class MongoOperations
   public <T> List<T> aggregateAsList(String fieldToList, Document... aggregationStages)
   {
     AggregateIterable<Document> rawResults = mongoCollection.aggregate(Arrays.asList(aggregationStages));
-    
+
     return aggregationResultsToList(rawResults, fieldToList);
   }
-  
+
   /**
    * Performs an aggregation using the given pipeline and returns the results as a List.
    *
@@ -101,20 +103,21 @@ public class MongoOperations
   public List<Document> aggregateAsList(Document... aggregationStages)
   {
     AggregateIterable<Document> rawResults = mongoCollection.aggregate(Arrays.asList(aggregationStages));
-    
+
     return aggregationResultsToList(rawResults);
   }
-  
+
   /**
    * Performs an aggregation using the given pipeline and returns the results as a List.
    *
    * @param aggregationStages The aggregation pipeline stages
    * @return The results of the aggregation query
    */
-  public <T> T aggregateSingleResult(String fieldToGet, Class<T> fieldClass, Document... aggregationStages) throws NullPointerException
+  public <T> T aggregateSingleResult(String fieldToGet, Class<T> fieldClass, Document... aggregationStages)
+      throws NullPointerException
   {
     AggregateIterable<Document> rawResults = mongoCollection.aggregate(Arrays.asList(aggregationStages));
-    
+
     return rawResults.first().get(fieldToGet, fieldClass);
   }
 
@@ -128,35 +131,38 @@ public class MongoOperations
    */
   public <T> Set<T> getFieldValuesAsSet(String listName, String... fieldNames)
   {
-    AggregateIterable<Document> rawResults = mongoCollection.aggregate(Arrays.asList(projectFieldsToArray(listName, fieldNames), unwind(listName)));
-    
+    AggregateIterable<Document> rawResults = mongoCollection
+        .aggregate(Arrays.asList(projectFieldsToArray(listName, fieldNames), unwind(listName)));
+
     return aggregationResultsToSet(rawResults, listName);
   }
-  
+
   @SuppressWarnings("unchecked")
-  private <T> List<T> aggregationResultsToList(final AggregateIterable<Document> aggregationResults, final String fieldToGet)
+  private <T> List<T> aggregationResultsToList(final AggregateIterable<Document> aggregationResults,
+      final String fieldToGet)
   {
     List<T> resultList = new ArrayList<>();
     aggregationResults.forEach((Block<Document>) d -> resultList.add((T) d.get(fieldToGet)));
-    
+
     return resultList;
   }
-  
+
   @SuppressWarnings("unchecked")
   private List<Document> aggregationResultsToList(final AggregateIterable<Document> aggregationResults)
   {
     List<Document> resultList = new ArrayList<>();
     aggregationResults.forEach((Block<Document>) d -> resultList.add(d));
-    
+
     return resultList;
   }
-  
+
   @SuppressWarnings("unchecked")
-  private <T> Set<T> aggregationResultsToSet(final AggregateIterable<Document> aggregationResults, final String fieldToGet)
+  private <T> Set<T> aggregationResultsToSet(final AggregateIterable<Document> aggregationResults,
+      final String fieldToGet)
   {
     Set<T> resultSet = new HashSet<>();
     aggregationResults.forEach((Block<Document>) d -> resultSet.add((T) d.get(fieldToGet)));
-    
+
     return resultSet;
   }
 
@@ -181,7 +187,7 @@ public class MongoOperations
   public boolean setFields(Bson filter, Document keyValuePairs)
   {
     UpdateResult result = mongoCollection.updateOne(filter, set(keyValuePairs));
-    
+
     return result.getModifiedCount() == 1;
   }
 

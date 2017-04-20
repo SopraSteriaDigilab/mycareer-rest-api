@@ -1,5 +1,6 @@
 package services.db;
 
+import static dataStructure.EmailAddresses.*;
 import static dataStructure.EmployeeProfile.*;
 import static dataStructure.Employee.*;
 
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.query.Criteria;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 
@@ -51,7 +53,7 @@ public class MorphiaOperations
 
     return employee;
   }
-
+  
   /**
    * Retrieves an employee object from the database by matching the given email address
    *
@@ -60,24 +62,12 @@ public class MorphiaOperations
    */
   public Employee getEmployeeFromEmailAddress(final String emailAddress)
   {
-    Set<String> emailAddresses = new HashSet<>();
-    emailAddresses.add(emailAddress);
-
-    return getEmployeeFromEmailAddress(emailAddresses);
-  }
-
-  /**
-   * 
-   * Retrieves an employee object from the database by matching the given email addresses
-   *
-   * @param emailAddresses the email addresses to search for
-   * @return the {@code Employee} object or null if it could not be found
-   */
-  public Employee getEmployeeFromEmailAddress(final Set<String> emailAddresses)
-  {
-    Employee employee = datastore.find(Employee.class).filter(in(EMAIL_ADDRESSES), emailAddresses).get();
-
-    return employee;
+    Query<Employee> query = datastore.find(Employee.class);
+    Criteria mail = query.criteria(MAIL).equal(emailAddress);
+    Criteria targetAddress = query.criteria(TARGET_ADDRESS).equal(emailAddress);
+    query.or(mail, targetAddress);
+    
+    return query.get();
   }
 
   /**
