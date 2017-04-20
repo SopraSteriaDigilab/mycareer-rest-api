@@ -2,6 +2,7 @@ package services;
 
 import static services.ad.ADOperations.searchAD;
 import static services.ad.ADOperations.searchADAsList;
+import static dataStructure.EmployeeProfile.*;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -38,7 +39,6 @@ public class BulkUpdateService
 
   private static final String AD_TREE = "ou=UK,ou=Internal,ou=People,DC=one,DC=steria,DC=dom";
   private static final String AD_UNUSED_OBJECT_TREE = "OU=UK,OU=People,OU=Unused Objects,DC=one,DC=steria,DC=dom";
-  private static final String EMPLOYEE_ID = "profile.employeeID";
 
   private final MorphiaOperations morphiaOperations;
   private final MongoOperations employeeOperations;

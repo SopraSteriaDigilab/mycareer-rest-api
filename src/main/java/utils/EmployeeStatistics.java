@@ -1,6 +1,7 @@
 package utils;
 
 import static dataStructure.Objective.Progress.*;
+import static dataStructure.EmployeeProfile.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,8 +23,8 @@ public class EmployeeStatistics
 {
 
   /** String[] Constant - Indicates fields to be used in the employee statistics */
-  public final static String[] EMPLOYEE_FIELDS = { "profile.employeeID", "profile.forename", "profile.surname",
-      "profile.company", "profile.superSector", "profile.steriaDepartment", "profile.accountExpires", "lastLogon" };
+  public final static String[] EMPLOYEE_FIELDS = { EMPLOYEE_ID, FORENAME, SURNAME,
+      COMPANY, SUPER_SECTOR, DEPARTMENT, ACCOUNT_EXPIRES, "lastLogon" };
 
   /** String[] Constant - Represents fields to be used in the feedback statistics */
   public final static String[] FEEDBACK_FIELDS = { "feedback" };
@@ -35,7 +36,7 @@ public class EmployeeStatistics
   public final static String[] DEVELOPMENT_NEEDS_FIELDS = { "developmentNeeds" };
 
   /** String[] Constant - Represents fields to be used in the sector statistics */
-  public final static String[] SECTOR_FIELDS = { "profile.employeeID", "profile.superSector", "objectives",
+  public final static String[] SECTOR_FIELDS = { EMPLOYEE_ID, SUPER_SECTOR, "objectives",
       "developmentNeeds" };
 
   /**
@@ -76,7 +77,7 @@ public class EmployeeStatistics
     employees.forEach(e -> {
       Map<String, Object> map = getBasicMap(e);
       map.put("lastLogon",
-          (e.getLastLogon() == null) ? "Never" : Utils.DateToLocalDateTime(e.getLastLogon()).toString());
+          (e.getLastLogon() == null) ? "Never" : Utils.dateToLocalDateTime(e.getLastLogon()).toString());
       statistics.add(map);
     });
     return statistics;
@@ -110,7 +111,7 @@ public class EmployeeStatistics
     List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> {
       Map<String, Object> map = getBasicMap(e);
-      addObjectivesCounts(map, e.getObjectivesNEW());
+      addObjectivesCounts(map, e.getObjectives());
       statistics.add(map);
     });
     return statistics;
@@ -127,7 +128,7 @@ public class EmployeeStatistics
     List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> {
       Map<String, Object> map = getBasicMap(e);
-      addDevNeedsCounts(map, e.getDevelopmentNeedsNEW());
+      addDevNeedsCounts(map, e.getDevelopmentNeeds());
       statistics.add(map);
     });
     return statistics;
@@ -143,7 +144,7 @@ public class EmployeeStatistics
   {
     List<Map<String, Object>> statistics = new ArrayList<>();
     employees.forEach(e -> {
-      e.getDevelopmentNeedsNEW().forEach(d -> {
+      e.getDevelopmentNeeds().forEach(d -> {
         if (getProgressFromString(d.getProgress()).equals(COMPLETE)) return;
         Map<String, Object> map = getBasicMap(e);
         map.put("title", d.getTitle());
@@ -277,11 +278,11 @@ public class EmployeeStatistics
     if (optionalMap.isPresent())
     {
       optionalMap.get().put("employees", (Integer) optionalMap.get().get("employees") + 1);
-      if (!employee.getObjectivesNEW().isEmpty())
+      if (!employee.getObjectives().isEmpty())
       {
         optionalMap.get().put("noWithObjs", (Integer) optionalMap.get().get("noWithObjs") + 1);
       }
-      if (!employee.getDevelopmentNeedsNEW().isEmpty())
+      if (!employee.getDevelopmentNeeds().isEmpty())
       {
         optionalMap.get().put("noWithDevNeeds", (Integer) optionalMap.get().get("noWithDevNeeds") + 1);
       }
@@ -291,8 +292,8 @@ public class EmployeeStatistics
 
       map.put("sector", sector);
       map.put("employees", 1);
-      map.put("noWithObjs", (employee.getObjectivesNEW().isEmpty()) ? 0 : 1);
-      map.put("noWithDevNeeds", (employee.getDevelopmentNeedsNEW().isEmpty()) ? 0 : 1);
+      map.put("noWithObjs", (employee.getObjectives().isEmpty()) ? 0 : 1);
+      map.put("noWithDevNeeds", (employee.getDevelopmentNeeds().isEmpty()) ? 0 : 1);
       statistics.add(map);
     }
   }

@@ -87,7 +87,6 @@ public class EmployeeController
   private static final String ERROR_EMPTY_DESCRIPTION = "Description cannot be empty";
   private static final String ERROR_PROGRESS = "Progress must be a value from 0-2.";
   private static final String ERROR_LIMIT_EVALUATION = "Max Evaluation length is 10,000 characters";
-  private static final String ERROR_SCORE = "Score must be a number from 0 to 5.";
   private static final String ERROR_EMAIL_ADDRESS = "Not a valid email address";
 
   private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
@@ -198,30 +197,6 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * This method allows the front-end to retrieve all the reportees associated with a user
-   * 
-   * @param employeeID the ID of an employee
-   * @return list of ADProfileBasics
-   */
-  @RequestMapping(value = "/getReportees/{employeeID}", method = GET)
-  public ResponseEntity<?> getReportees(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
-  {
-    try
-    {
-      return ok(employeeService.getReporteesForUser(employeeID));
-    }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
-    }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-  }
-
-  /**
    * POST End point - Adds note to employee
    *
    */
@@ -240,30 +215,6 @@ public class EmployeeController
       return badRequest().body(e.getMessage());
     }
 
-  }
-
-  /**
-   * POST End point - Add note to reportee.
-   * 
-   * @return
-   *
-   */
-  @RequestMapping(value = "/addNoteToReportee/{employeeID}", method = POST)
-  public ResponseEntity<String> addNoteToReportee(
-      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
-      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeEmployeeID,
-      @NotBlank(message = ERROR_EMPTY_NOTE_PROVIDER_NAME) @Size(max = 150, message = ERROR_LIMIT_PROVIDER_NAME) String providerName,
-      @NotBlank(message = ERROR_EMPTY_NOTE_DESCRIPTION) @Size(max = 1000, message = ERROR_LIMIT_NOTE_DESCRIPTION) String noteDescription)
-  {
-    try
-    {
-      employeeService.addNoteToReportee(reporteeEmployeeID, new Note(providerName, noteDescription));
-      return ok("Note inserted correctly");
-    }
-    catch (final EmployeeNotFoundException e)
-    {
-      return badRequest().body(e.getMessage());
-    }
   }
 
   @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
@@ -409,26 +360,6 @@ public class EmployeeController
     {
       employeeService.toggleObjectiveNEWArchive(employeeId, objectiveId);
       return ok("Objective updated");
-    }
-    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
-    {
-      return badRequest().body(error(e.getMessage()));
-    }
-  }
-
-  @RequestMapping(value = "/proposeObjective/{employeeId}", method = POST)
-  public ResponseEntity<?> proposeObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 2000, message = ERROR_LIMIT_TITLE) String description,
-      @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
-      @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails)
-  {
-    try
-    {
-      Set<String> emailSet = Utils.stringEmailsToHashSet(emails);
-      employeeService.proposeObjectiveNEW(employeeId,
-          new Objective(title, description, isYearMonthInPast(YearMonth.parse(dueDate))), emailSet);
-      return ok("Objective inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
     {
@@ -666,29 +597,7 @@ public class EmployeeController
       return badRequest().body(error(e.getMessage()));
     }
   }
-
-  @RequestMapping(value = "/addManagerEvaluation/{employeeId}", method = POST)
-  public ResponseEntity<?> addManagerEvaluation(
-      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeId,
-      @RequestParam @Size(max = 10_000, message = ERROR_LIMIT_EVALUATION) String managerEvaluation,
-      @RequestParam @Min(value = 0, message = ERROR_SCORE) @Max(value = 5, message = ERROR_SCORE) int score)
-  {
-
-    try
-    {
-      // TODO will have to add validation so this can only be edited in the right time of year.
-      int year = Rating.getRatingYear();
-      employeeService.addManagerEvaluation(reporteeId, year, managerEvaluation, score);
-      return ok("Evaluation Added");
-    }
-    catch (EmployeeNotFoundException | InvalidAttributeValueException e)
-    {
-      return badRequest().body(error(e.getMessage()));
-    }
-
-  }
-
+  
   @RequestMapping(value = "/addSelfEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> addSelfEvaluation(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Size(max = 10_000, message = ERROR_LIMIT_EVALUATION) String selfEvaluation)
@@ -718,24 +627,6 @@ public class EmployeeController
       return ok("Evaluation Submitted");
     }
     catch (EmployeeNotFoundException e)
-    {
-      return badRequest().body(error(e.getMessage()));
-    }
-  }
-
-  @RequestMapping(value = "/submitManagerEvaluation/{employeeId}", method = POST)
-  public ResponseEntity<?> submitManagerEvaluation(
-      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
-      @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeId)
-  {
-    try
-    {
-      // TODO will have to add validation so this can only be edited in the right time of year.
-      int year = Rating.getRatingYear();
-      employeeService.submitManagerEvaluation(reporteeId, year);
-      return ok("Evaluation Submitted");
-    }
-    catch (EmployeeNotFoundException | InvalidAttributeValueException e)
     {
       return badRequest().body(error(e.getMessage()));
     }

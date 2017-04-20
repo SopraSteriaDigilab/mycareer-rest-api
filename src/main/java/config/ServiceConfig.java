@@ -13,6 +13,7 @@ import services.DataService;
 import services.EmployeeProfileService;
 import services.EmployeeService;
 import services.HRService;
+import services.ManagerService;
 import services.ad.ADSearchSettings;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
@@ -28,7 +29,7 @@ public class ServiceConfig
 
   @Autowired
   private Datastore datastore;
-  
+
   @Autowired
   private MorphiaOperations morphiaOperations;
 
@@ -50,7 +51,7 @@ public class ServiceConfig
   @Bean
   public EmployeeService employeeService()
   {
-    return new EmployeeService(morphiaOperations, objectivesHistoriesOperations, developmentNeedsHistoriesOperations,
+    return new EmployeeService(morphiaOperations, employeeOperations, objectivesHistoriesOperations, developmentNeedsHistoriesOperations,
         competenciesHistoriesOperations, employeeProfileService(), env);
   }
 
@@ -58,6 +59,13 @@ public class ServiceConfig
   public EmployeeProfileService employeeProfileService()
   {
     return new EmployeeProfileService(morphiaOperations, employeeOperations, sopraADSearchSettings);
+  }
+
+  @Bean
+  public ManagerService managerService()
+  {
+    return new ManagerService(employeeService(), morphiaOperations, employeeOperations, objectivesHistoriesOperations,
+        employeeProfileService(), env);
   }
 
   @Bean

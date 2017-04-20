@@ -7,13 +7,10 @@ import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
-import dataStructure.Competency_OLD;
-import dataStructure.DevelopmentNeed_OLD;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
-import dataStructure.Objective_OLD;
 
 /**
  * Models to be used in the tests.
@@ -112,27 +109,6 @@ public class Models
 //  }
 
   /**
-   * Get a competency
-   *
-   * @return
-   */
-  public static Competency_OLD getCompetency()
-  {
-    return new Competency_OLD(ID, STATUS);
-  }
-
-  /**
-   * Get a development need
-   *
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public static DevelopmentNeed_OLD getDevelopmentNeed() throws InvalidAttributeValueException
-  {
-    return new DevelopmentNeed_OLD(ID, ID, ID, TITLE, DESCRIPTION, DATE);
-  }
-
-  /**
    * Get a feedback
    *
    * @return
@@ -151,16 +127,4 @@ public class Models
   {
     return new FeedbackRequest(GUID, EMAIL_ADRESS);
   }
-
-  /**
-   * Get an objective
-   *
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public static Objective_OLD getObjective() throws InvalidAttributeValueException
-  {
-    return new Objective_OLD(ID, ID, ID, TITLE, DESCRIPTION, DATE);
-  }
-
 }

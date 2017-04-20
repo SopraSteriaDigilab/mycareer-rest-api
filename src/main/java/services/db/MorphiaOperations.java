@@ -1,5 +1,8 @@
 package services.db;
 
+import static dataStructure.EmployeeProfile.*;
+import static dataStructure.Employee.*;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -22,10 +25,6 @@ import dataStructure.EmployeeProfile;
  */
 public class MorphiaOperations
 {
-  private static final String PROFILE = "profile";
-  private static final String EMPLOYEE_ID = "profile.employeeID";
-  private static final String EMAIL_ADDRESSES = "profile.emailAddresses";
-
   private final Datastore datastore;
 
   /**

@@ -57,7 +57,7 @@ public abstract class DBObject implements Serializable
   /** @return the timeStamp. */
   public String getLastModified()
   {
-    return Utils.DateToLocalDateTime(this.lastModified).toString();
+    return Utils.dateToLocalDateTime(this.lastModified).toString();
   }
 
   /** @param lastModified */
@@ -66,7 +66,11 @@ public abstract class DBObject implements Serializable
     this.lastModified = Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE));
   }
   
-
+  protected Date getLastModifiedAsDate()
+  {
+    return lastModified;
+  }
+  
   public Document toDocument() throws DocumentConversionException 
   {
       try

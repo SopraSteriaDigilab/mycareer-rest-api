@@ -4,17 +4,18 @@ import static utils.Validate.isNull;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
@@ -32,9 +33,20 @@ import dataStructure.DevelopmentNeed.Category;
 public class Employee implements Serializable
 {
   private static final long serialVersionUID = 1L;
-  private static final String INVALID_OBJECTIVE_ID = "No objective ID matches the user data";
 
-  // Global Variables
+  public static final String PROFILE = "profile";
+  public static final String OBJECTIVES = "objectives";
+  public static final String DEVELOPMENT_NEEDS = "developmentNeeds";
+  public static final String COMPETENCIES = "competencies";
+  public static final String NOTES = "notes";
+  public static final String FEEDBACK = "feedback";
+  public static final String FEEDBACK_REQUESTS = "feedbackRequests";
+  public static final String RATINGS = "ratings";
+  public static final String LAST_LOGON = "lastLogon";
+  public static final String ACTIVITY_FEED = "activityFeed";
+
+  private static final int MAX_ACTIVITY_FEED_SIZE = 50;
+
   @Id
   private ObjectId id;
 
@@ -42,31 +54,22 @@ public class Employee implements Serializable
   private EmployeeProfile profile;
 
   @Embedded
-  private List<Feedback> feedback;
-
-  @Embedded
-  private List<List<Objective_OLD>> oldObjectives;
-
-  @Embedded
   private List<Objective> objectives;
-
-  @Embedded
-  private List<Note> notes;
-
-  @Embedded
-  private List<List<DevelopmentNeed_OLD>> oldDevelopmentNeeds;
 
   @Embedded
   private List<DevelopmentNeed> developmentNeeds;
 
   @Embedded
-  private List<FeedbackRequest> feedbackRequests;
-
-  @Embedded
-  private List<List<Competency_OLD>> oldCompetencies;
-
-  @Embedded
   private List<Competency> competencies;
+
+  @Embedded
+  private List<Note> notes;
+
+  @Embedded
+  private List<Feedback> feedback;
+
+  @Embedded
+  private List<FeedbackRequest> feedbackRequests;
 
   @Embedded
   private List<Rating> ratings;
@@ -74,19 +77,21 @@ public class Employee implements Serializable
   /** Date Property - Represents the date of the last logon for the user */
   private Date lastLogon;
 
+  /** Queue<String> Property - Represents the last 50 actions performed by this employee */
+  @Embedded
+  private List<Activity> activityFeed;
+
   /** Default Constructor - Responsible for initialising this object. */
   public Employee()
   {
     this.feedback = new ArrayList<Feedback>();
-    this.oldObjectives = new ArrayList<List<Objective_OLD>>();
     this.objectives = new ArrayList<Objective>();
     this.notes = new ArrayList<Note>();
-    this.oldDevelopmentNeeds = new ArrayList<List<DevelopmentNeed_OLD>>();
     this.developmentNeeds = new ArrayList<DevelopmentNeed>();
     this.feedbackRequests = new ArrayList<FeedbackRequest>();
-    this.oldCompetencies = new ArrayList<List<Competency_OLD>>();
-    this.setCompetenciesNEW();
+    this.setCompetencies();
     this.ratings = new ArrayList<Rating>();
+    this.activityFeed = new ArrayList<Activity>();
   }
 
   /** Default Constructor - Responsible for initialising this object. */
@@ -96,705 +101,9 @@ public class Employee implements Serializable
     this.profile = profile;
   }
 
-  /** @return The _id created by MongoDB when inserting this object in the Collection */
-  public ObjectId getId()
-  {
-    return id;
-  }
-
-  /** @return the profile */
-  public EmployeeProfile getProfile()
-  {
-    return profile;
-  }
-
-  /** @param profile The profile to set. */
-  public void setProfile(EmployeeProfile profile)
-  {
-    this.profile = profile;
-  }
-
-  /** @return the feedback */
-  public List<Feedback> getFeedback()
-  {
-    return this.feedback;
-  }
-
-  /** @param feedback The feedback to set. */
-  public void setFeedback(List<Feedback> feedback)
-  {
-    this.feedback = feedback;
-  }
-
-  /**
-   * 
-   * @param objectives the list of objectives to assign to an employee
-   * @throws InvalidAttributeValueException
-   */
-  @Deprecated
-  public void setObjectiveList(List<List<Objective_OLD>> objectives) throws InvalidAttributeValueException
-  {
-    if (objectives != null)
-    {
-      // Counter that keeps tracks of the error while adding elements
-      int errorCounter = 0;
-      this.oldObjectives = new ArrayList<List<Objective_OLD>>();
-      // Verify if each each objective is valid
-      for (int i = 0; i < objectives.size(); i++)
-      {
-        // Add a new List to the list of Objectives
-        this.oldObjectives.add(new ArrayList<Objective_OLD>());
-        if (objectives.get(i) != null)
-        {
-          for (int j = 0; j < objectives.get(i).size(); j++)
-          {
-            if (objectives.get(i).get(j).isObjectiveValid())
-              this.oldObjectives.get(this.oldObjectives.size() - 1).add(objectives.get(i).get(j));
-            else errorCounter++;
-          }
-        }
-        else throw new InvalidAttributeValueException(Constants.NULL_OBJECTIVE);
-      }
-      // Verify if there were errors during the import of objectives
-      if (errorCounter != 0) throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVELIST);
-    }
-    else throw new InvalidAttributeValueException(Constants.NULL_OBJECTIVELIST);
-  }
-
-  @Deprecated
-  public List<List<Objective_OLD>> getObjectiveList()
-  {
-    return this.oldObjectives;
-  }
-
-  /**
-   * 
-   * @return a list containing only the latest version of each objective
-   */
-  @Deprecated
-  public List<Objective_OLD> getLatestVersionObjectives()
-  {
-    List<Objective_OLD> organisedList = new ArrayList<Objective_OLD>();
-    if (oldObjectives == null) return null;
-    else
-    {
-      // If the list if not empty, retrieve all the elements and add them to the list
-      // that is going to be returned
-      for (List<Objective_OLD> subList : oldObjectives)
-      {
-        // The last element contains the latest version for the objective
-        organisedList.add(subList.get(subList.size() - 1));
-      }
-
-      // Sort list by timeToCompelte
-      sortObjectivesByTimeToComplete(organisedList);
-
-      // Once the list if full, return it to the user
-      return organisedList;
-    }
-  }
-
-  /**
-   * 
-   * @param id id of the objective to search
-   * @return the objective data
-   * @throws InvalidAttributeValueException
-   */
-  @Deprecated
-  public Objective_OLD getLatestVersionOfSpecificObjective(int id) throws InvalidAttributeValueException
-  {
-    // Search for the objective with the given ID
-    for (List<Objective_OLD> subList : oldObjectives)
-    {
-      if ((subList.get(0)).getID() == id)
-      {
-        // Now that the Objective has been found, return the latest version of it
-        // which is stored at the end of the List
-        return (subList.get(subList.size() - 1));
-      }
-    }
-    throw new InvalidAttributeValueException(INVALID_OBJECTIVE_ID);
-  }
-
-  /** @return the notes */
-  public List<Note> getNotes()
-  {
-    return notes;
-  }
-
-  /** @param newNotes */
-  public void setNotes(List<Note> notes)
-  {
-    this.notes = notes;
-  }
-
-  /**
-   * 
-   * This method inserts all the development needs from another list, validating each element before inserting
-   * 
-   * @param developments the List<List<DevelopmentNeed> to copy the data from
-   * @throws InvalidAttributeValueException
-   */
-  @Deprecated
-  public void setDevelopmentNeedsList(List<List<DevelopmentNeed_OLD>> developments)
-      throws InvalidAttributeValueException
-  {
-    if (developments != null)
-    {
-      // Counter that keeps tracks of the error while adding elements
-      int errorCounter = 0;
-      this.oldDevelopmentNeeds = new ArrayList<List<DevelopmentNeed_OLD>>();
-      // Verify if each development need is valid
-      for (int i = 0; i < developments.size(); i++)
-      {
-        // Add a new List to the list of developmentNeeds
-        this.oldDevelopmentNeeds.add(new ArrayList<DevelopmentNeed_OLD>());
-        if (developments.get(i) != null)
-        {
-          for (int j = 0; j < developments.get(i).size(); j++)
-          {
-            if (developments.get(i).get(j).isDevelopmentNeedValid())
-              this.oldDevelopmentNeeds.get(this.oldDevelopmentNeeds.size() - 1).add(developments.get(i).get(j));
-            else errorCounter++;
-          }
-        }
-        else throw new InvalidAttributeValueException(Constants.INVALID_NULLDEVNEED_CONTEXT);
-      }
-      // Verify if there were errors during the import of development needs
-      if (errorCounter != 0) throw new InvalidAttributeValueException(Constants.INVALID_DEVNEEDSLIST_CONTEXT);
-    }
-    else throw new InvalidAttributeValueException(Constants.INVALID_NULLDEVNEEDSLIST_CONTEXT);
-  }
-
-  /**
-   * 
-   * This method returns the list of development needs
-   * 
-   * @return List<List<DevelopmentNeed>
-   */
-  @Deprecated
-  public List<List<DevelopmentNeed_OLD>> getDevelopmentNeedsList()
-  {
-    return this.oldDevelopmentNeeds;
-  }
-
-  /**
-   * 
-   * This method returns the latest version saved in the system of each development need
-   * 
-   * @return List<DevelopmentNeed>
-   */
-  @Deprecated
-  public List<DevelopmentNeed_OLD> getLatestVersionDevelopmentNeeds()
-  {
-    List<DevelopmentNeed_OLD> organisedList = new ArrayList<DevelopmentNeed_OLD>();
-    if (oldDevelopmentNeeds == null) return null;
-    else
-    {
-      // If the list if not empty, retrieve all the elements and add them to the list
-      // that is going to be returned
-      for (List<DevelopmentNeed_OLD> subList : oldDevelopmentNeeds)
-      {
-        // The last element contains the latest version of the development need
-        organisedList.add(subList.get(subList.size() - 1));
-      }
-      // Sort list by timeToCompelte
-      sortDevNeedsByTimeToComplete(organisedList);
-
-      // Once the list if full, return it to the user
-      return organisedList;
-    }
-  }
-
-  /**
-   * @throws InvalidAttributeValueException
-   * 
-   *           This method returns the latest version of a specific development need, given its ID
-   * 
-   * @param id development need ID @return the DevelopmentNeed data object @throws
-   */
-  @Deprecated
-  public DevelopmentNeed_OLD getLatestVersionOfSpecificDevelopmentNeed(int id) throws InvalidAttributeValueException
-  {
-    // Verify if the id is valid
-    if (id < 0) throw new InvalidAttributeValueException(Constants.INVALID_DEVNEEDID_CONTEXT);
-    // Search for the development need with the given ID
-    for (List<DevelopmentNeed_OLD> subList : oldDevelopmentNeeds)
-    {
-      if ((subList.get(0)).getID() == id)
-      {
-        // Now that the development need has been found, return the latest version of it
-        // which is stored at the end of the List
-        return (subList.get(subList.size() - 1));
-      }
-    }
-    return null;
-  }
-
-  /**
-   * @param data the list of feedback request object
-   * @throws InvalidAttributeValueException
-   */
-  public void setFeedbackRequestsList(List<FeedbackRequest> feedbackRequestList) throws InvalidAttributeValueException
-  {
-
-    if (feedbackRequestList == null /* || feedbackRequestList.isEmpty() */)
-      throw new InvalidAttributeValueException("The list is invalid. Please try again with a valid list.");
-
-    for (FeedbackRequest feedbackRequest : feedbackRequestList)
-    {
-      if (feedbackRequest == null) throw new InvalidAttributeValueException(
-          "One or more items in this list is invalid. Please try again with a valid list.");
-    }
-
-    this.feedbackRequests = new ArrayList<>(feedbackRequestList);
-  }
-
-  /**
-   * 
-   * This method returns the list of feedbackRequests
-   * 
-   * @return
-   */
-  public List<FeedbackRequest> getFeedbackRequestsList()
-  {
-    return this.feedbackRequests;
-  }
-
-  /**
-   * @param id
-   * @return Returns the feedback request with the given id.
-   * @throws InvalidAttributeValueException
-   */
-  public FeedbackRequest getFeedbackRequest(String id) throws InvalidAttributeValueException
-  {
-    for (FeedbackRequest feedbackRequest : this.feedbackRequests)
-    {
-      if (feedbackRequest.getId().equals(id)) return feedbackRequest;
-    }
-    throw new InvalidAttributeValueException("Feedback Request does not exist.");
-  }
-
-  /**
-   * 
-   * This method inserts all the competencies from another list, validating each element before inserting
-   * 
-   * @param developments the List<List<Competencies> to copy the data from
-   * @throws InvalidAttributeValueException
-   */
-  @Deprecated
-  public void setCompetenciesList(List<List<Competency_OLD>> comps) throws InvalidAttributeValueException
-  {
-    if (comps != null)
-    {
-      // Counter that keeps tracks of the error while adding elements
-      int errorCounter = 0;
-      this.oldCompetencies = new ArrayList<List<Competency_OLD>>();
-      // Verify if each development need is valid
-      for (int i = 0; i < comps.size(); i++)
-      {
-        // Add a new List to the list of competencies
-        this.oldCompetencies.add(new ArrayList<Competency_OLD>());
-        if (comps.get(i) != null)
-        {
-          for (int j = 0; j < comps.get(i).size(); j++)
-          {
-            if (!this.oldCompetencies.get(this.oldCompetencies.size() - 1).add(comps.get(i).get(j))) errorCounter++;
-          }
-        }
-        else throw new InvalidAttributeValueException(Constants.INVALID_NULLCOMPETENECYLIST_CONTEXT);
-      }
-      // Verify if there have been any error during the insertion of competencies
-      if (errorCounter > 0) throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCYLIST_CONTEXT);
-    }
-    else throw new InvalidAttributeValueException(Constants.INVALID_NULLCOMPETENECYLIST_CONTEXT);
-  }
-
-  /**
-   * 
-   * This method returns a list of competencies
-   * 
-   * @return List<List<competencies>
-   */
-  @Deprecated
-  public List<List<Competency_OLD>> getCompetenciesList()
-  {
-    if (this.oldCompetencies.size() == 0)
-    {
-      int index = 0;
-      while (oldCompetencies.size() < Constants.COMPETENCY_NAMES.length)
-      {
-        List<Competency_OLD> tempList = new ArrayList<Competency_OLD>();
-        tempList.add(new Competency_OLD(index++, false));
-        oldCompetencies.add(tempList);
-      }
-    }
-    return this.oldCompetencies;
-  }
-
-  /**
-   * 
-   * This method returns the latest version saved in the system of the list of competencies
-   * 
-   * @return List<Competencies>
-   */
-  @Deprecated
-  public List<Competency_OLD> getLatestVersionCompetencies()
-  {
-    List<Competency_OLD> organisedList = new ArrayList<Competency_OLD>();
-    if (this.oldCompetencies.size() == 0)
-    {
-      int index = 0;
-      while (oldCompetencies.size() < Constants.COMPETENCY_NAMES.length)
-      {
-        List<Competency_OLD> tempList = new ArrayList<Competency_OLD>();
-        tempList.add(new Competency_OLD(index++, false));
-        oldCompetencies.add(tempList);
-      }
-    }
-    // If the list if not empty, retrieve all the elements and add them to the list
-    // that is going to be returned
-    for (int i = 0; i < Constants.COMPETENCY_NAMES.length; i++)
-    {
-      try
-      {
-        List<Competency_OLD> subList = oldCompetencies.get(i);
-        // The last element contains the latest version of the development need
-        Competency_OLD temp = subList.get(subList.size() - 1);
-        // Add a title and a description to the competency
-        temp.setTitle(i);
-        temp.setDescription(i);
-        organisedList.add(temp);
-      }
-      catch (Exception e)
-      {
-      }
-    }
-    // Now that all the elements are retrieved, let's sort them
-    List<Competency_OLD> selected = new ArrayList<>();
-    List<Competency_OLD> notSelected = new ArrayList<>();
-    // Split the elements between selected and not selected
-    for (Competency_OLD c : organisedList)
-    {
-      if (c.getIsSelected()) selected.add(c);
-      else notSelected.add(c);
-    }
-    // Once this is done, let's sort them alphabetically (I USED LAMBDA FOR A MORE EFFICIENT CODE :) )
-    selected.sort((Competency_OLD c1, Competency_OLD c2) -> c1.getID() - c2.getID());
-    notSelected.sort((Competency_OLD c1, Competency_OLD c2) -> c1.getID() - c2.getID());
-    // Add these 2 lists to the list to return to the user
-    organisedList.clear();
-    organisedList.addAll(selected);
-    organisedList.addAll(notSelected);
-    // Once the list if full, return it to the user
-    return organisedList;
-  }
-
-  /**
-   * 
-   * This method returns the latest version of a specific Competency, given its ID
-   * 
-   * @param id Competency need ID
-   * @return the Competency data object
-   * @throws InvalidAttributeValueException
-   */
-  @Deprecated
-  public Competency_OLD getLatestVersionOfSpecificCompetency(int id) throws InvalidAttributeValueException
-  {
-    // Verify if the id is valid
-    if (id < 0) return null;
-    int index = 0;
-    // Search for the Competency with the given ID
-    for (List<Competency_OLD> subList : oldCompetencies)
-    {
-      if ((subList.get(0)).getID() == id)
-      {
-        // Now that the competency has been found, return the latest version of it
-        // which is stored at the end of the List
-        Competency_OLD temp = subList.get(subList.size() - 1);
-        temp.setTitle(index);
-        temp.setDescription(index);
-        return (temp);
-      }
-      index++;
-    }
-    throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCYTID_CONTEXT);
-  }
-
-  /** @return the last login */
-  public Date getLastLogon()
-  {
-    return this.lastLogon;
-  }
-
-  /** @param lastLoginDate The value to set the named property to. */
-  public void setLastLogon(Date lastLogon)
-  {
-    this.lastLogon = lastLogon;
-  }
-
-  /** @return the ratings */
-  public List<Rating> getRatings()
-  {
-    return ratings;
-  }
-
-  /** @param ratings The value to set. */
-  public void setRatings(List<Rating> ratings)
-  {
-    this.ratings = ratings;
-  }
-
-  public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException
-  {
-    isNull(feedback);
-    return this.feedback.add(feedback);
-  }
-
-  /**
-   * 
-   * @param obj objective data
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  @Deprecated
-  public boolean addObjective(Objective_OLD obj) throws InvalidAttributeValueException
-  {
-    if (oldObjectives == null) oldObjectives = new ArrayList<List<Objective_OLD>>();
-    // Verify that the objective is not null
-    if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_OBJECTIVE);
-    // At this point, the objective hasn't got an ID, let's create one
-    obj.setID(oldObjectives.size() + 1);
-    if (obj.isObjectiveValid())
-    {
-      List<Objective_OLD> tempList = new ArrayList<Objective_OLD>();
-      // add the first version of this objective
-      boolean res1 = tempList.add(obj);
-      boolean res2 = oldObjectives.add(tempList);
-      // Action completed, verify the results
-      return (res1 && res2);
-    }
-    throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE);
-  }
-
-  /**
-   * This method adds a new updated version of the objective
-   * 
-   * @param obj objective data
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  @Deprecated
-  public boolean editObjective(Objective_OLD obj) throws InvalidAttributeValueException
-  {
-    // Verify that the object is not null
-    if (obj == null) throw new InvalidAttributeValueException(Constants.NULL_OBJECTIVE);
-    // Step 1: Verify that the object contains valid data
-    if (obj.isObjectiveValid())
-    {
-      // Step 2: Verify that the ID contained within the Objective object is in the system
-      for (int i = 0; i < oldObjectives.size(); i++)
-      {
-        List<Objective_OLD> listTemp = oldObjectives.get(i);
-        // The elements within each list has all the same ID, so pick the first one and compare it
-        if ((listTemp.get(0)).getID() == obj.getID())
-        {
-          // Add the objective to the end of the list
-          return oldObjectives.get(i).add(obj);
-        }
-      }
-    }
-    throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE);
-  }
-
-  public boolean addNote(Note note)
-  {
-    note.setId(this.getNotes().size() + 1);
-    return this.notes.add(note);
-  }
-
-  /**
-   * 
-   * This method inserts a development need inside the list of developmentneeds
-   * 
-   * @param obj The developmentNeed object data
-   * @return a boolean value that indicates whether the task has been successfully or not
-   * @throws InvalidAttributeValueException
-   */
-  @Deprecated
-  public boolean addDevelopmentNeed(DevelopmentNeed_OLD obj) throws InvalidAttributeValueException
-  {
-    if (oldDevelopmentNeeds == null) oldDevelopmentNeeds = new ArrayList<List<DevelopmentNeed_OLD>>();
-    // Verify that the note is not null
-    if (obj == null) throw new InvalidAttributeValueException(Constants.INVALID_NULLDEVNEED_CONTEXT);
-    // At this point, the note hasn't got an ID, let's create one
-    obj.setID(oldDevelopmentNeeds.size() + 1);
-    if (obj.isDevelopmentNeedValid())
-    {
-      List<DevelopmentNeed_OLD> tempList = new ArrayList<DevelopmentNeed_OLD>();
-      // add the first version of this note
-      boolean res1 = tempList.add(obj);
-      boolean res2 = oldDevelopmentNeeds.add(tempList);
-      // Action completed, verify the results
-      return (res1 && res2);
-    }
-    throw new InvalidAttributeValueException(Constants.INVALID_DEVNEED_CONTEXT);
-  }
-
-  /**
-   * 
-   * This method adds a new version to an already existing development need
-   * 
-   * @param obj the updated version of the development need
-   * @return a boolean value that indicates whether the task has been successfully or not
-   * @throws InvalidAttributeValueException
-   */
-  @Deprecated
-  public boolean editDevelopmentNeed(DevelopmentNeed_OLD obj) throws InvalidAttributeValueException
-  {
-    // Verify that the object is not null
-    if (obj == null) throw new InvalidAttributeValueException(Constants.INVALID_NULLDEVNEED_CONTEXT);
-    // Step 1: Verify that the object contains valid data
-    if (obj.isDevelopmentNeedValid())
-    {
-      // Step 2: Verify that the ID contained within the note object is in the system
-      for (int i = 0; i < oldDevelopmentNeeds.size(); i++)
-      {
-        List<DevelopmentNeed_OLD> listTemp = oldDevelopmentNeeds.get(i);
-        // The elements within each list has all the same ID, so pick the first one and compare it
-        if ((listTemp.get(0)).getID() == obj.getID())
-          // Add the note to the end of the list
-          return oldDevelopmentNeeds.get(i).add(obj);
-      }
-    }
-    throw new InvalidAttributeValueException(Constants.INVALID_DEVNEED_CONTEXT);
-  }
-
-  /**
-   * Add feedback request to employee
-   * 
-   * @param feedbackRequest
-   * @return true if it was added, false otherwise
-   * @throws InvalidAttributeValueException if feedbackRequest is null
-   */
-  public boolean addFeedbackRequest(FeedbackRequest feedbackRequest) throws InvalidAttributeValueException
-  {
-    if (feedbackRequest == null) throw new InvalidAttributeValueException("This object is invalid.");
-
-    return this.feedbackRequests.add(feedbackRequest);
-  }
-
-  /**
-   * 
-   * This method adds a new version to an already existing Competency
-   * 
-   * @param obj the updated version of the development need
-   * @return a boolean value that indicates whether the task has been successfully or not
-   * @throws InvalidAttributeValueException
-   */
-  @Deprecated
-  public boolean updateCompetency(Competency_OLD obj, String title) throws InvalidAttributeValueException
-  {
-    // Check if the number of competencies has changed
-    int index = 0;
-    while (oldCompetencies.size() < Constants.COMPETENCY_NAMES.length)
-    {
-      List<Competency_OLD> tempList = new ArrayList<Competency_OLD>();
-      tempList.add(new Competency_OLD(index++, false));
-      oldCompetencies.add(tempList);
-    }
-    // Verify that the object is not null
-    if (obj == null) throw new InvalidAttributeValueException(Constants.INVALID_NULLCOMPETENCY_CONTEXT);
-    // Step 1: Verify that the object contains valid data
-    if (obj.isValid())
-      // Step 2: Verify that the ID contained within the competency object is in the system
-      return oldCompetencies.get(obj.getID()).add(obj);
-    throw new InvalidAttributeValueException(Constants.INVALID_COMPETENCY_CONTEXT);
-  }
-
-  public int nextFeedbackID()
-  {
-    return this.feedback.size() + 1;
-  }
-
-  public int nextObjectiveID()
-  {
-    int max = 0;
-    for (Objective objective : this.getObjectivesNEW())
-    {
-      if (objective.getId() > max) max = objective.getId();
-    }
-    return ++max;
-  }
-
-  public int nextDevelopmentNeedID()
-  {
-    int max = 0;
-    for (DevelopmentNeed developmentNeed : this.getDevelopmentNeedsNEW())
-    {
-      if (developmentNeed.getId() > max) max = developmentNeed.getId();
-    }
-    return ++max;
-  }
-
-  /**
-   * 
-   * This method takes in a List of Objectives or Development Needs an sorts them based on the Due Date Sorted by
-   * earliest date to latest date
-   * 
-   * @param o (An Objective or Development Need)
-   * @return List (or Objectives or Development Needs)
-   */
-  @Deprecated
-  private static void sortObjectivesByTimeToComplete(List<Objective_OLD> objectivesList)
-  {
-    Collections.sort(objectivesList, new Comparator<Objective_OLD>()
-    {
-      @Override
-      public int compare(Objective_OLD o1, Objective_OLD o2)
-      {
-        YearMonth ym1 = o1.getTimeToCompleteByYearMonth();
-        YearMonth ym2 = o2.getTimeToCompleteByYearMonth();
-        // Ternary Expression that return 0 if the ym1 equals ym2, or return the result of the second ternary expression
-        // which
-        // checks if ym1 is before ym2 and returns -1 if true, 1 if false
-        return (ym1.equals(ym2)) ? 0 : ((ym1.isBefore(ym2)) ? -1 : 1);
-      }
-    });
-  }
-
-  @Deprecated
-  private static void sortDevNeedsByTimeToComplete(List<DevelopmentNeed_OLD> devNeeds)
-  {
-    Collections.sort(devNeeds, new Comparator<DevelopmentNeed_OLD>()
-    {
-      @Override
-      public int compare(DevelopmentNeed_OLD o1, DevelopmentNeed_OLD o2)
-      {
-        YearMonth ym1 = o1.getTimeToCompleteByYearMonth();
-        YearMonth ym2 = o2.getTimeToCompleteByYearMonth();
-        // Ternary Expression that return 0 if the ym1 equals ym2, or return the result of the second ternary expression
-        // which
-        // checks if ym1 is before ym2 and returns -1 if true, 1 if false
-        return (ym1.equals(ym2)) ? 0 : ((ym1.isBefore(ym2)) ? -1 : 1);
-      }
-    });
-  }
-
-  //////////////////// START NEW OBJECTIVES
-
-  /** @return the newObjectives */
-  public List<Objective> getObjectivesNEW()
-  {
-    Collections.sort(objectives);
-    return objectives;
-  }
-
-  /** @param newObjectives The value to set. */
-  public void setObjectivesNEW(List<Objective> newObjectives)
-  {
-    this.objectives = newObjectives;
-  }
+  ///////////////////////////////////////////////////////////////////////////
+  ///////////////////// OBJECTIVES METHODS FOLLOW ///////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   public boolean addObjectiveNEW(Objective objective)
   {
@@ -830,7 +139,7 @@ public class Employee implements Serializable
     notes.forEach(n -> n.removeObjectiveTag(objectiveId));
     feedback.forEach(f -> f.removeObjectiveTag(objectiveId));
 
-    return this.getObjectivesNEW().remove(objective);
+    return this.getObjectives().remove(objective);
   }
 
   public boolean updateObjectiveNEWProgress(int objectiveId, Progress progress) throws InvalidAttributeValueException
@@ -859,29 +168,26 @@ public class Employee implements Serializable
 
   public Objective getObjectiveNEW(int objectiveId) throws InvalidAttributeValueException
   {
-    Optional<Objective> objective = getObjectivesNEW().stream().filter(o -> o.getId() == objectiveId).findFirst();
+    Optional<Objective> objective = getObjectives().stream().filter(o -> o.getId() == objectiveId).findFirst();
 
     if (!objective.isPresent()) throw new InvalidAttributeValueException("Objective not found.");
 
     return objective.get();
   }
 
-  //////////////////// END NEW OBJECTIVES
-
-  //////////////////// START NEW DEVELOPMENT NEEDS
-
-  /** @return the newDevelopmentNeeds */
-  public List<DevelopmentNeed> getDevelopmentNeedsNEW()
+  public int nextObjectiveID()
   {
-    Collections.sort(developmentNeeds);
-    return developmentNeeds;
+    int max = 0;
+    for (Objective objective : this.getObjectives())
+    {
+      if (objective.getId() > max) max = objective.getId();
+    }
+    return ++max;
   }
 
-  /** @param newDevelopmentNeeds The value to set. */
-  public void setDevelopmentNeedsNEW(List<DevelopmentNeed> newDevelopmentNeeds)
-  {
-    this.developmentNeeds = newDevelopmentNeeds;
-  }
+  ///////////////////////////////////////////////////////////////////////////
+  ///////////////// DEVELOPMENT NEEDS METHODS FOLLOW ////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   public boolean addDevelopmentNeedNEW(DevelopmentNeed developmentNeed)
   {
@@ -916,7 +222,7 @@ public class Employee implements Serializable
     notes.forEach(n -> n.removeDevelopmentNeedTag(developmentNeedId));
     feedback.forEach(f -> f.removeDevelopmentNeedTag(developmentNeedId));
 
-    return this.getDevelopmentNeedsNEW().remove(developmentNeed);
+    return this.getDevelopmentNeeds().remove(developmentNeed);
   }
 
   public boolean updateDevelopmentNeedNEWProgress(int developmentNeedId, Progress progress)
@@ -946,7 +252,7 @@ public class Employee implements Serializable
 
   public DevelopmentNeed getDevelopmentNeedNEW(int developmentNeedId) throws InvalidAttributeValueException
   {
-    Optional<DevelopmentNeed> developmentNeed = getDevelopmentNeedsNEW().stream()
+    Optional<DevelopmentNeed> developmentNeed = getDevelopmentNeeds().stream()
         .filter(d -> d.getId() == developmentNeedId).findFirst();
 
     if (!developmentNeed.isPresent()) throw new InvalidAttributeValueException("Development Need not found.");
@@ -954,29 +260,19 @@ public class Employee implements Serializable
     return developmentNeed.get();
   }
 
-  //////////////////// END NEW DEVELOPMENT NEEDS
-
-  //////////////////// START NEW COMPETENCIES
-
-  /** @return the newCompetencies */
-  public List<Competency> getCompetenciesNEW()
+  public int nextDevelopmentNeedID()
   {
-    Collections.sort(competencies);
-    return competencies;
-  }
-
-  public void setCompetenciesNEW()
-  {
-    if (competencies == null)
+    int max = 0;
+    for (DevelopmentNeed developmentNeed : this.getDevelopmentNeeds())
     {
-      this.competencies = new ArrayList<Competency>();
-      int id = 0;
-      for (CompetencyTitle competenctyTitle : CompetencyTitle.values())
-      {
-        this.competencies.add(new Competency(id++, competenctyTitle));
-      }
+      if (developmentNeed.getId() > max) max = developmentNeed.getId();
     }
+    return ++max;
   }
+
+  ///////////////////////////////////////////////////////////////////////////
+  //////////////////// COMPETENCIES METHODS FOLLOW //////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   public boolean toggleCompetencyNEW(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
   {
@@ -989,7 +285,7 @@ public class Employee implements Serializable
 
   public Competency getCompetencyNEW(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
   {
-    Optional<Competency> competency = getCompetenciesNEW().stream()
+    Optional<Competency> competency = getCompetencies().stream()
         .filter(c -> c.getTitle().equals(competencyTitle.getCompetencyTitleStr())).findFirst();
 
     if (!competency.isPresent()) throw new InvalidAttributeValueException("Competency not found.");
@@ -997,24 +293,14 @@ public class Employee implements Serializable
     return competency.get();
   }
 
-  //////////////////// END NEW COMPETENCIES
+  ///////////////////////////////////////////////////////////////////////////
+  //////////////////////// NOTES METHODS FOLLOW /////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
-  public void updateFeedbackTags(int feedbackId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
-      throws InvalidAttributeValueException
+  public boolean addNote(Note note)
   {
-    Feedback feedback = getFeedback(feedbackId);
-
-    feedback.setTaggedObjectiveIds(objectiveIds);
-    feedback.setTaggedDevelopmentNeedIds(developmentNeedIds);
-  }
-
-  public Feedback getFeedback(int feedbackId) throws InvalidAttributeValueException
-  {
-    Optional<Feedback> feedback = getFeedback().stream().filter(f -> f.getId() == feedbackId).findFirst();
-
-    if (!feedback.isPresent()) throw new InvalidAttributeValueException("Feedback not found.");
-
-    return feedback.get();
+    note.setId(this.getNotes().size() + 1);
+    return this.notes.add(note);
   }
 
   public void updateNotesTags(int noteId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
@@ -1035,12 +321,84 @@ public class Employee implements Serializable
     return note.get();
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  ////////////////////// FEEDBACK METHODS FOLLOW ////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException
+  {
+    isNull(feedback);
+    return this.feedback.add(feedback);
+  }
+
+  public int nextFeedbackID()
+  {
+    return this.feedback.size() + 1;
+  }
+
+  public void updateFeedbackTags(int feedbackId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
+      throws InvalidAttributeValueException
+  {
+    Feedback feedback = getFeedback(feedbackId);
+
+    feedback.setTaggedObjectiveIds(objectiveIds);
+    feedback.setTaggedDevelopmentNeedIds(developmentNeedIds);
+  }
+
+  public Feedback getFeedback(int feedbackId) throws InvalidAttributeValueException
+  {
+    Optional<Feedback> feedback = getFeedback().stream().filter(f -> f.getId() == feedbackId).findFirst();
+
+    if (!feedback.isPresent()) throw new InvalidAttributeValueException("Feedback not found.");
+
+    return feedback.get();
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  ////////////////// FEEDBACK REQUESTS METHODS FOLLOW ///////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * @param id
+   * @return Returns the feedback request with the given id.
+   * @throws InvalidAttributeValueException
+   */
+  public FeedbackRequest getFeedbackRequest(String id) throws InvalidAttributeValueException
+  {
+    for (FeedbackRequest feedbackRequest : this.feedbackRequests)
+    {
+      if (feedbackRequest.getId().equals(id)) return feedbackRequest;
+    }
+    throw new InvalidAttributeValueException("Feedback Request does not exist.");
+  }
+
+  /**
+   * Add feedback request to employee
+   * 
+   * @param feedbackRequest
+   * @return true if it was added, false otherwise
+   * @throws InvalidAttributeValueException if feedbackRequest is null
+   */
+  public boolean addFeedbackRequest(FeedbackRequest feedbackRequest) throws InvalidAttributeValueException
+  {
+    if (feedbackRequest == null) throw new InvalidAttributeValueException("This object is invalid.");
+
+    return this.feedbackRequests.add(feedbackRequest);
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  /////////////////////// RATINGS METHODS FOLLOW ////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
   public void addManagerEvaluation(int year, String managerEvaluation, int score) throws InvalidAttributeValueException
   {
     Rating rating = getRating(year);
 
     if (rating.isManagerEvaluationSubmitted())
-      throw new InvalidAttributeValueException("The Manager evaluation has been submitted and can no longer be updated.");
+    {
+      throw new InvalidAttributeValueException(
+          "The Manager evaluation has been submitted and can no longer be updated.");
+    }
 
     rating.setManagerEvaluation(managerEvaluation);
     rating.setScore(score);
@@ -1049,7 +407,7 @@ public class Employee implements Serializable
   public void addSelfEvaluation(int year, String selfEvaluation) throws InvalidAttributeValueException
   {
     Rating rating = getRating(year);
-    
+
     if (rating.isSelfEvaluationSubmitted())
       throw new InvalidAttributeValueException("The self evaluation has been submitted and can no longer be updated.");
 
@@ -1061,17 +419,15 @@ public class Employee implements Serializable
     Rating rating = getRating(year);
     rating.setSelfEvaluationSubmitted(true);
   }
-  
+
   public void submitManagerEvaluation(int year) throws InvalidAttributeValueException
   {
     Rating rating = getRating(year);
-    
-    if(rating.getScore() == 0)
-      throw new InvalidAttributeValueException("You must enter a rating from 1 to 5.");
-    
+
+    if (rating.getScore() == 0) throw new InvalidAttributeValueException("You must enter a rating from 1 to 5.");
+
     rating.setManagerEvaluationSubmitted(true);
   }
-  
 
   /**
    * Gets Rating with the requested year. If rating does not exists, it will create one.
@@ -1093,4 +449,197 @@ public class Employee implements Serializable
     return rating.get();
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  ////////////////////// LAST LOGON METHODS FOLLOW //////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  // None!
+
+  ///////////////////////////////////////////////////////////////////////////
+  //////////////////// ACTIVITY FEED METHODS FOLLOW /////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Adds the given string to the activity feed queue, ensuring the max capacity of the queue is not exceeded.
+   *
+   * @param activityString the string to add to the queue
+   * @return true if the string was successfully added to the queue
+   */
+  public boolean addActivity(final Activity activityString)
+  {
+    while (activityFeed.size() >= MAX_ACTIVITY_FEED_SIZE)
+    {
+      activityFeed.remove(0);
+    }
+
+    return activityFeed.add(activityString);
+  }
+
+  public Document getActivityFeedAsDocument()
+  {
+    List<Document> activityFeedList = new ArrayList<>();
+
+    for (final Activity activity : activityFeed)
+    {
+      activityFeedList.add(activity.toDocument());
+    }
+
+    return new Document(ACTIVITY_FEED, activityFeedList);
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  ///////////////// HORRIBLE GETTERS AND SETTERS FOLLOW /////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  /** @return The _id created by MongoDB when inserting this object in the Collection */
+  public ObjectId getId()
+  {
+    return id;
+  }
+
+  /** @return the profile */
+  public EmployeeProfile getProfile()
+  {
+    return profile;
+  }
+
+  /** @param profile The profile to set. */
+  public void setProfile(EmployeeProfile profile)
+  {
+    this.profile = profile;
+  }
+
+  /** @return the newObjectives */
+  public List<Objective> getObjectives()
+  {
+    Collections.sort(objectives);
+    return objectives;
+  }
+
+  /** @param newObjectives The value to set. */
+  public void setObjectives(List<Objective> newObjectives)
+  {
+    this.objectives = newObjectives;
+  }
+
+  /** @return the newDevelopmentNeeds */
+  public List<DevelopmentNeed> getDevelopmentNeeds()
+  {
+    Collections.sort(developmentNeeds);
+    return developmentNeeds;
+  }
+
+  /** @param newDevelopmentNeeds The value to set. */
+  public void setDevelopmentNeeds(List<DevelopmentNeed> newDevelopmentNeeds)
+  {
+    this.developmentNeeds = newDevelopmentNeeds;
+  }
+
+  /** @return the newCompetencies */
+  public List<Competency> getCompetencies()
+  {
+    Collections.sort(competencies);
+    return competencies;
+  }
+
+  public void setCompetencies()
+  {
+    if (competencies == null)
+    {
+      this.competencies = new ArrayList<Competency>();
+      int id = 0;
+      for (CompetencyTitle competenctyTitle : CompetencyTitle.values())
+      {
+        this.competencies.add(new Competency(id++, competenctyTitle));
+      }
+    }
+  }
+
+  /** @return the notes */
+  public List<Note> getNotes()
+  {
+    return notes;
+  }
+
+  /** @param newNotes */
+  public void setNotes(List<Note> notes)
+  {
+    this.notes = notes;
+  }
+
+  /** @return the feedback */
+  public List<Feedback> getFeedback()
+  {
+    return this.feedback;
+  }
+
+  /** @param feedback The feedback to set. */
+  public void setFeedback(List<Feedback> feedback)
+  {
+    this.feedback = feedback;
+  }
+
+  /**
+   * 
+   * This method returns the list of feedbackRequests
+   * 
+   * @return
+   */
+  public List<FeedbackRequest> getFeedbackRequests()
+  {
+    return this.feedbackRequests;
+  }
+
+  /**
+   * @param data the list of feedback request object
+   * @throws InvalidAttributeValueException
+   */
+  public void setFeedbackRequests(List<FeedbackRequest> feedbackRequestList) throws InvalidAttributeValueException
+  {
+
+    if (feedbackRequestList == null /* || feedbackRequestList.isEmpty() */)
+      throw new InvalidAttributeValueException("The list is invalid. Please try again with a valid list.");
+
+    for (FeedbackRequest feedbackRequest : feedbackRequestList)
+    {
+      if (feedbackRequest == null) throw new InvalidAttributeValueException(
+          "One or more items in this list is invalid. Please try again with a valid list.");
+    }
+
+    this.feedbackRequests = new ArrayList<>(feedbackRequestList);
+  }
+
+  /** @return the ratings */
+  public List<Rating> getRatings()
+  {
+    return ratings;
+  }
+
+  /** @param ratings The value to set. */
+  public void setRatings(List<Rating> ratings)
+  {
+    this.ratings = ratings;
+  }
+
+  /** @return the last login */
+  public Date getLastLogon()
+  {
+    return this.lastLogon;
+  }
+
+  /** @param lastLoginDate The value to set the named property to. */
+  public void setLastLogon(Date lastLogon)
+  {
+    this.lastLogon = lastLogon;
+  }
+
+  public List<Activity> getActivityFeed()
+  {
+    return activityFeed;
+  }
+
+  public void setActivityFeed(final List<Activity> activityFeed)
+  {
+    this.activityFeed = activityFeed;
+  }
 }
