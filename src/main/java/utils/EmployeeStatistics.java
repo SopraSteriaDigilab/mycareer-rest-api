@@ -2,6 +2,7 @@ package utils;
 
 import static dataStructure.Objective.Progress.*;
 import static dataStructure.EmployeeProfile.*;
+import static utils.Conversions.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,7 +78,7 @@ public class EmployeeStatistics
     employees.forEach(e -> {
       Map<String, Object> map = getBasicMap(e);
       map.put("lastLogon",
-          (e.getLastLogon() == null) ? "Never" : Utils.dateToLocalDateTime(e.getLastLogon()).toString());
+          (e.getLastLogon() == null) ? "Never" : dateToLocalDateTime(e.getLastLogon()).toString());
       statistics.add(map);
     });
     return statistics;

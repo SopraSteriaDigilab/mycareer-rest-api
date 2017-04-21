@@ -8,10 +8,9 @@ import static services.db.MongoOperations.developmentNeedHistoryIdFilter;
 import static services.db.MongoOperations.objectiveHistoryIdFilter;
 import static utils.Utils.generateFeedbackRequestID;
 import static utils.Utils.getEmployeeIDFromRequestID;
-import static utils.Utils.localDateTimetoDate;
+import static utils.Conversions.*;
 import static utils.Utils.stringEmailsToHashSet;
 import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Updates.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -33,7 +32,6 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.mongodb.client.model.Updates;
 
 import dataStructure.CRUD;
 import dataStructure.Competency;
@@ -118,6 +116,10 @@ public class EmployeeService
     this.env = env;
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  //////////////////////// DAO METHODS FOLLOW ///////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
   /**
    * Gets Employee from database with the specified id
    *
@@ -127,12 +129,7 @@ public class EmployeeService
    */
   public Employee getEmployee(final long employeeID) throws EmployeeNotFoundException
   {
-    Employee employee = morphiaOperations.getEmployee(EMPLOYEE_ID, employeeID);
-    if (employee == null)
-    {
-      throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + employeeID);
-    }
-    return employee;
+    return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeID);
   }
 
   /**
@@ -145,237 +142,13 @@ public class EmployeeService
   public Employee getEmployee(final String email) throws EmployeeNotFoundException
   {
     Employee employee = morphiaOperations.getEmployeeFromEmailAddress(email);
+
     if (employee == null)
     {
       throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + email);
     }
+
     return employee;
-  }
-
-  /**
-   * Gets full name of a user from the database
-   *
-   * @param employeeId
-   * @return
-   * @throws EmployeeNotFoundException
-   */
-  public String getFullNameUser(long employeeID) throws EmployeeNotFoundException
-  {
-    return getEmployee(employeeID).getProfile().getFullName();
-  }
-
-  /**
-   * TODO: Describe this method.
-   *
-   * @param employeeId
-   * @return
-   * @throws EmployeeNotFoundException
-   */
-  public List<Feedback> getFeedback(long employeeID) throws EmployeeNotFoundException
-  {
-    List<Feedback> feedbackList = getEmployee(employeeID).getFeedback();
-    Collections.reverse(feedbackList);
-    return feedbackList;
-  }
-
-  /**
-   * Get all notes for user.
-   *
-   * @param employeeId
-   * @return
-   * @throws EmployeeNotFoundException
-   */
-  public List<Note> getNotes(long employeeID) throws EmployeeNotFoundException
-  {
-    return getEmployee(employeeID).getNotes();
-  }
-
-  /**
-   * Adds new note to an employee
-   *
-   * @param employeeId
-   * @param note
-   * @return
-   * @throws EmployeeNotFoundException
-   */
-  public boolean addNote(long employeeID, Note note) throws EmployeeNotFoundException
-  {
-    Employee employee = getEmployee(employeeID);
-    EmployeeProfile profile = employee.getProfile();
-    employee.addNote(note);
-
-    if (profile.getFullName().equals(note.getProviderName()))
-    {
-      employee.addActivity(note.createActivity(ADD, profile));
-      updateActivityFeed(employee);
-    }
-
-    morphiaOperations.updateEmployee(profile.getEmployeeID(), NOTES, employee.getNotes());
-    return true;
-  }
-
-  /**
-   * Sends Emails to the recipients and updates the database.
-   * 
-   * @param employeeId
-   * @param emailsString
-   * @param notes
-   * @throws Exception
-   */
-  public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception
-  {
-    Employee requester = getEmployee(employeeID);
-    Set<String> recipientList = stringEmailsToHashSet(emailsString);
-
-    if (recipientList.size() > 20)
-      throw new InvalidAttributeValueException("There must be less than 20 email addresses.");
-
-    List<String> errorRecipientList = new ArrayList<String>();
-    String requesterName = requester.getProfile().getFullName();
-
-    for (String recipient : recipientList)
-    {
-      String tempID = generateFeedbackRequestID(employeeID);
-      String subject = String.format("Feedback Request from %s - %s", requester.getProfile().getFullName(), employeeID);
-      // String body = String.format("%s \n\n Feedback_Request: %s", notes, tempID);
-      String body = Template.populateTemplate(env.getProperty("templates.feedback.request"), requesterName, notes,
-          tempID);
-      try
-      {
-        EmailService.sendEmail(recipient, subject, body);
-      }
-      catch (Exception e)
-      {
-        LOGGER.error(e.getMessage());
-        errorRecipientList.add(recipient);
-        continue;
-      }
-      addFeedbackRequest(requester, new FeedbackRequest(tempID, recipient));
-    }
-
-    if (!errorRecipientList.isEmpty())
-    {
-      throw new Exception(
-          "There were issues sending requests to the following addresses: \n" + errorRecipientList.toString());
-    }
-  }
-
-  /**
-   * Add a feedbackRequest to an employee.
-   *
-   * @param employee
-   * @param feedbackRequest
-   * @throws InvalidAttributeValueException
-   */
-  private void addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest)
-      throws InvalidAttributeValueException
-  {
-    Validate.isNull(employee, feedbackRequest);
-    employee.addFeedbackRequest(feedbackRequest);
-    employee.addActivity(feedbackRequest.createActivity(employee.getProfile()));
-    morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK_REQUESTS,
-        employee.getFeedbackRequests());
-    updateActivityFeed(employee);
-  }
-
-  /**
-   * Adding feedback from the MyCareer App.
-   *
-   * @param employeeId
-   * @param emailSet
-   * @param feedback
-   * @param isFeedbackRequest
-   * @throws Exception
-   */
-  public void addFeedback(long employeeId, Set<String> emailSet, String feedback, boolean isFeedbackRequest)
-      throws Exception
-  {
-    Employee employee = getEmployee(employeeId);
-    String employeeEmail = employee.getProfile().getEmailAddresses().toSet().stream().findFirst().get();
-    List<String> errorRecipientList = new ArrayList<String>();
-    List<String> successfullRecipientList = new ArrayList<String>();
-
-    for (String email : emailSet)
-    {
-      try
-      {
-        addFeedback(employeeEmail, email, feedback, isFeedbackRequest);
-        successfullRecipientList.add(email);
-
-        String subject = String.format("Feedback from %s", employee.getProfile().getFullName());
-        String body = Template.populateTemplate(env.getProperty("templates.feedback.generic"),
-            employee.getProfile().getFullName());
-
-        EmailService.sendEmail(email, subject, body);
-      }
-      catch (EmployeeNotFoundException e)
-      {
-        errorRecipientList.add(email);
-      }
-    }
-
-    if (!errorRecipientList.isEmpty())
-    {
-      if (successfullRecipientList.isEmpty()) throw new InvalidAttributeValueException(
-          "Employees not found for the following Email Addresses: " + errorRecipientList.toString());
-      throw new InvalidAttributeValueException("Feedback Added for: " + successfullRecipientList.toString()
-          + ". Employees not found for the following Email Addresses: " + errorRecipientList.toString());
-    }
-
-  }
-
-  /**
-   * Add a feedback to an employee
-   *
-   * @param providerEmail
-   * @param recipientEmails
-   * @param feedbackDescription
-   * @throws InvalidAttributeValueException
-   * @throws EmployeeNotFoundException
-   */
-  public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
-      boolean isFeedbackRequest) throws InvalidAttributeValueException, EmployeeNotFoundException
-  {
-    Validate.areStringsEmptyorNull(providerEmail, feedbackDescription, recipientEmail);
-    Employee employee = morphiaOperations.getEmployeeFromEmailAddress(recipientEmail);
-    if (employee == null) throw new EmployeeNotFoundException("Employee not found with email: " + recipientEmail);
-
-    Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
-
-    String providerName = (getFullNameFromEmail(providerEmail) != null) ? getFullNameFromEmail(providerEmail)
-        : providerEmail;
-
-    feedback.setProviderName(providerName);
-    employee.addFeedback(feedback);
-    morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK, employee.getFeedback());
-  }
-
-  /**
-   * Method that adds requested feedback to an employee
-   *
-   * @param providerEmail
-   * @param feedbackRequestID
-   * @param feedbackDescription
-   * @throws Exception
-   */
-  public void addRequestedFeedback(String providerEmail, String feedbackRequestID, String feedbackDescription)
-      throws Exception
-  {
-    Validate.areStringsEmptyorNull(providerEmail, feedbackRequestID, feedbackDescription);
-    long employeeID = getEmployeeIDFromRequestID(feedbackRequestID);
-    Employee employee = getEmployee(employeeID);
-
-    employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
-    morphiaOperations.updateEmployee(employeeID, FEEDBACK_REQUESTS, employee.getFeedbackRequests());
-    addFeedback(providerEmail, employee.getProfile().getEmailAddresses().toSet().stream().findFirst().get(),
-        feedbackDescription, true);
-
-    String provider = (getFullNameFromEmail(providerEmail) != null) ? getFullNameFromEmail(providerEmail)
-        : providerEmail;
-
-    String subject = String.format("Feedback Request reply from %s", provider);
-    String body = Template.populateTemplate(env.getProperty("templates.feedback.reply"), provider);
-    EmailService.sendEmail(employee.getProfile().getEmailAddresses().toSet(), subject, body);
   }
 
   private String getFullNameFromEmail(String email)
@@ -390,18 +163,19 @@ public class EmployeeService
     }
   }
 
-  public void updateLastLoginDate(EmployeeProfile profile) throws EmployeeNotFoundException
+  private void updateActivityFeed(Employee employee)
   {
-    Employee employee = getEmployee(profile.getEmployeeID());
-    employee.setLastLogon(localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE)));
-    morphiaOperations.updateEmployee(profile.getEmployeeID(), LAST_LOGON, employee.getLastLogon());
+    employeeOperations.setFields(eq(EMPLOYEE_ID, employee.getProfile().getEmployeeID()),
+        employee.getActivityFeedAsDocument());
   }
 
-  //////////////////// START NEW OBJECTIVES
+  ///////////////////////////////////////////////////////////////////////////
+  ///////////////////// OBJECTIVES METHODS FOLLOW ///////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   public List<Objective> getObjectives(long employeeId) throws EmployeeNotFoundException
   {
-    return getEmployee(employeeId).getObjectives();
+    return getEmployee(employeeId).getCurrentObjectives();
   }
 
   public void addObjective(long employeeId, Objective objective)
@@ -489,7 +263,7 @@ public class EmployeeService
       String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
       addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_OBJECTIVE,
           employee.getProfile().getFullName(), objective.getTitle(), commentAdded)));
-      
+
     }
   }
 
@@ -510,16 +284,16 @@ public class EmployeeService
     updateActivityFeed(employee);
   }
 
-  //////////////////// END NEW OBJECTIVES
-
-  //////////////////// START NEW DEVELOPMENT NEEDS
+  ///////////////////////////////////////////////////////////////////////////
+  ///////////////// DEVELOPMENT NEEDS METHODS FOLLOW ////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   public List<DevelopmentNeed> getDevelopmentNeeds(long employeeId) throws EmployeeNotFoundException
   {
-    return getEmployee(employeeId).getDevelopmentNeeds();
+    return getEmployee(employeeId).getCurrentDevelopmentNeeds();
   }
 
-  public void addDevelopmentNeedNEW(long employeeId, DevelopmentNeed developmentNeed)
+  public void addDevelopmentNeed(long employeeId, DevelopmentNeed developmentNeed)
       throws EmployeeNotFoundException, DocumentConversionException
   {
     Employee employee = getEmployee(employeeId);
@@ -625,16 +399,16 @@ public class EmployeeService
     updateActivityFeed(employee);
   }
 
-  //////////////////// END NEW DEVELOPMENT NEEDS
-
-  //////////////////// START NEW COMPETENCIES
+  ///////////////////////////////////////////////////////////////////////////
+  //////////////////// COMPETENCIES METHODS FOLLOW //////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   public List<Competency> getCompetencies(long employeeId) throws EmployeeNotFoundException
   {
     return getEmployee(employeeId).getCompetencies();
   }
 
-  public void toggleCompetencyNEW(long employeeId, CompetencyTitle competencyTitle)
+  public void toggleCompetency(long employeeId, CompetencyTitle competencyTitle)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
@@ -648,55 +422,235 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, COMPETENCIES, employee.getCompetencies());
   }
 
-  //////////////////// END NEW COMPETENCIES
+  ///////////////////////////////////////////////////////////////////////////
+  //////////////////////// NOTES METHODS FOLLOW /////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
-  public Map<String, Map<Integer, String>> getTags(long employeeId) throws services.EmployeeNotFoundException
+  /**
+   * Get all notes for user.
+   *
+   * @param employeeId
+   * @return
+   * @throws EmployeeNotFoundException
+   */
+  public List<Note> getNotes(long employeeID) throws EmployeeNotFoundException
   {
-    Map<String, Map<Integer, String>> tags = new HashMap<>();
-    Map<Integer, String> objectivesTags = new HashMap<>();
-    Map<Integer, String> developmentNeedsTags = new HashMap<>();
-
-    getObjectives(employeeId).forEach(o -> objectivesTags.put(o.getId(), o.getTitle()));
-    getDevelopmentNeeds(employeeId).forEach(d -> developmentNeedsTags.put(d.getId(), d.getTitle()));
-
-    tags.put("objectivesTags", objectivesTags);
-    tags.put("developmentNeedsTags", developmentNeedsTags);
-
-    return tags;
+    return getEmployee(employeeID).getCurrentNotes();
   }
 
-  public void updateFeedbackTags(long employeeId, int feedbackId, Set<Integer> objectiveIds,
-      Set<Integer> developmentNeedIds) throws EmployeeNotFoundException, InvalidAttributeValueException
+  /**
+   * Adds new note to an employee
+   *
+   * @param employeeId
+   * @param note
+   * @return
+   * @throws EmployeeNotFoundException
+   */
+  public boolean addNote(long employeeID, Note note) throws EmployeeNotFoundException
+  {
+    Employee employee = getEmployee(employeeID);
+    EmployeeProfile profile = employee.getProfile();
+    employee.addNote(note);
+
+    if (profile.getFullName().equals(note.getProviderName()))
+    {
+      employee.addActivity(note.createActivity(ADD, profile));
+      updateActivityFeed(employee);
+    }
+
+    morphiaOperations.updateEmployee(profile.getEmployeeID(), NOTES, employee.getNotes());
+    return true;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  ////////////////////// FEEDBACK METHODS FOLLOW ////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   * @throws EmployeeNotFoundException
+   */
+  public List<Feedback> getFeedback(long employeeID) throws EmployeeNotFoundException
+  {
+    List<Feedback> feedbackList = getEmployee(employeeID).getCurrentFeedback();
+    Collections.reverse(feedbackList);
+    return feedbackList;
+  }
+
+  /**
+   * Adding feedback from the MyCareer App.
+   *
+   * @param employeeId
+   * @param emailSet
+   * @param feedback
+   * @param isFeedbackRequest
+   * @throws Exception
+   */
+  public void addFeedback(long employeeId, Set<String> emailSet, String feedback, boolean isFeedbackRequest)
+      throws Exception
   {
     Employee employee = getEmployee(employeeId);
+    String employeeEmail = employee.getProfile().getEmailAddresses().toSet().stream().findFirst().get();
+    List<String> errorRecipientList = new ArrayList<String>();
+    List<String> successfullRecipientList = new ArrayList<String>();
 
-    for (int id : objectiveIds)
-      employee.getObjective(id);
+    for (String email : emailSet)
+    {
+      try
+      {
+        addFeedback(employeeEmail, email, feedback, isFeedbackRequest);
+        successfullRecipientList.add(email);
 
-    for (int id : developmentNeedIds)
-      employee.getDevelopmentNeed(id);
+        String subject = String.format("Feedback from %s", employee.getProfile().getFullName());
+        String body = Template.populateTemplate(env.getProperty("templates.feedback.generic"),
+            employee.getProfile().getFullName());
 
-    employee.updateFeedbackTags(feedbackId, objectiveIds, developmentNeedIds);
+        EmailService.sendEmail(email, subject, body);
+      }
+      catch (EmployeeNotFoundException e)
+      {
+        errorRecipientList.add(email);
+      }
+    }
 
-    morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
+    if (!errorRecipientList.isEmpty())
+    {
+      if (successfullRecipientList.isEmpty()) throw new InvalidAttributeValueException(
+          "Employees not found for the following Email Addresses: " + errorRecipientList.toString());
+      throw new InvalidAttributeValueException("Feedback Added for: " + successfullRecipientList.toString()
+          + ". Employees not found for the following Email Addresses: " + errorRecipientList.toString());
+    }
+
   }
 
-  public void updateNotesTags(long employeeId, int noteId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
-      throws EmployeeNotFoundException, InvalidAttributeValueException
+  /**
+   * Add a feedback to an employee
+   *
+   * @param providerEmail
+   * @param recipientEmails
+   * @param feedbackDescription
+   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
+   */
+  public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
+      boolean isFeedbackRequest) throws InvalidAttributeValueException, EmployeeNotFoundException
   {
-    Employee employee = getEmployee(employeeId);
+    Validate.areStringsEmptyorNull(providerEmail, feedbackDescription, recipientEmail);
+    Employee employee = morphiaOperations.getEmployeeFromEmailAddress(recipientEmail);
+    if (employee == null) throw new EmployeeNotFoundException("Employee not found with email: " + recipientEmail);
 
-    for (int id : objectiveIds)
-      employee.getObjective(id);
+    Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
 
-    for (int id : developmentNeedIds)
-      employee.getDevelopmentNeed(id);
+    String providerName = (getFullNameFromEmail(providerEmail) != null) ? getFullNameFromEmail(providerEmail)
+        : providerEmail;
 
-    employee.updateNotesTags(noteId, objectiveIds, developmentNeedIds);
-
-    morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
-
+    feedback.setProviderName(providerName);
+    employee.addFeedback(feedback);
+    morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK, employee.getFeedback());
   }
+
+  /**
+   * Method that adds requested feedback to an employee
+   *
+   * @param providerEmail
+   * @param feedbackRequestID
+   * @param feedbackDescription
+   * @throws Exception
+   */
+  public void addRequestedFeedback(String providerEmail, String feedbackRequestID, String feedbackDescription)
+      throws Exception
+  {
+    Validate.areStringsEmptyorNull(providerEmail, feedbackRequestID, feedbackDescription);
+    long employeeID = getEmployeeIDFromRequestID(feedbackRequestID);
+    Employee employee = getEmployee(employeeID);
+
+    employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
+    morphiaOperations.updateEmployee(employeeID, FEEDBACK_REQUESTS, employee.getFeedbackRequests());
+    addFeedback(providerEmail, employee.getProfile().getEmailAddresses().toSet().stream().findFirst().get(),
+        feedbackDescription, true);
+
+    String provider = (getFullNameFromEmail(providerEmail) != null) ? getFullNameFromEmail(providerEmail)
+        : providerEmail;
+
+    String subject = String.format("Feedback Request reply from %s", provider);
+    String body = Template.populateTemplate(env.getProperty("templates.feedback.reply"), provider);
+    EmailService.sendEmail(employee.getProfile().getEmailAddresses().toSet(), subject, body);
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  ////////////////// FEEDBACK REQUESTS METHODS FOLLOW ///////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Sends Emails to the recipients and updates the database.
+   * 
+   * @param employeeId
+   * @param emailsString
+   * @param notes
+   * @throws Exception
+   */
+  public void processFeedbackRequest(long employeeID, String emailsString, String notes) throws Exception
+  {
+    Employee requester = getEmployee(employeeID);
+    Set<String> recipientList = stringEmailsToHashSet(emailsString);
+
+    if (recipientList.size() > 20)
+      throw new InvalidAttributeValueException("There must be less than 20 email addresses.");
+
+    List<String> errorRecipientList = new ArrayList<String>();
+    String requesterName = requester.getProfile().getFullName();
+
+    for (String recipient : recipientList)
+    {
+      String tempID = generateFeedbackRequestID(employeeID);
+      String subject = String.format("Feedback Request from %s - %s", requester.getProfile().getFullName(), employeeID);
+      // String body = String.format("%s \n\n Feedback_Request: %s", notes, tempID);
+      String body = Template.populateTemplate(env.getProperty("templates.feedback.request"), requesterName, notes,
+          tempID);
+      try
+      {
+        EmailService.sendEmail(recipient, subject, body);
+      }
+      catch (Exception e)
+      {
+        LOGGER.error(e.getMessage());
+        errorRecipientList.add(recipient);
+        continue;
+      }
+      addFeedbackRequest(requester, new FeedbackRequest(tempID, recipient));
+    }
+
+    if (!errorRecipientList.isEmpty())
+    {
+      throw new Exception(
+          "There were issues sending requests to the following addresses: \n" + errorRecipientList.toString());
+    }
+  }
+
+  /**
+   * Add a feedbackRequest to an employee.
+   *
+   * @param employee
+   * @param feedbackRequest
+   * @throws InvalidAttributeValueException
+   */
+  private void addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest)
+      throws InvalidAttributeValueException
+  {
+    Validate.isNull(employee, feedbackRequest);
+    employee.addFeedbackRequest(feedbackRequest);
+    employee.addActivity(feedbackRequest.createActivity(employee.getProfile()));
+    morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK_REQUESTS,
+        employee.getFeedbackRequests());
+    updateActivityFeed(employee);
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  /////////////////////// RATINGS METHODS FOLLOW ////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   public Rating getRating(long employeeId, int year) throws EmployeeNotFoundException
   {
@@ -719,9 +673,71 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, RATINGS, employee.getRatings());
   }
 
-  private void updateActivityFeed(Employee employee)
+  ///////////////////////////////////////////////////////////////////////////
+  ////////////////////// LAST LOGON METHODS FOLLOW //////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  public void updateLastLoginDate(EmployeeProfile profile) throws EmployeeNotFoundException
   {
-    employeeOperations.setFields(eq(EMPLOYEE_ID, employee.getProfile().getEmployeeID()),
-        employee.getActivityFeedAsDocument());
+    Employee employee = getEmployee(profile.getEmployeeID());
+    employee.setLastLogon(localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE)));
+    morphiaOperations.updateEmployee(profile.getEmployeeID(), LAST_LOGON, employee.getLastLogon());
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  //////////////////////// TAGS METHODS FOLLOW //////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  public Map<String, Map<Integer, String>> getTags(long employeeId) throws services.EmployeeNotFoundException
+  {
+    Map<String, Map<Integer, String>> tags = new HashMap<>();
+    Map<Integer, String> objectivesTags = new HashMap<>();
+    Map<Integer, String> developmentNeedsTags = new HashMap<>();
+
+    getObjectives(employeeId).forEach(o -> objectivesTags.put(o.getId(), o.getTitle()));
+    getDevelopmentNeeds(employeeId).forEach(d -> developmentNeedsTags.put(d.getId(), d.getTitle()));
+
+    tags.put("objectivesTags", objectivesTags);
+    tags.put("developmentNeedsTags", developmentNeedsTags);
+
+    return tags;
+  }
+
+  public void updateFeedbackTags(long employeeId, int feedbackId, Set<Integer> objectiveIds,
+      Set<Integer> developmentNeedIds) throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    for (int id : objectiveIds)
+    {
+      employee.getObjective(id);
+    }
+
+    for (int id : developmentNeedIds)
+    {
+      employee.getDevelopmentNeed(id);
+    }
+
+    employee.updateFeedbackTags(feedbackId, objectiveIds, developmentNeedIds);
+    morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
+  }
+
+  public void updateNotesTags(long employeeId, int noteId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeId);
+
+    for (int id : objectiveIds)
+    {
+      employee.getObjective(id);
+    }
+
+    for (int id : developmentNeedIds)
+    {
+      employee.getDevelopmentNeed(id);
+    }
+
+    employee.updateNotesTags(noteId, objectiveIds, developmentNeedIds);
+    morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
   }
 }

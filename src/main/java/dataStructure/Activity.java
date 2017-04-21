@@ -1,7 +1,7 @@
 package dataStructure;
 
 import static dataStructure.Employee.*;
-import static utils.Utils.*;
+import static utils.Conversions.*;
 
 import java.util.Date;
 import java.io.Serializable;

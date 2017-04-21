@@ -1,9 +1,10 @@
 package services;
 
+import static dataStructure.EmployeeProfile.*;
+
+import java.util.Collections;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import dataStructure.DevelopmentNeed;
@@ -11,20 +12,16 @@ import dataStructure.Feedback;
 import dataStructure.Note;
 import dataStructure.Objective;
 import dataStructure.Rating;
-import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 
 /**
- * This class contains the definition of the EmployeeDAO object
- *
+ * Service class which provides access to an employee's entire history on MyCareer.
  */
 @Component
-@PropertySource("${ENVIRONMENT}.properties")
 public class HistoryService
 {
-  @Autowired
   private MorphiaOperations morphiaOperations;
-  
+
   public HistoryService(final MorphiaOperations morphiaOperations)
   {
     this.morphiaOperations = morphiaOperations;
@@ -32,30 +29,29 @@ public class HistoryService
 
   public List<Objective> getObjectives(long employeeId) throws EmployeeNotFoundException
   {
-    return null;
+    return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId).getObjectives();
   }
 
   public List<DevelopmentNeed> getDevelopmentNeeds(long employeeId) throws EmployeeNotFoundException
   {
-    // TODO Auto-generated method stub
-    return null;
+    return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId).getDevelopmentNeeds();
   }
 
-  public List<Note> getNotes(long employeeID) throws EmployeeNotFoundException
+  public List<Note> getNotes(long employeeId) throws EmployeeNotFoundException
   {
-    // TODO Auto-generated method stub
-    return null;
+    return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId).getNotes();
   }
 
-  public List<Feedback> getFeedback(long employeeID) throws EmployeeNotFoundException
+  public List<Feedback> getFeedback(long employeeId) throws EmployeeNotFoundException
   {
-    // TODO Auto-generated method stub
-    return null;
+    List<Feedback> feedbackList = morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId).getFeedback();
+    Collections.reverse(feedbackList);
+
+    return feedbackList;
   }
 
   public List<Rating> getRatings(long employeeId) throws EmployeeNotFoundException
   {
-    // TODO Auto-generated method stub
-    return null;
+    return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId).getRatings();
   }
 }

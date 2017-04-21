@@ -390,7 +390,7 @@ public class EmployeeController
   {
     try
     {
-      employeeService.addDevelopmentNeedNEW(employeeId, new DevelopmentNeed(title, description,
+      employeeService.addDevelopmentNeed(employeeId, new DevelopmentNeed(title, description,
           isYearMonthInPast(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need inserted correctly");
     }
@@ -501,7 +501,7 @@ public class EmployeeController
   {
     try
     {
-      employeeService.toggleCompetencyNEW(employeeId, CompetencyTitle.getCompetencyTitleFromString(competencyTitle));
+      employeeService.toggleCompetency(employeeId, CompetencyTitle.getCompetencyTitleFromString(competencyTitle));
       return ok("Competency updated");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)

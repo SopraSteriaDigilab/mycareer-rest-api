@@ -222,51 +222,6 @@ public class Utils
   }
 
   /**
-   * Converts LocalDate to a java.util.Date
-   *
-   * @param localDateTime
-   * @return
-   */
-  public static Date localDatetoDate(LocalDate localDate)
-  {
-    return Date.from(localDate.atStartOfDay(UK_TIMEZONE).toInstant());
-  }
-
-  /**
-   * Converts java.util.Date to a LocalDate
-   *
-   * @param localDateTime
-   * @return
-   */
-  public static LocalDate dateToLocalDate(Date date)
-  {
-    return date.toInstant().atZone(UK_TIMEZONE).toLocalDate();
-  }
-
-  /**
-   * Converts LocalDateTime to a java.util.Date
-   *
-   * @param localDateTime
-   * @return
-   */
-  public static Date localDateTimetoDate(LocalDateTime localDateTime)
-  {
-    return Date.from(localDateTime.atZone(UK_TIMEZONE).toInstant());
-  }
-
-  /**
-   * Converts java.util.Date to a LocalDateTime
-   *
-   * @param localDateTime
-   * @return
-   */
-  public static LocalDateTime dateToLocalDateTime(Date date)
-  {
-    Instant instant = date.toInstant();
-    return instant.atZone(UK_TIMEZONE).toLocalDateTime();
-  }
-
-  /**
    * @param value
    * @param otherValue
    * @return null if value.equals(otherValue) returns true, or if value is null. Otherwise, returns otherValue.

@@ -1,13 +1,13 @@
 package dataStructure;
 
+import static dataStructure.Constants.UK_TIMEZONE;
+import static utils.Conversions.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-
 import org.bson.Document;
-
-import utils.Utils;
 
 /**
  * This class contains the definition of the Objective object.
@@ -108,7 +108,7 @@ public class Objective extends DBObject implements Comparable<Objective>
   /** @return the createdOn */
   public String getCreatedOn()
   {
-    return Utils.dateToLocalDateTime(this.createdOn).toString();
+    return dateToLocalDateTime(this.createdOn).toString();
   }
 
   /** @param createdOn The value to set. */
@@ -146,13 +146,13 @@ public class Objective extends DBObject implements Comparable<Objective>
   /** @return the dueDate. */
   public String getDueDate()
   {
-    return Utils.dateToLocalDate(this.dueDate).toString();
+    return dateToLocalDate(this.dueDate).toString();
   }
 
   /** @param dueDate The value to set the named property to. */
   public void setDueDate(LocalDate dueDate)
   {
-    this.dueDate = Utils.localDatetoDate(dueDate);
+    this.dueDate = localDatetoDate(dueDate);
     this.setLastModified();
   }
 
@@ -231,11 +231,31 @@ public class Objective extends DBObject implements Comparable<Objective>
     return differences;
   }
   
+  public Date getCreatedOnAsDate()
+  {
+    return createdOn;
+  }
+
+  public Date getDueDateAsDate()
+  {
+    return dueDate;
+  }
+  
   public Activity createActivity(final CRUD activityType, final EmployeeProfile profile)
   {
     final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb()).append(" ")
         .append(OBJECTIVE).append(" #").append(getId()).append(": ").append(title).toString();
 
     return new Activity(activityString, getLastModified());
+  }
+  
+  public boolean isCurrent()
+  {
+    final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
+    final LocalDateTime lastModified = dateToLocalDateTime(getLastModifiedAsDate());
+    final LocalDateTime dueDate = dateToLocalDateTime(this.dueDate);
+    final boolean isCurrent = lastModified.isAfter(cutOffDate) || dueDate.isAfter(cutOffDate);
+    
+    return isCurrent;
   }
 }

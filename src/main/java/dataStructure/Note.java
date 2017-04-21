@@ -1,6 +1,7 @@
 package dataStructure;
 
 import static dataStructure.Constants.UK_TIMEZONE;
+import static utils.Conversions.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -161,5 +162,14 @@ public class Note implements Serializable
         .append(NOTE).append(" #").append(getId()).append(": ").append(noteDescription).toString();
     
     return new Activity(activityString, timestamp);
+  }
+  
+  public boolean isCurrent()
+  {
+    final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
+    final LocalDateTime added = dateToLocalDateTime(new Date(Long.parseLong(timestamp)));
+    final boolean isCurrent = added.isAfter(cutOffDate);
+    
+    return isCurrent;
   }
 }

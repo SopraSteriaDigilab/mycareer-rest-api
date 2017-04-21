@@ -1,17 +1,19 @@
 package dataStructure;
 
-import static utils.Validate.isNull;
+import static utils.Validate.*;
+import static utils.Conversions.*;
+import static dataStructure.Constants.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -81,7 +83,7 @@ public class Employee implements Serializable
   @Embedded
   private List<Activity> activityFeed;
 
-  /** Default Constructor - Responsible for initialising this object. */
+  /** No-args Constructor - Responsible for initialising this object. */
   public Employee()
   {
     this.feedback = new ArrayList<Feedback>();
@@ -94,7 +96,6 @@ public class Employee implements Serializable
     this.activityFeed = new ArrayList<Activity>();
   }
 
-  /** Default Constructor - Responsible for initialising this object. */
   public Employee(final EmployeeProfile profile)
   {
     this();
@@ -104,6 +105,14 @@ public class Employee implements Serializable
   ///////////////////////////////////////////////////////////////////////////
   ///////////////////// OBJECTIVES METHODS FOLLOW ///////////////////////////
   ///////////////////////////////////////////////////////////////////////////
+
+  public List<Objective> getCurrentObjectives()
+  {
+    final List<Objective> currentObjectives = objectives.stream().filter(Objective::isCurrent).sorted()
+        .collect(Collectors.toList());
+
+    return currentObjectives;
+  }
 
   public boolean addObjective(Objective objective)
   {
@@ -139,7 +148,7 @@ public class Employee implements Serializable
     notes.forEach(n -> n.removeObjectiveTag(objectiveId));
     feedback.forEach(f -> f.removeObjectiveTag(objectiveId));
     objective.setLastModified();
-    
+
     return this.getObjectives().remove(objective);
   }
 
@@ -190,6 +199,15 @@ public class Employee implements Serializable
   ///////////////// DEVELOPMENT NEEDS METHODS FOLLOW ////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  public List<DevelopmentNeed> getCurrentDevelopmentNeeds()
+  {
+    final List<DevelopmentNeed> currentDevelopmentNeeds = developmentNeeds.stream()
+        .filter(Objective::isCurrent)
+        .sorted().collect(Collectors.toList());
+
+    return currentDevelopmentNeeds;
+  }
+
   public boolean addDevelopmentNeed(DevelopmentNeed developmentNeed)
   {
     developmentNeed.setId(nextDevelopmentNeedID());
@@ -223,7 +241,7 @@ public class Employee implements Serializable
     notes.forEach(n -> n.removeDevelopmentNeedTag(developmentNeedId));
     feedback.forEach(f -> f.removeDevelopmentNeedTag(developmentNeedId));
     developmentNeed.setLastModified();
-    
+
     return this.getDevelopmentNeeds().remove(developmentNeed);
   }
 
@@ -299,6 +317,15 @@ public class Employee implements Serializable
   //////////////////////// NOTES METHODS FOLLOW /////////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  public List<Note> getCurrentNotes()
+  {
+    final List<Note> currentNotes = notes.stream()
+        .filter(Note::isCurrent)
+        .sorted().collect(Collectors.toList());
+
+    return currentNotes;
+  }
+
   public boolean addNote(Note note)
   {
     note.setId(this.getNotes().size() + 1);
@@ -326,6 +353,15 @@ public class Employee implements Serializable
   ///////////////////////////////////////////////////////////////////////////
   ////////////////////// FEEDBACK METHODS FOLLOW ////////////////////////////
   ///////////////////////////////////////////////////////////////////////////
+
+  public List<Feedback> getCurrentFeedback()
+  {
+    final List<Feedback> currentFeedback = feedback.stream()
+        .filter(Feedback::isCurrent)
+        .sorted().collect(Collectors.toList());
+
+    return currentFeedback;
+  }
 
   public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException
   {
@@ -644,4 +680,8 @@ public class Employee implements Serializable
   {
     this.activityFeed = activityFeed;
   }
+
+  ///////////////////////////////////////////////////////////////////////////
+  /////////////////////// PRIVATE METHODS FOLLOW ////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 }

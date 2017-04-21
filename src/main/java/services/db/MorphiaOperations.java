@@ -16,6 +16,7 @@ import org.mongodb.morphia.query.UpdateOperations;
 import dataStructure.DBObject;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
+import services.EmployeeNotFoundException;
 
 /**
  * Encapsulates all database operations performed using Morphia.
@@ -27,8 +28,10 @@ import dataStructure.EmployeeProfile;
  */
 public class MorphiaOperations
 {
+  private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: ";
+  
   private final Datastore datastore;
-
+  
   /**
    * 
    * TYPE Constructor - Responsible for initialising this object.
@@ -51,6 +54,26 @@ public class MorphiaOperations
   {
     Employee employee = datastore.find(Employee.class, field, value).get();
 
+    return employee;
+  }
+
+  /**
+   * Retrieves an employee object from the database based on the given criteria.
+   *
+   * @param field The field to search
+   * @param value The value of the field to search on
+   * @return the {@code Employee} object
+   * @throw EmployeeNotFoundException if the employee could not be found
+   */
+  public <T> Employee getEmployeeOrThrow(final String field, final T value) throws EmployeeNotFoundException
+  {
+    Employee employee = datastore.find(Employee.class, field, value).get();
+    
+    if (employee == null)
+    {
+      throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + field + ": " + value);
+    }
+    
     return employee;
   }
   

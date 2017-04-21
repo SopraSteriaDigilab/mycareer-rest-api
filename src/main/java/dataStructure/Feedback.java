@@ -1,9 +1,11 @@
 package dataStructure;
 
 import static dataStructure.Constants.UK_TIMEZONE;
+import static utils.Conversions.dateToLocalDateTime;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -173,5 +175,13 @@ public class Feedback extends DBObject
   {
     return taggedObjectiveIds.remove(id);
   }
-
+  
+  public boolean isCurrent()
+  {
+    final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
+    final LocalDateTime added = dateToLocalDateTime(new Date(Long.parseLong(timestamp)));
+    final boolean isCurrent = added.isAfter(cutOffDate);
+    
+    return isCurrent;
+  }
 }
