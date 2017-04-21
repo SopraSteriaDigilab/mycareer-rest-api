@@ -171,7 +171,7 @@ public class EmployeeService
    * @return
    * @throws EmployeeNotFoundException
    */
-  public List<Feedback> getFeedbackForUser(long employeeID) throws EmployeeNotFoundException
+  public List<Feedback> getFeedback(long employeeID) throws EmployeeNotFoundException
   {
     List<Feedback> feedbackList = getEmployee(employeeID).getFeedback();
     Collections.reverse(feedbackList);

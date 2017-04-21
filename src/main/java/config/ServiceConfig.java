@@ -13,6 +13,7 @@ import services.DataService;
 import services.EmployeeProfileService;
 import services.EmployeeService;
 import services.HRService;
+import services.HistoryService;
 import services.ManagerService;
 import services.ad.ADSearchSettings;
 import services.db.MongoOperations;
@@ -66,6 +67,12 @@ public class ServiceConfig
   {
     return new ManagerService(employeeService(), morphiaOperations, employeeOperations, objectivesHistoriesOperations,
         employeeProfileService(), env);
+  }
+  
+  @Bean
+  public HistoryService historyService()
+  {
+    return new HistoryService(morphiaOperations);
   }
 
   @Bean

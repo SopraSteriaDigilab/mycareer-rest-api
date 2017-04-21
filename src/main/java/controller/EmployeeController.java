@@ -160,7 +160,7 @@ public class EmployeeController
     {
       try
       {
-        return ok(employeeService.getFeedbackForUser(employeeID));
+        return ok(employeeService.getFeedback(employeeID));
       }
       catch (MongoException me)
       {
