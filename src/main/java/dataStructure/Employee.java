@@ -138,7 +138,8 @@ public class Employee implements Serializable
 
     notes.forEach(n -> n.removeObjectiveTag(objectiveId));
     feedback.forEach(f -> f.removeObjectiveTag(objectiveId));
-
+    objective.setLastModified();
+    
     return this.getObjectives().remove(objective);
   }
 
@@ -221,7 +222,8 @@ public class Employee implements Serializable
 
     notes.forEach(n -> n.removeDevelopmentNeedTag(developmentNeedId));
     feedback.forEach(f -> f.removeDevelopmentNeedTag(developmentNeedId));
-
+    developmentNeed.setLastModified();
+    
     return this.getDevelopmentNeeds().remove(developmentNeed);
   }
 

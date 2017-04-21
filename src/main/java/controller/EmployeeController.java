@@ -256,7 +256,7 @@ public class EmployeeController
   {
     try
     {
-      return ok(employeeService.getObjectivesNEW(employeeId));
+      return ok(employeeService.getObjectives(employeeId));
     }
     catch (EmployeeNotFoundException e)
     {

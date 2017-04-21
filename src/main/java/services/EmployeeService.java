@@ -203,13 +203,13 @@ public class EmployeeService
     Employee employee = getEmployee(employeeID);
     EmployeeProfile profile = employee.getProfile();
     employee.addNote(note);
-    
+
     if (profile.getFullName().equals(note.getProviderName()))
     {
       employee.addActivity(note.createActivity(ADD, profile));
       updateActivityFeed(employee);
     }
-    
+
     morphiaOperations.updateEmployee(profile.getEmployeeID(), NOTES, employee.getNotes());
     return true;
   }
@@ -399,7 +399,7 @@ public class EmployeeService
 
   //////////////////// START NEW OBJECTIVES
 
-  public List<Objective> getObjectivesNEW(long employeeId) throws EmployeeNotFoundException
+  public List<Objective> getObjectives(long employeeId) throws EmployeeNotFoundException
   {
     return getEmployee(employeeId).getObjectives();
   }
@@ -437,7 +437,7 @@ public class EmployeeService
     objectivesHistoriesOperations.addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objective.getId(),
             employee.getObjective(objective.getId()).getCreatedOn()),
-        update.append("timestamp", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+        update.append("timestamp", employee.getObjective(objective.getId()).getLastModifiedAsDate()));
     morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
     updateActivityFeed(employee);
   }
@@ -450,12 +450,13 @@ public class EmployeeService
         objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjective(objectiveId).getCreatedOn()));
     String title = employee.getObjective(objectiveId).getTitle();
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
+    Objective objective = employee.getObjective(objectiveId);
 
-    employee.addActivity(employee.getObjective(objectiveId).createActivity(DELETE, employee.getProfile()));
     employee.deleteObjective(objectiveId);
+    employee.addActivity(objective.createActivity(DELETE, employee.getProfile()));
 
     objectivesHistoriesOperations.addToObjDevHistory(deletedId,
-        new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+        new Document("deletedOn", objective.getLastModifiedAsDate()));
     // TODO Make these update operations a single call to the db. As it stands this has the potential to cause
     // inconsistency or undesirable results in the db as one call may succeed when the other doesn't.
     morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
@@ -471,22 +472,22 @@ public class EmployeeService
       IOException
   {
     Employee employee = getEmployee(employeeId);
+    Objective objective = employee.getObjective(objectiveId);
 
     employee.updateObjectiveProgress(objectiveId, progress);
 
     objectivesHistoriesOperations.addToObjDevHistory(
-        objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjective(objectiveId).getCreatedOn()),
-        new Document("progress", progress.getProgressStr()).append("timestamp",
-            localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+        objectiveHistoryIdFilter(employeeId, objectiveId, objective.getCreatedOn()),
+        new Document("progress", progress.getProgressStr()).append("timestamp", objective.getLastModifiedAsDate()));
 
     morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
 
     if (progress.equals(Progress.COMPLETE))
     {
+      employee.addActivity(objective.createActivity(COMPLETE, employee.getProfile()));
       String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
-
       addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_OBJECTIVE,
-          employee.getProfile().getFullName(), employee.getObjective(objectiveId).getTitle(), commentAdded)));
+          employee.getProfile().getFullName(), objective.getTitle(), commentAdded)));
     }
   }
 
@@ -497,13 +498,12 @@ public class EmployeeService
     Objective objective = employee.getObjective(objectiveId);
     CRUD crud = objective.getArchived() ? RESTORE : ARCHIVE;
 
-    employee.addActivity(objective.createActivity(crud, employee.getProfile()));
     employee.toggleObjectiveArchive(objectiveId);
+    employee.addActivity(objective.createActivity(crud, employee.getProfile()));
 
     objectivesHistoriesOperations.addToObjDevHistory(
-        objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjective(objectiveId).getCreatedOn()),
-        new Document("isArchived", objective.getArchived()).append("timestamp",
-            localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+        objectiveHistoryIdFilter(employeeId, objectiveId, objective.getCreatedOn()),
+        new Document("isArchived", objective.getArchived()).append("timestamp", objective.getLastModifiedAsDate()));
     morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
     updateActivityFeed(employee);
   }
@@ -550,7 +550,7 @@ public class EmployeeService
     developmentNeedsHistoriesOperations.addToObjDevHistory(
         developmentNeedHistoryIdFilter(employeeId, developmentNeed.getId(),
             employee.getDevelopmentNeed(developmentNeed.getId()).getCreatedOn()),
-        update.append("timestamp", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+        update.append("timestamp", employee.getDevelopmentNeed(developmentNeed.getId()).getLastModifiedAsDate()));
     morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
     updateActivityFeed(employee);
   }
@@ -563,13 +563,13 @@ public class EmployeeService
         employee.getDevelopmentNeed(developmentNeedId).getCreatedOn()));
     String title = employee.getDevelopmentNeed(developmentNeedId).getTitle();
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
+    DevelopmentNeed developmentNeed = employee.getDevelopmentNeed(developmentNeedId);
 
-    employee
-        .addActivity(employee.getDevelopmentNeed(developmentNeedId).createActivity(DELETE, employee.getProfile()));
     employee.deleteDevelopmentNeed(developmentNeedId);
+    employee.addActivity(developmentNeed.createActivity(DELETE, employee.getProfile()));
 
     developmentNeedsHistoriesOperations.addToObjDevHistory(deletedId,
-        new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+        new Document("deletedOn", developmentNeed.getLastModifiedAsDate()));
     // TODO Make these update operations a single call to the db. As it stands this has the potential to cause
     // inconsistency or undesirable results in the db as one call may succeed when the other doesn't.
     morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
@@ -581,25 +581,26 @@ public class EmployeeService
         String.format(COMMENT_DELETED_DEVELOPMENT_NEED, employee.getProfile().getFullName(), title, commentAdded)));
   }
 
-  public void updateDevelopmentNeedProgress(long employeeId, int developmentNeedId, Progress progress,
-      String comment) throws EmployeeNotFoundException, InvalidAttributeValueException
+  public void updateDevelopmentNeedProgress(long employeeId, int developmentNeedId, Progress progress, String comment)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
+    DevelopmentNeed developmentNeed = employee.getDevelopmentNeed(developmentNeedId);
 
     employee.updateDevelopmentNeedProgress(developmentNeedId, progress);
 
     developmentNeedsHistoriesOperations.addToObjDevHistory(
-        developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
-            employee.getDevelopmentNeed(developmentNeedId).getCreatedOn()),
+        developmentNeedHistoryIdFilter(employeeId, developmentNeedId, developmentNeed.getCreatedOn()),
         new Document("progress", progress.getProgressStr()).append("timestamp",
-            localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+            developmentNeed.getLastModifiedAsDate()));
 
     morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
 
     if (progress.equals(Progress.COMPLETE))
     {
+      employee.addActivity(developmentNeed.createActivity(COMPLETE, employee.getProfile()));
       addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_DEVELOPMENT_NEED,
-          employee.getProfile().getFullName(), employee.getDevelopmentNeed(developmentNeedId).getTitle(), comment)));
+          employee.getProfile().getFullName(), developmentNeed.getTitle(), comment)));
     }
   }
 
@@ -609,16 +610,14 @@ public class EmployeeService
     Employee employee = getEmployee(employeeId);
     DevelopmentNeed developmentNeed = employee.getDevelopmentNeed(developmentNeedId);
     CRUD crud = developmentNeed.getArchived() ? RESTORE : ARCHIVE;
-    
-    employee
-        .addActivity(employee.getDevelopmentNeed(developmentNeedId).createActivity(crud, employee.getProfile()));
+
     employee.toggleDevelopmentNeedArchive(developmentNeedId);
+    employee.addActivity(employee.getDevelopmentNeed(developmentNeedId).createActivity(crud, employee.getProfile()));
 
     developmentNeedsHistoriesOperations.addToObjDevHistory(
-        developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
-            employee.getDevelopmentNeed(developmentNeedId).getCreatedOn()),
+        developmentNeedHistoryIdFilter(employeeId, developmentNeedId, developmentNeed.getCreatedOn()),
         new Document("isArchived", developmentNeed.getArchived()).append("timestamp",
-            localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
+            developmentNeed.getLastModifiedAsDate()));
     morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
     updateActivityFeed(employee);
   }
@@ -654,7 +653,7 @@ public class EmployeeService
     Map<Integer, String> objectivesTags = new HashMap<>();
     Map<Integer, String> developmentNeedsTags = new HashMap<>();
 
-    getObjectivesNEW(employeeId).forEach(o -> objectivesTags.put(o.getId(), o.getTitle()));
+    getObjectives(employeeId).forEach(o -> objectivesTags.put(o.getId(), o.getTitle()));
     getDevelopmentNeeds(employeeId).forEach(d -> developmentNeedsTags.put(d.getId(), d.getTitle()));
 
     tags.put("objectivesTags", objectivesTags);

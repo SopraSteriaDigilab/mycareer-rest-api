@@ -66,7 +66,7 @@ public abstract class DBObject implements Serializable
     this.lastModified = Utils.localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE));
   }
   
-  protected Date getLastModifiedAsDate()
+  public Date getLastModifiedAsDate()
   {
     return lastModified;
   }
