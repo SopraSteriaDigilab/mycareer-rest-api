@@ -272,7 +272,7 @@ public class EmployeeController
   {
     try
     {
-      employeeService.addObjectiveNEW(employeeId,
+      employeeService.addObjective(employeeId,
           new Objective(title, description, isYearMonthInPast(YearMonth.parse(dueDate))));
       return ok("Objective inserted correctly");
     }
@@ -296,7 +296,7 @@ public class EmployeeController
   {
     try
     {
-      employeeService.editObjectiveNEW(employeeId,
+      employeeService.editObjective(employeeId,
           new Objective(objectiveId, title, description, isYearMonthInPast(YearMonth.parse(dueDate))));
       return ok("Objective updated correctly");
     }
@@ -313,7 +313,7 @@ public class EmployeeController
   {
     try
     {
-      employeeService.deleteObjectiveNEW(employeeId, objectiveId, comment);
+      employeeService.deleteObjective(employeeId, objectiveId, comment);
       return ok("Objective deleted");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -331,7 +331,7 @@ public class EmployeeController
   {
     try
     {
-      employeeService.updateObjectiveNEWProgress(employeeId, objectiveId,
+      employeeService.updateObjectiveProgress(employeeId, objectiveId,
           Objective.Progress.valueOf(PROGRESS_LIST[progress]), comment);
       return ok("Objective progress updated");
     }
@@ -353,7 +353,7 @@ public class EmployeeController
   {
     try
     {
-      employeeService.toggleObjectiveNEWArchive(employeeId, objectiveId);
+      employeeService.toggleObjectiveArchive(employeeId, objectiveId);
       return ok("Objective updated");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -372,7 +372,7 @@ public class EmployeeController
   {
     try
     {
-      return ok(employeeService.getDevelopmentNeedsNEW(employeeId));
+      return ok(employeeService.getDevelopmentNeeds(employeeId));
     }
     catch (EmployeeNotFoundException e)
     {
@@ -416,7 +416,7 @@ public class EmployeeController
   {
     try
     {
-      employeeService.editDevelopmentNeedNEW(employeeId, new DevelopmentNeed(developmentNeedId, title, description,
+      employeeService.editDevelopmentNeed(employeeId, new DevelopmentNeed(developmentNeedId, title, description,
           isYearMonthInPast(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need updated correctly");
     }
@@ -434,7 +434,7 @@ public class EmployeeController
   {
     try
     {
-      employeeService.deleteDevelopmentNeedNEW(employeeId, developmentNeedId, comment);
+      employeeService.deleteDevelopmentNeed(employeeId, developmentNeedId, comment);
       return ok("Development Need deleted");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -452,7 +452,7 @@ public class EmployeeController
   {
     try
     {
-      employeeService.updateDevelopmentNeedNEWProgress(employeeId, developmentNeedId,
+      employeeService.updateDevelopmentNeedProgress(employeeId, developmentNeedId,
           Objective.Progress.valueOf(PROGRESS_LIST[progress]), comment);
       return ok("Development Need progress updated");
     }
@@ -469,7 +469,7 @@ public class EmployeeController
   {
     try
     {
-      employeeService.toggleDevelopmentNeedNEWArchive(employeeId, developmentNeedId);
+      employeeService.toggleDevelopmentNeedArchive(employeeId, developmentNeedId);
       return ok("Development Need updated");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -487,7 +487,7 @@ public class EmployeeController
   {
     try
     {
-      return ok(employeeService.getCompetenciesNEW(employeeId));
+      return ok(employeeService.getCompetencies(employeeId));
     }
     catch (EmployeeNotFoundException e)
     {

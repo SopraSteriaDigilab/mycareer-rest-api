@@ -144,7 +144,7 @@ public class ManagerService
       try
       {
         Employee employee = employeeService.getEmployee(email);
-        employee.addObjectiveNEW(objective);
+        employee.addObjective(objective);
 
         objectivesHistoriesOperations.addToObjDevHistory(
             objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());

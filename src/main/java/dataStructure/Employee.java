@@ -105,17 +105,17 @@ public class Employee implements Serializable
   ///////////////////// OBJECTIVES METHODS FOLLOW ///////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
-  public boolean addObjectiveNEW(Objective objective)
+  public boolean addObjective(Objective objective)
   {
     objective.setId(nextObjectiveID());
 
     return this.objectives.add(objective);
   }
 
-  public boolean editObjectiveNEW(Objective objective) throws InvalidAttributeValueException
+  public boolean editObjective(Objective objective) throws InvalidAttributeValueException
   {
 
-    Objective objectiveToEdit = getObjectiveNEW(objective.getId());
+    Objective objectiveToEdit = getObjective(objective.getId());
 
     if (objectiveToEdit.getArchived() || objectiveToEdit.getProgress().equals(Progress.COMPLETE.getProgressStr()))
       throw new InvalidAttributeValueException("Cannot Edit archived/complete Objective.");
@@ -127,9 +127,9 @@ public class Employee implements Serializable
     return true;
   }
 
-  public boolean deleteObjectiveNEW(int objectiveId) throws InvalidAttributeValueException
+  public boolean deleteObjective(int objectiveId) throws InvalidAttributeValueException
   {
-    Objective objective = getObjectiveNEW(objectiveId);
+    Objective objective = getObjective(objectiveId);
 
     if (!objective.getArchived())
     {
@@ -142,9 +142,9 @@ public class Employee implements Serializable
     return this.getObjectives().remove(objective);
   }
 
-  public boolean updateObjectiveNEWProgress(int objectiveId, Progress progress) throws InvalidAttributeValueException
+  public boolean updateObjectiveProgress(int objectiveId, Progress progress) throws InvalidAttributeValueException
   {
-    Objective objective = getObjectiveNEW(objectiveId);
+    Objective objective = getObjective(objectiveId);
 
     if (objective.getProgress().equals(progress.getProgressStr()))
       throw new InvalidAttributeValueException("Progress is already at the given state: " + progress.getProgressStr());
@@ -157,16 +157,16 @@ public class Employee implements Serializable
     return true;
   }
 
-  public boolean toggleObjectiveNEWArchive(int objectiveId) throws InvalidAttributeValueException
+  public boolean toggleObjectiveArchive(int objectiveId) throws InvalidAttributeValueException
   {
-    Objective objective = getObjectiveNEW(objectiveId);
+    Objective objective = getObjective(objectiveId);
 
     objective.isArchived(!objective.getArchived());
 
     return true;
   }
 
-  public Objective getObjectiveNEW(int objectiveId) throws InvalidAttributeValueException
+  public Objective getObjective(int objectiveId) throws InvalidAttributeValueException
   {
     Optional<Objective> objective = getObjectives().stream().filter(o -> o.getId() == objectiveId).findFirst();
 
@@ -189,16 +189,16 @@ public class Employee implements Serializable
   ///////////////// DEVELOPMENT NEEDS METHODS FOLLOW ////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
-  public boolean addDevelopmentNeedNEW(DevelopmentNeed developmentNeed)
+  public boolean addDevelopmentNeed(DevelopmentNeed developmentNeed)
   {
     developmentNeed.setId(nextDevelopmentNeedID());
 
     return this.developmentNeeds.add(developmentNeed);
   }
 
-  public boolean editDevelopmentNeedNEW(DevelopmentNeed developmentNeed) throws InvalidAttributeValueException
+  public boolean editDevelopmentNeed(DevelopmentNeed developmentNeed) throws InvalidAttributeValueException
   {
-    DevelopmentNeed developmentNeedToEdit = getDevelopmentNeedNEW(developmentNeed.getId());
+    DevelopmentNeed developmentNeedToEdit = getDevelopmentNeed(developmentNeed.getId());
 
     if (developmentNeedToEdit.getArchived()
         || developmentNeedToEdit.getProgress().equals(Progress.COMPLETE.getProgressStr()))
@@ -212,9 +212,9 @@ public class Employee implements Serializable
     return true;
   }
 
-  public boolean deleteDevelopmentNeedNEW(int developmentNeedId) throws InvalidAttributeValueException
+  public boolean deleteDevelopmentNeed(int developmentNeedId) throws InvalidAttributeValueException
   {
-    DevelopmentNeed developmentNeed = getDevelopmentNeedNEW(developmentNeedId);
+    DevelopmentNeed developmentNeed = getDevelopmentNeed(developmentNeedId);
 
     if (!developmentNeed.getArchived())
       throw new InvalidAttributeValueException("Development Need must be archived before deleting.");
@@ -225,10 +225,10 @@ public class Employee implements Serializable
     return this.getDevelopmentNeeds().remove(developmentNeed);
   }
 
-  public boolean updateDevelopmentNeedNEWProgress(int developmentNeedId, Progress progress)
+  public boolean updateDevelopmentNeedProgress(int developmentNeedId, Progress progress)
       throws InvalidAttributeValueException
   {
-    DevelopmentNeed developmentNeed = getDevelopmentNeedNEW(developmentNeedId);
+    DevelopmentNeed developmentNeed = getDevelopmentNeed(developmentNeedId);
 
     if (developmentNeed.getProgress().equals(progress.getProgressStr()))
       throw new InvalidAttributeValueException("Progress is already at the given state: " + progress.getProgressStr());
@@ -241,16 +241,16 @@ public class Employee implements Serializable
     return true;
   }
 
-  public boolean toggleDevelopmentNeedNEWArchive(int developmentNeedId) throws InvalidAttributeValueException
+  public boolean toggleDevelopmentNeedArchive(int developmentNeedId) throws InvalidAttributeValueException
   {
-    DevelopmentNeed developmentNeed = getDevelopmentNeedNEW(developmentNeedId);
+    DevelopmentNeed developmentNeed = getDevelopmentNeed(developmentNeedId);
 
     developmentNeed.isArchived(!developmentNeed.getArchived());
 
     return true;
   }
 
-  public DevelopmentNeed getDevelopmentNeedNEW(int developmentNeedId) throws InvalidAttributeValueException
+  public DevelopmentNeed getDevelopmentNeed(int developmentNeedId) throws InvalidAttributeValueException
   {
     Optional<DevelopmentNeed> developmentNeed = getDevelopmentNeeds().stream()
         .filter(d -> d.getId() == developmentNeedId).findFirst();
@@ -274,16 +274,16 @@ public class Employee implements Serializable
   //////////////////// COMPETENCIES METHODS FOLLOW //////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
-  public boolean toggleCompetencyNEW(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
+  public boolean toggleCompetency(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
   {
-    Competency competency = getCompetencyNEW(competencyTitle);
+    Competency competency = getCompetency(competencyTitle);
 
     competency.setSelected(!competency.isSelected());
 
     return true;
   }
 
-  public Competency getCompetencyNEW(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
+  public Competency getCompetency(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
   {
     Optional<Competency> competency = getCompetencies().stream()
         .filter(c -> c.getTitle().equals(competencyTitle.getCompetencyTitleStr())).findFirst();

@@ -404,14 +404,14 @@ public class EmployeeService
     return getEmployee(employeeId).getObjectives();
   }
 
-  public void addObjectiveNEW(long employeeId, Objective objective)
+  public void addObjective(long employeeId, Objective objective)
       throws EmployeeNotFoundException, DocumentConversionException
   {
     Employee employee = getEmployee(employeeId);
     EmployeeProfile profile = employee.getProfile();
 
     objective.setProposedBy(profile.getFullName());
-    employee.addObjectiveNEW(objective);
+    employee.addObjective(objective);
     employee.addActivity(objective.createActivity(ADD, profile));
 
     objectivesHistoriesOperations.addToObjDevHistory(
@@ -420,39 +420,39 @@ public class EmployeeService
     updateActivityFeed(employee);
   }
 
-  public void editObjectiveNEW(long employeeId, Objective objective)
+  public void editObjective(long employeeId, Objective objective)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-    Document update = employee.getObjectiveNEW(objective.getId()).differences(objective);
+    Document update = employee.getObjective(objective.getId()).differences(objective);
 
     if (update.isEmpty())
     {
       return;
     }
 
-    employee.editObjectiveNEW(objective);
+    employee.editObjective(objective);
     employee.addActivity(objective.createActivity(EDIT, employee.getProfile()));
 
     objectivesHistoriesOperations.addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objective.getId(),
-            employee.getObjectiveNEW(objective.getId()).getCreatedOn()),
+            employee.getObjective(objective.getId()).getCreatedOn()),
         update.append("timestamp", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
     morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
     updateActivityFeed(employee);
   }
 
-  public void deleteObjectiveNEW(long employeeId, int objectiveId, String comment)
+  public void deleteObjective(long employeeId, int objectiveId, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
     Document deletedId = new Document(
-        objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()));
-    String title = employee.getObjectiveNEW(objectiveId).getTitle();
+        objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjective(objectiveId).getCreatedOn()));
+    String title = employee.getObjective(objectiveId).getTitle();
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
-    employee.addActivity(employee.getObjectiveNEW(objectiveId).createActivity(DELETE, employee.getProfile()));
-    employee.deleteObjectiveNEW(objectiveId);
+    employee.addActivity(employee.getObjective(objectiveId).createActivity(DELETE, employee.getProfile()));
+    employee.deleteObjective(objectiveId);
 
     objectivesHistoriesOperations.addToObjDevHistory(deletedId,
         new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
@@ -466,16 +466,16 @@ public class EmployeeService
         String.format(COMMENT_DELTED_OBJECTIVE, employee.getProfile().getFullName(), title, commentAdded)));
   }
 
-  public void updateObjectiveNEWProgress(long employeeId, int objectiveId, Progress progress, String comment)
+  public void updateObjectiveProgress(long employeeId, int objectiveId, Progress progress, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException, JsonParseException, JsonMappingException,
       IOException
   {
     Employee employee = getEmployee(employeeId);
 
-    employee.updateObjectiveNEWProgress(objectiveId, progress);
+    employee.updateObjectiveProgress(objectiveId, progress);
 
     objectivesHistoriesOperations.addToObjDevHistory(
-        objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()),
+        objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjective(objectiveId).getCreatedOn()),
         new Document("progress", progress.getProgressStr()).append("timestamp",
             localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
@@ -486,21 +486,23 @@ public class EmployeeService
       String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
       addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_OBJECTIVE,
-          employee.getProfile().getFullName(), employee.getObjectiveNEW(objectiveId).getTitle(), commentAdded)));
+          employee.getProfile().getFullName(), employee.getObjective(objectiveId).getTitle(), commentAdded)));
     }
   }
 
-  public void toggleObjectiveNEWArchive(long employeeId, int objectiveId)
+  public void toggleObjectiveArchive(long employeeId, int objectiveId)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
+    Objective objective = employee.getObjective(objectiveId);
+    CRUD crud = objective.getArchived() ? RESTORE : ARCHIVE;
 
-    employee.addActivity(employee.getObjectiveNEW(objectiveId).createActivity(ARCHIVE, employee.getProfile()));
-    employee.toggleObjectiveNEWArchive(objectiveId);
+    employee.addActivity(objective.createActivity(crud, employee.getProfile()));
+    employee.toggleObjectiveArchive(objectiveId);
 
     objectivesHistoriesOperations.addToObjDevHistory(
-        objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjectiveNEW(objectiveId).getCreatedOn()),
-        new Document("isArchived", employee.getObjectiveNEW(objectiveId).getArchived()).append("timestamp",
+        objectiveHistoryIdFilter(employeeId, objectiveId, employee.getObjective(objectiveId).getCreatedOn()),
+        new Document("isArchived", objective.getArchived()).append("timestamp",
             localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
     morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
     updateActivityFeed(employee);
@@ -510,7 +512,7 @@ public class EmployeeService
 
   //////////////////// START NEW DEVELOPMENT NEEDS
 
-  public List<DevelopmentNeed> getDevelopmentNeedsNEW(long employeeId) throws EmployeeNotFoundException
+  public List<DevelopmentNeed> getDevelopmentNeeds(long employeeId) throws EmployeeNotFoundException
   {
     return getEmployee(employeeId).getDevelopmentNeeds();
   }
@@ -521,7 +523,7 @@ public class EmployeeService
     Employee employee = getEmployee(employeeId);
 
     developmentNeed.setProposedBy(employee.getProfile().getFullName());
-    employee.addDevelopmentNeedNEW(developmentNeed);
+    employee.addDevelopmentNeed(developmentNeed);
     employee.addActivity(developmentNeed.createActivity(ADD, employee.getProfile()));
 
     developmentNeedsHistoriesOperations.addToObjDevHistory(
@@ -531,40 +533,40 @@ public class EmployeeService
     updateActivityFeed(employee);
   }
 
-  public void editDevelopmentNeedNEW(long employeeId, DevelopmentNeed developmentNeed)
+  public void editDevelopmentNeed(long employeeId, DevelopmentNeed developmentNeed)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-    Document update = employee.getDevelopmentNeedNEW(developmentNeed.getId()).differences(developmentNeed);
+    Document update = employee.getDevelopmentNeed(developmentNeed.getId()).differences(developmentNeed);
 
     if (update.isEmpty())
     {
       return;
     }
 
-    employee.editDevelopmentNeedNEW(developmentNeed);
+    employee.editDevelopmentNeed(developmentNeed);
     employee.addActivity(developmentNeed.createActivity(EDIT, employee.getProfile()));
 
     developmentNeedsHistoriesOperations.addToObjDevHistory(
         developmentNeedHistoryIdFilter(employeeId, developmentNeed.getId(),
-            employee.getDevelopmentNeedNEW(developmentNeed.getId()).getCreatedOn()),
+            employee.getDevelopmentNeed(developmentNeed.getId()).getCreatedOn()),
         update.append("timestamp", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
     morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
     updateActivityFeed(employee);
   }
 
-  public void deleteDevelopmentNeedNEW(long employeeId, int developmentNeedId, String comment)
+  public void deleteDevelopmentNeed(long employeeId, int developmentNeedId, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
     Document deletedId = new Document(developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
-        employee.getDevelopmentNeedNEW(developmentNeedId).getCreatedOn()));
-    String title = employee.getDevelopmentNeedNEW(developmentNeedId).getTitle();
+        employee.getDevelopmentNeed(developmentNeedId).getCreatedOn()));
+    String title = employee.getDevelopmentNeed(developmentNeedId).getTitle();
     String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
     employee
-        .addActivity(employee.getDevelopmentNeedNEW(developmentNeedId).createActivity(DELETE, employee.getProfile()));
-    employee.deleteDevelopmentNeedNEW(developmentNeedId);
+        .addActivity(employee.getDevelopmentNeed(developmentNeedId).createActivity(DELETE, employee.getProfile()));
+    employee.deleteDevelopmentNeed(developmentNeedId);
 
     developmentNeedsHistoriesOperations.addToObjDevHistory(deletedId,
         new Document("deletedOn", localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
@@ -579,16 +581,16 @@ public class EmployeeService
         String.format(COMMENT_DELETED_DEVELOPMENT_NEED, employee.getProfile().getFullName(), title, commentAdded)));
   }
 
-  public void updateDevelopmentNeedNEWProgress(long employeeId, int developmentNeedId, Progress progress,
+  public void updateDevelopmentNeedProgress(long employeeId, int developmentNeedId, Progress progress,
       String comment) throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
 
-    employee.updateDevelopmentNeedNEWProgress(developmentNeedId, progress);
+    employee.updateDevelopmentNeedProgress(developmentNeedId, progress);
 
     developmentNeedsHistoriesOperations.addToObjDevHistory(
         developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
-            employee.getDevelopmentNeedNEW(developmentNeedId).getCreatedOn()),
+            employee.getDevelopmentNeed(developmentNeedId).getCreatedOn()),
         new Document("progress", progress.getProgressStr()).append("timestamp",
             localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
 
@@ -597,25 +599,25 @@ public class EmployeeService
     if (progress.equals(Progress.COMPLETE))
     {
       addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_DEVELOPMENT_NEED,
-          employee.getProfile().getFullName(), employee.getDevelopmentNeedNEW(developmentNeedId).getTitle(), comment)));
+          employee.getProfile().getFullName(), employee.getDevelopmentNeed(developmentNeedId).getTitle(), comment)));
     }
   }
 
-  public void toggleDevelopmentNeedNEWArchive(long employeeId, int developmentNeedId)
+  public void toggleDevelopmentNeedArchive(long employeeId, int developmentNeedId)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
-    DevelopmentNeed developmentNeed = employee.getDevelopmentNeedNEW(developmentNeedId);
+    DevelopmentNeed developmentNeed = employee.getDevelopmentNeed(developmentNeedId);
     CRUD crud = developmentNeed.getArchived() ? RESTORE : ARCHIVE;
     
     employee
-        .addActivity(employee.getDevelopmentNeedNEW(developmentNeedId).createActivity(crud, employee.getProfile()));
-    employee.toggleDevelopmentNeedNEWArchive(developmentNeedId);
+        .addActivity(employee.getDevelopmentNeed(developmentNeedId).createActivity(crud, employee.getProfile()));
+    employee.toggleDevelopmentNeedArchive(developmentNeedId);
 
     developmentNeedsHistoriesOperations.addToObjDevHistory(
         developmentNeedHistoryIdFilter(employeeId, developmentNeedId,
-            employee.getDevelopmentNeedNEW(developmentNeedId).getCreatedOn()),
-        new Document("isArchived", employee.getDevelopmentNeedNEW(developmentNeedId).getArchived()).append("timestamp",
+            employee.getDevelopmentNeed(developmentNeedId).getCreatedOn()),
+        new Document("isArchived", developmentNeed.getArchived()).append("timestamp",
             localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE))));
     morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
     updateActivityFeed(employee);
@@ -625,7 +627,7 @@ public class EmployeeService
 
   //////////////////// START NEW COMPETENCIES
 
-  public List<Competency> getCompetenciesNEW(long employeeId) throws EmployeeNotFoundException
+  public List<Competency> getCompetencies(long employeeId) throws EmployeeNotFoundException
   {
     return getEmployee(employeeId).getCompetencies();
   }
@@ -635,11 +637,11 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
 
-    employee.toggleCompetencyNEW(competencyTitle);
+    employee.toggleCompetency(competencyTitle);
 
     competenciesHistoriesOperations.addToCompetenciesHistory(employeeId, competencyTitle.getCompetencyTitleStr(),
-        employee.getCompetencyNEW(competencyTitle).isSelected(),
-        employee.getCompetencyNEW(competencyTitle).getLastModified());
+        employee.getCompetency(competencyTitle).isSelected(),
+        employee.getCompetency(competencyTitle).getLastModified());
 
     morphiaOperations.updateEmployee(employeeId, COMPETENCIES, employee.getCompetencies());
   }
@@ -653,7 +655,7 @@ public class EmployeeService
     Map<Integer, String> developmentNeedsTags = new HashMap<>();
 
     getObjectivesNEW(employeeId).forEach(o -> objectivesTags.put(o.getId(), o.getTitle()));
-    getDevelopmentNeedsNEW(employeeId).forEach(d -> developmentNeedsTags.put(d.getId(), d.getTitle()));
+    getDevelopmentNeeds(employeeId).forEach(d -> developmentNeedsTags.put(d.getId(), d.getTitle()));
 
     tags.put("objectivesTags", objectivesTags);
     tags.put("developmentNeedsTags", developmentNeedsTags);
@@ -667,10 +669,10 @@ public class EmployeeService
     Employee employee = getEmployee(employeeId);
 
     for (int id : objectiveIds)
-      employee.getObjectiveNEW(id);
+      employee.getObjective(id);
 
     for (int id : developmentNeedIds)
-      employee.getDevelopmentNeedNEW(id);
+      employee.getDevelopmentNeed(id);
 
     employee.updateFeedbackTags(feedbackId, objectiveIds, developmentNeedIds);
 
@@ -683,10 +685,10 @@ public class EmployeeService
     Employee employee = getEmployee(employeeId);
 
     for (int id : objectiveIds)
-      employee.getObjectiveNEW(id);
+      employee.getObjective(id);
 
     for (int id : developmentNeedIds)
-      employee.getDevelopmentNeedNEW(id);
+      employee.getDevelopmentNeed(id);
 
     employee.updateNotesTags(noteId, objectiveIds, developmentNeedIds);
 
