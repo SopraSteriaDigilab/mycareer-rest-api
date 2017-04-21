@@ -485,9 +485,11 @@ public class EmployeeService
     if (progress.equals(Progress.COMPLETE))
     {
       employee.addActivity(objective.createActivity(COMPLETE, employee.getProfile()));
+      updateActivityFeed(employee);
       String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
       addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_OBJECTIVE,
           employee.getProfile().getFullName(), objective.getTitle(), commentAdded)));
+      
     }
   }
 
@@ -599,6 +601,7 @@ public class EmployeeService
     if (progress.equals(Progress.COMPLETE))
     {
       employee.addActivity(developmentNeed.createActivity(COMPLETE, employee.getProfile()));
+      updateActivityFeed(employee);
       addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_DEVELOPMENT_NEED,
           employee.getProfile().getFullName(), developmentNeed.getTitle(), comment)));
     }
