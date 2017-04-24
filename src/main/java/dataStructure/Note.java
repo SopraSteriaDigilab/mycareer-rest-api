@@ -167,7 +167,7 @@ public class Note implements Serializable
   public boolean isCurrent()
   {
     final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
-    final LocalDateTime added = dateToLocalDateTime(new Date(Long.parseLong(timestamp)));
+    final LocalDateTime added = LocalDateTime.parse(timestamp);
     final boolean isCurrent = added.isAfter(cutOffDate);
     
     return isCurrent;

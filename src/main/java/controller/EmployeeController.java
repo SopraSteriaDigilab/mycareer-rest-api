@@ -154,26 +154,15 @@ public class EmployeeController
    * @return list of feedback (only the latest version of them)
    */
   @RequestMapping(value = "/getFeedback/{employeeID}", method = GET)
-  public ResponseEntity<?> getFeedback(@PathVariable long employeeID)
+  public ResponseEntity<?> getFeedback(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
   {
-    if (employeeID > 0)
+    try
     {
-      try
-      {
-        return ok(employeeService.getFeedback(employeeID));
-      }
-      catch (MongoException me)
-      {
-        return badRequest().body("DataBase Connection Error");
-      }
-      catch (Exception e)
-      {
-        return badRequest().body(e.getMessage());
-      }
+      return ok(employeeService.getFeedback(employeeID));
     }
-    else
+    catch (final EmployeeNotFoundException e)
     {
-      return badRequest().body(Constants.INVALID_CONTEXT_USERID);
+      return badRequest().body(e.getMessage());
     }
   }
 
