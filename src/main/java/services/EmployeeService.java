@@ -577,18 +577,17 @@ public class EmployeeService
     Validate.areStringsEmptyorNull(providerEmail, feedbackRequestID, feedbackDescription);
     long employeeID = getEmployeeIDFromRequestID(feedbackRequestID);
     Employee employee = getEmployee(employeeID);
+    String preferredEmailAddress = employee.getProfile().getEmailAddresses().getPreferred();
 
     employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
     morphiaOperations.updateEmployee(employeeID, FEEDBACK_REQUESTS, employee.getFeedbackRequests());
-    String preferredEmailAddress = employee.getProfile().getEmailAddresses().getPreferred();
     addFeedback(providerEmail, employee, preferredEmailAddress, feedbackDescription, true);
 
     String provider = (getFullNameFromEmail(providerEmail) != null) ? getFullNameFromEmail(providerEmail)
         : providerEmail;
-
     String subject = String.format("Feedback Request reply from %s", provider);
     String body = Template.populateTemplate(env.getProperty("templates.feedback.reply"), provider);
-    EmailService.sendEmail(employee.getProfile().getEmailAddresses().toSet(), subject, body);
+    EmailService.sendEmail(preferredEmailAddress, subject, body);
   }
 
   ///////////////////////////////////////////////////////////////////////////
