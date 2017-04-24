@@ -88,7 +88,8 @@ public class MorphiaOperations
     Query<Employee> query = datastore.find(Employee.class);
     Criteria mail = query.criteria(MAIL).equal(emailAddress);
     Criteria targetAddress = query.criteria(TARGET_ADDRESS).equal(emailAddress);
-    query.or(mail, targetAddress);
+    Criteria userAddress = query.criteria(USER_ADDRESS).equal(emailAddress);
+    query.or(mail, targetAddress, userAddress);
     
     return query.get();
   }

@@ -120,7 +120,7 @@ public class ManagerController
     try
     {
       Set<String> emailSet = Utils.stringEmailsToHashSet(emails);
-      managerService.proposeObjectiveNEW(employeeId,
+      managerService.proposeObjective(employeeId,
           new Objective(title, description, isYearMonthInPast(YearMonth.parse(dueDate))), emailSet);
       return ok("Objective inserted correctly");
     }

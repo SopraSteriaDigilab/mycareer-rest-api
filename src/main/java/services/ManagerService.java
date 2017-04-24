@@ -130,7 +130,7 @@ public class ManagerService
     return true;
   }
 
-  public void proposeObjectiveNEW(long employeeId, Objective objective, Set<String> emailSet)
+  public void proposeObjective(long employeeId, Objective objective, Set<String> emailSet)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Set<String> successEmails = new HashSet<>();
