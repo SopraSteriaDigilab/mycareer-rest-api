@@ -144,19 +144,20 @@ public class ManagerService
       try
       {
         Employee employee = employeeService.getEmployee(email);
+        String preferredEmail = employee.getProfile().getEmailAddresses().getPreferred(email);
         employee.addObjective(objective);
 
         objectivesHistoriesOperations.addToObjDevHistory(
             objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
 
         morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), OBJECTIVES, employee.getObjectives());
-
-        successEmails.add(email);
+        
+        successEmails.add(preferredEmail);
 
         String subject = String.format("Proposed Objective from %s", objective.getProposedBy());
         String body = Template.populateTemplate(env.getProperty("templates.objective.proposed"),
             objective.getProposedBy());
-        EmailService.sendEmail(email, subject, body);
+        EmailService.sendEmail(preferredEmail, subject, body);
       }
       catch (EmployeeNotFoundException e)
       {

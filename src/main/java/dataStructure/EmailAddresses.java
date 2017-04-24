@@ -139,4 +139,19 @@ public class EmailAddresses
       return new EmailAddresses(this);
     }
   }
+
+  public String getPreferred(final String emailAddress)
+  {
+    if (userAddress != null && !userAddress.isEmpty())
+    {
+      return userAddress;
+    }
+    
+    return emailAddress;
+  }
+
+  public String getPreferred()
+  {
+    return getPreferred(mail);
+  }
 }

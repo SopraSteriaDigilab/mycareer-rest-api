@@ -501,8 +501,10 @@ public class EmployeeService
     {
       try
       {
-        addFeedback(employeeEmail, email, feedback, isFeedbackRequest);
-        successfullRecipientList.add(email);
+        Employee feedbackRecipient = morphiaOperations.getEmployeeFromEmailAddress(email);
+        String preferredEmailAddress = feedbackRecipient.getProfile().getEmailAddresses().getPreferred(email);
+        addFeedback(employeeEmail, feedbackRecipient, preferredEmailAddress, feedback, isFeedbackRequest);
+        successfullRecipientList.add(preferredEmailAddress);
 
         String subject = String.format("Feedback from %s", employee.getProfile().getFullName());
         String body = Template.populateTemplate(env.getProperty("templates.feedback.generic"),
@@ -525,6 +527,13 @@ public class EmployeeService
     }
 
   }
+  
+  public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
+      boolean isFeedbackRequest) throws InvalidAttributeValueException, EmployeeNotFoundException
+  {
+    Employee employee = getEmployee(recipientEmail);
+    addFeedback(providerEmail, employee, recipientEmail, feedbackDescription, isFeedbackRequest);
+  }
 
   /**
    * Add a feedback to an employee
@@ -535,15 +544,17 @@ public class EmployeeService
    * @throws InvalidAttributeValueException
    * @throws EmployeeNotFoundException
    */
-  public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
+  public void addFeedback(String providerEmail, Employee employee, String recipientEmail, String feedbackDescription,
       boolean isFeedbackRequest) throws InvalidAttributeValueException, EmployeeNotFoundException
   {
     Validate.areStringsEmptyorNull(providerEmail, feedbackDescription, recipientEmail);
-    Employee employee = morphiaOperations.getEmployeeFromEmailAddress(recipientEmail);
-    if (employee == null) throw new EmployeeNotFoundException("Employee not found with email: " + recipientEmail);
+
+    if (employee == null)
+    {
+      throw new EmployeeNotFoundException("Employee not found with email: " + recipientEmail);
+    }
 
     Feedback feedback = new Feedback(employee.nextFeedbackID(), providerEmail, feedbackDescription);
-
     String providerName = (getFullNameFromEmail(providerEmail) != null) ? getFullNameFromEmail(providerEmail)
         : providerEmail;
 
@@ -569,8 +580,8 @@ public class EmployeeService
 
     employee.getFeedbackRequest(feedbackRequestID).setReplyReceived(true);
     morphiaOperations.updateEmployee(employeeID, FEEDBACK_REQUESTS, employee.getFeedbackRequests());
-    addFeedback(providerEmail, employee.getProfile().getEmailAddresses().toSet().stream().findFirst().get(),
-        feedbackDescription, true);
+    String preferredEmailAddress = employee.getProfile().getEmailAddresses().getPreferred();
+    addFeedback(providerEmail, employee, preferredEmailAddress, feedbackDescription, true);
 
     String provider = (getFullNameFromEmail(providerEmail) != null) ? getFullNameFromEmail(providerEmail)
         : providerEmail;
