@@ -14,7 +14,7 @@ import java.util.Set;
  */
 // TODO Add the spring validation here, (see the annotations in the employeeController) Then change the constructor to
 // take in a Note object.
-public class Note implements Serializable
+public class Note implements Serializable, Comparable<Note>
 {
   /** long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = 1L;
@@ -171,5 +171,14 @@ public class Note implements Serializable
     final boolean isCurrent = added.isAfter(cutOffDate);
     
     return isCurrent;
+  }
+
+  @Override
+  public int compareTo(final Note other)
+  {
+    final LocalDateTime thisTimestamp = LocalDateTime.parse(timestamp);
+    final LocalDateTime otherTimestamp = LocalDateTime.parse(other.timestamp);
+
+    return thisTimestamp.compareTo(otherTimestamp);
   }
 }

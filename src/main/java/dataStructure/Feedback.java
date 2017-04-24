@@ -15,7 +15,7 @@ import javax.management.InvalidAttributeValueException;
 /**
  * This class contains the definition of the feedback in MyCareer.
  */
-public class Feedback extends DBObject
+public class Feedback extends DBObject implements Comparable<Feedback>
 {
   private static final long serialVersionUID = 1L;
 
@@ -183,5 +183,14 @@ public class Feedback extends DBObject
     final boolean isCurrent = added.isAfter(cutOffDate);
     
     return isCurrent;
+  }
+
+  @Override
+  public int compareTo(final Feedback other)
+  {
+    final LocalDateTime thisTimestamp = LocalDateTime.parse(timestamp);
+    final LocalDateTime otherTimestamp = LocalDateTime.parse(other.timestamp);
+
+    return thisTimestamp.compareTo(otherTimestamp);
   }
 }
