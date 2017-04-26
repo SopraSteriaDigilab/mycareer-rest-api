@@ -24,9 +24,11 @@ public class DataService
 
   public Set<String> getAllEmailAddresses()
   {
-    final Set<String> emails = employeeOperations.getFieldValuesAsSet(EMAIL_ADDRESSES, MAIL, TARGET_ADDRESS,
+    final Set<String> emails = employeeOperations.getFieldValuesAsSet("emailAddresses", MAIL, TARGET_ADDRESS,
         USER_ADDRESS);
+    
     emails.remove(null);
+    emails.remove("");
     LOGGER.debug("Email address count is {}", emails.size());
 
     return emails;

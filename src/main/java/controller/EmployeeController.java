@@ -7,6 +7,7 @@ import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static utils.Validate.isYearMonthInPast;
+import static utils.Utils.*;
 
 import java.io.IOException;
 import java.time.YearMonth;
@@ -34,10 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mongodb.MongoException;
-
 import dataStructure.Competency.CompetencyTitle;
-import dataStructure.Constants;
 import dataStructure.DevelopmentNeed;
 import dataStructure.DocumentConversionException;
 import dataStructure.EmployeeProfile;
@@ -47,7 +45,6 @@ import dataStructure.Rating;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
 import services.EmployeeService;
-import utils.Utils;
 
 /**
  * This class contains all the available roots of the web service
@@ -508,7 +505,7 @@ public class EmployeeController
   {
     try
     {
-      Set<String> emailSet = Utils.stringEmailsToHashSet(emails);
+      Set<String> emailSet = stringEmailsToHashSet(emails);
       employeeService.addFeedback(employeeId, emailSet, feedback, false);
       return ok("Feedback added");
     }
