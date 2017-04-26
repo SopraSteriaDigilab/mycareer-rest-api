@@ -547,7 +547,7 @@ public class EmployeeService
   public void addFeedback(String providerEmail, Employee employee, String recipientEmail, String feedbackDescription,
       boolean isFeedbackRequest) throws InvalidAttributeValueException, EmployeeNotFoundException
   {
-    Validate.areStringsEmptyorNull(providerEmail, feedbackDescription, recipientEmail);
+    Validate.stringsNotEmptyNotNullOrThrow(providerEmail, feedbackDescription, recipientEmail);
 
     if (employee == null)
     {
@@ -574,7 +574,7 @@ public class EmployeeService
   public void addRequestedFeedback(String providerEmail, String feedbackRequestID, String feedbackDescription)
       throws Exception
   {
-    Validate.areStringsEmptyorNull(providerEmail, feedbackRequestID, feedbackDescription);
+    Validate.stringsNotEmptyNotNullOrThrow(providerEmail, feedbackRequestID, feedbackDescription);
     long employeeID = getEmployeeIDFromRequestID(feedbackRequestID);
     Employee employee = getEmployee(employeeID);
     String preferredEmailAddress = employee.getProfile().getEmailAddresses().getPreferred();
@@ -650,7 +650,7 @@ public class EmployeeService
   private void addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest)
       throws InvalidAttributeValueException
   {
-    Validate.isNull(employee, feedbackRequest);
+    Validate.throwIfNull(employee, feedbackRequest);
     employee.addFeedbackRequest(feedbackRequest);
     employee.addActivity(feedbackRequest.createActivity(employee.getProfile()));
     morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK_REQUESTS,

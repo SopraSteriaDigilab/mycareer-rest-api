@@ -41,8 +41,8 @@ public class ValidateTest
   @Test
   public void testAreStringsEmptyorNullShoudWorkAsExpected() throws InvalidAttributeValueException
   {
-    assertFalse(Validate.areStringsEmptyorNull(VALID_STRING)); // one valid
-    assertFalse(Validate.areStringsEmptyorNull(VALID_STRING, VALID_STRING)); // multiple valid
+    assertFalse(Validate.stringNotEmptyNotNull(VALID_STRING)); // one valid
+    assertFalse(Validate.stringsNotEmptyNotNullOrThrow(VALID_STRING, VALID_STRING)); // multiple valid
   }
 
   /**
@@ -53,7 +53,7 @@ public class ValidateTest
   @Test(expected = InvalidAttributeValueException.class)
   public void testAreStringsEmptyorNullWithEmpty() throws InvalidAttributeValueException
   {
-    Validate.areStringsEmptyorNull(VALID_STRING, EMPTY_STRING); // both empty
+    Validate.stringsNotEmptyNotNullOrThrow(VALID_STRING, EMPTY_STRING); // both empty
   }
 
   /**
@@ -64,7 +64,7 @@ public class ValidateTest
   @Test(expected = InvalidAttributeValueException.class)
   public void testAreStringsEmptyorNullWithNull() throws InvalidAttributeValueException
   {
-    Validate.areStringsEmptyorNull(NULL_STRING, NULL_STRING); // both null
+    Validate.stringsNotEmptyNotNullOrThrow(NULL_STRING, NULL_STRING); // both null
   }
 
   /**
@@ -75,7 +75,7 @@ public class ValidateTest
   @Test(expected = InvalidAttributeValueException.class)
   public void testAreStringsEmptyorNullWithValidAndEmpty() throws InvalidAttributeValueException
   {
-    Validate.areStringsEmptyorNull(VALID_STRING, EMPTY_STRING); // one valid, one empty
+    Validate.stringsNotEmptyNotNullOrThrow(VALID_STRING, EMPTY_STRING); // one valid, one empty
   }
 
   /**
@@ -86,7 +86,7 @@ public class ValidateTest
   @Test(expected = InvalidAttributeValueException.class)
   public void testAreStringsEmptyorNullWithValidAndNull() throws InvalidAttributeValueException
   {
-    Validate.areStringsEmptyorNull(VALID_STRING, NULL_STRING); // one valid, one null
+    Validate.stringsNotEmptyNotNullOrThrow(VALID_STRING, NULL_STRING); // one valid, one null
   }
 
   /**
@@ -97,7 +97,7 @@ public class ValidateTest
   @Test(expected = InvalidAttributeValueException.class)
   public void testAreStringsEmptyorNullWithNoInput() throws InvalidAttributeValueException
   {
-    Validate.areStringsEmptyorNull(); // no input
+    Validate.stringsNotEmptyNotNullOrThrow(); // no input
   }
 
   /**
@@ -108,7 +108,7 @@ public class ValidateTest
   @Test
   public void testIsNullShouldWorkAsExpected() throws InvalidAttributeValueException
   {
-    assertFalse("should return 'false'", Validate.isNull(VALID_STRING, VALID_STRING)); // valid
+    assertFalse("should return 'false'", Validate.throwIfNull(VALID_STRING, VALID_STRING)); // valid
   }
 
   /**
@@ -119,7 +119,7 @@ public class ValidateTest
   @Test(expected = InvalidAttributeValueException.class)
   public void testIsNullWithNulls() throws InvalidAttributeValueException
   {
-    Validate.isNull(NULL_STRING, NULL_STRING); // nulls
+    Validate.throwIfNull(NULL_STRING, NULL_STRING); // nulls
   }
 
   /**
@@ -130,7 +130,7 @@ public class ValidateTest
   @Test(expected = InvalidAttributeValueException.class)
   public void testIsNullWithNotInput() throws InvalidAttributeValueException
   {
-    Validate.isNull(); // no input
+    Validate.throwIfNull(); // no input
   }
 
   /**

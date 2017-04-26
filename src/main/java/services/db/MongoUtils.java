@@ -25,6 +25,7 @@ public final class MongoUtils
   private static final String SORT = "$sort";
   private static final String PUSH = "$push";
   private static final String SET = "$set";
+  private static final String UNSET = "$unset";
   private static final String DATE_TO_STRING = "$dateToString";
   private static final String COND = "$cond";
   private static final String IF_NULL = "$ifNull";
@@ -201,6 +202,11 @@ public final class MongoUtils
   public static Document set(Bson bson)
   {
     return new Document(SET, bson);
+  }
+
+  public static Document unset(Bson bson)
+  {
+    return new Document(UNSET, bson);
   }
 
   public static <T> Document in(List<T> list)

@@ -5,7 +5,7 @@ import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static utils.Validate.isYearMonthInPast;
+import static utils.Validate.notPastOrThrow;
 
 import java.time.YearMonth;
 import java.util.Set;
@@ -121,7 +121,7 @@ public class ManagerController
     {
       Set<String> emailSet = Utils.stringEmailsToHashSet(emails);
       managerService.proposeObjective(employeeId,
-          new Objective(title, description, isYearMonthInPast(YearMonth.parse(dueDate))), emailSet);
+          new Objective(title, description, notPastOrThrow(YearMonth.parse(dueDate))), emailSet);
       return ok("Objective inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)

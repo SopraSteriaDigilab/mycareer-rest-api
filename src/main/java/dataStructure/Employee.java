@@ -365,7 +365,7 @@ public class Employee implements Serializable
 
   public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException
   {
-    isNull(feedback);
+    throwIfNull(feedback);
     return this.feedback.add(feedback);
   }
 

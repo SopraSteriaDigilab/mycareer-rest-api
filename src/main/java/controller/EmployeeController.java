@@ -6,7 +6,7 @@ import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static utils.Validate.isYearMonthInPast;
+import static utils.Validate.notPastOrThrow;
 import static utils.Utils.*;
 
 import java.io.IOException;
@@ -42,6 +42,7 @@ import dataStructure.EmployeeProfile;
 import dataStructure.Note;
 import dataStructure.Objective;
 import dataStructure.Rating;
+import services.DuplicateEmailAddressException;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
 import services.EmployeeService;
@@ -259,7 +260,7 @@ public class EmployeeController
     try
     {
       employeeService.addObjective(employeeId,
-          new Objective(title, description, isYearMonthInPast(YearMonth.parse(dueDate))));
+          new Objective(title, description, notPastOrThrow(YearMonth.parse(dueDate))));
       return ok("Objective inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -283,7 +284,7 @@ public class EmployeeController
     try
     {
       employeeService.editObjective(employeeId,
-          new Objective(objectiveId, title, description, isYearMonthInPast(YearMonth.parse(dueDate))));
+          new Objective(objectiveId, title, description, notPastOrThrow(YearMonth.parse(dueDate))));
       return ok("Objective updated correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -377,7 +378,7 @@ public class EmployeeController
     try
     {
       employeeService.addDevelopmentNeed(employeeId, new DevelopmentNeed(title, description,
-          isYearMonthInPast(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
+          notPastOrThrow(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -403,7 +404,7 @@ public class EmployeeController
     try
     {
       employeeService.editDevelopmentNeed(employeeId, new DevelopmentNeed(developmentNeedId, title, description,
-          isYearMonthInPast(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
+          notPastOrThrow(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need updated correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -618,8 +619,18 @@ public class EmployeeController
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Email String emailAddress)
   {
-    boolean updated = employeeProfileService.editUserEmailAddress(employeeId, emailAddress);
-    String retVal = updated ? "Email address updated" : "Email address not updated";
+    String retVal = null;
+    boolean updated = false;
+    
+    try
+    {
+      updated = employeeProfileService.editUserEmailAddress(employeeId, emailAddress);
+      retVal = updated ? "Email address updated" : "Email address not updated";
+    }
+    catch (final DuplicateEmailAddressException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
 
     return ok(retVal);
   }

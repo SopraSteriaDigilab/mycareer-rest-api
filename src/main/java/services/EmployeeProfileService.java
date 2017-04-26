@@ -5,6 +5,7 @@ import static dataStructure.EmailAddresses.*;
 import static services.ad.ADOperations.*;
 import static services.mappers.EmployeeProfileMapper.*;
 import static com.mongodb.client.model.Filters.*;
+import static utils.Validate.*;
 
 import javax.naming.directory.SearchResult;
 
@@ -35,6 +36,7 @@ public class EmployeeProfileService
   private static final String INVALID_USERNAME_OR_EMAIL_ADDRESS = "Not a valid username or email address";
   private static final String INVALID_EMAIL_ADDRESS = "Not a valid email address";
   private static final String INVALID_USERNAME = "Not a valid username";
+  private static final String DUPLICATE_EMAIL_ADDRESS = "Employee with ID {}, attempted to add an email addresss which already exists: {}";
   private static final String EMAIL_ADDRESS_NOT_FOUND_LOG = "Employee not found based on the email address: {}";
   private static final String EMPLOYEE_NOT_FOUND_LOG = "Employee not found based on the criteria: {} {}";
   private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: ";
@@ -44,8 +46,6 @@ public class EmployeeProfileService
   // Sopra AD Details
   private static final String AD_SOPRA_TREE = "ou=usersemea,DC=emea,DC=msad,DC=sopra";
   private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
-
-
 
   private final ADSearchSettings sopraADSearchSettings;
   private final MorphiaOperations morphiaOperations;
@@ -152,7 +152,7 @@ public class EmployeeProfileService
       LOGGER.error(EMAIL_ADDRESS_NOT_FOUND_LOG, emailAddress);
       throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND.concat(emailAddress));
     }
-    
+
     setHasHRDash(profile);
 
     return profile;
@@ -166,21 +166,57 @@ public class EmployeeProfileService
    *
    * @param employeeId The employee ID of the user profile to amend
    * @param emailAddress The email address to add, provided by the user
+   * @throws DuplicateEmailAddressException 
    */
-  public boolean editUserEmailAddress(final Long employeeId, final String emailAddress)
+  public boolean editUserEmailAddress(final Long employeeId, final String emailAddress) throws DuplicateEmailAddressException
   {
-    boolean updated = false;
+    if (!isUniqueEmailAddress(emailAddress))
+    {
+      LOGGER.info(DUPLICATE_EMAIL_ADDRESS, employeeId, emailAddress);
+      throw new DuplicateEmailAddressException();
+    }
     
+    boolean updated = false;
+
     try
     {
-      updated = employeeOperations.setFields(eq(EMPLOYEE_ID, employeeId), new Document(USER_ADDRESS, emailAddress));
+      updated = stringNotEmptyNotNull(emailAddress) ? setUserEmailAddress(employeeId, emailAddress)
+          : unsetUserEmailAddress(employeeId);
     }
     catch (final MongoException me)
     {
       LOGGER.error(ADD_EMAIL_EXCEPTION, me);
     }
-    
+
     return updated;
+  }
+
+  private boolean isUniqueEmailAddress(String emailAddress)
+  {
+    final String[] emailFields = { MAIL, TARGET_ADDRESS, USER_ADDRESS };
+    boolean unique = false;
+    
+    for (final String field : emailFields)
+    {
+      unique = !employeeOperations.valueExists(field, emailAddress);
+      
+      if (!unique)
+      {
+        break;
+      }
+    }
+    
+    return unique;
+  }
+
+  private boolean setUserEmailAddress(final long employeeId, final String emailAddress)
+  {
+    return employeeOperations.setFields(eq(EMPLOYEE_ID, employeeId), new Document(USER_ADDRESS, emailAddress));
+  }
+
+  private boolean unsetUserEmailAddress(final long employeeId)
+  {
+    return employeeOperations.unsetFields(eq(EMPLOYEE_ID, employeeId), new Document(USER_ADDRESS, ""));
   }
 
   private <T> EmployeeProfile fetchEmployeeProfile(final String field, final T value) throws EmployeeNotFoundException

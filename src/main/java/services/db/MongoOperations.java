@@ -193,6 +193,13 @@ public class MongoOperations
     return result.getModifiedCount() == 1;
   }
 
+  public boolean unsetFields(Bson filter, Document keyValuePairs)
+  {
+    UpdateResult result = mongoCollection.updateOne(filter, unset(keyValuePairs));
+
+    return result.getModifiedCount() == 1;
+  }
+
   /**
    * Method to add to competencies history collections. Upsert is set to true.
    *
@@ -230,5 +237,10 @@ public class MongoOperations
   {
     return new Document(EMPLOYEE_ID, employeeId).append(DEVELOPMENT_NEED_ID, developmentNeedId).append(CREATED_ON,
         createdOn);
+  }
+
+  public boolean valueExists(final String field, final String value)
+  {
+    return mongoCollection.count(new Document(field, value)) > 0L;
   }
 }
