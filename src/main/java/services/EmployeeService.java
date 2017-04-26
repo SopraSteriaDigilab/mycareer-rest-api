@@ -493,7 +493,7 @@ public class EmployeeService
       throws Exception
   {
     Employee employee = getEmployee(employeeId);
-    String employeeEmail = employee.getProfile().getEmailAddresses().toSet().stream().findFirst().get();
+    String employeeEmail = employee.getProfile().getEmailAddresses().getPreferred();
     List<String> errorRecipientList = new ArrayList<String>();
     List<String> successfullRecipientList = new ArrayList<String>();
 
