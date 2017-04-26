@@ -36,7 +36,7 @@ public class EmployeeProfileService
   private static final String INVALID_USERNAME_OR_EMAIL_ADDRESS = "Not a valid username or email address";
   private static final String INVALID_EMAIL_ADDRESS = "Not a valid email address";
   private static final String INVALID_USERNAME = "Not a valid username";
-  private static final String DUPLICATE_EMAIL_ADDRESS = "Employee with ID {}, attempted to add an email addresss which already exists: {}";
+  private static final String DUPLICATE_EMAIL_ADDRESS = "Employee with ID {} attempted to add an email addresss which already exists: {}";
   private static final String EMAIL_ADDRESS_NOT_FOUND_LOG = "Employee not found based on the email address: {}";
   private static final String EMPLOYEE_NOT_FOUND_LOG = "Employee not found based on the criteria: {} {}";
   private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: ";
