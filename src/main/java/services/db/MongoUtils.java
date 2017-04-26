@@ -37,8 +37,9 @@ public final class MongoUtils
   private static final String IN = "$in";
   private static final String OR = "$or";
 
-  
-  private MongoUtils() {}
+  private MongoUtils()
+  {
+  }
 
   public static Document projection(final Document... projections)
   {
@@ -56,43 +57,43 @@ public final class MongoUtils
   {
     return new Document(PROJECT, projection);
   }
-  
+
   public static Document projectExcludeId()
   {
     return project(excludeId());
   }
-  
+
   public static Document projectFieldsToArray(String arrayName, String... fieldNames)
   {
     List<String> toArray = new ArrayList<>();
-    
+
     for (String fieldName : fieldNames)
     {
       toArray.add(reference(fieldName));
     }
-    
+
     Document projection = excludeId().append(arrayName, toArray);
-    
+
     return project(projection);
   }
-  
+
   public static Document projectRenamedField(final String newName, final String field)
   {
     return project(new Document(newName, reference(field)));
   }
-  
+
   public static Document projectField(final String field)
   {
     return projectRenamedField(field, field);
   }
-  
+
   public static Document addSubstringToSet(final String field, final String indexString, final int substringLength)
   {
     Document indexOfCP = indexOfCP(field, indexString);
     Document substrCP = substrCP(field, indexOfCP, substringLength);
     Document addToSet = addToSet(substrCP);
     Document groupDocument = nullGrouping().append(field, addToSet);
-    
+
     return group(groupDocument);
   }
 
@@ -110,12 +111,12 @@ public final class MongoUtils
   {
     return new Document(ADD_TO_SET, value);
   }
-  
+
   public static Document sortDescending(final String fieldName)
   {
     return sort(new Document(fieldName, -1));
   }
-  
+
   public static Document sort(final Document sortDocument)
   {
     return new Document(SORT, sortDocument);
@@ -127,7 +128,7 @@ public final class MongoUtils
     substrCPList.put("0", reference(field));
     substrCPList.put("1", startIndex);
     substrCPList.put("2", substringLength);
-    
+
     return new Document(SUBSTR_CP, substrCPList);
   }
 
@@ -136,46 +137,47 @@ public final class MongoUtils
     BasicBSONList indexOfCPList = new BasicBSONList();
     indexOfCPList.put("0", reference(field));
     indexOfCPList.put("1", indexString);
-    
+
     return new Document(INDEX_OF_CP, indexOfCPList);
   }
 
-//  public static Document concat(final Object... objects)
-//  {
-//    return new Document(CONCAT, objects);
-//  }
+  // public static Document concat(final Object... objects)
+  // {
+  // return new Document(CONCAT, objects);
+  // }
 
-//  public static <T, U> Document lt(final T expression1, final U expression2)
-//  {
-//    final List<Object> lessThanArray = Arrays.asList(expression1, expression2);
-//
-//    return new Document(LT, lessThanArray);
-//  }
+  // public static <T, U> Document lt(final T expression1, final U expression2)
+  // {
+  // final List<Object> lessThanArray = Arrays.asList(expression1, expression2);
+  //
+  // return new Document(LT, lessThanArray);
+  // }
 
-//  public static <T, U> Document eq(final T expression1, final U expression2)
-//  {
-//    final List<Object> equalityArray = Arrays.asList(expression1, expression2);
-//    return new Document(EQ, equalityArray);
-//  }
+  // public static <T, U> Document eq(final T expression1, final U expression2)
+  // {
+  // final List<Object> equalityArray = Arrays.asList(expression1, expression2);
+  // return new Document(EQ, equalityArray);
+  // }
 
-//  public static Document ifNull(final String field, final String ifNull)
-//  {
-//    final String[] ifNullArray = new String[] { reference(field), ifNull };
-//    return new Document(IF_NULL, ifNullArray);
-//  }
+  // public static Document ifNull(final String field, final String ifNull)
+  // {
+  // final String[] ifNullArray = new String[] { reference(field), ifNull };
+  // return new Document(IF_NULL, ifNullArray);
+  // }
 
-//  public static <T, U> Document cond(final Document booleanExpression, final T trueExpression, final U falseExpression)
-//  {
-//    final List conditional = new BasicDBList();
-//    conditional.addAll(booleanExpression, trueExpression, falseExpression);
-//    return new Document(COND, conditional);
-//  }
+  // public static <T, U> Document cond(final Document booleanExpression, final T trueExpression, final U
+  // falseExpression)
+  // {
+  // final List conditional = new BasicDBList();
+  // conditional.addAll(booleanExpression, trueExpression, falseExpression);
+  // return new Document(COND, conditional);
+  // }
 
   public static <T> Document matchField(final String fieldToMatch, final T value)
   {
     return match(new Document(fieldToMatch, value));
   }
-  
+
   public static Document match(Document document)
   {
     return new Document(MATCH, document);
@@ -200,7 +202,7 @@ public final class MongoUtils
   {
     return new Document(SET, bson);
   }
-  
+
   public static <T> Document in(List<T> list)
   {
     return new Document(IN, list);

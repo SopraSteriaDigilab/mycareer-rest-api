@@ -26,7 +26,7 @@ public class DataService
   {
     final Set<String> emails = employeeOperations.getFieldValuesAsSet("emailAddresses", MAIL, TARGET_ADDRESS,
         USER_ADDRESS);
-    
+
     emails.remove(null);
     emails.remove("");
     LOGGER.debug("Email address count is {}", emails.size());
