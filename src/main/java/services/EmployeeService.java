@@ -12,9 +12,11 @@ import static utils.Conversions.*;
 import static utils.Utils.stringEmailsToHashSet;
 import static com.mongodb.client.model.Filters.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +28,7 @@ import javax.management.InvalidAttributeValueException;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -38,6 +41,7 @@ import dataStructure.Competency;
 import dataStructure.Competency.CompetencyTitle;
 import dataStructure.DevelopmentNeed;
 import dataStructure.DocumentConversionException;
+import dataStructure.EmailAddresses;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
@@ -47,9 +51,11 @@ import dataStructure.Objective;
 import dataStructure.Objective.Progress;
 import dataStructure.Rating;
 import services.db.MongoOperations;
+import services.db.MongoUtils;
 import services.db.MorphiaOperations;
 import services.ews.EmailService;
 import utils.Template;
+import utils.Utils;
 import utils.Validate;
 
 /**
@@ -676,11 +682,29 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, RATINGS, employee.getRatings());
   }
 
-  public void submitSelfEvaluation(long employeeId, int year) throws EmployeeNotFoundException
+  public void submitSelfEvaluation(long employeeId, int year)
+      throws EmployeeNotFoundException, FileNotFoundException, IOException
   {
     Employee employee = getEmployee(employeeId);
     employee.submitSelfEvaluation(year);
     morphiaOperations.updateEmployee(employeeId, RATINGS, employee.getRatings());
+
+    String reporteeCN = Utils.nameIdToCN(employee.getProfile().getForename(), employee.getProfile().getSurname(),
+        employee.getProfile().getEmployeeID());
+
+    String managerEmail = getManagerEmailAddress(reporteeCN);
+    String subject = String.format("Self Evaluation Submitted - %s.", employee.getProfile().getFullName());
+    String body = Template.populateTemplate(env.getProperty("template.evaluation.submitted"),
+        employee.getProfile().getFullName());
+
+    try
+    {
+      EmailService.sendEmail(managerEmail, subject, body);
+    }
+    catch (Exception e)
+    {
+      LOGGER.error("Failed sending manager rating email notification to {}.", managerEmail);
+    }
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -750,4 +774,20 @@ public class EmployeeService
     employee.updateNotesTags(noteId, objectiveIds, developmentNeedIds);
     morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
   }
+
+  public String getManagerEmailAddress(String reporteeCN)
+  {
+    Document filter = new Document("profile.reporteeCNs", MongoUtils.in(Arrays.asList(reporteeCN)));
+    Document profile = employeeOperations.getField(filter, "profile");
+    Document emails = (Document) profile.get("emailAddresses");
+
+    String mail = emails.getString("mail");
+    String targetAddress = emails.getString("targetAddress");
+    String userAddress = emails.getString("userAddress");
+    EmailAddresses emailAddresses = new EmailAddresses.Builder().mail(mail).targetAddress(targetAddress)
+        .userAddress(userAddress).build();
+
+    return emailAddresses.getPreferred();
+  }
+
 }

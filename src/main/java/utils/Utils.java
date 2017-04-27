@@ -268,4 +268,9 @@ public class Utils
       map.remove(key);
     }
   }
+  
+  public static String nameIdToCN(String firstName, String lastName, long id){
+    return String.format("%s %s - %s", lastName.toUpperCase(), firstName, id);
+  }
+  
 }

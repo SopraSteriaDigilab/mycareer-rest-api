@@ -138,6 +138,20 @@ public class MongoOperations
 
     return aggregationResultsToSet(rawResults, listName);
   }
+  
+  /**
+   * Finds a document and returns the specified field based on the filter.
+   *
+   * @param filterField
+   * @param filterValue
+   * @param field
+   */
+  public Document getField(Document filter, String field){
+    Document d = mongoCollection.find(filter).first();
+    return (Document)d.get(field);
+  }
+  
+  
 
   @SuppressWarnings("unchecked")
   private <T> List<T> aggregationResultsToList(final AggregateIterable<Document> aggregationResults,
