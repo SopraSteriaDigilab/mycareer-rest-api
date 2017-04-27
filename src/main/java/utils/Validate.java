@@ -24,14 +24,18 @@ public class Validate
   public static boolean stringsNotEmptyNotNullOrThrow(String... strings) throws InvalidAttributeValueException
   {
     if (strings.length < 1)
+    {
       throw new InvalidAttributeValueException("No values have been given, please try again with values.");
+    }
 
-    if (Arrays.stream(strings).anyMatch(Validate::stringNotEmptyNotNull))
+    if (Arrays.stream(strings).anyMatch(s -> !stringNotEmptyNotNull(s)))
+    {
       throw new InvalidAttributeValueException("One or more of the values are empty. Please try again.");
+    }
 
     return false;
   }
-  
+
   /**
    * Checks if a String is empty or null
    * 
@@ -53,10 +57,14 @@ public class Validate
   public static boolean throwIfNull(Object... objects) throws InvalidAttributeValueException
   {
     if (objects.length < 1)
+    {
       throw new InvalidAttributeValueException("No values have been given, please try again with values.");
+    }
 
     if (Arrays.stream(objects).anyMatch(o -> o == null))
+    {
       throw new InvalidAttributeValueException("One or more of the values are empty. Please try again.");
+    }
 
     return false;
   }
@@ -74,6 +82,7 @@ public class Validate
 
     Pattern pattern = Pattern.compile(
         "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$");
+    
     return pattern.matcher(email).matches();
   }
 
@@ -87,8 +96,9 @@ public class Validate
   public static boolean isValidFeedbackRequestID(String id) throws InvalidAttributeValueException
   {
     stringNotEmptyNotNull(id);
-
+    
     Pattern pattern = Pattern.compile("^(\\d{6})_(\\d{17})$");
+    
     return pattern.matcher(id).matches();
   }
 
@@ -96,12 +106,17 @@ public class Validate
    * Checks if a year month is in the past
    *
    * @param yearMonth
-   * @return A local date of the year month with the using the {@link java.time.YearMonth#atEndOfMonth() atEndOfMonth} method.
+   * @return A local date of the year month with the using the {@link java.time.YearMonth#atEndOfMonth() atEndOfMonth}
+   *         method.
    * @throws InvalidAttributeValueException if date is in the past
    */
   public static LocalDate notPastOrThrow(YearMonth yearMonth) throws InvalidAttributeValueException
   {
-    if (yearMonth.isBefore(YearMonth.now(UK_TIMEZONE))) throw new InvalidAttributeValueException("Date is in past.");
+    if (yearMonth.isBefore(YearMonth.now(UK_TIMEZONE)))
+    {
+      throw new InvalidAttributeValueException("Date is in past.");
+    }
+    
     return yearMonth.atEndOfMonth();
   }
 }
