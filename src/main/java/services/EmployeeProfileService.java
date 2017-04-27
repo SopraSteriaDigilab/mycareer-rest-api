@@ -236,7 +236,7 @@ public class EmployeeProfileService
     return profile;
   }
 
-  private void setHasHRDash(final EmployeeProfile profile)
+  public void setHasHRDash(final EmployeeProfile profile)
   {
     try
     {

@@ -8,6 +8,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import dataStructure.DevelopmentNeed;
+import dataStructure.Employee;
+import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.Note;
 import dataStructure.Objective;
@@ -21,12 +23,12 @@ import services.db.MorphiaOperations;
 public class HistoryService
 {
   private MorphiaOperations morphiaOperations;
-
+  
   public HistoryService(final MorphiaOperations morphiaOperations)
   {
     this.morphiaOperations = morphiaOperations;
   }
-
+  
   public List<Objective> getObjectives(long employeeId) throws EmployeeNotFoundException
   {
     return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId).getObjectives();

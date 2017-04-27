@@ -1,5 +1,6 @@
 package services;
 
+import static dataStructure.EmployeeProfile.EMPLOYEE_ID;
 import static org.apache.commons.lang3.ArrayUtils.addAll;
 import static utils.EmployeeStatistics.DEVELOPMENT_NEEDS_FIELDS;
 import static utils.EmployeeStatistics.EMPLOYEE_FIELDS;
@@ -14,6 +15,7 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 
 import dataStructure.Employee;
+import services.db.MorphiaOperations;
 import utils.EmployeeStatistics;
 
 /**
@@ -24,6 +26,8 @@ public class HRService
 {
   /** Datastore Constant - Represents connection to the database */
   private final Datastore datastore;
+  
+  private final MorphiaOperations morphiaOperations;
 
   /** EmployeeStatistics Constant - Represents employeeStats reference */
   private final EmployeeStatistics employeeStats = new EmployeeStatistics();
@@ -33,9 +37,15 @@ public class HRService
    *
    * @param datastore
    */
-  public HRService(final Datastore datastore)
+  public HRService(final Datastore datastore, final MorphiaOperations morphiaOperations)
   {
     this.datastore = datastore;
+    this.morphiaOperations = morphiaOperations;
+  }
+
+  public Employee getMyCareer(long employeeId) throws EmployeeNotFoundException
+  {
+    return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId);
   }
 
   /**

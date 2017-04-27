@@ -78,7 +78,7 @@ public class ServiceConfig
   @Bean
   public HRService hrDataDAO()
   {
-    return new HRService(datastore);
+    return new HRService(datastore, morphiaOperations);
   }
 
   @Bean

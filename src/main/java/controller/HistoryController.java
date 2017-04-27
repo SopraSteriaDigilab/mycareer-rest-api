@@ -17,7 +17,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import dataStructure.Employee;
+import dataStructure.EmployeeProfile;
 import services.EmployeeNotFoundException;
+import services.EmployeeProfileService;
 import services.HistoryService;
 
 @CrossOrigin
@@ -33,7 +36,7 @@ public class HistoryController
 
   @Autowired
   private HistoryService historyService;
-
+  
   @RequestMapping(value = "/getObjectives/{employeeId}", method = GET)
   public ResponseEntity<?> getObjectives(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
   {
