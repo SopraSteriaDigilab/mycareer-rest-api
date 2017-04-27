@@ -58,6 +58,8 @@ public class ManagerController
   private static final String REGEX_YEAR_MONTH = "^\\d{4}[-](0[1-9]|1[012])$";
   private static final String ERROR_LIMIT_EVALUATION = "Max Evaluation length is 10,000 characters";
   private static final String ERROR_SCORE = "Score must be a number from 0 to 5.";
+  private static final String ERROR_EMPTY_DL = "Distribution list cannot be empty";
+  private static final String ERROR_LIMIT_DL = "Distribution list cannot be more than 100 characters";
   
   @Autowired
   private ManagerService managerService;
@@ -122,6 +124,25 @@ public class ManagerController
       Set<String> emailSet = Utils.stringEmailsToHashSet(emails);
       managerService.proposeObjective(employeeId,
           new Objective(title, description, notPastOrThrow(YearMonth.parse(dueDate))), emailSet);
+      return ok("Objective inserted correctly");
+    }
+    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+  
+  @RequestMapping(value = "/proposeObjective/{employeeId}", method = POST)
+  public ResponseEntity<?> proposeObjectiveToDistributionList(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 2_000, message = ERROR_LIMIT_TITLE) String description,
+      @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_DL) @Size(max = 100, message = ERROR_LIMIT_DL) String distributionList)
+  {
+    try
+    {
+      managerService.proposeObjective(employeeId,
+          new Objective(title, description, notPastOrThrow(YearMonth.parse(dueDate))), distributionList);
       return ok("Objective inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)

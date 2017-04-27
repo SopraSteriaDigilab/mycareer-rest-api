@@ -151,7 +151,7 @@ public class ManagerService
             objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
 
         morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), OBJECTIVES, employee.getObjectives());
-        
+
         successEmails.add(preferredEmail);
 
         String subject = String.format("Proposed Objective from %s", objective.getProposedBy());
@@ -172,12 +172,22 @@ public class ManagerService
 
     if (!errorEmails.isEmpty())
     {
-      if (successEmails.isEmpty()) throw new InvalidAttributeValueException(
-          "Employees not found for the following Email Addresses: " + errorEmails.toString());
+      if (successEmails.isEmpty())
+      {
+        throw new InvalidAttributeValueException(
+            "Employees not found for the following Email Addresses: " + errorEmails.toString());
+      }
+
       throw new InvalidAttributeValueException("Objective proposed for: " + successEmails.toString()
           + ". Employees not found for the following Email Addresses: " + errorEmails.toString());
     }
+  }
 
+  public void proposeObjective(long employeeId, Objective objective, String distributionList) throws EmployeeNotFoundException
+  {
+    final Employee proposer = employeeService.getEmployee(employeeId);
+    
+    objective.setProposedBy(proposer.getProfile().getFullName());
   }
 
   public void addManagerEvaluation(long reporteeId, int year, String managerEvaluation, int score)
@@ -206,9 +216,9 @@ public class ManagerService
     final List<Document> resultsDocuments = employeeOperations.aggregateAsList(matchEmployeeIDs, projectActivityFeeds,
         unwindActivityFeeds, sortMostRecent);
     final List<Activity> activityFeed = new ArrayList<>();
-    
+
     resultsDocuments.forEach(d -> activityFeed.add(Activity.ofDocument(d)));
-    
+
     return activityFeed;
   }
 
@@ -223,17 +233,17 @@ public class ManagerService
     final Document groupReporteeStrings = addSubstringToSet(reportees, "6", 6);
     final Document projectExcludeId = projectExcludeId();
     List<String> reporteeIDStrings = null;
-    
+
     try
     {
-      reporteeIDStrings = (List<String>) employeeOperations.aggregateSingleResult(reportees, List.class, matchEmployeeID,
-          projectReporteeCNs, unwindReporteeCNs, groupReporteeStrings, projectExcludeId);
+      reporteeIDStrings = (List<String>) employeeOperations.aggregateSingleResult(reportees, List.class,
+          matchEmployeeID, projectReporteeCNs, unwindReporteeCNs, groupReporteeStrings, projectExcludeId);
     }
-    catch(NullPointerException e)
+    catch (NullPointerException e)
     {
       return reporteeIDs;
-    }    
-    
+    }
+
     reporteeIDStrings.forEach(s -> reporteeIDs.add(Long.parseLong(s)));
 
     return reporteeIDs;
