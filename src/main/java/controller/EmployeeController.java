@@ -9,6 +9,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static utils.Validate.notPastOrThrow;
 import static utils.Utils.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.YearMonth;
 import java.util.Set;
@@ -46,6 +47,7 @@ import services.DuplicateEmailAddressException;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
 import services.EmployeeService;
+import utils.Utils;
 
 /**
  * This class contains all the available roots of the web service
@@ -612,6 +614,11 @@ public class EmployeeController
     {
       return badRequest().body(error(e.getMessage()));
     }
+    catch (IOException e)
+    {
+      LOGGER.error(e.getMessage());
+      return badRequest().body("Sorry, there was an issue with your request. Please try again later.");
+    }
   }
 
   @RequestMapping(value = "/editUserEmailAddress/{employeeId}", method = POST)
@@ -621,7 +628,7 @@ public class EmployeeController
   {
     String retVal = null;
     boolean updated = false;
-    
+
     try
     {
       updated = employeeProfileService.editUserEmailAddress(employeeId, emailAddress);
@@ -634,4 +641,5 @@ public class EmployeeController
 
     return ok(retVal);
   }
+
 }

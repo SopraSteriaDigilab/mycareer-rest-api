@@ -30,6 +30,8 @@ public class Application
     {
       setEnvironmentProperty();
       SpringApplication.run(Application.class, args);
+      
+      
     }
     catch (UnknownHostException e)
     {
