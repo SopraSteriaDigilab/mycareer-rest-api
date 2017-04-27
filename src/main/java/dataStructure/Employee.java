@@ -47,7 +47,7 @@ public class Employee implements Serializable
   public static final String LAST_LOGON = "lastLogon";
   public static final String ACTIVITY_FEED = "activityFeed";
 
-  private static final int MAX_ACTIVITY_FEED_SIZE = 50;
+  private static final int MAX_ACTIVITY_FEED_SIZE = 20;
 
   @Id
   private ObjectId id;
