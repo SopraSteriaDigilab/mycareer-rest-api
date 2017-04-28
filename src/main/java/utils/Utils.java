@@ -56,7 +56,7 @@ public class Utils
    */
   public static Set<String> stringEmailsToHashSet(String emailsString) throws InvalidAttributeValueException
   {
-    Validate.stringNotEmptyNotNull(emailsString);
+    Validate.stringsNotEmptyNotNullOrThrow(emailsString);
 
     Set<String> emailSet = new HashSet<>();
     String[] emailArray = emailsString.split(",");
@@ -82,7 +82,7 @@ public class Utils
    */
   public static String getFeedbackRequestIDFromEmailBody(String body) throws InvalidAttributeValueException
   {
-    Validate.stringNotEmptyNotNull(body);
+    Validate.stringsNotEmptyNotNullOrThrow(body);
     String searchStr = "request id: ";
 
     int start = body.toLowerCase().indexOf(searchStr);
@@ -106,7 +106,7 @@ public class Utils
    */
   public static long getEmployeeIDFromFeedbackRequestSubject(String subject) throws InvalidAttributeValueException
   {
-    Validate.stringNotEmptyNotNull(subject);
+    Validate.stringsNotEmptyNotNullOrThrow(subject);
     String searchStr = "- ";
 
     int start = subject.toLowerCase().indexOf(searchStr);
@@ -129,7 +129,7 @@ public class Utils
   public static String getRecipientFromUndeliverableEmail(String body) throws InvalidAttributeValueException
   {
     // TODO There must be a million better ways to do this. This was the quick fix, sorry.
-    Validate.stringNotEmptyNotNull(body);
+    Validate.stringsNotEmptyNotNullOrThrow(body);
     String searchStr = "your message to ";
 
     String[] lines = body.split("\n");
@@ -160,7 +160,7 @@ public class Utils
    */
   public static long getEmployeeIDFromRequestID(String feedbackRequestID) throws InvalidAttributeValueException
   {
-    Validate.stringNotEmptyNotNull(feedbackRequestID);
+    Validate.stringsNotEmptyNotNullOrThrow(feedbackRequestID);
 
     if (!Validate.isValidFeedbackRequestID(feedbackRequestID))
       throw new InvalidAttributeValueException("ID is invalid.");

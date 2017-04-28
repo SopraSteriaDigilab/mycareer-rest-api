@@ -78,7 +78,7 @@ public class Validate
    */
   public static boolean isValidEmailSyntax(String email) throws InvalidAttributeValueException
   {
-    stringNotEmptyNotNull(email);
+    stringsNotEmptyNotNullOrThrow(email);
 
     Pattern pattern = Pattern.compile(
         "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$");
@@ -95,7 +95,7 @@ public class Validate
    */
   public static boolean isValidFeedbackRequestID(String id) throws InvalidAttributeValueException
   {
-    stringNotEmptyNotNull(id);
+    stringsNotEmptyNotNullOrThrow(id);
     
     Pattern pattern = Pattern.compile("^(\\d{6})_(\\d{17})$");
     
