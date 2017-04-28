@@ -6,6 +6,8 @@ import static dataStructure.Employee.*;
 import static dataStructure.EmployeeProfile.*;
 import static dataStructure.Activity.*;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -201,11 +203,24 @@ public class ManagerService
   }
 
   public void submitManagerEvaluation(long employeeId, int year)
-      throws InvalidAttributeValueException, EmployeeNotFoundException
+      throws InvalidAttributeValueException, EmployeeNotFoundException, FileNotFoundException, IOException
   {
     Employee employee = employeeService.getEmployee(employeeId);
     employee.submitManagerEvaluation(year);
     morphiaOperations.updateEmployee(employeeId, RATINGS, employee.getRatings());
+   
+    String reporteeEmail = employee.getProfile().getEmailAddresses().getPreferred();
+    String subject = "Manager Rating Submitted";
+    String body = Template.populateTemplate(env.getProperty("template.manager.evaluation.submitted"));
+    
+    try
+    {
+      EmailService.sendEmail(reporteeEmail, subject, body);
+    }
+    catch (Exception e)
+    {
+      LOGGER.error("Failed sending manager rating email notification to {}.", reporteeEmail);
+    } 
   }
 
   public List<Activity> getActivityFeed(final long employeeID)

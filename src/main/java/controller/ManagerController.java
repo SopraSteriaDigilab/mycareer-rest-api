@@ -7,6 +7,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static utils.Validate.notPastOrThrow;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.YearMonth;
 import java.util.Set;
 
@@ -17,6 +19,8 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +54,8 @@ import utils.Utils;
 @RequestMapping("/manager")
 public class ManagerController
 {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ManagerController.class);
+  
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
   private static final String ERROR_EMPTY_NOTE_PROVIDER_NAME = "Provider name can not be empty.";
   private static final String ERROR_LIMIT_PROVIDER_NAME = "Max Provider Name length is 150 characters.";
@@ -197,6 +203,11 @@ public class ManagerController
     catch (EmployeeNotFoundException | InvalidAttributeValueException e)
     {
       return badRequest().body(error(e.getMessage()));
+    }
+    catch (IOException e)
+    {
+      LOGGER.error(e.getMessage());
+      return badRequest().body("Sorry, there was an issue with your request. Please try again later.");
     }
   }
 

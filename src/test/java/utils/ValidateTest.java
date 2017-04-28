@@ -41,7 +41,7 @@ public class ValidateTest
   @Test
   public void testAreStringsEmptyorNullShoudWorkAsExpected() throws InvalidAttributeValueException
   {
-    assertFalse(Validate.stringNotEmptyNotNull(VALID_STRING)); // one valid
+    assertTrue(Validate.stringNotEmptyNotNull(VALID_STRING)); // one valid
     assertFalse(Validate.stringsNotEmptyNotNullOrThrow(VALID_STRING, VALID_STRING)); // multiple valid
   }
 
