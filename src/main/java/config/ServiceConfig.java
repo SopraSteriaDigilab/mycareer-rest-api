@@ -18,6 +18,7 @@ import services.ManagerService;
 import services.ad.ADSearchSettings;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
+import services.ews.DistributionListService;
 
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
@@ -67,6 +68,12 @@ public class ServiceConfig
   {
     return new ManagerService(employeeService(), morphiaOperations, employeeOperations, objectivesHistoriesOperations,
         employeeProfileService(), env);
+  }
+  
+  @Bean
+  public DistributionListService distributionListService()
+  {
+    return new DistributionListService(employeeProfileService(), sopraADSearchSettings);
   }
   
   @Bean

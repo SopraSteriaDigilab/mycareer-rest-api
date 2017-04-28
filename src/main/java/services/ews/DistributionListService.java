@@ -4,6 +4,7 @@ import static services.ad.ADOperations.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.naming.directory.SearchResult;
@@ -33,22 +34,22 @@ public class DistributionListService
     this.sopraADSearchSettings = sopraADSearchSettings;
   }
 
-  public DistributionList getDistributionList(final String distributionListName)
+  public DistributionList getDistributionList(final String distributionListName) throws DistributionListException
   {
     final String filter = new StringBuilder("(&(memberOf=").append(distributionListName)
         .append(")(extensionAttribute7=s*))").toString();
     final List<SearchResult> distributionListResult = searchAD(sopraADSearchSettings, EMEAAD_TREE, filter);
     final List<EmployeeProfile> employeeProfiles = getEmployeeProfiles(distributionListResult);
-
-    return new DistributionList(employeeProfiles);
+    
+    return new MyCareerMailingList(employeeProfiles);
   }
 
-  public boolean listExists(final String distributionListName)
+  public DistributionList getDistributionList(final Set<String> emailAddresses)
   {
-    return false;
+    return null;
   }
-
-  public boolean listHasMyCareerEmployees(final DistributionList list)
+  
+  public boolean listExists(final String distributionListName)
   {
     return false;
   }
@@ -100,5 +101,4 @@ public class DistributionListService
 
     return employeeProfiles;
   }
-
 }

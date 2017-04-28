@@ -1,35 +1,15 @@
 package services.ews;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import dataStructure.EmployeeProfile;
+import services.EmployeeNotFoundException;
 
-public class DistributionList
+public interface DistributionList
 {
-  private final List<EmployeeProfile> emailsInDL;
-  
-  /* package-private */ DistributionList(List<EmployeeProfile> emailsInDL)
-  {
-    this.emailsInDL = emailsInDL;
-  }
-  
-  public EmployeeProfile getEmail(final int index)
-  {
-    return new EmployeeProfile(emailsInDL.get(index));
-  }
-  
-  public int size()
-  {
-    return emailsInDL.size();
-  }
-  
-  public void sendEmail(String subject, String body) throws Exception
-  {
-    final List<String> emailAddresses = emailsInDL.stream()
-        .map(p -> p.getEmailAddresses().getPreferred())
-        .collect(Collectors.toList());
-    
-    EmailService.sendEmail(emailAddresses, subject, body);
-  }
+  Set<String> getEmailAddresses();
+  void sendEmail(String subject, String body) throws Exception;
+  int size();
+  boolean hasMember(long employeeID);
+  EmployeeProfile getMember(long employeeID) throws EmployeeNotFoundException;
 }

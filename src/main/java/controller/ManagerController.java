@@ -34,6 +34,10 @@ import dataStructure.Objective;
 import dataStructure.Rating;
 import services.EmployeeNotFoundException;
 import services.ManagerService;
+import services.ews.MyCareerMailingList;
+import services.ews.DistributionList;
+import services.ews.DistributionListException;
+import services.ews.DistributionListService;
 import utils.Utils;
 
 /**
@@ -60,9 +64,12 @@ public class ManagerController
   private static final String ERROR_SCORE = "Score must be a number from 0 to 5.";
   private static final String ERROR_EMPTY_DL = "Distribution list cannot be empty";
   private static final String ERROR_LIMIT_DL = "Distribution list cannot be more than 100 characters";
-  
+
   @Autowired
   private ManagerService managerService;
+
+  @Autowired
+  private DistributionListService distributionListService;
 
   /**
    * 
@@ -131,21 +138,25 @@ public class ManagerController
       return badRequest().body(error(e.getMessage()));
     }
   }
-  
-  @RequestMapping(value = "/proposeObjective/{employeeId}", method = POST)
-  public ResponseEntity<?> proposeObjectiveToDistributionList(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+
+  @RequestMapping(value = "/proposeObjectiveToDistributionList/{employeeId}", method = POST)
+  public ResponseEntity<?> proposeObjectiveToDistributionList(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 2_000, message = ERROR_LIMIT_TITLE) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_DL) @Size(max = 100, message = ERROR_LIMIT_DL) String distributionList)
+      @RequestParam @NotBlank(message = ERROR_EMPTY_DL) @Size(max = 100, message = ERROR_LIMIT_DL) String distributionListName)
   {
     try
     {
-      managerService.proposeObjective(employeeId,
-          new Objective(title, description, notPastOrThrow(YearMonth.parse(dueDate))), distributionList);
+      final DistributionList distributionList = distributionListService.getDistributionList(distributionListName);
+      final Objective objective = new Objective(title, description, notPastOrThrow(YearMonth.parse(dueDate)));
+
+      managerService.proposeObjective(employeeId, objective, distributionList);
+
       return ok("Objective inserted correctly");
     }
-    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    catch (InvalidAttributeValueException | EmployeeNotFoundException | DistributionListException e)
     {
       return badRequest().body(error(e.getMessage()));
     }
@@ -188,7 +199,7 @@ public class ManagerController
       return badRequest().body(error(e.getMessage()));
     }
   }
-  
+
   @RequestMapping(value = "/getActivityFeed/{employeeId}", method = GET)
   public ResponseEntity<?> getActivityFeed(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
   {
