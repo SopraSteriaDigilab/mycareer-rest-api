@@ -39,4 +39,11 @@ public class DataController
 
     return ok(emailAddresses);
   }
+  
+  @RequestMapping(value = "/getAllNamesAndIds", method = GET)
+  public ResponseEntity<?> getAllNamesAndIds()
+  {
+    LOGGER.debug("Retrieving all name and details");
+    return ok(dataService.getAllNamesAndIds());
+  }
 }

@@ -3,10 +3,14 @@ package services;
 import static dataStructure.EmployeeProfile.*;
 import static dataStructure.EmailAddresses.*;
 
+import java.util.List;
 import java.util.Set;
 
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mongodb.client.FindIterable;
 
 import services.db.MongoOperations;
 
@@ -32,5 +36,15 @@ public class DataService
     LOGGER.debug("Email address count is {}", emails.size());
 
     return emails;
+  }
+
+  /**
+   * TODO: Describe this method.
+   *
+   * @return
+   */
+  public FindIterable<Document> getAllNamesAndIds()
+  {
+    return employeeOperations.getFields(new Document(), "profile.forename", "profile.surname", "profile.employeeID");
   }
 }

@@ -151,6 +151,23 @@ public class MongoOperations
     return (Document)d.get(field);
   }
   
+  /**
+   * Finds a document and returns the specified field based on the filter.
+   *
+   * @param filterField
+   * @param filterValue
+   * @param field
+   */
+  public FindIterable<Document> getFields(Document filter, String... fields){
+    Document projection = new Document(ID, 0);
+    for(String field : fields){
+      projection.append(field, 1);
+    }
+    
+    FindIterable<Document> d = mongoCollection.find().projection(projection);
+    return d;
+  }
+  
   
 
   @SuppressWarnings("unchecked")
