@@ -5,7 +5,7 @@ import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static utils.Validate.notPastOrThrow;
+import static utils.Validate.presentOrFutureYearMonthToLocalDate;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -136,7 +136,7 @@ public class ManagerController
     {
       Set<String> emailSet = Utils.stringEmailsToHashSet(emails);
       managerService.proposeObjective(employeeId,
-          new Objective(title, description, notPastOrThrow(YearMonth.parse(dueDate))), emailSet);
+          new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))), emailSet);
       return ok("Objective inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -156,7 +156,7 @@ public class ManagerController
     try
     {
       final DistributionList distributionList = distributionListService.getDistributionList(distributionListName);
-      final Objective objective = new Objective(title, description, notPastOrThrow(YearMonth.parse(dueDate)));
+      final Objective objective = new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)));
 
       managerService.proposeObjective(employeeId, objective, distributionList);
 

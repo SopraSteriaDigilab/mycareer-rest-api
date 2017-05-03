@@ -3,6 +3,7 @@ package services.ews;
 import static services.ad.ADOperations.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,15 +41,39 @@ public class DistributionListService
         .append(")(extensionAttribute7=s*))").toString();
     final List<SearchResult> distributionListResult = searchAD(sopraADSearchSettings, EMEAAD_TREE, filter);
     final List<EmployeeProfile> employeeProfiles = getEmployeeProfiles(distributionListResult);
-    
+
     return new MyCareerMailingList(employeeProfiles);
   }
 
-  public DistributionList getDistributionList(final Set<String> emailAddresses)
+  public DistributionList getDistributionList(final Set<String> emailAddresses, final Set<String> invalidEmailAddresses) throws DistributionListException
   {
-    return null;
+    if (!invalidEmailAddresses.isEmpty())
+    {
+      throw new IllegalArgumentException("Invalid email addresses set must be empty");
+    }
+    
+    final List<EmployeeProfile> employeeProfiles = new ArrayList<>();
+
+    for (final String emailAddress : emailAddresses)
+    {
+      EmployeeProfile profile;
+      
+      try
+      {
+        profile = employeeProfileService.fetchEmployeeProfileFromEmailAddress(emailAddress);
+        employeeProfiles.add(profile);
+      }
+      catch (final EmployeeNotFoundException e)
+      {
+        invalidEmailAddresses.add(emailAddress);
+      }
+    }
+
+    emailAddresses.removeAll(invalidEmailAddresses);
+
+    return new MyCareerMailingList(employeeProfiles);
   }
-  
+
   public boolean listExists(final String distributionListName)
   {
     return false;
@@ -79,7 +104,7 @@ public class DistributionListService
       String extensionAttribute7;
       Long employeeID;
       EmployeeProfile profile;
-      
+
       try
       {
         extensionAttribute7 = result.getAttributes().get("extensionAttribute7").get().toString();

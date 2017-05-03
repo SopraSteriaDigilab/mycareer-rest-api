@@ -110,7 +110,7 @@ public class Validate
    *         method.
    * @throws InvalidAttributeValueException if date is in the past
    */
-  public static LocalDate notPastOrThrow(YearMonth yearMonth) throws InvalidAttributeValueException
+  public static LocalDate presentOrFutureYearMonthToLocalDate(YearMonth yearMonth) throws InvalidAttributeValueException
   {
     if (yearMonth.isBefore(YearMonth.now(UK_TIMEZONE)))
     {
