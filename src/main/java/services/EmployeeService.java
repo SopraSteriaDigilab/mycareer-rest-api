@@ -683,7 +683,7 @@ public class EmployeeService
   }
 
   public void submitSelfEvaluation(long employeeId, int year)
-      throws EmployeeNotFoundException, FileNotFoundException, IOException
+      throws EmployeeNotFoundException, FileNotFoundException, IOException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
     employee.submitSelfEvaluation(year);

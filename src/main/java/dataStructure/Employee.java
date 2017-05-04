@@ -446,15 +446,22 @@ public class Employee implements Serializable
   {
     Rating rating = getRating(year);
 
-    if (rating.isSelfEvaluationSubmitted())
+    if (rating.isSelfEvaluationSubmitted() || rating.isManagerEvaluationSubmitted())
       throw new InvalidAttributeValueException("The self evaluation has been submitted and can no longer be updated.");
+    
+    if (rating.isManagerEvaluationSubmitted())
+      throw new InvalidAttributeValueException("The manager evaluation has been submitted, the self evaluation can no longer be updated.");
 
     rating.setSelfEvaluation(selfEvaluation);
   }
 
-  public void submitSelfEvaluation(int year)
+  public void submitSelfEvaluation(int year) throws InvalidAttributeValueException
   {
     Rating rating = getRating(year);
+    
+    if (rating.isManagerEvaluationSubmitted())
+      throw new InvalidAttributeValueException("The manager evaluation has been submitted, the self evaluation can no longer be submitted.");
+    
     rating.setSelfEvaluationSubmitted(true);
   }
 

@@ -610,7 +610,7 @@ public class EmployeeController
       employeeService.submitSelfEvaluation(employeeId, year);
       return ok("Evaluation Submitted");
     }
-    catch (EmployeeNotFoundException e)
+    catch (EmployeeNotFoundException | InvalidAttributeValueException e)
     {
       return badRequest().body(error(e.getMessage()));
     }
