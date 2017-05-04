@@ -37,7 +37,7 @@ public class ADConfig
   private static final String AD_SOPRA_USERNAME = "svc_mycareer@emea.msad.sopra";
   private static final String AD_SOPRA_PASSWORD = "N9T$SiPSZ";
   private static final String AD_SOPRA_PRINCIPAL = AD_SOPRA_USERNAME;
-  private static final String[] AD_SOPRA_ATTRIBUTES = { "memberOf" };
+  private static final String[] AD_SOPRA_ATTRIBUTES = { "memberOf", "member", "extensionAttribute7" };
 
   private static final String AD_STERIA_HOST = "ldap://one.steria.dom";
   private static final String AD_STERIA_URL = AD_STERIA_HOST.concat(":389");

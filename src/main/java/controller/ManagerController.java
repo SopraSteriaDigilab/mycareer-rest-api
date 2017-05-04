@@ -38,6 +38,7 @@ import dataStructure.Objective;
 import dataStructure.Rating;
 import services.EmployeeNotFoundException;
 import services.ManagerService;
+import services.ad.ADConnectionException;
 import services.ews.MyCareerMailingList;
 import services.ews.DistributionList;
 import services.ews.DistributionListException;
@@ -156,13 +157,15 @@ public class ManagerController
     try
     {
       final DistributionList distributionList = distributionListService.getDistributionList(distributionListName);
+      LOGGER.info(distributionList.toString());
       final Objective objective = new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)));
+      LOGGER.info(objective.toString());
+      LOGGER.info("List size: " + distributionList.size());
+//      managerService.proposeObjective(employeeId, objective, distributionList);
 
-      managerService.proposeObjective(employeeId, objective, distributionList);
-
-      return ok("Objective inserted correctly");
+      return ok(distributionList);
     }
-    catch (InvalidAttributeValueException | EmployeeNotFoundException | DistributionListException e)
+    catch (InvalidAttributeValueException | DistributionListException | ADConnectionException e)
     {
       return badRequest().body(error(e.getMessage()));
     }
