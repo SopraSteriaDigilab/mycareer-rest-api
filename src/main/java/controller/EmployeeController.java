@@ -130,7 +130,7 @@ public class EmployeeController
   public ResponseEntity<?> index(HttpServletRequest request)
   {
     String username = request.getRemoteUser();
-    ResponseEntity<?> response = authenticateUserProfile(username);
+    ResponseEntity<?> response = authenticateUserProfile(username.toLowerCase());
     try
     {
       if (response.getStatusCode().equals(OK))
@@ -598,7 +598,7 @@ public class EmployeeController
       return badRequest().body(error(e.getMessage()));
     }
   }
-
+  
   @RequestMapping(value = "/submitSelfEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> submitSelfEvaluation(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)

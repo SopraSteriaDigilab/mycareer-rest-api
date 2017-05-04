@@ -64,8 +64,8 @@ public class EmployeeProfileService
    *
    * @param employeeID
    * @return the {@code EmployeeProfile} for the given employee ID
-   * @throws IllegalArgumentException if the employee ID is in an invalid format
    * @throws EmployeeNotFoundException if the given employee ID could not be found in the database
+   * @throws ADConnectionException if the employee could not be
    */
   public EmployeeProfile fetchEmployeeProfile(final long employeeID) throws EmployeeNotFoundException
   {

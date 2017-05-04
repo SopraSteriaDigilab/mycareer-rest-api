@@ -156,6 +156,11 @@ public class EmployeeService
 
     return employee;
   }
+  
+  public Employee getEmployeeNullable(final long employeeID)
+  {
+    return morphiaOperations.getEmployee(EMPLOYEE_ID, employeeID);
+  }
 
   private String getFullNameFromEmail(String email)
   {

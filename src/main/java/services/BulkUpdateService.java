@@ -107,7 +107,7 @@ public class BulkUpdateService
     // There are approximately 6,200 employees, hence initial capacity of 10,000
     final List<EmployeeProfile> allEmployeeProfiles = new ArrayList<>(10_000);
     final List<SearchResult> steriaList = searchAD(steriaADSearchSettings, AD_TREE, steriaFilterSequence());
-    steriaList.addAll(searchADAsList(steriaADSearchSettings, AD_UNUSED_OBJECT_TREE, "CN=*"));
+    steriaList.addAll(searchADAsList(steriaADSearchSettings, AD_UNUSED_OBJECT_TREE, "(&(CN=*)(extensionAttribute2=*)(employeeType=EMP))"));
 
     for (final SearchResult result : steriaList)
     {
@@ -181,8 +181,8 @@ public class BulkUpdateService
   // TODO this doesn't belong here
   private Sequence<String> steriaFilterSequence() throws SequenceException
   {
-    return new StringSequence.StringSequenceBuilder().initial("CN=A*") // first call to next() will return this
-        .characterToChange(3) // 'A'
+    return new StringSequence.StringSequenceBuilder().initial("(&(CN=A*)(extensionAttribute2=*)(employeeType=EMP))") // first call to next() will return this
+        .characterToChange(6) // 'A'
         .increment(1) // increment by one character
         .size(26) // 26 Strings in the sequence
         .build();
