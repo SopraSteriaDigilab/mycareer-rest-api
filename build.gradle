@@ -59,6 +59,7 @@ tasks.withType(FindBugs) {
 jar {
     baseName = 'mycareer-web-service'
 //    version =  '1.3.4'
+//test
 }
 
 //This defines the repositories where the dependencies can be found and downloaded
