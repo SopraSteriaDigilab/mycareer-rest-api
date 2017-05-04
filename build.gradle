@@ -16,6 +16,7 @@ apply plugin: 'findbugs'
 
 pmd {
     toolVersion = '5.5.1'
+    ignoreFailures = true
     ruleSets = [
            // 'java-android',
             'java-basic',
