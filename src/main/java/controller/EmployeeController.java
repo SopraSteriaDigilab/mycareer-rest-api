@@ -6,7 +6,7 @@ import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static utils.Validate.notPastOrThrow;
+import static utils.Validate.presentOrFutureYearMonthToLocalDate;
 import static utils.Utils.*;
 
 import java.io.FileNotFoundException;
@@ -262,7 +262,7 @@ public class EmployeeController
     try
     {
       employeeService.addObjective(employeeId,
-          new Objective(title, description, notPastOrThrow(YearMonth.parse(dueDate))));
+          new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))));
       return ok("Objective inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -286,7 +286,7 @@ public class EmployeeController
     try
     {
       employeeService.editObjective(employeeId,
-          new Objective(objectiveId, title, description, notPastOrThrow(YearMonth.parse(dueDate))));
+          new Objective(objectiveId, title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))));
       return ok("Objective updated correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -380,7 +380,7 @@ public class EmployeeController
     try
     {
       employeeService.addDevelopmentNeed(employeeId, new DevelopmentNeed(title, description,
-          notPastOrThrow(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
+          presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -406,7 +406,7 @@ public class EmployeeController
     try
     {
       employeeService.editDevelopmentNeed(employeeId, new DevelopmentNeed(developmentNeedId, title, description,
-          notPastOrThrow(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
+          presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need updated correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)

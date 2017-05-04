@@ -108,6 +108,23 @@ public class EmployeeProfile implements Serializable
     this.accountExpires = builder.accountExpires;
   }
 
+  public EmployeeProfile(EmployeeProfile employeeProfile)
+  {
+    this.employeeID = employeeProfile.employeeID;
+    this.surname = employeeProfile.surname;
+    this.forename = employeeProfile.forename;
+    this.username = employeeProfile.username;
+    this.emailAddresses = employeeProfile.emailAddresses;
+    this.isManager = employeeProfile.isManager;
+    this.hasHRDash = employeeProfile.hasHRDash;
+    this.company = employeeProfile.company;
+    this.steriaDepartment = employeeProfile.steriaDepartment;
+    this.sector = employeeProfile.sector;
+    this.superSector = employeeProfile.superSector;
+    this.reporteeCNs = new ArrayList<String>(employeeProfile.reporteeCNs);
+    this.accountExpires = employeeProfile.accountExpires;
+  }
+
   /** @return the employeeID */
   public long getEmployeeID()
   {

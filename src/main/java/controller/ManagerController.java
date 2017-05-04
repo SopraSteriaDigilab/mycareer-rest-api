@@ -5,7 +5,7 @@ import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static utils.Validate.notPastOrThrow;
+import static utils.Validate.presentOrFutureYearMonthToLocalDate;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,6 +38,11 @@ import dataStructure.Objective;
 import dataStructure.Rating;
 import services.EmployeeNotFoundException;
 import services.ManagerService;
+import services.ad.ADConnectionException;
+import services.ews.MyCareerMailingList;
+import services.ews.DistributionList;
+import services.ews.DistributionListException;
+import services.ews.DistributionListService;
 import utils.Utils;
 
 /**
@@ -64,9 +69,14 @@ public class ManagerController
   private static final String REGEX_YEAR_MONTH = "^\\d{4}[-](0[1-9]|1[012])$";
   private static final String ERROR_LIMIT_EVALUATION = "Max Evaluation length is 10,000 characters";
   private static final String ERROR_SCORE = "Score must be a number from 0 to 5.";
-  
+  private static final String ERROR_EMPTY_DL = "Distribution list cannot be empty";
+  private static final String ERROR_LIMIT_DL = "Distribution list cannot be more than 100 characters";
+
   @Autowired
   private ManagerService managerService;
+
+  @Autowired
+  private DistributionListService distributionListService;
 
   /**
    * 
@@ -127,10 +137,35 @@ public class ManagerController
     {
       Set<String> emailSet = Utils.stringEmailsToHashSet(emails);
       managerService.proposeObjective(employeeId,
-          new Objective(title, description, notPastOrThrow(YearMonth.parse(dueDate))), emailSet);
+          new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))), emailSet);
       return ok("Objective inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/proposeObjectiveToDistributionList/{employeeId}", method = POST)
+  public ResponseEntity<?> proposeObjectiveToDistributionList(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 2_000, message = ERROR_LIMIT_TITLE) String description,
+      @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_DL) @Size(max = 100, message = ERROR_LIMIT_DL) String distributionListName)
+  {
+    try
+    {
+      final DistributionList distributionList = distributionListService.getDistributionList(distributionListName);
+      LOGGER.info(distributionList.toString());
+      final Objective objective = new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)));
+      LOGGER.info(objective.toString());
+      LOGGER.info("List size: " + distributionList.size());
+//      managerService.proposeObjective(employeeId, objective, distributionList);
+
+      return ok(distributionList);
+    }
+    catch (InvalidAttributeValueException | DistributionListException | ADConnectionException e)
     {
       return badRequest().body(error(e.getMessage()));
     }
@@ -178,7 +213,7 @@ public class ManagerController
       return badRequest().body("Sorry, there was an issue with your request. Please try again later.");
     }
   }
-  
+
   @RequestMapping(value = "/getActivityFeed/{employeeId}", method = GET)
   public ResponseEntity<?> getActivityFeed(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
   {
