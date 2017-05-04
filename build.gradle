@@ -51,7 +51,7 @@ tasks.withType(FindBugs) {
     ignoreFailures = true
     reports {
       xml.enabled = true
-  	  html.enabled = true
+  	  html.enabled = false
     }
 }
 
