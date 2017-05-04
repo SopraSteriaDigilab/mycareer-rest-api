@@ -50,8 +50,8 @@ pmd {
 tasks.withType(FindBugs) {
     ignoreFailures = true
     reports {
-        html { enabled = true }
-        xml.enabled = !html.enabled
+      xml.enabled = true
+  	  html.enabled = true
     }
 }
 
