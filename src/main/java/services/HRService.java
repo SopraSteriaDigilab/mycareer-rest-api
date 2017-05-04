@@ -1,5 +1,6 @@
 package services;
 
+import static dataStructure.EmployeeProfile.EMPLOYEE_ID;
 import static org.apache.commons.lang3.ArrayUtils.addAll;
 import static utils.EmployeeStatistics.DEVELOPMENT_NEEDS_FIELDS;
 import static utils.EmployeeStatistics.EMPLOYEE_FIELDS;
@@ -7,8 +8,6 @@ import static utils.EmployeeStatistics.FEEDBACK_FIELDS;
 import static utils.EmployeeStatistics.OBJECTIVES_FIELDS;
 import static utils.EmployeeStatistics.SECTOR_FIELDS;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +15,7 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 
 import dataStructure.Employee;
+import services.db.MorphiaOperations;
 import utils.EmployeeStatistics;
 
 /**
@@ -24,34 +24,30 @@ import utils.EmployeeStatistics;
  */
 public class HRService
 {
-
   /** Datastore Constant - Represents connection to the database */
-  private static Datastore dbConnection;
+  private final Datastore datastore;
+  
+  private final MorphiaOperations morphiaOperations;
 
   /** EmployeeStatistics Constant - Represents employeeStats reference */
   private final EmployeeStatistics employeeStats = new EmployeeStatistics();
 
   /**
-   * Empty Constructor - Responsible for initialising this object.
-   *
-   */
-  public HRService()
-  {
-  }
-
-  /**
    * Datastore Constructor - Responsible for injecting the database connection to this object.
    *
-   * @param dbConnection
+   * @param datastore
    */
-  public HRService(Datastore dbConnection)
+  public HRService(final Datastore datastore, final MorphiaOperations morphiaOperations)
   {
-    HRService.dbConnection = dbConnection;
+    this.datastore = datastore;
+    this.morphiaOperations = morphiaOperations;
   }
 
-  
-  
-  
+  public Employee getMyCareer(long employeeId) throws EmployeeNotFoundException
+  {
+    return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId);
+  }
+
   /**
    * Statistics for MyCareer from the database.
    *
@@ -64,27 +60,6 @@ public class HRService
         countAll(empQuery, "developmentNeeds"), countAll(empQuery, "notes"), countAll(empQuery, "competencies"),
         countAll(empQuery, "feedbackRequests"), countAll(empQuery, "feedback"));
   }
-  
-  public List<Map<String, Object>> testDevNeeds()
-  {
-    List<Employee> empList = dbConnection.find(Employee.class).field("developmentNeeds").exists().asList();
-    long count = dbConnection.find(Employee.class).field("developmentNeeds").exists().countAll();
-    List<Map<String, Object>> ee = new ArrayList<>();
-    Map<String, Object> ttt = new HashMap<String, Object>();
-    ttt.put("Count all", count);
-    ee.add(ttt);
-    
-    empList.forEach(e -> {
-      Map<String, Object> m = new HashMap<>();
-      m.put("Employee", e.getProfile().getFullName());
-      m.put("DevNeeds", e.getLatestVersionDevelopmentNeeds());
-      ee.add(m);
-    });
-    return ee;
- 
-
-  }
-
 
   /**
    * Statistics for employees from the database.
@@ -93,7 +68,7 @@ public class HRService
    */
   public List<Map<String, Object>> getEmployeeStats()
   {
-    List<Employee> employees = dbConnection.find(Employee.class).retrievedFields(true, EMPLOYEE_FIELDS).asList();
+    List<Employee> employees = datastore.find(Employee.class).retrievedFields(true, EMPLOYEE_FIELDS).asList();
     return employeeStats.getEmployeeStats(employees);
   }
 
@@ -104,7 +79,7 @@ public class HRService
    */
   public List<Map<String, Object>> getFeedbackStats()
   {
-    List<Employee> employees = dbConnection.find(Employee.class).field("feedback").exists()
+    List<Employee> employees = datastore.find(Employee.class).field("feedback").exists()
         .retrievedFields(true, addAll(EMPLOYEE_FIELDS, FEEDBACK_FIELDS)).asList();
     return employeeStats.getFeedbackStats(employees);
   }
@@ -116,8 +91,8 @@ public class HRService
    */
   public List<Map<String, Object>> getObjectiveStats()
   {
-    List<Employee> employees = dbConnection.find(Employee.class).retrievedFields(true, addAll(EMPLOYEE_FIELDS, OBJECTIVES_FIELDS))
-        .asList();
+    List<Employee> employees = datastore.find(Employee.class)
+        .retrievedFields(true, addAll(EMPLOYEE_FIELDS, OBJECTIVES_FIELDS)).asList();
     return employeeStats.getObjectiveStats(employees);
   }
 
@@ -128,7 +103,7 @@ public class HRService
    */
   public List<Map<String, Object>> getDevelopmentNeedStats()
   {
-    List<Employee> employees = dbConnection.find(Employee.class).field("developmentNeeds").exists()
+    List<Employee> employees = datastore.find(Employee.class).field("developmentNeeds").exists()
         .retrievedFields(true, addAll(EMPLOYEE_FIELDS, DEVELOPMENT_NEEDS_FIELDS)).asList();
     return employeeStats.getDevelopmentNeedStats(employees);
   }
@@ -141,7 +116,7 @@ public class HRService
    */
   public List<Map<String, Object>> getDevelopmentNeedBreakDown()
   {
-    List<Employee> employees = dbConnection.find(Employee.class).field("developmentNeeds").exists()
+    List<Employee> employees = datastore.find(Employee.class).field("developmentNeeds").exists()
         .retrievedFields(true, addAll(EMPLOYEE_FIELDS, DEVELOPMENT_NEEDS_FIELDS)).asList();
     return employeeStats.getDevelopmentNeedBreakDown(employees);
   }
@@ -153,7 +128,8 @@ public class HRService
    */
   public List<Map<String, Object>> getSectorBreakDown()
   {
-    List<Employee> employees = dbConnection.find(Employee.class).retrievedFields(true, SECTOR_FIELDS).asList();
+    List<Employee> employees = datastore.find(Employee.class).filter("profile.accountExpires exists", 0)
+        .retrievedFields(true, SECTOR_FIELDS).asList();
     return employeeStats.getSectorBreakDown(employees);
   }
 
@@ -164,7 +140,7 @@ public class HRService
    */
   private Query<Employee> employeeQuery()
   {
-    return dbConnection.find(Employee.class);
+    return datastore.find(Employee.class);
   }
 
   /**
@@ -176,8 +152,6 @@ public class HRService
    */
   private long countAll(Query<Employee> query, String field)
   {
-    return dbConnection.find(Employee.class).field(field).exists().countAll();
+    return datastore.find(Employee.class).field(field).exists().countAll();
   }
-
-
 }

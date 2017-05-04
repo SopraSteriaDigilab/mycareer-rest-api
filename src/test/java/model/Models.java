@@ -1,19 +1,16 @@
 package model;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
-import dataStructure.ADProfile_Advanced_OLD;
-import dataStructure.Competency;
-import dataStructure.DevelopmentNeed;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
-import dataStructure.Note_OLD;
-import dataStructure.Objective;
 
 /**
  * Models to be used in the tests.
@@ -85,51 +82,31 @@ public class Models
   /** TYPE Property|Constant - Represents|Indicates... */
   public static final boolean STATUS = true;
 
-  /**
-   * Get an employee profile object.
-   *
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public static EmployeeProfile getProfile() throws InvalidAttributeValueException
-  {
-    return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).guid(GUID).forename(FIRST_NAME).surname(LAST_NAME)
-        .emailAddress(EMAIL_ADRESS).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR).sector(SECTOR)
-        .steriaDepartment(STERIA_DEPARTMENT).sopraDepartment(SOPRA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER)
-        .build();
-  }
-
-  /**
-   * Get an employee object populated by the {@linkplain #getProfile() getProfile()} method.
-   *
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public static Employee getEmployee() throws InvalidAttributeValueException
-  {
-    return new Employee(getProfile());
-  }
-
-  /**
-   * Get a competency
-   *
-   * @return
-   */
-  public static Competency getCompetency()
-  {
-    return new Competency(ID, STATUS);
-  }
-
-  /**
-   * Get a development need
-   *
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public static DevelopmentNeed getDevelopmentNeed() throws InvalidAttributeValueException
-  {
-    return new DevelopmentNeed(ID, ID, ID, TITLE, DESCRIPTION, DATE);
-  }
+//  /**
+//   * Get an employee profile object.
+//   *
+//   * @return
+//   * @throws InvalidAttributeValueException
+//   */
+//  public static EmployeeProfile getProfile() throws InvalidAttributeValueException
+//  {
+//    Set<String> emailAddresses = new HashSet<>();
+//    emailAddresses.add(EMAIL_ADRESS);
+//    return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).forename(FIRST_NAME).surname(LAST_NAME)
+//        .emailAddresses(emailAddresses).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR).sector(SECTOR)
+//        .steriaDepartment(STERIA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER).build();
+//  }
+//
+//  /**
+//   * Get an employee object populated by the {@linkplain #getProfile() getProfile()} method.
+//   *
+//   * @return
+//   * @throws InvalidAttributeValueException
+//   */
+//  public static Employee getEmployee() throws InvalidAttributeValueException
+//  {
+//    return new Employee(getProfile());
+//  }
 
   /**
    * Get a feedback
@@ -150,27 +127,4 @@ public class Models
   {
     return new FeedbackRequest(GUID, EMAIL_ADRESS);
   }
-
-  /**
-   * Get a note
-   *
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public static Note_OLD getNote() throws InvalidAttributeValueException
-  {
-    return new Note_OLD(ID, ID, ID, DESCRIPTION, FULL_NAME);
-  }
-
-  /**
-   * Get an objective
-   *
-   * @return
-   * @throws InvalidAttributeValueException
-   */
-  public static Objective getObjective() throws InvalidAttributeValueException
-  {
-    return new Objective(ID, ID, ID, TITLE, DESCRIPTION, DATE);
-  }
-
 }

@@ -1,36 +1,51 @@
 package dataStructure;
 
 import static dataStructure.Constants.UK_TIMEZONE;
+import static utils.Conversions.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class contains the definition of the Note object
  */
 // TODO Add the spring validation here, (see the annotations in the employeeController) Then change the constructor to
 // take in a Note object.
-public class Note implements Serializable
+public class Note implements Serializable, Comparable<Note>
 {
-
   /** long Constant - Represents serialVersionUID... */
-  private static final long serialVersionUID = -7758646259468792018L;
+  private static final long serialVersionUID = 1L;
+
+  private static final Object NOTE = "note";
 
   /** int Property - Represents Unique ID for the object. */
   private int id;
 
-  /** String Property - Represents name of the not provider. */
+  /** String Property - Represents name of the note provider. */
   private String providerName;
 
   /** String Property - Represents the description of the note. */
   private String noteDescription;
 
+  /** The objective ids tagged */
+  private Set<Integer> taggedObjectiveIds;
+
+  /** The development need ids tagged */
+  private Set<Integer> taggedDevelopmentNeedIds;
+
   /** String Property - Represents the timestamp of the note. */
   private String timestamp;
 
-  /** Default Constructor - Responsible for initialising this object. */
+  /**
+   * Default Constructor - Responsible for initialising this object.
+   */
   public Note()
   {
+    taggedObjectiveIds = new HashSet<>();
+    taggedDevelopmentNeedIds = new HashSet<>();
   }
 
   /**
@@ -43,7 +58,9 @@ public class Note implements Serializable
     this.setProviderName(providerName);
     this.setNoteDescription(noteDescription);
     this.setTimestamp();
-  }
+    taggedObjectiveIds = new HashSet<>();
+    taggedDevelopmentNeedIds = new HashSet<>();
+  }  
 
   /** @return the id */
   public int getId()
@@ -81,6 +98,30 @@ public class Note implements Serializable
     this.noteDescription = noteDescription;
   }
 
+  /** @return the taggedObjectiveIds */
+  public Set<Integer> getTaggedObjectiveIds()
+  {
+    return taggedObjectiveIds;
+  }
+
+  /** @param taggedObjectiveIds The value to set. */
+  public void setTaggedObjectiveIds(Set<Integer> taggedObjectiveIds)
+  {
+    this.taggedObjectiveIds = taggedObjectiveIds;
+  }
+
+  /** @return the taggedDevelopmentNeedIds */
+  public Set<Integer> getTaggedDevelopmentNeedIds()
+  {
+    return taggedDevelopmentNeedIds;
+  }
+
+  /** @param taggedDevelopmentNeedIds The value to set. */
+  public void setTaggedDevelopmentNeedIds(Set<Integer> taggedDevelopmentNeedIds)
+  {
+    this.taggedDevelopmentNeedIds = taggedDevelopmentNeedIds;
+  }
+
   /** @return the timestamp */
   public String getTimestamp()
   {
@@ -92,5 +133,52 @@ public class Note implements Serializable
   {
     this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
+  
+  /**
+   * Removes a development need from taggedDevelopmentNeedIds.
+   *
+   * @param id
+   * @return {@code true} if the developmentNeedId existed in the map and was succesfully removed. {@code false} otherwise.
+   */
+  public boolean removeDevelopmentNeedTag(final Integer id)
+  {
+    return taggedDevelopmentNeedIds.remove(id);
+  }
+  
+  /**
+   * Removes an objective from taggedObjectiveIds.
+   *
+   * @param id
+   * @return {@code true} if the objectiveId existed in the map and was succesfully removed. {@code false} otherwise.
+   */
+  public boolean removeObjectiveTag(final Integer id)
+  {
+    return taggedObjectiveIds.remove(id);
+  }
+  
+  public Activity createActivity(final CRUD activityType, final EmployeeProfile profile)
+  {
+    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb()).append(" ")
+        .append(NOTE).append(" #").append(getId()).append(": ").append(noteDescription).toString();
+    
+    return new Activity(activityString, timestamp);
+  }
+  
+  public boolean isCurrent()
+  {
+    final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
+    final LocalDateTime added = LocalDateTime.parse(timestamp);
+    final boolean isCurrent = added.isAfter(cutOffDate);
+    
+    return isCurrent;
+  }
 
+  @Override
+  public int compareTo(final Note other)
+  {
+    final LocalDateTime thisTimestamp = LocalDateTime.parse(timestamp);
+    final LocalDateTime otherTimestamp = LocalDateTime.parse(other.timestamp);
+
+    return thisTimestamp.compareTo(otherTimestamp);
+  }
 }

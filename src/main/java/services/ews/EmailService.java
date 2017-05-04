@@ -7,6 +7,7 @@ import static microsoft.exchange.webservices.data.core.service.schema.EmailMessa
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -89,7 +90,30 @@ public class EmailService
     sendEmail(recipients, subject, body);
     //TODO Consider removing/redoing
   }
+
+  /**
+   * Static method to send email to multiple recipients
+   *
+   * @param recipientsSet
+   * @param subject
+   * @param body
+   * @throws Exception
+   */
+  public static void sendEmail(Set<String> recipientsSet, String subject, String body) throws Exception
+  {
+    final List<String> recipientsList = new ArrayList<>();
+    recipientsList.addAll(recipientsSet);
+    sendEmail(recipientsList, subject, body);
+  }
   
+  /**
+   * Static method to send an Email.
+   * 
+   * @param recipient
+   * @param subject
+   * @param body
+   * @throws Exception
+   */
   public synchronized static void sendEmail(List<String> recipients, String subject, String body) throws Exception
   {
     initiateEWSConnection(20000);
@@ -273,7 +297,7 @@ public class EmailService
       {
         employeeService.addFeedback(from, recipient.getAddress(), body, false);
       }
-      catch (InvalidAttributeValueException | NamingException | RuntimeException e)
+      catch (InvalidAttributeValueException | RuntimeException e)
       {
         errorRecipients.add(recipient);
         LOGGER.error("Exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e);
@@ -317,9 +341,9 @@ public class EmailService
     Employee employee = employeeService.getEmployee(employeeID);
     String intendedRecipient = Utils.getRecipientFromUndeliverableEmail(body);
 
-    String errorRecipient = employee.getProfile().getEmailAddress();
+    Set<String> errorRecipient = employee.getProfile().getEmailAddresses().toSet();
     String errorSubject = "Feedback Request Issue";
-    // String errorBody = String.format("There was an issue proccessing your feedback to %s, please make sure the email
+    // String errorBody = String.format("There was an issue processing your feedback to %s, please make sure the email
     // address is correct and try again",intendedRecipient);
     String errorBody = Template.populateTemplate(env.getProperty("templates.error.invalidemail"), intendedRecipient);
 
@@ -346,5 +370,4 @@ public class EmailService
       emailService.setTimeout(timeout);
     }
   }
-
 }

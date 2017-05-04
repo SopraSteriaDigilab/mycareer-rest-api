@@ -1,9 +1,10 @@
 package services.mappers;
 
-import static utils.Conversions.*;
+import static utils.Conversions.ldapTimestampToDate;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -17,12 +18,13 @@ import javax.naming.directory.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dataStructure.EmailAddresses;
 import dataStructure.EmployeeProfile;
-import services.EmployeeProfileService;
 
 //TODO Update map methods to user map string/chain eachother
 //TODO remove sopra
-public class EmployeeProfileMapper// implements Mapper<SearchResult, EmployeeProfile>
+
+public class EmployeeProfileMapper
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileMapper.class);
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -62,6 +64,8 @@ public class EmployeeProfileMapper// implements Mapper<SearchResult, EmployeePro
   private void setSteriaDetails(SearchResult steriaEmployeeProfile) throws InvalidEmployeeProfileException
   {
     final Attributes attributes = steriaEmployeeProfile.getAttributes();
+    final EmailAddresses emailAddresses = new EmailAddresses.Builder().mail(mapString(MAIL, attributes))
+        .targetAddress(mapString(TARGET_ADDRESS, attributes)).build();
 
     if (!isEmployee(attributes))
     {
@@ -71,7 +75,7 @@ public class EmployeeProfileMapper// implements Mapper<SearchResult, EmployeePro
     profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_2))
         .employeeType(mapString(EMPLOYEE_TYPE, attributes)).forename(mapString(GIVEN_NAME, attributes))
         .surname(mapString(SN, attributes)).username(mapString(SAM_ACCOUNT_NAME, attributes))
-        .emailAddress(mapString(MAIL, attributes)).company(mapString(COMPANY, attributes))
+        .emailAddresses(emailAddresses).company(mapString(COMPANY, attributes))
         .superSector(mapString(OU, attributes)).sector(mapSector(attributes))
         .steriaDepartment(mapString(DEPARTMENT, attributes)).manager(mapIsManager(attributes))
         .reporteeCNs(mapReporteeCNs(attributes)).accountExpires(mapAccountExpires(attributes)).build();
@@ -121,6 +125,8 @@ public class EmployeeProfileMapper// implements Mapper<SearchResult, EmployeePro
       LOGGER.warn(REPORTEES_NOT_FOUND, e.getMessage());
     }
 
+    Collections.sort(reporteeCNs);
+
     return reporteeCNs;
   }
 
@@ -136,13 +142,11 @@ public class EmployeeProfileMapper// implements Mapper<SearchResult, EmployeePro
     }
     catch (NamingException | NoSuchElementException | NullPointerException e)
     {
-      LOGGER.error(EMPLOYEE_NOT_FOUND, e);
-      throw new InvalidEmployeeProfileException(e);
+      throw new InvalidEmployeeProfileException(EMPLOYEE_NOT_FOUND, e);
     }
     catch (ClassCastException e)
     {
-      LOGGER.error(EMPLOYEE_NOT_FOUND, e);
-      throw new InvalidEmployeeProfileException(e);
+      throw new InvalidEmployeeProfileException(EMPLOYEE_NOT_FOUND, e);
     }
 
     return employeeID;
@@ -184,7 +188,6 @@ public class EmployeeProfileMapper// implements Mapper<SearchResult, EmployeePro
   private Date mapAccountExpires(final Attributes attributes)
   {
     final String result = mapString(ACCOUNT_EXPIRES, attributes);
-
     if (result.length() < 18)
     {
       return null;

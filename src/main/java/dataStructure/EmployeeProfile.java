@@ -1,6 +1,8 @@
 package dataStructure;
 
 import static dataStructure.Constants.INVALID_NULLREPORTEE;
+import static utils.Utils.*;
+import static dataStructure.EmailAddresses.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,7 +12,10 @@ import java.util.Objects;
 
 import javax.management.InvalidAttributeValueException;
 
+import org.bson.Document;
+
 import services.mappers.InvalidEmployeeProfileException;
+import utils.Utils;
 
 /**
  * This class contains the definition of the EmployeeProfile object
@@ -18,7 +23,21 @@ import services.mappers.InvalidEmployeeProfileException;
 // TODO remove validation on all setters.
 public class EmployeeProfile implements Serializable
 {
-  private static final long serialVersionUID = 6335090383770271897L;
+  private static final long serialVersionUID = 1L;
+
+  public static final String EMPLOYEE_ID = "profile.employeeID";
+  public static final String SURNAME = "profile.surname";
+  public static final String FORENAME = "profile.forename";
+  public static final String USERNAME = "profile.username";
+  public static final String EMAIL_ADDRESSES = "profile.emailAddresses";
+  public static final String IS_MANAGER = "profile.isManager";
+  public static final String HAS_HR_DASH = "profile.hasHRDash";
+  public static final String COMPANY = "profile.company";
+  public static final String DEPARTMENT = "profile.steriaDepartment";
+  public static final String SECTOR = "profile.sector";
+  public static final String SUPER_SECTOR = "profile.superSector";
+  public static final String REPORTEE_CNS = "profile.reporteeCNs";
+  public static final String ACCOUNT_EXPIRES = "profile.accountExpires";
 
   /** long Property - Represents the employee id */
   private long employeeID;
@@ -36,7 +55,7 @@ public class EmployeeProfile implements Serializable
   private String username;
 
   /** String Property - Represents the employee emailAddress. */
-  private String emailAddress;
+  private EmailAddresses emailAddresses;
 
   /** boolean Property - Represents if the employee is a manager. */
   private boolean isManager;
@@ -44,14 +63,8 @@ public class EmployeeProfile implements Serializable
   /** boolean Property - Represents if the employee has access to the hr dashboard. */
   private boolean hasHRDash;
 
-  /** String Property - Represents the GUID from the AD. */
-  private String guid;
-
   /** String Property - Represents the employee company. */
   private String company;
-
-  /** String Property - Represents the employee sopraDepartment. */
-  private String sopraDepartment;
 
   /** String Property - Represents the employee steriaDepartment. */
   private String steriaDepartment;
@@ -72,6 +85,7 @@ public class EmployeeProfile implements Serializable
   public EmployeeProfile()
   {
     reporteeCNs = new ArrayList<String>();
+    emailAddresses = new EmailAddresses.Builder().build();
   }
 
   /**
@@ -87,17 +101,32 @@ public class EmployeeProfile implements Serializable
     this.surname = builder.surname;
     this.forename = builder.forename;
     this.username = builder.username;
-    this.emailAddress = builder.emailAddress;
+    this.emailAddresses = builder.emailAddresses;
     this.isManager = builder.isManager;
     this.hasHRDash = builder.hasHRDash;
-    this.guid = builder.guid;
     this.company = builder.company;
-    this.sopraDepartment = builder.sopraDepartment;
     this.steriaDepartment = builder.steriaDepartment;
     this.sector = builder.sector;
     this.superSector = builder.superSector;
     this.reporteeCNs = builder.reporteeCNs;
     this.accountExpires = builder.accountExpires;
+  }
+
+  public EmployeeProfile(EmployeeProfile employeeProfile)
+  {
+    this.employeeID = employeeProfile.employeeID;
+    this.surname = employeeProfile.surname;
+    this.forename = employeeProfile.forename;
+    this.username = employeeProfile.username;
+    this.emailAddresses = employeeProfile.emailAddresses;
+    this.isManager = employeeProfile.isManager;
+    this.hasHRDash = employeeProfile.hasHRDash;
+    this.company = employeeProfile.company;
+    this.steriaDepartment = employeeProfile.steriaDepartment;
+    this.sector = employeeProfile.sector;
+    this.superSector = employeeProfile.superSector;
+    this.reporteeCNs = new ArrayList<String>(employeeProfile.reporteeCNs);
+    this.accountExpires = employeeProfile.accountExpires;
   }
 
   /** @return the employeeID */
@@ -161,15 +190,15 @@ public class EmployeeProfile implements Serializable
   }
 
   /** @return the emailAddress */
-  public String getEmailAddress()
+  public EmailAddresses getEmailAddresses()
   {
-    return emailAddress;
+    return emailAddresses;
   }
 
   /** @param emailAddress The value to set. */
-  public void setEmailAddress(String emailAddress)
+  public void setEmailAddresses(EmailAddresses emailAddresses)
   {
-    this.emailAddress = emailAddress;
+    this.emailAddresses = emailAddresses;
   }
 
   /** @return the isManager */
@@ -196,18 +225,6 @@ public class EmployeeProfile implements Serializable
     this.hasHRDash = hasHRDash;
   }
 
-  /** @return the guid */
-  public String getGuid()
-  {
-    return guid;
-  }
-
-  /** @param guid The value to set. */
-  public void setGuid(String guid)
-  {
-    this.guid = guid;
-  }
-
   /** @return the company */
   public String getCompany()
   {
@@ -218,18 +235,6 @@ public class EmployeeProfile implements Serializable
   public void setCompany(String company)
   {
     this.company = company;
-  }
-
-  /** @return the sopraDepartment */
-  public String getSopraDepartment()
-  {
-    return sopraDepartment;
-  }
-
-  /** @param sopraDepartment The value to set. */
-  public void setSopraDepartment(String sopraDepartment)
-  {
-    this.sopraDepartment = sopraDepartment;
   }
 
   /** @return the steriaDepartment */
@@ -323,6 +328,39 @@ public class EmployeeProfile implements Serializable
   }
 
   /**
+   * @return A {@code Document} representation of this employee profile.
+   */
+  public Document toDocument()
+  {
+    return new Document(EMPLOYEE_ID, employeeID).append(SURNAME, surname).append(FORENAME, forename)
+        .append(USERNAME, username).append(MAIL, emailAddresses.getMail())
+        .append(TARGET_ADDRESS, emailAddresses.getTargetAddress()).append(USER_ADDRESS, emailAddresses.getUserAddress())
+        .append(IS_MANAGER, isManager).append(HAS_HR_DASH, hasHRDash).append(COMPANY, company)
+        .append(DEPARTMENT, steriaDepartment).append(SECTOR, sector).append(SUPER_SECTOR, superSector)
+        .append(REPORTEE_CNS, reporteeCNs).append(ACCOUNT_EXPIRES, accountExpires);
+  }
+
+  /**
+   * Returns a document with only the key-value pairs which have a different value in this than that contained in other.
+   * 
+   * Fields which exist in this but do not exist in other are not included in the return value.
+   * 
+   * @param other
+   * @return a document containing only the key values pairs which represent differences between this and other.
+   */
+  public Document differences(final EmployeeProfile other)
+  {
+    Document differences = toDocument();
+    Document otherDocument = other.toDocument();
+
+    removeNullValues(differences);
+    removeNullValues(otherDocument);
+    otherDocument.forEach((ok, ov) -> differences.merge(ok, ov, Utils::nullIfSame));
+
+    return differences;
+  }
+
+  /**
    * Override of equals method.
    *
    * @see java.lang.Object#equals(java.lang.Object)
@@ -348,7 +386,7 @@ public class EmployeeProfile implements Serializable
     return employeeID == employeeProfile.employeeID && Objects.equals(employeeType, employeeProfile.employeeType)
         && Objects.equals(surname, employeeProfile.surname) && Objects.equals(forename, employeeProfile.forename)
         && Objects.equals(username, employeeProfile.username)
-        && Objects.equals(emailAddress, employeeProfile.emailAddress) && isManager == employeeProfile.isManager
+        && Objects.equals(emailAddresses, employeeProfile.emailAddresses) && isManager == employeeProfile.isManager
         && Objects.equals(hasHRDash, employeeProfile.hasHRDash) && Objects.equals(company, employeeProfile.company)
         && Objects.equals(steriaDepartment, employeeProfile.steriaDepartment)
         && Objects.equals(sector, employeeProfile.sector) && Objects.equals(superSector, employeeProfile.superSector)
@@ -366,15 +404,15 @@ public class EmployeeProfile implements Serializable
   @Override
   public int hashCode()
   {
-    return Objects.hash(employeeID, employeeType, surname, forename, username, emailAddress, isManager, hasHRDash,
-        company, steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
+    return Objects.hash(employeeID, employeeType, surname, forename, username, emailAddresses, isManager, hasHRDash, company,
+        steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
   }
 
   @Override
   public String toString()
   {
     return "EmployeeProfile [employeeID=" + employeeID + ", employeeType=" + employeeType + ", surname=" + surname
-        + ", forename=" + forename + ", username=" + username + ", emailAddress=" + emailAddress + ", isManager="
+        + ", forename=" + forename + ", username=" + username + ", emailAddresses=" + emailAddresses + ", isManager="
         + isManager + ", hasHRDash=" + hasHRDash + ", company=" + company + ", steriaDepartment=" + steriaDepartment
         + ", sector=" + sector + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + ", accountExpires="
         + accountExpires + "]";
@@ -399,7 +437,7 @@ public class EmployeeProfile implements Serializable
     private String username;
 
     /** String Property - Represents the employee emailAddress. */
-    private String emailAddress;
+    private EmailAddresses emailAddresses;
 
     /** boolean Property - Represents if the employee is a manager. */
     private boolean isManager;
@@ -407,14 +445,8 @@ public class EmployeeProfile implements Serializable
     /** boolean Property - Represents if the employee has access to the hr dashboard. */
     private boolean hasHRDash;
 
-    /** String Property - Represents the GUID from the AD. */
-    private String guid;
-
     /** String Property - Represents the employee company. */
     private String company;
-
-    /** String Property - Represents the employee sopraDepartment. */
-    private String sopraDepartment;
 
     /** String Property - Represents the employee steriaDepartment. */
     private String steriaDepartment;
@@ -466,10 +498,10 @@ public class EmployeeProfile implements Serializable
       return this;
     }
 
-    /** @param emailAddress The value to set. */
-    public Builder emailAddress(String emailAddress)
+    /** @param emailAddresses The value to set. */
+    public Builder emailAddresses(EmailAddresses emailAddresses)
     {
-      this.emailAddress = emailAddress;
+      this.emailAddresses = emailAddresses;
       return this;
     }
 
@@ -487,24 +519,10 @@ public class EmployeeProfile implements Serializable
       return this;
     }
 
-    /** @param gUID The value to set. */
-    public Builder guid(String guid)
-    {
-      this.guid = guid;
-      return this;
-    }
-
     /** @param company The value to set. */
     public Builder company(String company)
     {
       this.company = company;
-      return this;
-    }
-
-    /** @param sopraDepartment The value to set. */
-    public Builder sopraDepartment(String sopraDepartment)
-    {
-      this.sopraDepartment = sopraDepartment;
       return this;
     }
 
@@ -566,6 +584,12 @@ public class EmployeeProfile implements Serializable
       {
         this.reporteeCNs = new ArrayList<>();
       }
+
+      if (emailAddresses == null)
+      {
+        this.emailAddresses = new EmailAddresses.Builder().build();
+      }
+
       return (this.employeeID > 0);
     }
 

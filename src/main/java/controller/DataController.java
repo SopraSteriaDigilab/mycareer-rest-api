@@ -3,7 +3,7 @@ package controller;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,21 +22,28 @@ public class DataController
 {
   /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
   private static final Logger LOGGER = LoggerFactory.getLogger(DataController.class);
-  
+
   private DataService dataService;
-  
+
   @Autowired
   public DataController(final DataService dataService)
   {
     this.dataService = dataService;
   }
-  
+
   @RequestMapping(value = "/getAllEmailAddresses", method = GET)
-  public ResponseEntity<List<String>> getAllEmailAddresses()
+  public ResponseEntity<Set<String>> getAllEmailAddresses()
   {
     LOGGER.debug("Retrieving all email addresses");
-    final List<String> emailAddresses = dataService.getAllEmailAddresses();
-    
+    final Set<String> emailAddresses = dataService.getAllEmailAddresses();
+
     return ok(emailAddresses);
+  }
+  
+  @RequestMapping(value = "/getAllNamesAndIds", method = GET)
+  public ResponseEntity<?> getAllNamesAndIds()
+  {
+    LOGGER.debug("Retrieving all name and details");
+    return ok(dataService.getAllNamesAndIds());
   }
 }

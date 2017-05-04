@@ -1,239 +1,128 @@
 package dataStructure;
 
-import static dataStructure.Constants.UK_TIMEZONE;
-
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.ZoneId;
 
 import javax.management.InvalidAttributeValueException;
-import org.mongodb.morphia.annotations.Embedded;
-import com.google.gson.Gson;
+
+import org.bson.Document;
 
 /**
- * This class contains the definition of the DevelopmentNeed object
- *
+ * This class contains the definition of the Development Need object.
  */
-@Embedded
-public class DevelopmentNeed implements Serializable
+public class DevelopmentNeed extends Objective
 {
+  /** Represent Category of a development need. */
+  public enum Category
+  {
+    JobTraining("On Job Training"), ClassroomTraining("Classroom Training"), Online("Online or E-learning"), SelfStudy(
+        "Self Study"), Other("Other");
 
-  private static final long serialVersionUID = -5067508122602507151L;
-  // Global Variables
-  private int id, progress, category;
-  private boolean isArchived;
-  private String title, description, timeStamp, timeToCompleteBy;
+    private String categoryStr;
 
-  // Empty Constructor
+    Category(String categoryStr)
+    {
+      this.categoryStr = categoryStr;
+    }
+
+    public String getCategoryStr()
+    {
+      return this.categoryStr;
+    }
+
+    public static Category getCategoryFromString(String categoryString) throws InvalidAttributeValueException
+    {
+      switch (categoryString)
+      {
+        case "On Job Training":
+          return Category.JobTraining;
+        case "Classroom Training":
+          return Category.ClassroomTraining;
+        case "Online or E-learning":
+          return Category.Online;
+        case "Self Study":
+          return Category.SelfStudy;
+        case "Other":
+          return Category.Other;
+      }
+      throw new InvalidAttributeValueException("This enum string does not exist");
+    }
+
+  }
+
+  /** long Constant - Represents serialVersionUID... */
+  private static final long serialVersionUID = 1L;
+
+  private static final Object DEVELOPMENT_NEED = "development need";
+
+  /** int Property - Represents the category of the objective */
+  private String category;
+
+  /**
+   * Default Constructor - Responsible for initialising this object.
+   */
   public DevelopmentNeed()
   {
-    this.id = Constants.INVALID_INT;
-    this.progress = Constants.INVALID_INT;
-    this.category = Constants.INVALID_INT;
-    this.isArchived = false;
-    this.title = Constants.INVALID_STRING;
-    this.description = Constants.INVALID_STRING;
-    this.timeStamp = null;
-    this.timeToCompleteBy = "";
-  }
-
-  // Constructor with parameters
-  public DevelopmentNeed(int id, int progress, int cat, String title, String description)
-      throws InvalidAttributeValueException
-  {
-    this.setID(id);
-    this.setProgress(progress);
-    this.setCategory(cat);
-    this.isArchived = false;
-    this.setTitle(title);
-    this.setDescription(description);
-    this.timeStamp = null;
-    this.setTimeStamp();
-    this.timeToCompleteBy = Constants.COMPLETE_DATE_NOT_SET;
-  }
-
-  // Constructor with parameters
-  public DevelopmentNeed(int id, int progress, int cat, String title, String description, String completeBy)
-      throws InvalidAttributeValueException
-  {
-    this.setID(id);
-    this.setProgress(progress);
-    this.setCategory(cat);
-    this.isArchived = false;
-    this.setTitle(title);
-    this.setDescription(description);
-    this.timeStamp = null;
-    this.setTimeStamp();
-    this.setTimeToCompleteBy(completeBy);
-  }
-
-  // Getters and Setters
-
-  public DevelopmentNeed(DevelopmentNeed devNeed) throws InvalidAttributeValueException
-  {
-    this.setID(devNeed.getID());
-    this.setProgress(devNeed.getProgress());
-    this.setCategory(devNeed.getCategory());
-    this.isArchived = devNeed.getIsArchived();
-    this.setTitle(devNeed.getTitle());
-    this.setDescription(devNeed.getDescription());
-    this.setTimeStamp();
-    this.setTimeToCompleteBy(devNeed.getTimeToCompleteBy());
-  }
-
-  public void setID(int id) throws InvalidAttributeValueException
-  {
-    if (id > 0) this.id = id;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
-  }
-
-  public int getID()
-  {
-    return this.id;
   }
 
   /**
-   * 
-   * @param progress This variable can assume only 4 values: -1 => Deleted 0 => Proposed 1 => Started 2 => Completed
+   * Development Need Constructor - Responsible for initialising this object.
    */
-  public void setProgress(int progress) throws InvalidAttributeValueException
+  public DevelopmentNeed(String title, String description, LocalDate dueDate, Category category)
   {
-    if (progress >= -0 && progress <= 2) this.progress = progress;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_PROGRESS);
+    super(title, description, dueDate);
+    this.setCategory(category);
   }
 
-  public int getProgress()
+  /**
+   * Development Need Constructor - Responsible for initialising this object.
+   */
+  public DevelopmentNeed(int id, String title, String description, LocalDate dueDate, Category category)
   {
-    return this.progress;
+    this(title, description, dueDate, category);
+    this.setId(id);
   }
 
-  public void setCategory(int cat) throws InvalidAttributeValueException
-  {
-    if (cat >= 0 && cat <= 4) this.category = cat;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_CATEGORY);
-  }
-
-  public int getCategory()
+  /** @return the category */
+  public String getCategory()
   {
     return this.category;
   }
-  
-  /** @return the isArchived */
-  public boolean getIsArchived()
-  {
-    return isArchived;
-  }
 
-  /** @param isArchived The value to set. */
-  public void setIsArchived(boolean isArchived)
+  /** @param the Category to set. */
+  public void setCategory(Category category)
   {
-    this.isArchived = isArchived;
+    this.category = category.getCategoryStr();
+    this.setLastModified();
   }
 
   /**
-   * 
-   * @param title The title of the development need cannot exceed the 150 characters
+   * Override of differences method.
+   *
+   * Returns a document containing the differences (only title, description, dueDate & category) of the development need.
+   *
+   * @see dataStructure.Objective#differences(dataStructure.Objective)
+   *
+   * @param objective
+   * @return
    */
-  public void setTitle(String title) throws InvalidAttributeValueException
-  {
-    if (title != null && title.length() > 0 && title.length() < 151) this.title = title;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_TITLE);
-  }
-
-  public String getTitle()
-  {
-    return this.title;
-  }
-
-  /**
-   * 
-   * @param description The description of the objective cannot exceed the 1000 characters
-   */
-  public void setDescription(String description) throws InvalidAttributeValueException
-  {
-    if (description != null && description.length() > 0 && description.length() < 2001) this.description = description;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_DESCRIPTION);
-  }
-
-  public String getDescription()
-  {
-    return this.description;
-  }
-
-  /**
-   * This method creates a timestamp when the object is created
-   */
-  public void setTimeStamp()
-  {
-    // Check if the timeStamp has already a value assigned
-    if (timeStamp == null) this.timeStamp = LocalDateTime.now(UK_TIMEZONE).toString();
-  }
-
-  public String getTimeStamp()
-  {
-    return this.timeStamp;
-  }
-
-  /**
-   * 
-   * @param date the date of when the objective needs to be completed by
-   * @throws InvalidAttributeValueException
-   */
-  public void setTimeToCompleteBy(String date) throws InvalidAttributeValueException
-  {
-    // Convert the String to a YearMonth object
-    if (!date.equals(""))
-    {
-      YearMonth temp = YearMonth.parse(date, Constants.YEAR_MONTH_FORMAT);
-      // Verify that the month and year inserted are greater than the current month and year
-      // Every year has 12 months, so if the values are 2017 and 2016 the difference will be 1 which is 12 months
-      int yearDifference = (temp.getYear() - LocalDate.now(UK_TIMEZONE).getYear()) * 12;
-      int monthDifference = temp.getMonthValue() - LocalDate.now(UK_TIMEZONE).getMonthValue();
-      // Sum these 2 values up and if the result is <0, the date is in the past which is invalid
-      int totalMonthsApart = yearDifference + monthDifference;
-      if (totalMonthsApart >= 0) this.timeToCompleteBy = temp.toString();
-      else throw new InvalidAttributeValueException(Constants.INVALID_PASTDATE);
-    }
-    else throw new InvalidAttributeValueException(Constants.INVALID_DATEFORMAT);
-  }
-
-  public String getTimeToCompleteBy()
-  {
-    if (!this.timeToCompleteBy.equals(Constants.COMPLETE_DATE_NOT_SET))
-    {
-      YearMonth temp = YearMonth.parse(this.timeToCompleteBy, Constants.YEAR_MONTH_FORMAT);
-      return temp.format(Constants.YEAR_MONTH_FORMAT);
-    }
-    return this.timeToCompleteBy;
-  }
-
-  public YearMonth getTimeToCompleteByYearMonth()
-  {
-    return YearMonth.parse(this.timeToCompleteBy, Constants.YEAR_MONTH_FORMAT);
-  }
-
-  public boolean isDevelopmentNeedValid()
-  {
-    return (this.getID() > 0 && this.getCategory() >= 0 && !this.getTitle().contains("Invalid")
-        && !this.getDescription().contains("Invalid") && this.timeToCompleteBy != null);
-  }
-
-  public String toGson()
-  {
-    Gson gsonData = new Gson();
-    return gsonData.toJson(this);
-  }
-
   @Override
-  public String toString()
+  public Document differences(Objective objective)
   {
-    String s = "";
-    s += "ID " + this.id + "\n" + "Category " + this.category + "\n" + "Title " + this.title + "\n" + "Description "
-        + this.description + "\n" + "TimeStamp " + this.getTimeStamp() + "\n" + "TimeToCompleteBy "
-        + this.getTimeToCompleteBy() + "\n";
-    return s;
+    DevelopmentNeed developmentNeed = (DevelopmentNeed) objective;
+    Document differences = super.differences(developmentNeed);
+    if(!this.getCategory().equals(developmentNeed.getCategory()))
+    {
+      differences.append("category", developmentNeed.getCategory());
+    }
+    return differences;
   }
+  
+  public Activity createActivity(final CRUD activityType, final EmployeeProfile profile)
+  {
+    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb()).append(" ")
+        .append(DEVELOPMENT_NEED).append(" #").append(getId()).append(": ").append(getTitle()).toString();
 
+    return new Activity(activityString, getLastModified());
+  }
 }

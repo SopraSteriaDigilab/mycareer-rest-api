@@ -12,8 +12,7 @@ import java.time.ZoneId;
  */
 public class FeedbackRequest implements Serializable
 {
-
-  private static final long serialVersionUID = 5904650249033682895L;
+  private static final long serialVersionUID = 1L;
 
   /** Unique ID for the object. */
   private String id;
@@ -93,4 +92,11 @@ public class FeedbackRequest implements Serializable
     this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
+  public Activity createActivity(final EmployeeProfile profile)
+  {
+    final String activityString = new StringBuilder(profile.getFullName()).append(" requested feedback from ")
+        .append(recipient).toString();
+
+    return new Activity(activityString, timestamp);
+  }
 }

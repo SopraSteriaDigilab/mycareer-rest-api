@@ -8,10 +8,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -20,8 +23,6 @@ import javax.naming.directory.SearchResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import services.validate.Validate;
 
 /**
  * Helper class that provides various helper methods throughout the application.
@@ -55,7 +56,7 @@ public class Utils
    */
   public static Set<String> stringEmailsToHashSet(String emailsString) throws InvalidAttributeValueException
   {
-    Validate.areStringsEmptyorNull(emailsString);
+    Validate.stringsNotEmptyNotNullOrThrow(emailsString);
 
     Set<String> emailSet = new HashSet<>();
     String[] emailArray = emailsString.split(",");
@@ -81,7 +82,7 @@ public class Utils
    */
   public static String getFeedbackRequestIDFromEmailBody(String body) throws InvalidAttributeValueException
   {
-    Validate.areStringsEmptyorNull(body);
+    Validate.stringsNotEmptyNotNullOrThrow(body);
     String searchStr = "request id: ";
 
     int start = body.toLowerCase().indexOf(searchStr);
@@ -105,7 +106,7 @@ public class Utils
    */
   public static long getEmployeeIDFromFeedbackRequestSubject(String subject) throws InvalidAttributeValueException
   {
-    Validate.areStringsEmptyorNull(subject);
+    Validate.stringsNotEmptyNotNullOrThrow(subject);
     String searchStr = "- ";
 
     int start = subject.toLowerCase().indexOf(searchStr);
@@ -128,7 +129,7 @@ public class Utils
   public static String getRecipientFromUndeliverableEmail(String body) throws InvalidAttributeValueException
   {
     // TODO There must be a million better ways to do this. This was the quick fix, sorry.
-    Validate.areStringsEmptyorNull(body);
+    Validate.stringsNotEmptyNotNullOrThrow(body);
     String searchStr = "your message to ";
 
     String[] lines = body.split("\n");
@@ -155,11 +156,11 @@ public class Utils
    * @param feedbackRequestID
    * @return The employeeID if the feedbackRequestID is in the valid format
    * @throws InvalidAttributeValueException if the feedbackRequestID is invalid
-   * @see {@linkplain services.validate.Validate #isValidFeedbackRequestID(String) isValidFeedbackRequest(String)}
+   * @see {@linkplain utils.Validate #isValidFeedbackRequestID(String) isValidFeedbackRequest(String)}
    */
   public static long getEmployeeIDFromRequestID(String feedbackRequestID) throws InvalidAttributeValueException
   {
-    Validate.areStringsEmptyorNull(feedbackRequestID);
+    Validate.stringsNotEmptyNotNullOrThrow(feedbackRequestID);
 
     if (!Validate.isValidFeedbackRequestID(feedbackRequestID))
       throw new InvalidAttributeValueException("ID is invalid.");
@@ -221,26 +222,55 @@ public class Utils
   }
 
   /**
-   * Converts LocalDateTime to a java.util.Date
-   *
-   * @param localDateTime
-   * @return
+   * @param value
+   * @param otherValue
+   * @return null if value.equals(otherValue) returns true, or if value is null. Otherwise, returns otherValue.
    */
-  public static Date localDateTimetoDate(LocalDateTime localDateTime)
+  public static <V> V nullIfSame(V value, V otherValue)
   {
-    return Date.from(localDateTime.atZone(UK_TIMEZONE).toInstant());
-  }
+    if (value != null && value.equals(otherValue))
+    {
+      return null;
+    }
 
+    return otherValue;
+  }
+  
   /**
-   * Converts LocalDateTime to a java.util.Date
+   * Removes the key and value from the map if the value is null.
+  *
+  * @param map
+  * @param key
+  * @param value
+  */
+ public static <K, V> void removeNullValues(Map<K, V> map)
+ {
+   @SuppressWarnings("unchecked")
+  final K[] keys = (K[]) map.keySet().toArray();
+   
+   for (K key : keys)
+   {
+     removeIfNull(map, key, map.get(key));
+   }
+ }
+  
+  /**
+   * Removes the key and value from the map if the value is null.
    *
-   * @param localDateTime
-   * @return
+   * @param map
+   * @param key
+   * @param value
    */
-  public static LocalDateTime DateToLocalDateTime(Date date)
+  public static <K, V> void removeIfNull(Map<K, V> map, K key, V value)
   {
-    Instant instant = date.toInstant();
-    return instant.atZone(UK_TIMEZONE).toLocalDateTime();
+    if (value == null)
+    {
+      map.remove(key);
+    }
   }
-
+  
+  public static String nameIdToCN(String firstName, String lastName, long id){
+    return String.format("%s %s - %s", lastName.toUpperCase(), firstName, id);
+  }
+  
 }

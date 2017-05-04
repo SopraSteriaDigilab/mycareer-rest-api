@@ -4,8 +4,6 @@ import static dataStructure.Constants.DEV_SERVER_NAME;
 import static dataStructure.Constants.LIVE_SERVER_NAME;
 import static dataStructure.Constants.UAT_SERVER_NAME;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -24,18 +22,20 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class Application
 {
 
-  private static final Logger logger = LoggerFactory.getLogger(Application.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
-  public static void main(String[] args) throws FileNotFoundException, IOException
+  public static void main(String[] args)
   {
     try
     {
       setEnvironmentProperty();
       SpringApplication.run(Application.class, args);
+      
+      
     }
     catch (UnknownHostException e)
     {
-      logger.error("Application Error: " + e.getMessage());
+      LOGGER.error("Application Error: " + e.getMessage());
     }
   }
 
