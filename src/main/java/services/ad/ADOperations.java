@@ -24,6 +24,7 @@ public final class ADOperations
   private static final Logger LOGGER = LoggerFactory.getLogger(ADOperations.class);
 
   private static final String TOO_MANY_RESULTS = "A single result was expected but multiple were found";
+  private static final String NO_RESULT = "A single result was expected but none were found";
   private static final String UNKNOWN_ERROR = "An exception was caught: ";
 
   /* This is a stateless class with statics only methods, therefore should never be instantiated. */
@@ -55,6 +56,9 @@ public final class ADOperations
     {
       LOGGER.error(UNKNOWN_ERROR, e);
       throw new ADConnectionException(UNKNOWN_ERROR, e);
+    } catch (final NullPointerException e)
+    {
+      throw new ADConnectionException(NO_RESULT);
     }
 
     if (allResults.hasMoreElements())

@@ -1,7 +1,9 @@
 package services.ews;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import dataStructure.EmployeeProfile;
@@ -9,16 +11,24 @@ import services.EmployeeNotFoundException;
 
 public class MyCareerMailingList implements DistributionList
 {
-  private final List<EmployeeProfile> employeeProfiles;
+  private final String name;
+  private final Set<EmployeeProfile> employeeProfiles;
 
-  /* package-private */ MyCareerMailingList(List<EmployeeProfile> emailsInDL) throws DistributionListException
+  /* package-private */ MyCareerMailingList(String name, Set<EmployeeProfile> employeeProfiles) throws DistributionListException
   {
-    if (emailsInDL.isEmpty())
+    if (employeeProfiles.isEmpty())
     {
       throw new DistributionListException("Invalid DistributionList: no MyCareer members");
     }
 
-    this.employeeProfiles = emailsInDL;
+    this.name = name;
+    this.employeeProfiles = employeeProfiles;
+  }
+  
+  @Override
+  public String getName()
+  {
+    return name;
   }
 
   @Override
@@ -35,10 +45,17 @@ public class MyCareerMailingList implements DistributionList
 
     return new EmployeeProfile(profile);
   }
-  
-  public List<EmployeeProfile> getList()
+
+  @Override
+  public Set<EmployeeProfile> getList()
   {
-    return employeeProfiles;
+    return new HashSet<>(employeeProfiles);
+  }
+  
+  @Override
+  public void forEach(final Consumer<? super EmployeeProfile> action)
+  {
+    employeeProfiles.forEach(action);
   }
 
   @Override
@@ -50,7 +67,8 @@ public class MyCareerMailingList implements DistributionList
   @Override
   public Set<String> getEmailAddresses()
   {
-    return employeeProfiles.stream().map(p -> p.getEmailAddresses().getPreferred()).filter(s -> s != null).collect(Collectors.toSet());
+    return employeeProfiles.stream().map(p -> p.getEmailAddresses().getPreferred()).filter(s -> s != null)
+        .collect(Collectors.toSet());
   }
 
   @Override
@@ -60,8 +78,46 @@ public class MyCareerMailingList implements DistributionList
   }
   
   @Override
+  public boolean equals(Object other)
+  {
+    if (other == null || !(other instanceof MyCareerMailingList))
+    {
+      return false;
+    }
+    
+    MyCareerMailingList otherMCML = (MyCareerMailingList) other;
+    
+    return employeeProfiles.equals(otherMCML.employeeProfiles);
+  }
+
+  @Override
   public String toString()
   {
     return employeeProfiles.toString();
+  }
+
+  @Override
+  public DistributionList combine(DistributionList other)
+  {
+    if (other == null || !(other instanceof MyCareerMailingList) || equals(other))
+    {
+      return this;
+    }
+
+    MyCareerMailingList otherMCML = (MyCareerMailingList) other;
+    Set<EmployeeProfile> newMCMLSet = new HashSet<>(employeeProfiles);
+    newMCMLSet.addAll(otherMCML.employeeProfiles);
+    DistributionList combinedDL = null;
+    
+    try
+    {
+      combinedDL = new MyCareerMailingList(name, newMCMLSet);
+    }
+    catch (DistributionListException e)
+    {
+      /* Since these are already valid this can't happen */
+    }
+
+    return combinedDL;
   }
 }

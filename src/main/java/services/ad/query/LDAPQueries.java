@@ -5,6 +5,13 @@ import java.util.List;
 
 public class LDAPQueries
 {
+  public static final String DISTINGUISHED_NAME = "distinguishedName";
+  public static final String CN = "cn";
+  public static final String MEMBER = "member";
+  public static final String MEMBER_OF = "memberOf";
+  public static final String EXTENSION_ATTRIBUTE_2 = "extensionAttribute2";
+  public static final String EXTENSION_ATTRIBUTE_7 = "extensionAttribute7";
+  
   private static final String AND = "(&";
   private static final String OR = "(|";
   

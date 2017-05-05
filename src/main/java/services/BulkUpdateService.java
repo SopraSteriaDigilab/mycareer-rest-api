@@ -24,6 +24,8 @@ import services.ad.ADConnectionException;
 import services.ad.ADSearchSettings;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
+import services.ews.Cache;
+import services.ews.DistributionList;
 import services.mappers.EmployeeProfileMapper;
 import services.mappers.InvalidEmployeeProfileException;
 import utils.sequence.Sequence;
@@ -44,6 +46,7 @@ public class BulkUpdateService
   private final MongoOperations employeeOperations;
   private final ADSearchSettings steriaADSearchSettings;
   private final EmployeeProfileMapper employeeProfileMapper;
+  private final Cache<String, DistributionList> distributionListCache;
 
   private int inserted;
   private int updated;
@@ -52,12 +55,13 @@ public class BulkUpdateService
   private int exceptionsThrown;
 
   public BulkUpdateService(final MorphiaOperations morphiaOperations, final MongoOperations employeeOperations,
-      final ADSearchSettings steriaADSearchSettings, final EmployeeProfileMapper employeeProfileMapper)
+      final ADSearchSettings steriaADSearchSettings, final EmployeeProfileMapper employeeProfileMapper, Cache<String, DistributionList> distributionListCache)
   {
     this.morphiaOperations = morphiaOperations;
     this.employeeOperations = employeeOperations;
     this.steriaADSearchSettings = steriaADSearchSettings;
     this.employeeProfileMapper = employeeProfileMapper;
+    this.distributionListCache = distributionListCache;
   }
 
   @Scheduled(cron = "0 30 23 * * ?")
@@ -84,6 +88,8 @@ public class BulkUpdateService
         exceptionsThrown++;
       }
     }
+    
+    distributionListCache.clear();
 
     final Instant endDBOps = Instant.now();
 
