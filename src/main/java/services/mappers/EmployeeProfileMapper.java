@@ -1,6 +1,6 @@
 package services.mappers;
 
-import static utils.Conversions.*;
+import static utils.Conversions.ldapTimestampToDate;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,8 +8,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -25,16 +23,20 @@ import dataStructure.EmployeeProfile;
 
 //TODO Update map methods to user map string/chain eachother
 //TODO remove sopra
-public class EmployeeProfileMapper implements Mapper<SearchResult, EmployeeProfile>
+
+public class EmployeeProfileMapper
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileMapper.class);
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
   private static final String REPORTEES_NOT_FOUND = "Exception while fetching reportees: {}";
+  private static final String NOT_AN_EMPLOYEE = "Cannot create an EmployeeProfile: employeeType is not \"EMP\"";
   private static final String EMPLOYEE_NOT_FOUND = "Cannot create an EmployeeProfile: Exception thrown while fetching employeeID: ";
   private static final String HR_PERMISSION_NOT_FOUND = "Exception while fetching HR Dashboard Permission: {}";
   private static final String ATTRIBUTE_NOT_FOUND = "Exception while fetching attribute, {}: {}";
 
+  private static final String EMPLOYEE_TYPE = "employeeType";
+  private static final String EMPLOYEE = "EMP";
   private static final String SN = "sn";
   private static final String GIVEN_NAME = "givenName";
   private static final String MAIL = "mail";
@@ -52,7 +54,7 @@ public class EmployeeProfileMapper implements Mapper<SearchResult, EmployeeProfi
 
   private EmployeeProfile profile = new EmployeeProfile();
 
-  public EmployeeProfile map(SearchResult steriaEmployeeProfile)
+  public EmployeeProfile map(final SearchResult steriaEmployeeProfile)
   {
     setSteriaDetails(steriaEmployeeProfile);
 
@@ -65,15 +67,29 @@ public class EmployeeProfileMapper implements Mapper<SearchResult, EmployeeProfi
     final EmailAddresses emailAddresses = new EmailAddresses.Builder().mail(mapString(MAIL, attributes))
         .targetAddress(mapString(TARGET_ADDRESS, attributes)).build();
 
+    if (!isEmployee(attributes))
+    {
+      throw new InvalidEmployeeProfileException(NOT_AN_EMPLOYEE);
+    }
+
     profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_2))
-        .forename(mapString(GIVEN_NAME, attributes)).surname(mapString(SN, attributes))
-        .username(mapString(SAM_ACCOUNT_NAME, attributes)).emailAddresses(emailAddresses)
-        .company(mapString(COMPANY, attributes)).superSector(mapString(OU, attributes)).sector(mapSector(attributes))
+        .employeeType(mapString(EMPLOYEE_TYPE, attributes)).forename(mapString(GIVEN_NAME, attributes))
+        .surname(mapString(SN, attributes)).username(mapString(SAM_ACCOUNT_NAME, attributes))
+        .emailAddresses(emailAddresses).company(mapString(COMPANY, attributes))
+        .superSector(mapString(OU, attributes)).sector(mapSector(attributes))
         .steriaDepartment(mapString(DEPARTMENT, attributes)).manager(mapIsManager(attributes))
         .reporteeCNs(mapReporteeCNs(attributes)).accountExpires(mapAccountExpires(attributes)).build();
   }
 
-  private boolean mapIsManager(Attributes attributes)
+  private boolean isEmployee(final Attributes attributes)
+  {
+    final String employeeType = mapString(EMPLOYEE_TYPE, attributes);
+    final boolean isEmployee = EMPLOYEE.equals(employeeType);
+
+    return isEmployee;
+  }
+
+  private boolean mapIsManager(final Attributes attributes)
   {
     final Attribute directReports = attributes.get(DIRECT_REPORTS);
 
@@ -81,7 +97,7 @@ public class EmployeeProfileMapper implements Mapper<SearchResult, EmployeeProfi
   }
 
   @SuppressWarnings("unchecked")
-  private List<String> mapReporteeCNs(Attributes attributes)
+  private List<String> mapReporteeCNs(final Attributes attributes)
   {
     if (!mapIsManager(attributes))
     {

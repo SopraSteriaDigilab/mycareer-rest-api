@@ -42,6 +42,9 @@ public class EmployeeProfile implements Serializable
   /** long Property - Represents the employee id */
   private long employeeID;
 
+  /** String property - Represents the employee type */
+  private String employeeType;
+
   /** String Property - Represents the employee surname. */
   private String surname;
 
@@ -94,6 +97,7 @@ public class EmployeeProfile implements Serializable
   public EmployeeProfile(Builder builder)
   {
     this.employeeID = builder.employeeID;
+    this.employeeType = builder.employeeType;
     this.surname = builder.surname;
     this.forename = builder.forename;
     this.username = builder.username;
@@ -135,6 +139,18 @@ public class EmployeeProfile implements Serializable
   public void setEmployeeID(long employeeID)
   {
     this.employeeID = employeeID;
+  }
+
+  /** @return the employeeType */
+  public String getEmployeeType()
+  {
+    return employeeType;
+  }
+
+  /** @param employeeType The value to set. */
+  public void setEmployeeType(String employeeType)
+  {
+    this.employeeType = employeeType;
   }
 
   /** @return the surname */
@@ -328,6 +344,7 @@ public class EmployeeProfile implements Serializable
    * Returns a document with only the key-value pairs which have a different value in this than that contained in other.
    * 
    * Fields which exist in this but do not exist in other are not included in the return value.
+   * 
    * @param other
    * @return a document containing only the key values pairs which represent differences between this and other.
    */
@@ -366,8 +383,9 @@ public class EmployeeProfile implements Serializable
 
     EmployeeProfile employeeProfile = (EmployeeProfile) o;
 
-    return employeeID == employeeProfile.employeeID && Objects.equals(surname, employeeProfile.surname)
-        && Objects.equals(forename, employeeProfile.forename) && Objects.equals(username, employeeProfile.username)
+    return employeeID == employeeProfile.employeeID && Objects.equals(employeeType, employeeProfile.employeeType)
+        && Objects.equals(surname, employeeProfile.surname) && Objects.equals(forename, employeeProfile.forename)
+        && Objects.equals(username, employeeProfile.username)
         && Objects.equals(emailAddresses, employeeProfile.emailAddresses) && isManager == employeeProfile.isManager
         && Objects.equals(hasHRDash, employeeProfile.hasHRDash) && Objects.equals(company, employeeProfile.company)
         && Objects.equals(steriaDepartment, employeeProfile.steriaDepartment)
@@ -386,17 +404,18 @@ public class EmployeeProfile implements Serializable
   @Override
   public int hashCode()
   {
-    return Objects.hash(employeeID, surname, forename, username, emailAddresses, isManager, hasHRDash, company,
+    return Objects.hash(employeeID, employeeType, surname, forename, username, emailAddresses, isManager, hasHRDash, company,
         steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
   }
 
   @Override
   public String toString()
   {
-    return "EmployeeProfile [employeeID=" + employeeID + ", surname=" + surname + ", forename=" + forename
-        + ", username=" + username + ", emailAddresses=" + emailAddresses + ", isManager=" + isManager + ", hasHRDash="
-        + hasHRDash + ", company=" + company + ", steriaDepartment=" + steriaDepartment + ", sector=" + sector
-        + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + ", accountExpires=" + accountExpires + "]";
+    return "EmployeeProfile [employeeID=" + employeeID + ", employeeType=" + employeeType + ", surname=" + surname
+        + ", forename=" + forename + ", username=" + username + ", emailAddresses=" + emailAddresses + ", isManager="
+        + isManager + ", hasHRDash=" + hasHRDash + ", company=" + company + ", steriaDepartment=" + steriaDepartment
+        + ", sector=" + sector + ", superSector=" + superSector + ", reporteeCNs=" + reporteeCNs + ", accountExpires="
+        + accountExpires + "]";
   }
 
   public static class Builder
@@ -404,6 +423,9 @@ public class EmployeeProfile implements Serializable
 
     /** long Property - Represents the employee id */
     private long employeeID;
+
+    /** String Property - Represents the employee type. */
+    private String employeeType;
 
     /** String Property - Represents the employee surname. */
     private String surname;
@@ -445,6 +467,13 @@ public class EmployeeProfile implements Serializable
     public Builder employeeID(long employeeID)
     {
       this.employeeID = employeeID;
+      return this;
+    }
+
+    /** @param employeeType The value to set. */
+    public Builder employeeType(String employeeType)
+    {
+      this.employeeType = employeeType;
       return this;
     }
 
@@ -555,12 +584,12 @@ public class EmployeeProfile implements Serializable
       {
         this.reporteeCNs = new ArrayList<>();
       }
-      
+
       if (emailAddresses == null)
       {
         this.emailAddresses = new EmailAddresses.Builder().build();
       }
-      
+
       return (this.employeeID > 0);
     }
 

@@ -21,6 +21,7 @@ import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
+import services.HRService;
 import services.HistoryService;
 
 @CrossOrigin
@@ -36,6 +37,26 @@ public class HistoryController
 
   @Autowired
   private HistoryService historyService;
+  
+  @Autowired
+  private HRService hrService;
+  
+  
+  @RequestMapping(value = "/getMyCareer/{employeeId}", method = GET)
+  public ResponseEntity<?> getMyCareer(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
+  {
+    try
+    {
+      final Employee employee = hrService.getMyCareer(employeeId);
+      
+      return ok(employee);
+    }
+    catch (EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+  
   
   @RequestMapping(value = "/getObjectives/{employeeId}", method = GET)
   public ResponseEntity<?> getObjectives(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)

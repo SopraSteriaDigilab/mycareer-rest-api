@@ -1,6 +1,6 @@
 Hello,
 
-{0} has submitted your their self evaluation.
+{0} has submitted their self evaluation.
 
 To view your rating, access MyCareer at http://mycareer.uk.corp.sopra/ , or at https://portal.soprasteria.com/dana/home/launch.cgi?url=http%3A%2F%2Fmycareer.uk.corp.sopra%3A8080%2Fportal if you are not based in a Sopra Steria office.
 
