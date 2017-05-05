@@ -254,7 +254,7 @@ public class Objective extends DBObject implements Comparable<Objective>
     final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
     final LocalDateTime lastModified = dateToLocalDateTime(getLastModifiedAsDate());
     final LocalDateTime dueDate = dateToLocalDateTime(this.dueDate);
-    final boolean isCurrent = progress.equals(Progress.COMPLETE.getProgressStr()) || lastModified.isAfter(cutOffDate)
+    final boolean isCurrent = !progress.equals(Progress.COMPLETE.getProgressStr()) || lastModified.isAfter(cutOffDate)
         || dueDate.isAfter(cutOffDate);
 
     return isCurrent;
