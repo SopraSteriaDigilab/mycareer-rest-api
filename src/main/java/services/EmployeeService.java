@@ -512,7 +512,7 @@ public class EmployeeService
     {
       try
       {
-        Employee feedbackRecipient = morphiaOperations.getEmployeeFromEmailAddress(email);
+        Employee feedbackRecipient = morphiaOperations.getEmployeeFromEmailAddressOrThrow(email);
         String preferredEmailAddress = feedbackRecipient.getProfile().getEmailAddresses().getPreferred(email);
         addFeedback(employeeEmail, feedbackRecipient, preferredEmailAddress, feedback, isFeedbackRequest);
         successfullRecipientList.add(preferredEmailAddress);
