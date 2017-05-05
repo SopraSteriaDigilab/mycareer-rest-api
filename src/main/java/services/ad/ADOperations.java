@@ -52,11 +52,12 @@ public final class ADOperations
     {
       result = allResults.next();
     }
-    catch (final NamingException | NullPointerException e)
+    catch (final NamingException e)
     {
       LOGGER.error(UNKNOWN_ERROR, e);
       throw new ADConnectionException(UNKNOWN_ERROR, e);
-    } catch (final NullPointerException e)
+    }
+    catch (final NullPointerException e)
     {
       throw new ADConnectionException(NO_RESULT);
     }
@@ -143,18 +144,18 @@ public final class ADOperations
         letterCount++;
         finalResult.add(result.next());
       }
-      
+
       if (stringBuilderFlag)
       {
         out.append(", ");
       }
-      
+
       out.append(filter).append(": ").append(letterCount);
 
       letterCount = 0;
       stringBuilderFlag = true;
     }
-    
+
     out.append("}");
     LOGGER.info(out.toString());
 
