@@ -99,7 +99,7 @@ dependencies {
     compile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
     
     //SSO with SPNEGO (Internal libraries)
-    compile files('libs/spnego-r7.jar')
+    compile files('libs/spnego-r9.jar')
 	compile files('libs/local_policy.jar')
 	compile files('libs/US_export_policy.jar')
 	
