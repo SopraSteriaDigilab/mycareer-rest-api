@@ -36,7 +36,7 @@ public class WebConfig extends OncePerRequestFilter
     registration.addInitParameter("spnego.allow.localhost", "true");
     registration.addInitParameter("spnego.allow.unsecure.basic", "true");
     registration.addInitParameter("spnego.login.client.module", "spnego-client");
-    registration.addInitParameter("spnego.krb5.conf", "krb5.conf");
+    registration.addInitParameter("spnego.krb5.conf", "/mycareer/users/mycareer/mycareer/dev/web-api/krb5.conf");
     registration.addInitParameter("spnego.login.conf", "/mycareer/users/mycareer/mycareer/dev/web-api/login.conf");
     registration.addInitParameter("spnego.preauth.username", SPNEGO_USERNAME);
     registration.addInitParameter("spnego.preauth.password", SPNEGO_PASSWORD);
