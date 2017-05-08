@@ -27,7 +27,7 @@ public final class ADOperations
   private static final String NO_RESULT = "A single result was expected but none were found";
   private static final String UNKNOWN_ERROR = "An exception was caught: ";
 
-  /* This is a stateless class with statics only methods, therefore should never be instantiated. */
+  /* This is a stateless class with only static methods, therefore should never be instantiated. */
   private ADOperations()
   {
   }
