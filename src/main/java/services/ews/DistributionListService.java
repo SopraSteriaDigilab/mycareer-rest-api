@@ -150,14 +150,27 @@ public class DistributionListService
     }
 
     emailAddresses.removeAll(invalidEmailAddresses);
+    
+    if (emailAddresses.isEmpty())
+    {
+      return null;
+    }
 
     return new MyCareerMailingList(CUSTOM_LIST, employeeProfiles);
+  }
+
+  private LDAPQuery createDistributionListQuery(final String distributionListName)
+  {
+    return or(basicQuery(MAIL, distributionListName), basicQuery(DISPLAY_NAME, distributionListName),
+        basicQuery(CN, distributionListName), basicQuery(MAIL_NICKNAME, distributionListName),
+        basicQuery(NAME, distributionListName), basicQuery(SAM_ACCOUNT_NAME, distributionListName),
+        basicQuery(TARGET_ADDRESS, distributionListName));
   }
 
   private boolean isDistributionList(final String distributionListName, final ADSearchSettings adSearchSettings,
       final String dlTree)
   {
-    final LDAPQuery filter = basicQuery(CN, distributionListName);
+    final LDAPQuery filter = createDistributionListQuery(distributionListName);
     final SearchResult distributionListResult = searchAD(adSearchSettings, dlTree, filter.get());
 
     return distributionListResult != null;
@@ -172,7 +185,7 @@ public class DistributionListService
       return distributionListCache.get(distributionListName);
     }
 
-    final LDAPQuery filter = basicQuery(CN, distributionListName);
+    final LDAPQuery filter = createDistributionListQuery(distributionListName);
     final SearchResult distributionListResult = searchAD(adSearchSettings, dlTree, filter.get());
     final List<String> allMemberDNs = getAllMembersDNs(distributionListResult, adSearchSettings, dlTree);
     final List<SearchResult> allMemberResults = getAllMemberResults(allMemberDNs, adSearchSettings, userTree,
@@ -326,7 +339,7 @@ public class DistributionListService
 
     return employeeProfiles;
   }
-  
+
   public DistributionList cache(String name, DistributionList distributionList)
   {
     return distributionListCache.put(name, distributionList);

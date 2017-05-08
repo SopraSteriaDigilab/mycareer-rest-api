@@ -69,6 +69,8 @@ public class ManagerController
   private static final String ERROR_LIMIT_PROVIDER_NAME = "Max Provider Name length is 150 characters.";
   private static final String ERROR_EMPTY_NOTE_DESCRIPTION = "Note description can not be empty.";
   private static final String ERROR_LIMIT_NOTE_DESCRIPTION = "Max Description length is 1,000 characters.";
+  private static final String ERROR_EMPTY_OBJECTIVE_DESCRIPTION = "Objective description can not be empty.";
+  private static final String ERROR_LIMIT_OBJECTIVE_DESCRIPTION = "Max Description length is 2,000 characters.";
   private static final String ERROR_LIMIT_TITLE = "Max Title length is 150 characters";
   private static final String ERROR_EMPTY_TITLE = "Title can not be empty";
   private static final String ERROR_DATE_FORMAT = "The date format is incorrect";
@@ -136,7 +138,7 @@ public class ManagerController
   @RequestMapping(value = "/proposeObjective/{employeeId}", method = POST)
   public ResponseEntity<?> proposeObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 2_000, message = ERROR_LIMIT_TITLE) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_OBJECTIVE_DESCRIPTION) @Size(max = 2_000, message = ERROR_LIMIT_OBJECTIVE_DESCRIPTION) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
       @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails)
   {
@@ -147,12 +149,12 @@ public class ManagerController
       final DistributionList customDistributionList = distributionListService.customDistributionList(emailSet,
           invalidEmailAddresses);
 
-      managerService.proposeObjective(employeeId,
-          new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))),
-          customDistributionList);
-
       if (invalidEmailAddresses.isEmpty())
       {
+        managerService.proposeObjective(employeeId,
+            new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))),
+            customDistributionList);
+
         return ok("Objective inserted correctly");
       }
       else if (emailSet.isEmpty())
@@ -166,8 +168,8 @@ public class ManagerController
             + ". Employees not found for the following Email Addresses: " + invalidEmailAddresses.toString());
       }
     }
-    catch (IllegalArgumentException | EmployeeNotFoundException | DistributionListException
-        | DocumentConversionException | InvalidAttributeValueException e)
+    catch (IllegalArgumentException | EmployeeNotFoundException | DocumentConversionException
+        | InvalidAttributeValueException | DistributionListException e)
     {
       return badRequest().body(error(e.getMessage()));
     }
@@ -194,12 +196,12 @@ public class ManagerController
 
       executor.shutdown();
       distributionList = distributionListService.combine(sopraDL, steriaDL);
-      
+
       if (distributionList == null)
       {
         throw new IllegalArgumentException("No such distribution list was found: ".concat(distributionListName));
       }
-      
+
       distributionListService.cache(distributionListName, distributionList);
 
       LOGGER.debug(distributionList.toString());

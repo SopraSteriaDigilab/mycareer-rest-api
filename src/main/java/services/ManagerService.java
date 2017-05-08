@@ -206,11 +206,8 @@ public class ManagerService
           objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
       morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), OBJECTIVES, employee.getObjectives());
     }
-    
-    if (distributionList.getName().equals(CUSTOM_LIST))
-    {
-      sendObjectiveEmail(distributionList, objective);
-    }
+
+    sendObjectiveEmail(distributionList, objective);
   }
 
   private void sendObjectiveEmail(final DistributionList distributionList, final Objective objective)
