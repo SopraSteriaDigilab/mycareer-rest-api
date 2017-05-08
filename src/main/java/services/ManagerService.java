@@ -29,7 +29,6 @@ import dataStructure.Note;
 import dataStructure.Objective;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
-import services.ews.MyCareerMailingList;
 import services.ews.DistributionList;
 import services.ews.EmailService;
 import utils.Template;
