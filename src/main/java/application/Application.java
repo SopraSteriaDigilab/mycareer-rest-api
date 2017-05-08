@@ -4,7 +4,6 @@ import static dataStructure.Constants.DEV_SERVER_NAME;
 import static dataStructure.Constants.LIVE_SERVER_NAME;
 import static dataStructure.Constants.UAT_SERVER_NAME;
 
-import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -30,14 +29,6 @@ public class Application
     try
     {
       setEnvironmentProperty();
-      
-      String currentDirectory;
-		File file = new File(".");
-		currentDirectory = file.getAbsolutePath();
-		
-		System.out.println("Current working directory : "+currentDirectory);
-		LOGGER.debug("Current working directory : "+currentDirectory);
-      
       SpringApplication.run(Application.class, args);
       
       
