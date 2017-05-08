@@ -31,7 +31,7 @@ import dataStructure.DevelopmentNeed.Category;
  * This class contains the definition of the Employee object
  *
  */
-@Entity("employeeDataDev")
+@Entity("employees")
 public class Employee implements Serializable
 {
   private static final long serialVersionUID = 1L;
