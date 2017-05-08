@@ -71,7 +71,7 @@ public class DBConfig
   }
   
   @Bean
-  public MorphiaOperations morphiaOperation(final Datastore datastore)
+  public MorphiaOperations morphiaOperations(final Datastore datastore)
   {
     return new MorphiaOperations(datastore(mongoClient()));
   }

@@ -5,6 +5,7 @@ import static services.db.MongoUtils.*;
 import static dataStructure.Employee.*;
 import static dataStructure.EmployeeProfile.*;
 import static dataStructure.Activity.*;
+import static services.ews.DistributionList.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
 import dataStructure.Activity;
+import dataStructure.DocumentConversionException;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Note;
@@ -134,6 +136,7 @@ public class ManagerService
     return true;
   }
 
+  @Deprecated
   public void proposeObjective(long employeeId, Objective objective, Set<String> emailSet)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -187,11 +190,44 @@ public class ManagerService
     }
   }
 
-  public void proposeObjective(long employeeId, Objective objective, DistributionList distributionList) throws EmployeeNotFoundException
+  public void proposeObjective(long employeeId, Objective objective, DistributionList distributionList)
+      throws EmployeeNotFoundException, DocumentConversionException
   {
     final Employee proposer = employeeService.getEmployee(employeeId);
-    
+    final Set<EmployeeProfile> profileList = distributionList.getList();
+
     objective.setProposedBy(proposer.getProfile().getFullName());
+
+    for (final EmployeeProfile employeeProfile : profileList)
+    {
+      final Employee employee = employeeService.getEmployee(employeeProfile.getEmployeeID());
+
+      employee.addObjective(objective);
+      objectivesHistoriesOperations.addToObjDevHistory(
+          objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
+      morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), OBJECTIVES, employee.getObjectives());
+    }
+    
+    if (distributionList.getName().equals(CUSTOM_LIST))
+    {
+      sendObjectiveEmail(distributionList, objective);
+    }
+  }
+
+  private void sendObjectiveEmail(final DistributionList distributionList, final Objective objective)
+  {
+    try
+    {
+      final String subject = String.format("Proposed Objective from %s", objective.getProposedBy());
+      final String body = Template.populateTemplate(env.getProperty("templates.objective.proposed"),
+          objective.getProposedBy());
+
+      distributionList.sendEmail(subject, body);
+    }
+    catch (Exception e)
+    {
+      LOGGER.error("Email could not be sent for a proposed objective. Error: ", e);
+    }
   }
 
   public void addManagerEvaluation(long reporteeId, int year, String managerEvaluation, int score)
@@ -208,11 +244,11 @@ public class ManagerService
     Employee employee = employeeService.getEmployee(employeeId);
     employee.submitManagerEvaluation(year);
     morphiaOperations.updateEmployee(employeeId, RATINGS, employee.getRatings());
-   
+
     String reporteeEmail = employee.getProfile().getEmailAddresses().getPreferred();
     String subject = "Manager Rating Submitted";
     String body = Template.populateTemplate(env.getProperty("template.manager.evaluation.submitted"));
-    
+
     try
     {
       EmailService.sendEmail(reporteeEmail, subject, body);
@@ -220,7 +256,7 @@ public class ManagerService
     catch (Exception e)
     {
       LOGGER.error("Failed sending manager rating email notification to {}.", reporteeEmail);
-    } 
+    }
   }
 
   public List<Activity> getActivityFeed(final long employeeID)

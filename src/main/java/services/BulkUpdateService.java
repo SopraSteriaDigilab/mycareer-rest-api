@@ -3,6 +3,7 @@ package services;
 import static services.ad.ADOperations.searchAD;
 import static services.ad.ADOperations.searchADAsList;
 import static dataStructure.EmployeeProfile.*;
+import static services.ad.query.LDAPQueries.*;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -24,11 +25,14 @@ import services.ad.ADConnectionException;
 import services.ad.ADSearchSettings;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
+import services.ews.Cache;
+import services.ews.DistributionList;
 import services.mappers.EmployeeProfileMapper;
 import services.mappers.InvalidEmployeeProfileException;
 import utils.sequence.Sequence;
 import utils.sequence.SequenceException;
 import utils.sequence.StringSequence;
+import services.ad.query.LDAPQuery;
 
 public class BulkUpdateService
 {
@@ -44,6 +48,7 @@ public class BulkUpdateService
   private final MongoOperations employeeOperations;
   private final ADSearchSettings steriaADSearchSettings;
   private final EmployeeProfileMapper employeeProfileMapper;
+  private final Cache<String, DistributionList> distributionListCache;
 
   private int inserted;
   private int updated;
@@ -52,12 +57,13 @@ public class BulkUpdateService
   private int exceptionsThrown;
 
   public BulkUpdateService(final MorphiaOperations morphiaOperations, final MongoOperations employeeOperations,
-      final ADSearchSettings steriaADSearchSettings, final EmployeeProfileMapper employeeProfileMapper)
+      final ADSearchSettings steriaADSearchSettings, final EmployeeProfileMapper employeeProfileMapper, Cache<String, DistributionList> distributionListCache)
   {
     this.morphiaOperations = morphiaOperations;
     this.employeeOperations = employeeOperations;
     this.steriaADSearchSettings = steriaADSearchSettings;
     this.employeeProfileMapper = employeeProfileMapper;
+    this.distributionListCache = distributionListCache;
   }
 
   @Scheduled(cron = "0 30 23 * * ?")
@@ -84,6 +90,8 @@ public class BulkUpdateService
         exceptionsThrown++;
       }
     }
+    
+    distributionListCache.clear();
 
     final Instant endDBOps = Instant.now();
 
@@ -107,7 +115,8 @@ public class BulkUpdateService
     // There are approximately 6,200 employees, hence initial capacity of 10,000
     final List<EmployeeProfile> allEmployeeProfiles = new ArrayList<>(10_000);
     final List<SearchResult> steriaList = searchAD(steriaADSearchSettings, AD_TREE, steriaFilterSequence());
-    steriaList.addAll(searchADAsList(steriaADSearchSettings, AD_UNUSED_OBJECT_TREE, "(&(CN=*)(extensionAttribute2=*)(employeeType=EMP))"));
+    final LDAPQuery query = and(hasField(CN), hasField(EXTENSION_ATTRIBUTE_2), basicQuery(EMPLOYEE_TYPE, EMPLOYEE));
+    steriaList.addAll(searchADAsList(steriaADSearchSettings, AD_UNUSED_OBJECT_TREE, query.get()));
 
     for (final SearchResult result : steriaList)
     {
@@ -181,7 +190,8 @@ public class BulkUpdateService
   // TODO this doesn't belong here
   private Sequence<String> steriaFilterSequence() throws SequenceException
   {
-    return new StringSequence.StringSequenceBuilder().initial("(&(CN=A*)(extensionAttribute2=*)(employeeType=EMP))") // first call to next() will return this
+    final LDAPQuery initialQuery = and(fieldBeginsWith(CN, "A"), hasField(EXTENSION_ATTRIBUTE_2), basicQuery(EMPLOYEE_TYPE, EMPLOYEE));
+    return new StringSequence.StringSequenceBuilder().initial(initialQuery.get()) // first call to next() will return this
         .characterToChange(6) // 'A'
         .increment(1) // increment by one character
         .size(26) // 26 Strings in the sequence
