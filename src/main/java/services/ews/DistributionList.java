@@ -8,6 +8,8 @@ import services.EmployeeNotFoundException;
 
 public interface DistributionList
 {
+  String CUSTOM_LIST = "Custom list";
+  
   Set<String> getEmailAddresses();
   void sendEmail(String subject, String body) throws Exception;
   int size();

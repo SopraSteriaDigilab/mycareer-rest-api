@@ -5,6 +5,7 @@ import static services.db.MongoUtils.*;
 import static dataStructure.Employee.*;
 import static dataStructure.EmployeeProfile.*;
 import static dataStructure.Activity.*;
+import static services.ews.DistributionList.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -135,6 +136,7 @@ public class ManagerService
     return true;
   }
 
+  @Deprecated
   public void proposeObjective(long employeeId, Objective objective, Set<String> emailSet)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -205,8 +207,11 @@ public class ManagerService
           objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
       morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), OBJECTIVES, employee.getObjectives());
     }
-
-    sendObjectiveEmail(distributionList, objective);
+    
+    if (distributionList.getName().equals(CUSTOM_LIST))
+    {
+      sendObjectiveEmail(distributionList, objective);
+    }
   }
 
   private void sendObjectiveEmail(final DistributionList distributionList, final Objective objective)

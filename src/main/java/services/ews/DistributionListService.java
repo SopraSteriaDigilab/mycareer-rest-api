@@ -3,6 +3,7 @@ package services.ews;
 import static services.ad.ADOperations.*;
 import static services.ad.query.LDAPQueries.*;
 import static utils.Conversions.*;
+import static services.ews.DistributionList.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -150,7 +151,7 @@ public class DistributionListService
 
     emailAddresses.removeAll(invalidEmailAddresses);
 
-    return new MyCareerMailingList("Custom List", employeeProfiles);
+    return new MyCareerMailingList(CUSTOM_LIST, employeeProfiles);
   }
 
   private boolean isDistributionList(final String distributionListName, final ADSearchSettings adSearchSettings,
