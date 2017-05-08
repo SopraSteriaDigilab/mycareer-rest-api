@@ -30,14 +30,16 @@ public class WebConfig extends OncePerRequestFilter
   {
     FilterRegistrationBean registration = new FilterRegistrationBean();
     
+    System.out.println("----------------------------" + System.getProperty("user.dir"));
+    
     registration.setFilter(spnegoHttpFilter());
     registration.setName("spnegoHttpFilter");
     registration.addInitParameter("spnego.allow.basic", "true");
     registration.addInitParameter("spnego.allow.localhost", "true");
     registration.addInitParameter("spnego.allow.unsecure.basic", "true");
     registration.addInitParameter("spnego.login.client.module", "spnego-client");
-    registration.addInitParameter("spnego.krb5.conf", "/mycareer/users/mycareer/mycareer/dev/web-api/krb5.conf");
-    registration.addInitParameter("spnego.login.conf", "/mycareer/users/mycareer/mycareer/dev/web-api/login.conf");
+    registration.addInitParameter("spnego.krb5.conf", env.getProperty("spnego.conf.krb5"));
+    registration.addInitParameter("spnego.login.conf", env.getProperty("spnego.conf.login"));
     registration.addInitParameter("spnego.preauth.username", SPNEGO_USERNAME);
     registration.addInitParameter("spnego.preauth.password", SPNEGO_PASSWORD);
     registration.addInitParameter("spnego.login.server.module", "spnego-server");
