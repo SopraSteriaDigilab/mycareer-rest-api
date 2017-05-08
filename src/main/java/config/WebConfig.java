@@ -29,7 +29,7 @@ public class WebConfig extends OncePerRequestFilter
   public FilterRegistrationBean spnegoFilterRegistration()
   {
     FilterRegistrationBean registration = new FilterRegistrationBean();
-        
+    
     registration.setFilter(spnegoHttpFilter());
     registration.setName("spnegoHttpFilter");
     registration.addInitParameter("spnego.allow.basic", "true");
