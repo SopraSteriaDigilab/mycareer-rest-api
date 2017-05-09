@@ -24,9 +24,12 @@ import utils.EmployeeStatistics;
  */
 public class HRService
 {
+
+  public static final String ACCOUNT_EXPIRES = "profile.accountExpires";
+
   /** Datastore Constant - Represents connection to the database */
   private final Datastore datastore;
-  
+
   private final MorphiaOperations morphiaOperations;
 
   /** EmployeeStatistics Constant - Represents employeeStats reference */
@@ -79,8 +82,8 @@ public class HRService
    */
   public List<Map<String, Object>> getFeedbackStats()
   {
-    List<Employee> employees = datastore.find(Employee.class).field("feedback").exists()
-        .retrievedFields(true, addAll(EMPLOYEE_FIELDS, FEEDBACK_FIELDS)).asList();
+    List<Employee> employees = datastore.find(Employee.class).field(ACCOUNT_EXPIRES).doesNotExist().field("feedback")
+        .exists().retrievedFields(true, addAll(EMPLOYEE_FIELDS, FEEDBACK_FIELDS)).asList();
     return employeeStats.getFeedbackStats(employees);
   }
 
@@ -91,7 +94,7 @@ public class HRService
    */
   public List<Map<String, Object>> getObjectiveStats()
   {
-    List<Employee> employees = datastore.find(Employee.class)
+    List<Employee> employees = datastore.find(Employee.class).field(ACCOUNT_EXPIRES).doesNotExist()
         .retrievedFields(true, addAll(EMPLOYEE_FIELDS, OBJECTIVES_FIELDS)).asList();
     return employeeStats.getObjectiveStats(employees);
   }
@@ -103,8 +106,9 @@ public class HRService
    */
   public List<Map<String, Object>> getDevelopmentNeedStats()
   {
-    List<Employee> employees = datastore.find(Employee.class).field("developmentNeeds").exists()
-        .retrievedFields(true, addAll(EMPLOYEE_FIELDS, DEVELOPMENT_NEEDS_FIELDS)).asList();
+    List<Employee> employees = datastore.find(Employee.class).field(ACCOUNT_EXPIRES).doesNotExist()
+        .field("developmentNeeds").exists().retrievedFields(true, addAll(EMPLOYEE_FIELDS, DEVELOPMENT_NEEDS_FIELDS))
+        .asList();
     return employeeStats.getDevelopmentNeedStats(employees);
   }
 
@@ -116,8 +120,9 @@ public class HRService
    */
   public List<Map<String, Object>> getDevelopmentNeedBreakDown()
   {
-    List<Employee> employees = datastore.find(Employee.class).field("developmentNeeds").exists()
-        .retrievedFields(true, addAll(EMPLOYEE_FIELDS, DEVELOPMENT_NEEDS_FIELDS)).asList();
+    List<Employee> employees = datastore.find(Employee.class).field(ACCOUNT_EXPIRES).doesNotExist()
+        .field("developmentNeeds").exists().retrievedFields(true, addAll(EMPLOYEE_FIELDS, DEVELOPMENT_NEEDS_FIELDS))
+        .asList();
     return employeeStats.getDevelopmentNeedBreakDown(employees);
   }
 
@@ -128,7 +133,7 @@ public class HRService
    */
   public List<Map<String, Object>> getSectorBreakDown()
   {
-    List<Employee> employees = datastore.find(Employee.class).filter("profile.accountExpires exists", 0)
+    List<Employee> employees = datastore.find(Employee.class).field(ACCOUNT_EXPIRES).doesNotExist()
         .retrievedFields(true, SECTOR_FIELDS).asList();
     return employeeStats.getSectorBreakDown(employees);
   }
@@ -152,6 +157,6 @@ public class HRService
    */
   private long countAll(Query<Employee> query, String field)
   {
-    return datastore.find(Employee.class).field(field).exists().countAll();
+    return datastore.find(Employee.class).field(ACCOUNT_EXPIRES).doesNotExist().field(field).exists().countAll();
   }
 }
