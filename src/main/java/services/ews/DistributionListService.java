@@ -204,20 +204,20 @@ public class DistributionListService
     List<LDAPQuery> clauses = new ArrayList<>();
     LDAPQuery query;
 
+    for (final String memberDN : allMembers)
+    {
+      clauses.add(basicQuery(DISTINGUISHED_NAME, memberDN));
+    }
+
+    query = and(or(clauses), hasField(employeeIDField));
+    
     try
     {
-      for (final String memberDN : allMembers)
-      {
-        clauses.add(basicQuery(DISTINGUISHED_NAME, memberDN));
-      }
-
-      query = and(or(clauses), hasField(employeeIDField));
       returnValue = searchADAsList(adSearchSettings, userTree, query.get());
     }
     catch (NamingException | NullPointerException e)
     {
-      LOGGER.error(ERROR_FETCH_MEMBERS, e);
-      throw new DistributionListException(ERROR_FETCH_MEMBERS, e);
+      LOGGER.warn(ERROR_FETCH_MEMBERS);
     }
 
     return returnValue;
@@ -254,8 +254,7 @@ public class DistributionListService
     }
     catch (NullPointerException | NamingException e)
     {
-      LOGGER.error(ERROR_FETCH_MEMBERS, e);
-      throw new DistributionListException(ERROR_FETCH_MEMBERS, e);
+      LOGGER.warn(ERROR_FETCH_MEMBERS);
     }
 
     for (final SearchResult result : results)
@@ -290,8 +289,7 @@ public class DistributionListService
     }
     catch (NullPointerException | NamingException e)
     {
-      LOGGER.error(ERROR_FETCH_MEMBERS, e);
-      throw new DistributionListException(ERROR_FETCH_MEMBERS, e);
+      LOGGER.warn(ERROR_FETCH_MEMBERS);
     }
   }
 

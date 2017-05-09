@@ -35,7 +35,7 @@ public class ADConfig
   private static final String AD_SOPRA_USERNAME = "svc_mycareer@emea.msad.sopra";
   private static final String AD_SOPRA_PASSWORD = "N9T$SiPSZ";
   private static final String AD_SOPRA_PRINCIPAL = AD_SOPRA_USERNAME;
-  private static final String[] AD_SOPRA_ATTRIBUTES = { MEMBER_OF, MEMBER, EXTENSION_ATTRIBUTE_7 };
+  private static final String[] AD_SOPRA_ATTRIBUTES = { EXTENSION_ATTRIBUTE_7, MEMBER, MEMBER_OF };
 
   private static final String AD_STERIA_HOST = "ldap://one.steria.dom";
   private static final String AD_STERIA_URL = AD_STERIA_HOST.concat(":389");
@@ -44,9 +44,9 @@ public class ADConfig
   private static final String AD_STERIA_LOGIN_TREE = "OU=Service Accounts,OU=UKCentral,OU=UK,OU=Resources,DC=one,DC=steria,DC=dom";
   private static final String AD_STERIA_PRINCIPAL = new StringBuilder("cn=").append(AD_STERIA_USERNAME).append(",")
       .append(AD_STERIA_LOGIN_TREE).toString();
-  private static final String[] AD_STERIA_ATTRIBUTES = { EXTENSION_ATTRIBUTE_2, EMPLOYEE_TYPE, SN, GIVEN_NAME,
-      SAM_ACCOUNT_NAME, MAIL, TARGET_ADDRESS, COMPANY, DEPARTMENT, STERIA_SECTOR_UNIT, OU, DIRECT_REPORTS,
-      ACCOUNT_EXPIRES };
+  private static final String[] AD_STERIA_ATTRIBUTES = { ACCOUNT_EXPIRES, COMPANY, DEPARTMENT, DIRECT_REPORTS,
+      EMPLOYEE_TYPE, EXTENSION_ATTRIBUTE_2, GIVEN_NAME, MAIL, MEMBER, MEMBER_OF, OU, SAM_ACCOUNT_NAME, SN, STERIA_SECTOR_UNIT,
+      TARGET_ADDRESS };
 
   @Bean
   ADSearchSettings sopraADSearchSettings()
