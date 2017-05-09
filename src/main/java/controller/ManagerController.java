@@ -219,7 +219,7 @@ public class ManagerController
   public ResponseEntity<?> proposeObjectiveToDistributionList(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 2_000, message = ERROR_LIMIT_TITLE) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_OBJECTIVE_DESCRIPTION) @Size(max = 2_000, message = ERROR_LIMIT_OBJECTIVE_DESCRIPTION) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
       @RequestParam @NotBlank(message = ERROR_EMPTY_DL) @Size(max = 100, message = ERROR_LIMIT_DL) String distributionListName)
   {

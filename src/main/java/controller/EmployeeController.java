@@ -75,6 +75,8 @@ public class EmployeeController
   private static final String ERROR_EMPTY_NOTE_PROVIDER_NAME = "Provider name can not be empty.";
   private static final String ERROR_EMPTY_NOTE_DESCRIPTION = "Note description can not be empty.";
   private static final String ERROR_LIMIT_NOTE_DESCRIPTION = "Max Description length is 1000 characters.";
+  private static final String ERROR_EMPTY_OBJECTIVE_DESCRIPTION = "Objective description can not be empty.";
+  private static final String ERROR_LIMIT_OBJECTIVE_DESCRIPTION = "Max Description length is 2,000 characters.";
   private static final String ERROR_LIMIT_COMMENT = "Max Comment length is 1000 characters.";
   private static final String ERROR_EMPTY_FEEDBACK = "The feedback cannot be empty.";
   private static final String ERROR_LIMIT_FEEDBACK = "Max feedback length is 5000";
@@ -280,13 +282,13 @@ public class EmployeeController
   public ResponseEntity<?> editObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 2000, message = ERROR_LIMIT_TITLE) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_OBJECTIVE_DESCRIPTION) @Size(max = 2000, message = ERROR_LIMIT_OBJECTIVE_DESCRIPTION) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate)
   {
     try
     {
-      employeeService.editObjective(employeeId,
-          new Objective(objectiveId, title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))));
+      employeeService.editObjective(employeeId, new Objective(objectiveId, title, description,
+          presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))));
       return ok("Objective updated correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -379,8 +381,9 @@ public class EmployeeController
   {
     try
     {
-      employeeService.addDevelopmentNeed(employeeId, new DevelopmentNeed(title, description,
-          presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
+      employeeService.addDevelopmentNeed(employeeId,
+          new DevelopmentNeed(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)),
+              DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need inserted correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -405,8 +408,10 @@ public class EmployeeController
   {
     try
     {
-      employeeService.editDevelopmentNeed(employeeId, new DevelopmentNeed(developmentNeedId, title, description,
-          presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)), DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
+      employeeService.editDevelopmentNeed(employeeId,
+          new DevelopmentNeed(developmentNeedId, title, description,
+              presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)),
+              DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
       return ok("Development Need updated correctly");
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
@@ -598,7 +603,7 @@ public class EmployeeController
       return badRequest().body(error(e.getMessage()));
     }
   }
-  
+
   @RequestMapping(value = "/submitSelfEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> submitSelfEvaluation(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)

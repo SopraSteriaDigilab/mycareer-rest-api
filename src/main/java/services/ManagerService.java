@@ -135,60 +135,6 @@ public class ManagerService
     return true;
   }
 
-  @Deprecated
-  public void proposeObjective(long employeeId, Objective objective, Set<String> emailSet)
-      throws EmployeeNotFoundException, InvalidAttributeValueException
-  {
-    Set<String> successEmails = new HashSet<>();
-    Set<String> errorEmails = new HashSet<>();
-
-    Employee proposer = employeeService.getEmployee(employeeId);
-    objective.setProposedBy(proposer.getProfile().getFullName());
-
-    for (String email : emailSet)
-    {
-      try
-      {
-        Employee employee = employeeService.getEmployee(email);
-        String preferredEmail = employee.getProfile().getEmailAddresses().getPreferred(email);
-        employee.addObjective(objective);
-
-        objectivesHistoriesOperations.addToObjDevHistory(
-            objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
-
-        morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), OBJECTIVES, employee.getObjectives());
-
-        successEmails.add(preferredEmail);
-
-        String subject = String.format("Proposed Objective from %s", objective.getProposedBy());
-        String body = Template.populateTemplate(env.getProperty("templates.objective.proposed"),
-            objective.getProposedBy());
-        EmailService.sendEmail(preferredEmail, subject, body);
-      }
-      catch (EmployeeNotFoundException e)
-      {
-        errorEmails.add(email);
-        continue;
-      }
-      catch (Exception e)
-      {
-        LOGGER.error("Email could not be sent for a proposed objective. Error: ", e);
-      }
-    }
-
-    if (!errorEmails.isEmpty())
-    {
-      if (successEmails.isEmpty())
-      {
-        throw new InvalidAttributeValueException(
-            "Employees not found for the following Email Addresses: " + errorEmails.toString());
-      }
-
-      throw new InvalidAttributeValueException("Objective proposed for: " + successEmails.toString()
-          + ". Employees not found for the following Email Addresses: " + errorEmails.toString());
-    }
-  }
-
   public void proposeObjective(long employeeId, Objective objective, DistributionList distributionList)
       throws EmployeeNotFoundException, DocumentConversionException
   {
@@ -208,22 +154,6 @@ public class ManagerService
     }
 
     sendObjectiveEmail(distributionList, objective);
-  }
-
-  private void sendObjectiveEmail(final DistributionList distributionList, final Objective objective)
-  {
-    try
-    {
-      final String subject = String.format("Proposed Objective from %s", objective.getProposedBy());
-      final String body = Template.populateTemplate(env.getProperty("templates.objective.proposed"),
-          objective.getProposedBy());
-
-      distributionList.sendEmail(subject, body);
-    }
-    catch (Exception e)
-    {
-      LOGGER.error("Email could not be sent for a proposed objective. Error: ", e);
-    }
   }
 
   public void addManagerEvaluation(long reporteeId, int year, String managerEvaluation, int score)
@@ -296,5 +226,21 @@ public class ManagerService
     reporteeIDStrings.forEach(s -> reporteeIDs.add(Long.parseLong(s)));
 
     return reporteeIDs;
+  }
+
+  private void sendObjectiveEmail(final DistributionList distributionList, final Objective objective)
+  {
+    try
+    {
+      final String subject = String.format("Proposed Objective from %s", objective.getProposedBy());
+      final String body = Template.populateTemplate(env.getProperty("templates.objective.proposed"),
+          objective.getProposedBy());
+
+      distributionList.sendEmail(subject, body);
+    }
+    catch (Exception e)
+    {
+      LOGGER.error("Email could not be sent for a proposed objective. Error: ", e);
+    }
   }
 }
