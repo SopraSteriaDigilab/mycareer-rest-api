@@ -29,7 +29,7 @@ public class DistributionListService
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(DistributionListService.class);
 
-  private static final String ERROR_FETCH_MEMBERS = "Error encountered while fetching members of this distribution list.  It may not have any members, or it may not be a list";
+  private static final String ERROR_FETCH_MEMBERS = "Error encountered while fetching members of this distribution list.  It may not have any members, or it may not be a list.";
   private static final String UNKNOWN_ERROR = "ADConnectionException encountered while searching for a distribution list: {}";
 
   private static final String SOPRA_DL_TREE = "OU=usersemea,DC=emea,DC=msad,DC=sopra";
@@ -216,7 +216,7 @@ public class DistributionListService
     }
     catch (NamingException | NullPointerException e)
     {
-      LOGGER.error(ERROR_FETCH_MEMBERS);
+      LOGGER.error(ERROR_FETCH_MEMBERS, e);
       throw new DistributionListException(ERROR_FETCH_MEMBERS, e);
     }
 
@@ -254,7 +254,7 @@ public class DistributionListService
     }
     catch (NullPointerException | NamingException e)
     {
-      LOGGER.error(ERROR_FETCH_MEMBERS);
+      LOGGER.error(ERROR_FETCH_MEMBERS, e);
       throw new DistributionListException(ERROR_FETCH_MEMBERS, e);
     }
 
@@ -290,7 +290,7 @@ public class DistributionListService
     }
     catch (NullPointerException | NamingException e)
     {
-      LOGGER.error(ERROR_FETCH_MEMBERS);
+      LOGGER.error(ERROR_FETCH_MEMBERS, e);
       throw new DistributionListException(ERROR_FETCH_MEMBERS, e);
     }
   }
