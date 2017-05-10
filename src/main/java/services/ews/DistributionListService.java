@@ -201,7 +201,7 @@ public class DistributionListService
       String userTree, String employeeIDField) throws ADConnectionException, DistributionListException
   {
     List<SearchResult> returnValue = null;
-    List<LDAPQuery> clauses = new ArrayList<>();
+    Set<LDAPQuery> clauses = new HashSet<>();
     LDAPQuery query;
 
     for (final String memberDN : allMembers)
@@ -232,7 +232,7 @@ public class DistributionListService
       return;
     }
 
-    List<LDAPQuery> clauses = new ArrayList<>();
+    Set<LDAPQuery> clauses = new HashSet<>();
     List<SearchResult> results = null;
     LDAPQuery query = null;
 
