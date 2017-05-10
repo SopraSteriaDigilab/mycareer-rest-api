@@ -107,7 +107,7 @@ public class ADConnectionImpl implements ADConnection
     }
     catch (final NamingException | RuntimeException ex)
     {
-      LOGGER.error(SEARCH_EXCEPTION_MSG.concat(adSearchSettings.getEnvironmentSettings().toString()), ex);
+      LOGGER.error(SEARCH_EXCEPTION_MSG.concat("Query: " + searchFilter + adSearchSettings.getEnvironmentSettings().toString()), ex);
       throw new ADConnectionException(SEARCH_EXCEPTION_MSG, ex);
     }
   }

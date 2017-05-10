@@ -1,7 +1,9 @@
 package services.ad.query;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class LDAPQueries
 {
@@ -62,7 +64,7 @@ public class LDAPQueries
     return combine(AND, ldapQueries);
   }
 
-  public static LDAPQuery and(List<LDAPQuery> queries)
+  public static LDAPQuery and(Set<LDAPQuery> queries)
   {
     return combine(AND, queries);
   }
@@ -72,19 +74,19 @@ public class LDAPQueries
     return combine(OR, ldapQueries);
   }
 
-  public static LDAPQuery or(List<LDAPQuery> queries)
+  public static LDAPQuery or(Set<LDAPQuery> queries)
   {
     return combine(OR, queries);
   }
   
   private static LDAPQuery combine(final String queryStart, LDAPQuery... ldapQueries)
   {
-    List<LDAPQuery> queries = Arrays.asList(ldapQueries);
+    Set<LDAPQuery> queries = new HashSet<>(Arrays.asList(ldapQueries));
     
     return combine(queryStart, queries);
   }
   
-  private static LDAPQuery combine(final String queryStart, List<LDAPQuery> queries)
+  private static LDAPQuery combine(final String queryStart, Set<LDAPQuery> queries)
   {
     String query;
     final StringBuilder stringBuilder = new StringBuilder(queryStart);
