@@ -32,11 +32,11 @@ public class DistributionListService
   private static final String ERROR_FETCH_MEMBERS = "Error encountered while fetching members of this distribution list.  It may not have any members, or it may not be a list.";
   private static final String UNKNOWN_ERROR = "ADConnectionException encountered while searching for a distribution list: {}";
 
-  private static final String SOPRA_DL_TREE = "OU=usersemea,DC=emea,DC=msad,DC=sopra";
-  private static final String SOPRA_USER_TREE = "OU=usersemea,DC=emea,DC=msad,DC=sopra";
+  private static final String SOPRA_DL_TREE = "DC=emea,DC=msad,DC=sopra";
+  private static final String SOPRA_USER_TREE = "DC=emea,DC=msad,DC=sopra";
   private static final String SOPRA_EMPLOYEE_ID_FIELD = EXTENSION_ATTRIBUTE_7;
 
-  private static final String STERIA_DL_TREE = "OU=Global Services,DC=one,DC=steria,DC=dom";
+  private static final String STERIA_DL_TREE = "DC=one,DC=steria,DC=dom";
   private static final String STERIA_USER_TREE = "DC=one,DC=steria,DC=dom";
   private static final String STERIA_EMPLOYEE_ID_FIELD = EXTENSION_ATTRIBUTE_2;
 
