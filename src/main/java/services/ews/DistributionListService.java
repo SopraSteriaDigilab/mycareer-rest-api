@@ -188,7 +188,7 @@ public class DistributionListService
 
     final LDAPQuery filter = createDistributionListQuery(distributionListName);
     final SearchResult distributionListResult = searchAD(adSearchSettings, dlTree, filter.get());
-    final List<String> allMemberDNs = getAllMembersDNs(distributionListResult, adSearchSettings, dlTree);
+    final Set<String> allMemberDNs = getAllMembersDNs(distributionListResult, adSearchSettings, dlTree);
     final List<SearchResult> allMemberResults = getAllMemberResults(allMemberDNs, adSearchSettings, userTree,
         employeeIDField);
     final Set<EmployeeProfile> employeeProfiles = getEmployeeProfiles(allMemberResults, employeeIDField);
@@ -197,7 +197,7 @@ public class DistributionListService
     return distributionList;
   }
 
-  private List<SearchResult> getAllMemberResults(List<String> allMembers, ADSearchSettings adSearchSettings,
+  private List<SearchResult> getAllMemberResults(Set<String> allMembers, ADSearchSettings adSearchSettings,
       String userTree, String employeeIDField) throws ADConnectionException, DistributionListException
   {
     List<SearchResult> returnValue = null;
@@ -224,7 +224,7 @@ public class DistributionListService
   }
 
   @SuppressWarnings("unchecked")
-  private void addNestedMemberDNs(List<String> memberDNs, ADSearchSettings adSearchSettings, String dlTree)
+  private void addNestedMemberDNs(Set<String> memberDNs, ADSearchSettings adSearchSettings, String dlTree)
       throws DistributionListException, ADConnectionException
   {
     if (memberDNs.isEmpty())
@@ -266,10 +266,10 @@ public class DistributionListService
   }
 
   @SuppressWarnings("unchecked")
-  private List<String> getAllMembersDNs(final SearchResult distributionList, ADSearchSettings adSearchSettings,
+  private Set<String> getAllMembersDNs(final SearchResult distributionList, ADSearchSettings adSearchSettings,
       String dlTree) throws DistributionListException, ADConnectionException
   {
-    final List<String> memberDNs = new ArrayList<String>();
+    final Set<String> memberDNs = new HashSet<String>();
 
     addMemberDNs(distributionList, memberDNs);
     addNestedMemberDNs(memberDNs, adSearchSettings, dlTree);
@@ -278,7 +278,7 @@ public class DistributionListService
   }
 
   @SuppressWarnings("unchecked")
-  private void addMemberDNs(final SearchResult result, final List<String> memberDNs) throws DistributionListException
+  private void addMemberDNs(final SearchResult result, final Set<String> memberDNs) throws DistributionListException
   {
     final Attributes attributes = result.getAttributes();
     final Attribute members = attributes.get(MEMBER);
