@@ -46,6 +46,7 @@ import utils.Utils;
 /**
  * 
  * Class with static methods using the EWS Java API to handle Email functionality within the MyCareer project.
+ * 
  * @see <a href="https://github.com/OfficeDev/ews-java-api">EWS Java API</a>
  */
 @Component
@@ -86,9 +87,9 @@ public class EmailService
    */
   public synchronized static void sendEmail(String recipient, String subject, String body) throws Exception
   {
-    List<String> recipients = Arrays.asList(recipient); 
+    List<String> recipients = Arrays.asList(recipient);
     sendEmail(recipients, subject, body);
-    //TODO Consider removing/redoing
+    // TODO Consider removing/redoing
   }
 
   /**
@@ -105,7 +106,7 @@ public class EmailService
     recipientsList.addAll(recipientsSet);
     sendEmail(recipientsList, subject, body);
   }
-  
+
   /**
    * Static method to send an Email.
    * 
@@ -116,16 +117,16 @@ public class EmailService
    */
   public synchronized static void sendEmail(List<String> recipients, String subject, String body) throws Exception
   {
-    initiateEWSConnection(20000);
+    initiateEWSConnection(20_000);
     EmailMessage message = new EmailMessage(emailService);
     message.setSubject(subject);
     message.setBody(new MessageBody(Text, body));
-    
+
     for (String recipient : recipients)
     {
       message.getToRecipients().add(recipient);
     }
-    
+
     message.sendAndSaveCopy();
     // emailService.close();
     // TODO throws an error
@@ -137,12 +138,12 @@ public class EmailService
    * 
    * @throws Exception
    */
-  @Scheduled(fixedRate = 60000)
+  @Scheduled(fixedRate = 60_000)
   private void findEmails()
   {
     try
     {
-      initiateEWSConnection(120000);
+      initiateEWSConnection(120_000);
 
       LOGGER.debug("Finding unread Emails...");
       int unreadEmails = Folder.bind(emailService, Inbox).getUnreadCount();
@@ -274,24 +275,33 @@ public class EmailService
   private static void genericFeedbackFound(String from, Set<EmailAddress> recipients, String body) throws Exception
   {
     LOGGER.debug("Generic Feedback found");
-    Set<EmailAddress> errorRecipients = new HashSet<>();
 
-    if (recipients.size() == 1
-        && recipients.stream().anyMatch(s -> s.getAddress().equals(env.getProperty("mail.address"))))
+    final Set<EmailAddress> errorRecipients = new HashSet<>();
+    final boolean hasSingleRecipient = recipients.size() == 1;
+    final boolean feedbackIsARecipient = recipients.stream()
+        .anyMatch(s -> s.getAddress().equals(env.getProperty("mail.address")));
+    final boolean feedbackIsSoleRecipient = hasSingleRecipient && feedbackIsARecipient;
+
+    if (feedbackIsSoleRecipient)
     {
-      String errorRecipient = from;
-      String errorSubject = "Error Processing Feedback";
-      String errorBody = Template.populateTemplate(env.getProperty("templates.error.invalidfeedback"));
+      final String errorRecipient = from;
+      final String errorSubject = "Error Processing Feedback";
+      final String errorBody = Template.populateTemplate(env.getProperty("templates.error.invalidfeedback"));
 
       sendEmail(errorRecipient, errorSubject, errorBody);
-
       LOGGER.info("Incorrect Use of Feedback.uk found, email sent.");
+
       return;
     }
 
-    for (EmailAddress recipient : recipients)
+    for (final EmailAddress recipient : recipients)
     {
-      if (recipient.getAddress().equals(env.getProperty("mail.address"))) continue;
+      final boolean recipientIsFeedback = recipient.getAddress().equals(env.getProperty("mail.address"));
+
+      if (recipientIsFeedback)
+      {
+        continue;
+      }
 
       try
       {
@@ -305,21 +315,20 @@ public class EmailService
       catch (Exception e)
       {
         errorRecipients.add(recipient);
-
-        LOGGER.error("Generic exception thrown while processing feedback from {} to {}, Error:{}", from, recipient, e.getMessage(), e);
+        LOGGER.error("Generic exception thrown while processing feedback from {} to {}, Error:{}", from, recipient,
+            e.getMessage(), e);
       }
     }
-    
+
     if (!errorRecipients.isEmpty())
     {
-      List<String> errorRecipient = Arrays.asList("mehmet.mehmet@soprasteria.com", "ridhwan.nacef@soprasteria.com");
-      String errorSubject = "Feedback Issue";
-      String errorBody = String.format(
-          "There was an issue proccessing your feedback to %s, please make sure the email address is correct and try again",
+      final List<String> errorRecipient = Arrays.asList(from);
+      final String errorSubject = "Feedback Issue";
+      final String errorBody = String.format(
+          "There was an issue proccessing your feedback to %s, please make sure the email address is correct and try again.  If this problem persists, please raise a support ticket.",
           errorRecipients.toString());
 
       sendEmail(errorRecipient, errorSubject, errorBody);
-
       LOGGER.error("Email sent to {} regarding error feedback to {}", from, errorRecipients.toString());
     }
 

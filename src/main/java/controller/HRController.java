@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dataStructure.Employee;
@@ -39,24 +40,25 @@ public class HRController
   /** HRDataDAO Constant - Represents the service to be user for hr data. */
   @Autowired
   private HRService hrService;
-  
+
   @Autowired
   private EmployeeProfileService employeeProfileService;
 
-  @RequestMapping(value = "/getMyCareer/{employeeId}", method = GET)
-  public ResponseEntity<?> getMyCareer(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
+  @RequestMapping(value = "/{employeeId}/getCareer/{searchEmployeeId}", method = GET)
+  public ResponseEntity<?> getMyCareer(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long searchEmployeeId)
   {
     try
     {
-      final Employee employee = hrService.getMyCareer(employeeId);
+      final Employee employee = hrService.getMyCareer(searchEmployeeId);
       final EmployeeProfile profile = employee.getProfile();
       employeeProfileService.setHasHRDash(profile);
-      
-      if (profile.getHasHRDash())
+
+      if (employeeId != searchEmployeeId && profile.getHasHRDash())
       {
         throw new EmployeeDataRestrictionException();
       }
-      
+
       return ok(employee);
     }
     catch (EmployeeNotFoundException | EmployeeDataRestrictionException e)

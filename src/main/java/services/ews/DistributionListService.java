@@ -3,8 +3,10 @@ package services.ews;
 import static services.ad.ADOperations.*;
 import static services.ad.query.LDAPQueries.*;
 import static utils.Conversions.*;
+import static services.ews.DistributionList.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,42 +29,111 @@ public class DistributionListService
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(DistributionListService.class);
 
-  private static final String ERROR_FETCH_MEMBERS = "Error encountered while fetching members of this distribution list";
+  private static final String ERROR_FETCH_MEMBERS = "Error encountered while fetching members of this distribution list.  It may not have any members, or it may not be a list.";
+  private static final String UNKNOWN_ERROR = "ADConnectionException encountered while searching for a distribution list: {}";
 
-  private static final String EMEAAD_DL_TREE = "OU=Distribution lists,OU=usersemea,DC=emea,DC=msad,DC=sopra";//
-  private static final String EMEAAD_USER_TREE = "OU=usersemea,DC=emea,DC=msad,DC=sopra";//OU=UK,OU=users,OU=SopraGroup,
+  private static final String SOPRA_DL_TREE = "OU=usersemea,DC=emea,DC=msad,DC=sopra";
+  private static final String SOPRA_USER_TREE = "OU=usersemea,DC=emea,DC=msad,DC=sopra";
+  private static final String SOPRA_EMPLOYEE_ID_FIELD = EXTENSION_ATTRIBUTE_7;
 
+  private static final String STERIA_DL_TREE = "OU=Global Services,DC=one,DC=steria,DC=dom";
+  private static final String STERIA_USER_TREE = "DC=one,DC=steria,DC=dom";
+  private static final String STERIA_EMPLOYEE_ID_FIELD = EXTENSION_ATTRIBUTE_2;
+
+  private final Cache<String, DistributionList> distributionListCache;
   private final EmployeeProfileService employeeProfileService;
   private final ADSearchSettings sopraADSearchSettings;
+  private final ADSearchSettings steriaADSearchSettings;
 
-  public DistributionListService(final EmployeeProfileService employeeProfileService,
-      final ADSearchSettings sopraADSearchSettings)
+  public DistributionListService(Cache<String, DistributionList> distributionListCache,
+      final EmployeeProfileService employeeProfileService, final ADSearchSettings sopraADSearchSettings,
+      final ADSearchSettings steriaADSearchSettings)
   {
+    this.distributionListCache = distributionListCache;
     this.employeeProfileService = employeeProfileService;
     this.sopraADSearchSettings = sopraADSearchSettings;
+    this.steriaADSearchSettings = steriaADSearchSettings;
   }
 
-  public DistributionList getDistributionList(final String distributionListName)
+  public boolean isSopraDistributionList(final String distributionListName)
+  {
+    return isDistributionList(distributionListName, sopraADSearchSettings, SOPRA_DL_TREE);
+  }
+
+  public boolean isSteriaDistributionList(final String distributionListName)
+  {
+    return isDistributionList(distributionListName, steriaADSearchSettings, STERIA_DL_TREE);
+  }
+
+  public DistributionList getCachedDistributionList(String distributionListName)
+  {
+    if (!distributionListCache.contains(distributionListName))
+    {
+      throw new IllegalArgumentException("The given distribution list is not cached: ".concat(distributionListName));
+    }
+
+    return distributionListCache.get(distributionListName);
+  }
+
+  /**
+   * Generates a {@code DistributionList} based on the given name.
+   * 
+   * The distribution list is taken from EMEAAD.
+   *
+   * @param distributionListName the name of the list to find
+   * @return a DistributionList taken from an active directory with non-MyCareer members removed
+   * @throws DistributionListException if a list by the given name does not exist on EMEAAD, or if no MyCareer members
+   *           are in the list.
+   * @throws ADConnectionException if there was a problem connecting to an ctive directory
+   */
+  public DistributionList sopraDistributionList(final String distributionListName)
       throws DistributionListException, ADConnectionException
   {
-    final LDAPQuery filter = basicQuery("cn", distributionListName);
-    final SearchResult distributionListResult = searchAD(sopraADSearchSettings, EMEAAD_DL_TREE, filter.get());
-    final List<String> allMemberDNs = getAllMembersDNs(distributionListResult);
-    final List<SearchResult> allMemberResults = getAllMemberResults(allMemberDNs);
-    final List<EmployeeProfile> employeeProfiles = getEmployeeProfiles(allMemberResults);
-
-    return new MyCareerMailingList(employeeProfiles);
+    return generateDistributionList(distributionListName, sopraADSearchSettings, SOPRA_DL_TREE, SOPRA_USER_TREE,
+        SOPRA_EMPLOYEE_ID_FIELD);
   }
 
-  public DistributionList getDistributionList(final Set<String> emailAddresses, final Set<String> invalidEmailAddresses)
-      throws DistributionListException
+  /**
+   * Generates a {@code DistributionList} based on the given name.
+   * 
+   * The distribution list is taken from ADOne.
+   *
+   * @param distributionListName the name of the list to find
+   * @return a DistributionList taken from an active directory with non-MyCareer members removed
+   * @throws DistributionListException if a list by the given name does not exist on ADOne, or if no MyCareer members
+   *           are in the list.
+   * @throws ADConnectionException if there was a problem connecting to an ctive directory
+   */
+  public DistributionList steriaDistributionList(final String distributionListName)
+      throws DistributionListException, ADConnectionException
+  {
+    return generateDistributionList(distributionListName, steriaADSearchSettings, STERIA_DL_TREE, STERIA_USER_TREE,
+        STERIA_EMPLOYEE_ID_FIELD);
+  }
+
+  /**
+   * Generates a distribution list using the given email addresses.
+   * 
+   * Any email addresses for which a valid MyCareer member cannot be found are removed from the given emailAddresses set
+   * and placed into the given invalidEmailAddresses set. The invalidEmailAddresses parameter should be an empty set.
+   *
+   * @param emailAddresses the list of email addresses to be added to the distribution list.
+   * @param invalidEmailAddresses an empty placeholder set for email addresses for which there is no valid MyCareer
+   *          employee
+   * @return the distribution list
+   * @throws DistributionListException if {@code emailAddresses} is empty or if it contains no valid MyCareer email
+   *           addresses
+   * @throws IllegalArgumentException if {@code invalidEmailAddress} is not empty
+   */
+  public DistributionList customDistributionList(final Set<String> emailAddresses,
+      final Set<String> invalidEmailAddresses) throws DistributionListException
   {
     if (!invalidEmailAddresses.isEmpty())
     {
       throw new IllegalArgumentException("Invalid email addresses set must be empty");
     }
 
-    final List<EmployeeProfile> employeeProfiles = new ArrayList<>();
+    final Set<EmployeeProfile> employeeProfiles = new HashSet<>();
 
     for (final String emailAddress : emailAddresses)
     {
@@ -81,103 +152,144 @@ public class DistributionListService
 
     emailAddresses.removeAll(invalidEmailAddresses);
 
-    return new MyCareerMailingList(employeeProfiles);
+    if (emailAddresses.isEmpty())
+    {
+      return null;
+    }
+
+    return new MyCareerMailingList(CUSTOM_LIST, employeeProfiles);
   }
 
-  private List<SearchResult> getAllMemberResults(List<String> allMembers)
-      throws ADConnectionException, DistributionListException
+  private LDAPQuery createDistributionListQuery(final String distributionListName)
+  {
+    return or(basicQuery(MAIL, distributionListName), basicQuery(DISPLAY_NAME, distributionListName),
+        basicQuery(CN, distributionListName), basicQuery(MAIL_NICKNAME, distributionListName),
+        basicQuery(NAME, distributionListName), basicQuery(SAM_ACCOUNT_NAME, distributionListName),
+        basicQuery(TARGET_ADDRESS, distributionListName));
+  }
+
+  private boolean isDistributionList(final String distributionListName, final ADSearchSettings adSearchSettings,
+      final String dlTree)
+  {
+    final LDAPQuery filter = createDistributionListQuery(distributionListName);
+    final SearchResult distributionListResult = searchAD(adSearchSettings, dlTree, filter.get());
+
+    return distributionListResult != null;
+  }
+
+  private DistributionList generateDistributionList(final String distributionListName,
+      final ADSearchSettings adSearchSettings, final String dlTree, final String userTree, final String employeeIDField)
+      throws DistributionListException, ADConnectionException
+  {
+    if (distributionListCache.contains(distributionListName))
+    {
+      return distributionListCache.get(distributionListName);
+    }
+
+    final LDAPQuery filter = createDistributionListQuery(distributionListName);
+    final SearchResult distributionListResult = searchAD(adSearchSettings, dlTree, filter.get());
+    final List<String> allMemberDNs = getAllMembersDNs(distributionListResult, adSearchSettings, dlTree);
+    final List<SearchResult> allMemberResults = getAllMemberResults(allMemberDNs, adSearchSettings, userTree,
+        employeeIDField);
+    final Set<EmployeeProfile> employeeProfiles = getEmployeeProfiles(allMemberResults, employeeIDField);
+    final DistributionList distributionList = new MyCareerMailingList(distributionListName, employeeProfiles);
+
+    return distributionList;
+  }
+
+  private List<SearchResult> getAllMemberResults(List<String> allMembers, ADSearchSettings adSearchSettings,
+      String userTree, String employeeIDField) throws ADConnectionException, DistributionListException
   {
     List<SearchResult> returnValue = null;
     List<LDAPQuery> clauses = new ArrayList<>();
     LDAPQuery query;
 
+    for (final String memberDN : allMembers)
+    {
+      clauses.add(basicQuery(DISTINGUISHED_NAME, memberDN));
+    }
+
+    query = and(or(clauses), hasField(employeeIDField));
+    
     try
     {
-      for (final String memberDN : allMembers)
-      {
-        clauses.add(and(basicQuery("distinguishedName", memberDN), hasField("extensionAttribute7")));
-      }
-
-      query = or(clauses);
-      returnValue = searchADAsList(sopraADSearchSettings, EMEAAD_USER_TREE, query.get());
+      returnValue = searchADAsList(adSearchSettings, userTree, query.get());
     }
-    catch (NamingException e)
+    catch (NamingException | NullPointerException e)
     {
-      LOGGER.error(ERROR_FETCH_MEMBERS);
-      throw new DistributionListException(ERROR_FETCH_MEMBERS, e);
+      LOGGER.warn(ERROR_FETCH_MEMBERS);
     }
 
     return returnValue;
   }
 
   @SuppressWarnings("unchecked")
-  private void addNestedMemberDNs(List<String> memberDNs) throws DistributionListException, ADConnectionException
+  private void addNestedMemberDNs(List<String> memberDNs, ADSearchSettings adSearchSettings, String dlTree)
+      throws DistributionListException, ADConnectionException
   {
     if (memberDNs.isEmpty())
     {
       return;
     }
-    
+
     List<LDAPQuery> clauses = new ArrayList<>();
     List<SearchResult> results = null;
     LDAPQuery query = null;
 
     for (final String memberDN : memberDNs)
     {
-      clauses.add(and(basicQuery("distinguishedName", memberDN), hasField("member")));
+      clauses.add(basicQuery(DISTINGUISHED_NAME, memberDN));
     }
 
-    query = or(clauses);
+    query = and(or(clauses), hasField(MEMBER));
 
     try
     {
-      results = searchADAsList(sopraADSearchSettings, EMEAAD_DL_TREE, query.get());
+      results = searchADAsList(adSearchSettings, dlTree, query.get());
 
       if (results.isEmpty())
       {
         return;
       }
     }
-    catch (NamingException e)
+    catch (NullPointerException | NamingException e)
     {
-      LOGGER.error(ERROR_FETCH_MEMBERS);
-      throw new DistributionListException(ERROR_FETCH_MEMBERS, e);
+      LOGGER.warn(ERROR_FETCH_MEMBERS);
     }
-    
+
     for (final SearchResult result : results)
     {
       addMemberDNs(result, memberDNs);
     }
-    
-    addNestedMemberDNs(memberDNs);
+
+    addNestedMemberDNs(memberDNs, adSearchSettings, dlTree);
   }
 
-  @SuppressWarnings({ "unchecked" })
-  private List<String> getAllMembersDNs(final SearchResult distributionList)
-      throws DistributionListException, ADConnectionException
+  @SuppressWarnings("unchecked")
+  private List<String> getAllMembersDNs(final SearchResult distributionList, ADSearchSettings adSearchSettings,
+      String dlTree) throws DistributionListException, ADConnectionException
   {
     final List<String> memberDNs = new ArrayList<String>();
-    
+
     addMemberDNs(distributionList, memberDNs);
-    addNestedMemberDNs(memberDNs);
-    
+    addNestedMemberDNs(memberDNs, adSearchSettings, dlTree);
+
     return memberDNs;
   }
-  
+
   @SuppressWarnings("unchecked")
   private void addMemberDNs(final SearchResult result, final List<String> memberDNs) throws DistributionListException
   {
     final Attributes attributes = result.getAttributes();
-    final Attribute members = attributes.get("member");
+    final Attribute members = attributes.get(MEMBER);
 
     try
     {
       memberDNs.addAll((List<String>) namingEnumToList(members.getAll()));
     }
-    catch (NamingException e)
+    catch (NullPointerException | NamingException e)
     {
-      LOGGER.error(ERROR_FETCH_MEMBERS);
-      throw new DistributionListException(ERROR_FETCH_MEMBERS, e);
+      LOGGER.warn(ERROR_FETCH_MEMBERS);
     }
   }
 
@@ -191,26 +303,26 @@ public class DistributionListService
     }
     catch (final ADConnectionException e)
     {
-      // TODO handle
+      LOGGER.warn(UNKNOWN_ERROR, e.getMessage());
     }
 
     return result;
   }
 
-  private List<EmployeeProfile> getEmployeeProfiles(final List<SearchResult> results)
+  private Set<EmployeeProfile> getEmployeeProfiles(final List<SearchResult> results, final String employeeIDField)
   {
-    final List<EmployeeProfile> employeeProfiles = new ArrayList<>();
+    final Set<EmployeeProfile> employeeProfiles = new HashSet<>();
 
     for (final SearchResult result : results)
     {
-      String extensionAttribute7;
+      String employeeIDString;
       Long employeeID;
       EmployeeProfile profile;
 
       try
       {
-        extensionAttribute7 = result.getAttributes().get("extensionAttribute7").get().toString();
-        employeeID = Long.parseLong(extensionAttribute7.substring(1));
+        employeeIDString = result.getAttributes().get(employeeIDField).get().toString();
+        employeeID = Long.parseLong(employeeIDString.substring(1));
         profile = employeeProfileService.fetchEmployeeProfile(employeeID);
         employeeProfiles.add(profile);
       }
@@ -220,10 +332,23 @@ public class DistributionListService
       }
       catch (final EmployeeNotFoundException e)
       {
-        /* Swallow this exception */
+        /*
+         * Swallow this exception, as it expected that DLs will occasionally have members who do not have MyCareer
+         * access. These can just be skipped over.
+         */
       }
     }
 
     return employeeProfiles;
+  }
+
+  public DistributionList cache(String name, DistributionList distributionList)
+  {
+    return distributionListCache.put(name, distributionList);
+  }
+
+  public DistributionList combine(DistributionList sopraDL, DistributionList steriaDL)
+  {
+    return sopraDL != null ? sopraDL.combine(steriaDL) : (steriaDL != null ? steriaDL : null);
   }
 }

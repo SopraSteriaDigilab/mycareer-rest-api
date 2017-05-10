@@ -197,13 +197,13 @@ public class Objective extends DBObject implements Comparable<Objective>
     this.isArchived = isArchived;
     this.setLastModified();
   }
-  
+
   @Override
   public int compareTo(Objective objective)
   {
     LocalDate ld1 = LocalDate.parse(this.getDueDate());
     LocalDate ld2 = LocalDate.parse(objective.getDueDate());
-    
+
     return (ld1.equals(ld2)) ? 0 : (ld1.isBefore(ld2) ? -1 : 1);
   }
 
@@ -230,7 +230,7 @@ public class Objective extends DBObject implements Comparable<Objective>
     }
     return differences;
   }
-  
+
   public Date getCreatedOnAsDate()
   {
     return createdOn;
@@ -240,22 +240,23 @@ public class Objective extends DBObject implements Comparable<Objective>
   {
     return dueDate;
   }
-  
+
   public Activity createActivity(final CRUD activityType, final EmployeeProfile profile)
   {
-    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb()).append(" ")
-        .append(OBJECTIVE).append(" #").append(getId()).append(": ").append(title).toString();
+    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb())
+        .append(" ").append(OBJECTIVE).append(" #").append(getId()).append(": ").append(title).toString();
 
     return new Activity(activityString, getLastModified());
   }
-  
+
   public boolean isCurrent()
   {
     final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
     final LocalDateTime lastModified = dateToLocalDateTime(getLastModifiedAsDate());
     final LocalDateTime dueDate = dateToLocalDateTime(this.dueDate);
-    final boolean isCurrent = lastModified.isAfter(cutOffDate) || dueDate.isAfter(cutOffDate);
-    
+    final boolean isCurrent = !progress.equals(Progress.COMPLETE.getProgressStr()) || lastModified.isAfter(cutOffDate)
+        || dueDate.isAfter(cutOffDate);
+
     return isCurrent;
   }
 }

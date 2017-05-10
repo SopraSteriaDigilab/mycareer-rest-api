@@ -10,7 +10,13 @@ import static utils.Validate.presentOrFutureYearMonthToLocalDate;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.YearMonth;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.management.InvalidAttributeValueException;
 import javax.validation.constraints.Max;
@@ -33,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.MongoException;
 
+import dataStructure.DocumentConversionException;
 import dataStructure.Note;
 import dataStructure.Objective;
 import dataStructure.Rating;
@@ -56,12 +63,14 @@ import utils.Utils;
 public class ManagerController
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(ManagerController.class);
-  
+
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
   private static final String ERROR_EMPTY_NOTE_PROVIDER_NAME = "Provider name can not be empty.";
   private static final String ERROR_LIMIT_PROVIDER_NAME = "Max Provider Name length is 150 characters.";
   private static final String ERROR_EMPTY_NOTE_DESCRIPTION = "Note description can not be empty.";
   private static final String ERROR_LIMIT_NOTE_DESCRIPTION = "Max Description length is 1,000 characters.";
+  private static final String ERROR_EMPTY_OBJECTIVE_DESCRIPTION = "Objective description can not be empty.";
+  private static final String ERROR_LIMIT_OBJECTIVE_DESCRIPTION = "Max Description length is 2,000 characters.";
   private static final String ERROR_LIMIT_TITLE = "Max Title length is 150 characters";
   private static final String ERROR_EMPTY_TITLE = "Title can not be empty";
   private static final String ERROR_DATE_FORMAT = "The date format is incorrect";
@@ -129,18 +138,78 @@ public class ManagerController
   @RequestMapping(value = "/proposeObjective/{employeeId}", method = POST)
   public ResponseEntity<?> proposeObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 2_000, message = ERROR_LIMIT_TITLE) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_OBJECTIVE_DESCRIPTION) @Size(max = 2_000, message = ERROR_LIMIT_OBJECTIVE_DESCRIPTION) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
       @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails)
   {
     try
     {
-      Set<String> emailSet = Utils.stringEmailsToHashSet(emails);
-      managerService.proposeObjective(employeeId,
-          new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))), emailSet);
-      return ok("Objective inserted correctly");
+      final Set<String> emailSet = Utils.stringEmailsToHashSet(emails);
+      final Set<String> invalidEmailAddresses = new HashSet<>();
+      final DistributionList customDistributionList = distributionListService.customDistributionList(emailSet,
+          invalidEmailAddresses);
+
+      if (invalidEmailAddresses.isEmpty())
+      {
+        managerService.proposeObjective(employeeId,
+            new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))),
+            customDistributionList);
+
+        return ok("Objective inserted correctly");
+      }
+      else if (emailSet.isEmpty())
+      {
+        throw new IllegalArgumentException(
+            "Employees not found for the following Email Addresses: " + invalidEmailAddresses.toString());
+      }
+      else
+      {
+        throw new IllegalArgumentException("Objective proposed for: " + emailSet.toString()
+            + ". Employees not found for the following Email Addresses: " + invalidEmailAddresses.toString());
+      }
     }
-    catch (InvalidAttributeValueException | EmployeeNotFoundException e)
+    catch (IllegalArgumentException | EmployeeNotFoundException | DocumentConversionException
+        | InvalidAttributeValueException | DistributionListException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/generateDistributionList/{employeeId}", method = POST)
+  public ResponseEntity<?> generateDistributionList(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_DL) @Size(max = 100, message = ERROR_LIMIT_DL) String distributionListName)
+  {
+    final DistributionList distributionList;
+
+    try
+    {
+      final Callable<DistributionList> sopraCallable = () -> distributionListService.isSopraDistributionList(
+          distributionListName) ? distributionListService.sopraDistributionList(distributionListName) : null;
+      final Callable<DistributionList> steriaCallable = () -> distributionListService.isSteriaDistributionList(
+          distributionListName) ? distributionListService.steriaDistributionList(distributionListName) : null;
+      final ExecutorService executor = Executors.newFixedThreadPool(2);
+      final Future<DistributionList> sopraFuture = executor.submit(sopraCallable);
+      final Future<DistributionList> steriaFuture = executor.submit(steriaCallable);
+      final DistributionList sopraDL = sopraFuture.get();
+      final DistributionList steriaDL = steriaFuture.get();
+
+      executor.shutdown();
+      distributionList = distributionListService.combine(sopraDL, steriaDL);
+
+      if (distributionList == null)
+      {
+        throw new IllegalArgumentException("No such distribution list was found: ".concat(distributionListName));
+      }
+
+      distributionListService.cache(distributionListName, distributionList);
+
+      LOGGER.debug(distributionList.toString());
+      LOGGER.debug("List size: " + distributionList.size());
+
+      return ok(distributionList);
+    }
+    catch (InterruptedException | ExecutionException | IllegalArgumentException e)
     {
       return badRequest().body(error(e.getMessage()));
     }
@@ -150,22 +219,22 @@ public class ManagerController
   public ResponseEntity<?> proposeObjectiveToDistributionList(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 2_000, message = ERROR_LIMIT_TITLE) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_OBJECTIVE_DESCRIPTION) @Size(max = 2_000, message = ERROR_LIMIT_OBJECTIVE_DESCRIPTION) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
       @RequestParam @NotBlank(message = ERROR_EMPTY_DL) @Size(max = 100, message = ERROR_LIMIT_DL) String distributionListName)
   {
     try
     {
-      final DistributionList distributionList = distributionListService.getDistributionList(distributionListName);
-      LOGGER.info(distributionList.toString());
-      final Objective objective = new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)));
-      LOGGER.info(objective.toString());
-      LOGGER.info("List size: " + distributionList.size());
-//      managerService.proposeObjective(employeeId, objective, distributionList);
+      final Objective objective = new Objective(title, description,
+          presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)));
+      final DistributionList distributionList = distributionListService.getCachedDistributionList(distributionListName);
 
-      return ok(distributionList);
+      managerService.proposeObjective(employeeId, objective, distributionList);
+
+      return ok("Objective inserted correctly");
     }
-    catch (InvalidAttributeValueException | DistributionListException | ADConnectionException e)
+    catch (IllegalArgumentException | DocumentConversionException | EmployeeNotFoundException
+        | InvalidAttributeValueException e)
     {
       return badRequest().body(error(e.getMessage()));
     }

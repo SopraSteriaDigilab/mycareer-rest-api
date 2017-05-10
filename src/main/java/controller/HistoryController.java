@@ -48,7 +48,6 @@ public class HistoryController
     try
     {
       final Employee employee = hrService.getMyCareer(employeeId);
-      final EmployeeProfile profile = employee.getProfile();
       
       return ok(employee);
     }

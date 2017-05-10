@@ -1,6 +1,7 @@
 package services.mappers;
 
 import static utils.Conversions.ldapTimestampToDate;
+import static services.ad.query.LDAPQueries.*;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,23 +35,6 @@ public class EmployeeProfileMapper
   private static final String EMPLOYEE_NOT_FOUND = "Cannot create an EmployeeProfile: Exception thrown while fetching employeeID: ";
   private static final String HR_PERMISSION_NOT_FOUND = "Exception while fetching HR Dashboard Permission: {}";
   private static final String ATTRIBUTE_NOT_FOUND = "Exception while fetching attribute, {}: {}";
-
-  private static final String EMPLOYEE_TYPE = "employeeType";
-  private static final String EMPLOYEE = "EMP";
-  private static final String SN = "sn";
-  private static final String GIVEN_NAME = "givenName";
-  private static final String MAIL = "mail";
-  private static final String TARGET_ADDRESS = "targetAddress";
-  private static final String SAM_ACCOUNT_NAME = "sAMAccountName";
-  private static final String COMPANY = "company";
-  private static final String DEPARTMENT = "department";
-  private static final String MEMBER_OF = "memberOf";
-  private static final String EXTENSION_ATTRIBUTE_2 = "extensionAttribute2";
-  private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
-  private static final String DIRECT_REPORTS = "directReports";
-  private static final String OU = "ou";
-  private static final String STERIA_SECTOR_UNIT = "SteriaSectorUnit";
-  private static final String ACCOUNT_EXPIRES = "accountExpires";
 
   private EmployeeProfile profile = new EmployeeProfile();
 

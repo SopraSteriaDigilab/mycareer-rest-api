@@ -6,6 +6,7 @@ import static services.ad.ADOperations.*;
 import static services.mappers.EmployeeProfileMapper.*;
 import static com.mongodb.client.model.Filters.*;
 import static utils.Validate.*;
+import static services.ad.query.LDAPQueries.*;
 
 import javax.naming.directory.SearchResult;
 
@@ -18,6 +19,7 @@ import com.mongodb.MongoException;
 import dataStructure.EmployeeProfile;
 import services.ad.ADConnectionException;
 import services.ad.ADSearchSettings;
+import services.ad.query.LDAPQueries;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 
@@ -45,7 +47,6 @@ public class EmployeeProfileService
 
   // Sopra AD Details
   private static final String AD_SOPRA_TREE = "ou=usersemea,DC=emea,DC=msad,DC=sopra";
-  private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
 
   private final ADSearchSettings sopraADSearchSettings;
   private final MorphiaOperations morphiaOperations;
@@ -193,7 +194,7 @@ public class EmployeeProfileService
 
   private boolean isUniqueEmailAddress(String emailAddress)
   {
-    final String[] emailFields = { MAIL, TARGET_ADDRESS, USER_ADDRESS };
+    final String[] emailFields = { LDAPQueries.MAIL, LDAPQueries.TARGET_ADDRESS, USER_ADDRESS };
     boolean unique = false;
     
     for (final String field : emailFields)
@@ -251,7 +252,7 @@ public class EmployeeProfileService
 
   private boolean hasHRDash(final long employeeID) throws ADConnectionException
   {
-    final String filter = "(extensionAttribute7=s" + employeeID + ")";
+    final String filter = basicQuery(EXTENSION_ATTRIBUTE_7, "s" + employeeID).get();
     final SearchResult result = searchADSingleResult(sopraADSearchSettings, AD_SOPRA_TREE, filter);
 
     return mapHRPermission(result.getAttributes());

@@ -22,7 +22,7 @@ public abstract class DBObject implements Serializable
   /** long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = 1L;
 
-  private static final String DOCUMENT_CONVERSION_EXCPETION = "Error convertion DBObject to Document";
+  private static final String DOCUMENT_CONVERSION_EXCPETION = "Error converting DBObject to Document";
 
   /** int Property - Represents Unique ID for the object. */
   private int id;

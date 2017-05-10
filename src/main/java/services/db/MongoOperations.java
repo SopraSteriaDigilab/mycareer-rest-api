@@ -38,7 +38,7 @@ public class MongoOperations
    */
   public enum Collection
   {
-    EMPLOYEE("employeeDataDev"), OBJECTIVES_HISTORY("objectivesHistories"), DEVELOPMENT_NEEDS_HISTORY(
+    EMPLOYEE("employees"), OBJECTIVES_HISTORY("objectivesHistories"), DEVELOPMENT_NEEDS_HISTORY(
         "developmentNeedsHistories"), COMPETENCIES_HISTORY("competenciesHistories");
 
     private String collectionStr;

@@ -29,9 +29,9 @@ import services.EmployeeNotFoundException;
 public class MorphiaOperations
 {
   private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: ";
-  
+
   private final Datastore datastore;
-  
+
   /**
    * 
    * TYPE Constructor - Responsible for initialising this object.
@@ -68,15 +68,15 @@ public class MorphiaOperations
   public <T> Employee getEmployeeOrThrow(final String field, final T value) throws EmployeeNotFoundException
   {
     Employee employee = datastore.find(Employee.class, field, value).get();
-    
+
     if (employee == null)
     {
       throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + field + ": " + value);
     }
-    
+
     return employee;
   }
-  
+
   /**
    * Retrieves an employee object from the database by matching the given email address
    *
@@ -90,8 +90,25 @@ public class MorphiaOperations
     Criteria targetAddress = query.criteria(TARGET_ADDRESS).equal(emailAddress);
     Criteria userAddress = query.criteria(USER_ADDRESS).equal(emailAddress);
     query.or(mail, targetAddress, userAddress);
-    
+
     return query.get();
+  }
+
+  /**
+   * Retrieves an employee object from the database by matching the given email address
+   *
+   * @param emailAddress the email address to search for
+   * @return the {@code Employee} object or throws exception if null
+   * @throws EmployeeNotFoundException
+   */
+  public Employee getEmployeeFromEmailAddressOrThrow(String emailAddress) throws EmployeeNotFoundException
+  {
+    Employee employee = getEmployeeFromEmailAddress(emailAddress);
+
+    if (employee == null)
+      throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + emailAddress);
+
+    return employee;
   }
 
   /**

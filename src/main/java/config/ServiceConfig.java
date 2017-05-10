@@ -1,5 +1,7 @@
 package config;
 
+import java.util.HashMap;
+
 import org.mongodb.morphia.Datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,9 @@ import services.ManagerService;
 import services.ad.ADSearchSettings;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
+import services.ews.Cache;
+import services.ews.DistributionList;
+import services.ews.DistributionListCache;
 import services.ews.DistributionListService;
 
 @Configuration
@@ -50,6 +55,9 @@ public class ServiceConfig
   @Autowired
   private ADSearchSettings sopraADSearchSettings;
 
+  @Autowired
+  private ADSearchSettings steriaADSearchSettings;
+
   @Bean
   public EmployeeService employeeService()
   {
@@ -73,7 +81,13 @@ public class ServiceConfig
   @Bean
   public DistributionListService distributionListService()
   {
-    return new DistributionListService(employeeProfileService(), sopraADSearchSettings);
+    return new DistributionListService(distributionListCache(), employeeProfileService(), sopraADSearchSettings, steriaADSearchSettings);
+  }
+  
+  @Bean
+  public Cache<String, DistributionList> distributionListCache()
+  {
+    return new DistributionListCache(new HashMap<String, DistributionList>());
   }
   
   @Bean
