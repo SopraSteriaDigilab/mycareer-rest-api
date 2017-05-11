@@ -230,7 +230,7 @@ public class EmployeeProfileService
     }
     catch (final NullPointerException e)
     {
-      LOGGER.error(EMPLOYEE_NOT_FOUND_LOG, field, value);
+      LOGGER.warn(EMPLOYEE_NOT_FOUND_LOG, field, value);
       throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + value);
     }
 

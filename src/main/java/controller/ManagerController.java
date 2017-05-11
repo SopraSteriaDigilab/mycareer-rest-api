@@ -7,7 +7,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static utils.Validate.presentOrFutureYearMonthToLocalDate;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.YearMonth;
 import java.util.HashSet;
@@ -45,8 +44,6 @@ import dataStructure.Objective;
 import dataStructure.Rating;
 import services.EmployeeNotFoundException;
 import services.ManagerService;
-import services.ad.ADConnectionException;
-import services.ews.MyCareerMailingList;
 import services.ews.DistributionList;
 import services.ews.DistributionListException;
 import services.ews.DistributionListService;
@@ -181,38 +178,47 @@ public class ManagerController
       @RequestParam @NotBlank(message = ERROR_EMPTY_DL) @Size(max = 100, message = ERROR_LIMIT_DL) String distributionListName)
   {
     final DistributionList distributionList;
+    final Callable<DistributionList> sopraCallable = () -> distributionListService.isSopraDistributionList(
+        distributionListName) ? distributionListService.sopraDistributionList(distributionListName) : null;
+    final Callable<DistributionList> steriaCallable = () -> distributionListService.isSteriaDistributionList(
+        distributionListName) ? distributionListService.steriaDistributionList(distributionListName) : null;
+    final ExecutorService executor = Executors.newFixedThreadPool(2);
+    final Future<DistributionList> sopraFuture = executor.submit(sopraCallable);
+    final Future<DistributionList> steriaFuture = executor.submit(steriaCallable);
+    DistributionList sopraDL = null;
+    DistributionList steriaDL = null;
 
     try
     {
-      final Callable<DistributionList> sopraCallable = () -> distributionListService.isSopraDistributionList(
-          distributionListName) ? distributionListService.sopraDistributionList(distributionListName) : null;
-      final Callable<DistributionList> steriaCallable = () -> distributionListService.isSteriaDistributionList(
-          distributionListName) ? distributionListService.steriaDistributionList(distributionListName) : null;
-      final ExecutorService executor = Executors.newFixedThreadPool(2);
-      final Future<DistributionList> sopraFuture = executor.submit(sopraCallable);
-      final Future<DistributionList> steriaFuture = executor.submit(steriaCallable);
-      final DistributionList sopraDL = sopraFuture.get();
-      final DistributionList steriaDL = steriaFuture.get();
-
-      executor.shutdown();
-      distributionList = distributionListService.combine(sopraDL, steriaDL);
-
-      if (distributionList == null)
-      {
-        throw new IllegalArgumentException("No such distribution list was found: ".concat(distributionListName));
-      }
-
-      distributionListService.cache(distributionListName, distributionList);
-
-      LOGGER.debug(distributionList.toString());
-      LOGGER.debug("List size: " + distributionList.size());
-
-      return ok(distributionList);
+      sopraDL = sopraFuture.get();
     }
-    catch (InterruptedException | ExecutionException | IllegalArgumentException e)
+    catch (InterruptedException | ExecutionException e)
     {
-      return badRequest().body(error(e.getMessage()));
+      LOGGER.info(e.getCause().getMessage());
     }
+
+    try
+    {
+      steriaDL = steriaFuture.get();
+    }
+    catch (InterruptedException | ExecutionException e)
+    {
+      LOGGER.info(e.getCause().getMessage());
+    }
+
+    executor.shutdown();
+    distributionList = distributionListService.combine(sopraDL, steriaDL);
+    distributionListService.cache(distributionListName, distributionList);
+
+    if (distributionList == null)
+    {
+      return badRequest().body(error("No such distribution list was found: ".concat(distributionListName)));
+    }
+
+    LOGGER.debug(distributionList.toString());
+    LOGGER.debug("List size: " + distributionList.size());
+
+    return ok(distributionList);
   }
 
   @RequestMapping(value = "/proposeObjectiveToDistributionList/{employeeId}", method = POST)

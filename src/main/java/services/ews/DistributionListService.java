@@ -2,8 +2,8 @@ package services.ews;
 
 import static services.ad.ADOperations.*;
 import static services.ad.query.LDAPQueries.*;
-import static utils.Conversions.*;
 import static services.ews.DistributionList.*;
+import static utils.Conversions.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,6 +30,8 @@ public class DistributionListService
   private static final Logger LOGGER = LoggerFactory.getLogger(DistributionListService.class);
 
   private static final String ERROR_FETCH_MEMBERS = "Error encountered while fetching members of this distribution list.  It may not have any members, or it may not be a list.";
+  // private static final String ERROR_FETCH_MEMBER_OFS = "Error encountered while fetching a DNs groups. Cancelling
+  // operation to avoid an overflow";
   private static final String UNKNOWN_ERROR = "ADConnectionException encountered while searching for a distribution list: {}";
 
   private static final String SOPRA_DL_TREE = "DC=emea,DC=msad,DC=sopra";
@@ -55,24 +57,26 @@ public class DistributionListService
     this.steriaADSearchSettings = steriaADSearchSettings;
   }
 
+  /**
+   * Checks the Sopra AD (EMEAAD) for the existence of the given distributionListName.
+   *
+   * @param distributionListName the name to search for
+   * @return {@code true} if the name exists and is found, {@code false} otherwise.
+   */
   public boolean isSopraDistributionList(final String distributionListName)
   {
     return isDistributionList(distributionListName, sopraADSearchSettings, SOPRA_DL_TREE);
   }
 
+  /**
+   * Checks the Steria AD (ADOne) for the existence of the given distributionListName.
+   *
+   * @param distributionListName the name to search for
+   * @return {@code true} if the name exists and is found, {@code false} otherwise.
+   */
   public boolean isSteriaDistributionList(final String distributionListName)
   {
     return isDistributionList(distributionListName, steriaADSearchSettings, STERIA_DL_TREE);
-  }
-
-  public DistributionList getCachedDistributionList(String distributionListName)
-  {
-    if (!distributionListCache.contains(distributionListName))
-    {
-      throw new IllegalArgumentException("The given distribution list is not cached: ".concat(distributionListName));
-    }
-
-    return distributionListCache.get(distributionListName);
   }
 
   /**
@@ -160,6 +164,48 @@ public class DistributionListService
     return new MyCareerMailingList(CUSTOM_LIST, employeeProfiles);
   }
 
+  /**
+   * Returns a DistributionList with the given name from the cache.
+   *
+   * @param distributionListName the name of the DistributionList to return
+   * @return the DistributionList with the given name
+   * @throws IllegalArgumentException if no DistributionList with the given name exists in the cache
+   */
+  public DistributionList getCachedDistributionList(String distributionListName) throws IllegalArgumentException
+  {
+    if (!distributionListCache.contains(distributionListName))
+    {
+      throw new IllegalArgumentException("The given distribution list is not cached: ".concat(distributionListName));
+    }
+
+    return distributionListCache.get(distributionListName);
+  }
+
+  /**
+   * Adds the given DistributionList to the cache, with the given name as a reference
+   *
+   * @param name the name of the DistributionList
+   * @param distributionList the DistributionList to cache
+   * @return the DistributionList previously associated with this name, or {@code null} if the name was previously
+   *         unassociated
+   */
+  public DistributionList cache(String name, DistributionList distributionList)
+  {
+    return distributionListCache.put(name, distributionList);
+  }
+
+  /**
+   * Combines the two given DistributionLists into a single list.
+   *
+   * @param dlOne a DistributionList
+   * @param dlTwo another DistributionList
+   * @return the union of the two given DistributionLists
+   */
+  public DistributionList combine(DistributionList dlOne, DistributionList dlTwo)
+  {
+    return dlOne != null ? dlOne.combine(dlTwo) : (dlTwo != null ? dlTwo : null);
+  }
+
   private LDAPQuery createDistributionListQuery(final String distributionListName)
   {
     return or(basicQuery(MAIL, distributionListName), basicQuery(DISPLAY_NAME, distributionListName),
@@ -188,8 +234,8 @@ public class DistributionListService
 
     final LDAPQuery filter = createDistributionListQuery(distributionListName);
     final SearchResult distributionListResult = searchAD(adSearchSettings, dlTree, filter.get());
-    final Set<String> allMemberDNs = getAllMembersDNs(distributionListResult, adSearchSettings, dlTree);
-    final List<SearchResult> allMemberResults = getAllMemberResults(allMemberDNs, adSearchSettings, userTree,
+    // final Set<String> allMemberDNs = getAllMembersDNs(distributionListResult, adSearchSettings, dlTree);
+    final List<SearchResult> allMemberResults = getAllMemberResults(distributionListResult, adSearchSettings, userTree,
         employeeIDField);
     final Set<EmployeeProfile> employeeProfiles = getEmployeeProfiles(allMemberResults, employeeIDField);
     final DistributionList distributionList = new MyCareerMailingList(distributionListName, employeeProfiles);
@@ -197,100 +243,117 @@ public class DistributionListService
     return distributionList;
   }
 
-  private List<SearchResult> getAllMemberResults(Set<String> allMembers, ADSearchSettings adSearchSettings,
-      String userTree, String employeeIDField) throws ADConnectionException, DistributionListException
+  @SuppressWarnings("unchecked")
+  private List<SearchResult> getAllMemberResults(final SearchResult dlResult, final ADSearchSettings adSearchSettings,
+      final String userTree, final String employeeIDField) throws ADConnectionException, DistributionListException
   {
-    List<SearchResult> returnValue = null;
-    Set<LDAPQuery> clauses = new HashSet<>();
-    LDAPQuery query;
+    final List<SearchResult> allPersonResults = new ArrayList<>();
+    final List<SearchResult> dLResults = new ArrayList<>();
+    dLResults.add(dlResult);
 
-    for (final String memberDN : allMembers)
-    {
-      clauses.add(basicQuery(DISTINGUISHED_NAME, memberDN));
-    }
+    addDLMembersToSet(dLResults, allPersonResults, adSearchSettings, userTree, employeeIDField);
 
-    query = and(or(clauses), hasField(employeeIDField));
-    
-    try
-    {
-      returnValue = searchADAsList(adSearchSettings, userTree, query.get());
-    }
-    catch (NamingException | NullPointerException e)
-    {
-      LOGGER.warn(ERROR_FETCH_MEMBERS);
-    }
-
-    return returnValue;
+    return allPersonResults;
   }
 
-  @SuppressWarnings("unchecked")
-  private void addNestedMemberDNs(Set<String> memberDNs, ADSearchSettings adSearchSettings, String dlTree)
-      throws DistributionListException, ADConnectionException
+  private void addDLMembersToSet(final List<SearchResult> dlResults, final List<SearchResult> allPersonResults,
+      final ADSearchSettings adSearchSettings, final String userTree, final String employeeIDField)
+      throws ADConnectionException
   {
-    if (memberDNs.isEmpty())
-    {
-      return;
-    }
-
-    Set<LDAPQuery> clauses = new HashSet<>();
-    List<SearchResult> results = null;
-    LDAPQuery query = null;
+    List<SearchResult> allResults = null;
+    final Set<String> memberDNs = addMembersToSet(dlResults);
+    final Set<LDAPQuery> clauses = new HashSet<>();
+    final LDAPQuery query;
 
     for (final String memberDN : memberDNs)
     {
       clauses.add(basicQuery(DISTINGUISHED_NAME, memberDN));
     }
 
-    query = and(or(clauses), hasField(MEMBER));
+    query = or(clauses);
 
     try
     {
-      results = searchADAsList(adSearchSettings, dlTree, query.get());
+      allResults = searchADAsList(adSearchSettings, userTree, query.get());
+    }
+    catch (NamingException | NullPointerException e)
+    {
+      LOGGER.warn(ERROR_FETCH_MEMBERS);
+    }
 
-      if (results.isEmpty())
+    dlResults.clear();
+
+    for (final SearchResult result : allResults)
+    {
+      if (isPerson(result, employeeIDField))
       {
-        return;
+        allPersonResults.add(result);
+      }
+      else if (hasMembers(result))
+      {
+        dlResults.add(result);
+      }
+      else
+      {
+        // TODO this shouldn't happen but if it does...?
       }
     }
-    catch (NullPointerException | NamingException e)
+
+    if (!dlResults.isEmpty())
     {
-      LOGGER.warn(ERROR_FETCH_MEMBERS);
+      addDLMembersToSet(dlResults, allPersonResults, adSearchSettings, userTree, employeeIDField);
+    }
+  }
+
+  private boolean isPerson(final SearchResult result, final String employeeIDField)
+  {
+    final Attribute employeeIDAttribute = getAttribute(result, employeeIDField);
+
+    return employeeIDAttribute != null;
+  }
+
+  private boolean hasMembers(final SearchResult result)
+  {
+    final Attribute memberAttribute = getAttribute(result, MEMBER);
+
+    return memberAttribute != null;
+  }
+
+  private Set<String> addMembersToSet(final List<SearchResult> dlResults)
+  {
+    final Set<String> allMembers = new HashSet<>();
+
+    for (final SearchResult dlResult : dlResults)
+    {
+      allMembers.addAll(addMembersToSet(dlResult));
     }
 
-    for (final SearchResult result : results)
-    {
-      addMemberDNs(result, memberDNs);
-    }
-
-    addNestedMemberDNs(memberDNs, adSearchSettings, dlTree);
+    return allMembers;
   }
 
   @SuppressWarnings("unchecked")
-  private Set<String> getAllMembersDNs(final SearchResult distributionList, ADSearchSettings adSearchSettings,
-      String dlTree) throws DistributionListException, ADConnectionException
+  private Set<String> addMembersToSet(final SearchResult dlResult)
   {
-    final Set<String> memberDNs = new HashSet<String>();
-
-    addMemberDNs(distributionList, memberDNs);
-    addNestedMemberDNs(memberDNs, adSearchSettings, dlTree);
-
-    return memberDNs;
-  }
-
-  @SuppressWarnings("unchecked")
-  private void addMemberDNs(final SearchResult result, final Set<String> memberDNs) throws DistributionListException
-  {
-    final Attributes attributes = result.getAttributes();
-    final Attribute members = attributes.get(MEMBER);
+    final Set<String> members = new HashSet<>();
+    final Attribute membersAttribute = getAttribute(dlResult, MEMBER);
 
     try
     {
-      memberDNs.addAll((List<String>) namingEnumToList(members.getAll()));
+      members.addAll((List<String>) namingEnumToList(membersAttribute.getAll()));
     }
-    catch (NullPointerException | NamingException e)
+    catch (final NamingException e)
     {
-      LOGGER.warn(ERROR_FETCH_MEMBERS);
+      // TODO handle
     }
+
+    return members;
+  }
+
+  private Attribute getAttribute(final SearchResult result, final String fieldName)
+  {
+    final Attributes attributes = result.getAttributes();
+
+    return attributes.get(fieldName);
   }
 
   private SearchResult searchAD(final ADSearchSettings settings, final String tree, final String filter)
@@ -340,15 +403,5 @@ public class DistributionListService
     }
 
     return employeeProfiles;
-  }
-
-  public DistributionList cache(String name, DistributionList distributionList)
-  {
-    return distributionListCache.put(name, distributionList);
-  }
-
-  public DistributionList combine(DistributionList sopraDL, DistributionList steriaDL)
-  {
-    return sopraDL != null ? sopraDL.combine(steriaDL) : (steriaDL != null ? steriaDL : null);
   }
 }
