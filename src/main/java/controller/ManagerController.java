@@ -178,10 +178,10 @@ public class ManagerController
       @RequestParam @NotBlank(message = ERROR_EMPTY_DL) @Size(max = 100, message = ERROR_LIMIT_DL) String distributionListName)
   {
     final DistributionList distributionList;
-    final Callable<DistributionList> sopraCallable = () -> distributionListService.isSopraDistributionList(
-        distributionListName) ? distributionListService.sopraDistributionList(distributionListName) : null;
-    final Callable<DistributionList> steriaCallable = () -> distributionListService.isSteriaDistributionList(
-        distributionListName) ? distributionListService.steriaDistributionList(distributionListName) : null;
+    final Callable<DistributionList> sopraCallable = () -> distributionListService
+        .sopraDistributionList(distributionListName);
+    final Callable<DistributionList> steriaCallable = () -> distributionListService
+        .steriaDistributionList(distributionListName);
     final ExecutorService executor = Executors.newFixedThreadPool(2);
     final Future<DistributionList> sopraFuture = executor.submit(sopraCallable);
     final Future<DistributionList> steriaFuture = executor.submit(steriaCallable);
@@ -212,7 +212,9 @@ public class ManagerController
 
     if (distributionList == null)
     {
-      return badRequest().body(error("No such distribution list was found: ".concat(distributionListName)));
+      return badRequest()
+          .body(error("The distribution list could not be generated, it may not exist, or it may be inaccessible: "
+              .concat(distributionListName)));
     }
 
     LOGGER.debug(distributionList.toString());

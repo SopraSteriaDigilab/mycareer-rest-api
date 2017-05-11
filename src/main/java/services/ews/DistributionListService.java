@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -234,11 +235,20 @@ public class DistributionListService
 
     final LDAPQuery filter = createDistributionListQuery(distributionListName);
     final SearchResult distributionListResult = searchAD(adSearchSettings, dlTree, filter.get());
-    // final Set<String> allMemberDNs = getAllMembersDNs(distributionListResult, adSearchSettings, dlTree);
     final List<SearchResult> allMemberResults = getAllMemberResults(distributionListResult, adSearchSettings, userTree,
         employeeIDField);
     final Set<EmployeeProfile> employeeProfiles = getEmployeeProfiles(allMemberResults, employeeIDField);
-    final DistributionList distributionList = new MyCareerMailingList(distributionListName, employeeProfiles);
+    DistributionList distributionList;
+
+    try
+    {
+      distributionList = new MyCareerMailingList(distributionListName, employeeProfiles);
+    }
+    catch (final DistributionListException e)
+    {
+      distributionList = null;
+      LOGGER.info(e.getMessage() + ": " + distributionListName);
+    }
 
     return distributionList;
   }
@@ -260,8 +270,14 @@ public class DistributionListService
       final ADSearchSettings adSearchSettings, final String userTree, final String employeeIDField)
       throws ADConnectionException
   {
-    List<SearchResult> allResults = null;
     final Set<String> memberDNs = addMembersToSet(dlResults);
+
+    if (memberDNs.isEmpty())
+    {
+      return;
+    }
+
+    List<SearchResult> allResults = null;
     final Set<LDAPQuery> clauses = new HashSet<>();
     final LDAPQuery query;
 
@@ -353,6 +369,20 @@ public class DistributionListService
   {
     final Attributes attributes = result.getAttributes();
 
+    NamingEnumeration<String> ids = attributes.getIDs();
+
+    try
+    {
+      while (ids.hasMore())
+      {
+        LOGGER.info(ids.next().toString());
+      }
+    }
+    catch (Exception e)
+    {
+      LOGGER.info("error while printing IDs");
+    }
+
     return attributes.get(fieldName);
   }
 
@@ -387,7 +417,11 @@ public class DistributionListService
         employeeIDString = result.getAttributes().get(employeeIDField).get().toString();
         employeeID = Long.parseLong(employeeIDString.substring(1));
         profile = employeeProfileService.fetchEmployeeProfile(employeeID);
-        employeeProfiles.add(profile);
+        
+        if (profile.getAccountExpires() == null)
+        {
+          employeeProfiles.add(profile);
+        }
       }
       catch (final NamingException | NullPointerException e)
       {
