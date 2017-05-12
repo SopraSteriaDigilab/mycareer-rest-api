@@ -1,15 +1,11 @@
 package services;
 
-import static dataStructure.Constants.UK_TIMEZONE;
 import static dataStructure.EmployeeProfile.*;
 import static dataStructure.Employee.*;
 import static dataStructure.CRUD.*;
-import static services.db.MongoOperations.developmentNeedHistoryIdFilter;
-import static services.db.MongoOperations.objectiveHistoryIdFilter;
-import static utils.Utils.generateFeedbackRequestID;
-import static utils.Utils.getEmployeeIDFromRequestID;
+import static services.db.MongoOperations.*;
+import static utils.Utils.*;
 import static utils.Conversions.*;
-import static utils.Utils.stringEmailsToHashSet;
 import static com.mongodb.client.model.Filters.*;
 
 import java.io.FileNotFoundException;
@@ -28,7 +24,6 @@ import javax.management.InvalidAttributeValueException;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;

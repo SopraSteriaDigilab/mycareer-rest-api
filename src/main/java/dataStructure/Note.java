@@ -1,11 +1,9 @@
 package dataStructure;
 
-import static dataStructure.Constants.UK_TIMEZONE;
 import static utils.Conversions.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 

@@ -1,6 +1,6 @@
 package utils;
 
-import static dataStructure.Constants.UK_TIMEZONE;
+import static utils.Conversions.*;
 
 import java.time.LocalDate;
 import java.time.YearMonth;

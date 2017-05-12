@@ -1,6 +1,5 @@
 package dataStructure;
 
-import static dataStructure.Constants.INVALID_NULLREPORTEE;
 import static utils.Utils.*;
 import static dataStructure.EmailAddresses.*;
 
@@ -304,30 +303,6 @@ public class EmployeeProfile implements Serializable
   }
 
   /**
-   * This method adds a reportee's CN to the list of reportees
-   * 
-   * @param cn
-   * @return true of false indicating whether the operation was successful or not
-   * @throws InvalidAttributeValueException
-   */
-  public boolean addReportee(String cn) throws InvalidAttributeValueException
-  {
-    if (this.reporteeCNs == null)
-    {
-      this.reporteeCNs = new ArrayList<>();
-    }
-
-    if (cn != null && cn.length() > 1)
-    {
-      return this.reporteeCNs.add(cn);
-    }
-    else
-    {
-      throw new InvalidAttributeValueException(INVALID_NULLREPORTEE);
-    }
-  }
-
-  /**
    * @return A {@code Document} representation of this employee profile.
    */
   public Document toDocument()
@@ -404,8 +379,8 @@ public class EmployeeProfile implements Serializable
   @Override
   public int hashCode()
   {
-    return Objects.hash(employeeID, employeeType, surname, forename, username, emailAddresses, isManager, hasHRDash, company,
-        steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
+    return Objects.hash(employeeID, employeeType, surname, forename, username, emailAddresses, isManager, hasHRDash,
+        company, steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
   }
 
   @Override

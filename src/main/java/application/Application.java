@@ -1,9 +1,5 @@
 package application;
 
-import static dataStructure.Constants.DEV_SERVER_NAME;
-import static dataStructure.Constants.LIVE_SERVER_NAME;
-import static dataStructure.Constants.UAT_SERVER_NAME;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -21,8 +17,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class Application
 {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
+  
+  // Server names
+  public static final String DEV_SERVER_NAME = "ldunsmycareerdev01";
+  public static final String UAT_SERVER_NAME = "ldunsmycareeruat01";
+  public static final String LIVE_SERVER_NAME = "ldunsmycareer01";
 
   public static void main(String[] args)
   {

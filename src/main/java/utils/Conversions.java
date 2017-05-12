@@ -1,10 +1,9 @@
 package utils;
 
-import static dataStructure.Constants.UK_TIMEZONE;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,6 +17,8 @@ import org.slf4j.LoggerFactory;
 public class Conversions
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(Conversions.class);
+  
+  public static final ZoneId UK_TIMEZONE = ZoneId.of("Europe/London");
   
   private Conversions() {}
   

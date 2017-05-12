@@ -1,6 +1,5 @@
 package dataStructure;
 
-import static dataStructure.Constants.UK_TIMEZONE;
 import static utils.Conversions.*;
 
 import java.io.IOException;

@@ -31,8 +31,6 @@ public class DistributionListService
   private static final Logger LOGGER = LoggerFactory.getLogger(DistributionListService.class);
 
   private static final String ERROR_FETCH_MEMBERS = "Error encountered while fetching members of this distribution list.  It may not have any members, or it may not be a list.";
-  // private static final String ERROR_FETCH_MEMBER_OFS = "Error encountered while fetching a DNs groups. Cancelling
-  // operation to avoid an overflow";
   private static final String UNKNOWN_ERROR = "ADConnectionException encountered while searching for a distribution list: {}";
 
   private static final String SOPRA_DL_TREE = "DC=emea,DC=msad,DC=sopra";
