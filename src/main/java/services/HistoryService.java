@@ -8,8 +8,6 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import dataStructure.DevelopmentNeed;
-import dataStructure.Employee;
-import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.Note;
 import dataStructure.Objective;

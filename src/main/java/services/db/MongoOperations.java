@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.bson.types.BasicBSONList;
 
 import com.mongodb.Block;
 import com.mongodb.MongoClient;
@@ -180,7 +179,6 @@ public class MongoOperations
     return resultList;
   }
 
-  @SuppressWarnings("unchecked")
   private List<Document> aggregationResultsToList(final AggregateIterable<Document> aggregationResults)
   {
     List<Document> resultList = new ArrayList<>();

@@ -24,6 +24,8 @@ public class Conversions
   
   public static <E> List<E> namingEnumToList(NamingEnumeration<E> namingEnum) throws NamingException
   {
+    LOGGER.debug("Converting NamingEnumeration to a List");
+    
     final List<E> result = new ArrayList<>();
     
     while (namingEnum.hasMore())
@@ -36,6 +38,8 @@ public class Conversions
   
   public static Date ldapTimestampToDate(final String ldapTimestamp)
   {
+    LOGGER.debug("Converting LDAP timestamp to java.util.Date");
+    
     long ldapTime = Long.parseLong(ldapTimestamp);
     long unixTime = (ldapTime - 0x19db1ded53e8000L) / 10_000L;
     
@@ -50,6 +54,8 @@ public class Conversions
    */
   public static Date localDatetoDate(LocalDate localDate)
   {
+    LOGGER.debug("Converting java.time.LocalDate to a java.util.Date");
+    
     return Date.from(localDate.atStartOfDay(UK_TIMEZONE).toInstant());
   }
 
@@ -61,6 +67,8 @@ public class Conversions
    */
   public static LocalDate dateToLocalDate(Date date)
   {
+    LOGGER.debug("Converting java.util.Date to a java.time.LocalDate");
+    
     return date.toInstant().atZone(UK_TIMEZONE).toLocalDate();
   }
 
@@ -72,6 +80,8 @@ public class Conversions
    */
   public static Date localDateTimetoDate(LocalDateTime localDateTime)
   {
+    LOGGER.debug("Converting java.time.LocalDateTime to a java.util.Date");
+    
     return Date.from(localDateTime.atZone(UK_TIMEZONE).toInstant());
   }
 
@@ -83,6 +93,8 @@ public class Conversions
    */
   public static LocalDateTime dateToLocalDateTime(Date date)
   {
+    LOGGER.debug("Converting java.util.Date to a java.time.LocalDateTime");
+    
     Instant instant = date.toInstant();
     return instant.atZone(UK_TIMEZONE).toLocalDateTime();
   }

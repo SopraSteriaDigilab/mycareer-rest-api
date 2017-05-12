@@ -6,7 +6,6 @@ package dataStructure;
  */
 public class DocumentConversionException extends Exception
 {
-
   /** long Constant - Represents the serial version. */
   private static final long serialVersionUID = 1L;
   

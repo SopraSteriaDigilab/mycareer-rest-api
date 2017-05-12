@@ -1,8 +1,7 @@
 package controller;
 
-import static application.GlobalExceptionHandler.error;
-import static org.springframework.http.ResponseEntity.badRequest;
-import static org.springframework.http.ResponseEntity.ok;
+import static application.GlobalExceptionHandler.*;
+import static org.springframework.http.ResponseEntity.*;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 import javax.validation.constraints.Min;
@@ -14,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dataStructure.Employee;
@@ -44,10 +42,20 @@ public class HRController
   @Autowired
   private EmployeeProfileService employeeProfileService;
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param searchEmployeeId
+   * @return
+   */
   @RequestMapping(value = "/{employeeId}/getCareer/{searchEmployeeId}", method = GET)
   public ResponseEntity<?> getMyCareer(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long searchEmployeeId)
   {
+    LOGGER.debug("/hr/getCareer called");
+
     try
     {
       final Employee employee = hrService.getMyCareer(searchEmployeeId);
@@ -75,6 +83,8 @@ public class HRController
   @RequestMapping(value = "/getMyCareerStats", method = GET)
   public ResponseEntity<?> getMyCareerStats()
   {
+    LOGGER.debug("/hr/getMyCareerStats called");
+
     return ResponseEntity.ok(hrService.getMyCareerStats());
   }
 
@@ -86,6 +96,8 @@ public class HRController
   @RequestMapping(value = "/getEmployeeStats", method = GET)
   public ResponseEntity<?> getEmployeeStats()
   {
+    LOGGER.debug("/hr/getEmployeeStats called");
+
     return ResponseEntity.ok(hrService.getEmployeeStats());
   }
 
@@ -97,6 +109,8 @@ public class HRController
   @RequestMapping(value = "/getFeedbackStats", method = GET)
   public ResponseEntity<?> getFeedbackStats()
   {
+    LOGGER.debug("/hr/getFeedbackStats called");
+
     return ResponseEntity.ok(hrService.getFeedbackStats());
   }
 
@@ -108,6 +122,8 @@ public class HRController
   @RequestMapping(value = "/getObjectiveStats", method = GET)
   public ResponseEntity<?> getObjectiveStats()
   {
+    LOGGER.debug("/hr/getObjectiveStats called");
+
     return ResponseEntity.ok(hrService.getObjectiveStats());
   }
 
@@ -119,6 +135,8 @@ public class HRController
   @RequestMapping(value = "/getDevelopmentNeedStats", method = GET)
   public ResponseEntity<?> getDevelopmentNeedStats()
   {
+    LOGGER.debug("/hr/getDevelopmentNeedStats called");
+
     return ResponseEntity.ok(hrService.getDevelopmentNeedStats());
   }
 
@@ -130,6 +148,8 @@ public class HRController
   @RequestMapping(value = "/getDevelopmentNeedBreakDown", method = GET)
   public ResponseEntity<?> getDevelopmentNeedBreakDown()
   {
+    LOGGER.debug("/hr/getDevelopmentNeedBreakDown called");
+
     return ResponseEntity.ok(hrService.getDevelopmentNeedBreakDown());
   }
 
@@ -142,6 +162,8 @@ public class HRController
   @RequestMapping(value = "/getSectorBreakDown", method = GET)
   public ResponseEntity<?> getSectorBreakDown()
   {
+    LOGGER.debug("/hr/getSectorBreakDown called");
+
     return ResponseEntity.ok(hrService.getSectorBreakDown());
   }
 

@@ -97,7 +97,6 @@ public class StringSequence implements Sequence<String>
       boolean initialNotNull = initial != null;
       boolean characterInRange = initial.length() >= characterToChange;
       boolean incrementNotZero = increment != 0;
-      boolean sizeInRange = size <= Character.MAX_VALUE;
       
       return initialNotNull && characterInRange && incrementNotZero;
     }

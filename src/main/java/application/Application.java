@@ -12,26 +12,41 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+/**
+ * 
+ * TODO: Describe this TYPE.
+ *
+ */
 @SpringBootApplication(exclude = { MongoAutoConfiguration.class, MongoDataAutoConfiguration.class })
 @ComponentScan(basePackages = { "application", "config", "services", "utils", "controller" })
 @EnableScheduling
 public class Application
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
-  
+
   // Server names
+  /** Name of the development server */
   public static final String DEV_SERVER_NAME = "ldunsmycareerdev01";
+
+  /** Name of the UAT server */
   public static final String UAT_SERVER_NAME = "ldunsmycareeruat01";
+
+  /** Name of the live server */
   public static final String LIVE_SERVER_NAME = "ldunsmycareer01";
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param args
+   */
   public static void main(String[] args)
   {
     try
     {
       setEnvironmentProperty();
       SpringApplication.run(Application.class, args);
-      
-      
+
     }
     catch (UnknownHostException e)
     {
@@ -39,6 +54,7 @@ public class Application
     }
   }
 
+  // Sets the environment variable based on where the application is deployed
   private static void setEnvironmentProperty() throws UnknownHostException
   {
     String environment;

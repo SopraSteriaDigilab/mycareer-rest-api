@@ -1,14 +1,8 @@
 package model;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import javax.management.InvalidAttributeValueException;
-
-import dataStructure.Employee;
-import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 
@@ -82,31 +76,33 @@ public class Models
   /** TYPE Property|Constant - Represents|Indicates... */
   public static final boolean STATUS = true;
 
-//  /**
-//   * Get an employee profile object.
-//   *
-//   * @return
-//   * @throws InvalidAttributeValueException
-//   */
-//  public static EmployeeProfile getProfile() throws InvalidAttributeValueException
-//  {
-//    Set<String> emailAddresses = new HashSet<>();
-//    emailAddresses.add(EMAIL_ADRESS);
-//    return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).forename(FIRST_NAME).surname(LAST_NAME)
-//        .emailAddresses(emailAddresses).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR).sector(SECTOR)
-//        .steriaDepartment(STERIA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER).build();
-//  }
-//
-//  /**
-//   * Get an employee object populated by the {@linkplain #getProfile() getProfile()} method.
-//   *
-//   * @return
-//   * @throws InvalidAttributeValueException
-//   */
-//  public static Employee getEmployee() throws InvalidAttributeValueException
-//  {
-//    return new Employee(getProfile());
-//  }
+//TODO Commented code to be reviewed
+
+  // /**
+  // * Get an employee profile object.
+  // *
+  // * @return
+  // * @throws InvalidAttributeValueException
+  // */
+  // public static EmployeeProfile getProfile() throws InvalidAttributeValueException
+  // {
+  // Set<String> emailAddresses = new HashSet<>();
+  // emailAddresses.add(EMAIL_ADRESS);
+  // return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).forename(FIRST_NAME).surname(LAST_NAME)
+  // .emailAddresses(emailAddresses).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR).sector(SECTOR)
+  // .steriaDepartment(STERIA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER).build();
+  // }
+  //
+  // /**
+  // * Get an employee object populated by the {@linkplain #getProfile() getProfile()} method.
+  // *
+  // * @return
+  // * @throws InvalidAttributeValueException
+  // */
+  // public static Employee getEmployee() throws InvalidAttributeValueException
+  // {
+  // return new Employee(getProfile());
+  // }
 
   /**
    * Get a feedback

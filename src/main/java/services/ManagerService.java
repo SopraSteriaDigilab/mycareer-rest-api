@@ -1,16 +1,14 @@
 package services;
 
-import static services.db.MongoOperations.objectiveHistoryIdFilter;
+import static services.db.MongoOperations.*;
 import static services.db.MongoUtils.*;
 import static dataStructure.Employee.*;
 import static dataStructure.EmployeeProfile.*;
 import static dataStructure.Activity.*;
-import static services.ews.DistributionList.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

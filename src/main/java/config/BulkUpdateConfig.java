@@ -15,6 +15,11 @@ import services.ews.DistributionList;
 import services.mappers.EmployeeProfileMapper;
 import utils.sequence.SequenceException;
 
+/**
+ * 
+ * TODO: Describe this TYPE.
+ *
+ */
 @Configuration
 public class BulkUpdateConfig
 {
@@ -32,16 +37,33 @@ public class BulkUpdateConfig
   @Autowired
   private Cache<String, DistributionList> distributionListCache;
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   * @throws SequenceException
+   */
   @Bean
   public BulkUpdateService bulkUpdateService() throws SequenceException
   {
-    return new BulkUpdateService(morphiaOperations, employeeOperations, steriaADSearchSettings,
-        employeeProfileMapper(), distributionListCache);
+    LOGGER.debug("Creating bean bulkUpdateService");
+
+    return new BulkUpdateService(morphiaOperations, employeeOperations, steriaADSearchSettings, employeeProfileMapper(),
+        distributionListCache);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public EmployeeProfileMapper employeeProfileMapper()
   {
+    LOGGER.debug("Creating bean employeeProfileMapper");
+
     return new EmployeeProfileMapper();
   }
 }

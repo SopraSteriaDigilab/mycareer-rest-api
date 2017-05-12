@@ -1,15 +1,12 @@
 package controller;
 
-import static application.GlobalExceptionHandler.error;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.ResponseEntity.badRequest;
-import static org.springframework.http.ResponseEntity.ok;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static utils.Validate.presentOrFutureYearMonthToLocalDate;
+import static application.GlobalExceptionHandler.*;
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.ResponseEntity.*;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
+import static utils.Validate.*;
 import static utils.Utils.*;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.YearMonth;
 import java.util.Set;
@@ -47,10 +44,11 @@ import services.DuplicateEmailAddressException;
 import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
 import services.EmployeeService;
-import utils.Utils;
 
 /**
- * This class contains all the available roots of the web service
+ * 
+ * TODO: Describe this TYPE.
+ *
  */
 @CrossOrigin
 @RestController
@@ -58,7 +56,6 @@ import utils.Utils;
 @Validated
 public class EmployeeController
 {
-
   /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
   private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeController.class);
 
@@ -89,7 +86,6 @@ public class EmployeeController
   private static final String ERROR_EMPTY_DESCRIPTION = "Description cannot be empty";
   private static final String ERROR_PROGRESS = "Progress must be a value from 0-2.";
   private static final String ERROR_LIMIT_EVALUATION = "Max Evaluation length is 10,000 characters";
-  private static final String ERROR_EMAIL_ADDRESS = "Not a valid email address";
   private static final String ERROR_LIMIT_USERNAME_EMAIL = "The username or email address provided is invalid";
 
   private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
@@ -101,12 +97,25 @@ public class EmployeeController
   @Autowired
   private EmployeeProfileService employeeProfileService;
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @RequestMapping(value = "/", method = GET)
   public ResponseEntity<String> welcomePage()
   {
     return ok("Welcome to the MyCareer Project");
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param request
+   * @param response
+   */
   @RequestMapping(value = "/portal", method = GET)
   public void portal(HttpServletRequest request, HttpServletResponse response)
   {
@@ -128,6 +137,13 @@ public class EmployeeController
 
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param request
+   * @return
+   */
   @RequestMapping(value = "/logMeIn", method = GET)
   public ResponseEntity<?> index(HttpServletRequest request)
   {
@@ -209,6 +225,15 @@ public class EmployeeController
 
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @param emailsTo
+   * @param notes
+   * @return
+   */
   @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
   public ResponseEntity<String> createFeedbackRequest(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
@@ -226,6 +251,13 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param userNameEmail
+   * @return
+   */
   @RequestMapping(value = "/authenticateUserProfile", method = GET)
   public ResponseEntity<?> authenticateUserProfile(
       @RequestParam(value = "userName_Email") @NotBlank @Size(max = 300, message = ERROR_LIMIT_USERNAME_EMAIL) String userNameEmail)
@@ -240,8 +272,13 @@ public class EmployeeController
     }
   }
 
-  //////////////////// START NEW OBJECTIVES
-
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   */
   @RequestMapping(value = "/getObjectives/{employeeId}", method = GET)
   public ResponseEntity<?> getObjectives(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
   {
@@ -255,6 +292,16 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param title
+   * @param description
+   * @param dueDate
+   * @return
+   */
   @RequestMapping(value = "/addObjective/{employeeId}", method = POST)
   public ResponseEntity<?> addObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
@@ -278,6 +325,17 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param objectiveId
+   * @param title
+   * @param description
+   * @param dueDate
+   * @return
+   */
   @RequestMapping(value = "/editObjective/{employeeId}", method = POST)
   public ResponseEntity<?> editObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
@@ -297,6 +355,15 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param objectiveId
+   * @param comment
+   * @return
+   */
   @RequestMapping(value = "/deleteObjective/{employeeId}", method = POST)
   public ResponseEntity<?> deleteObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
@@ -313,6 +380,16 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param objectiveId
+   * @param progress
+   * @param comment
+   * @return
+   */
   @RequestMapping(value = "/updateObjectiveProgress/{employeeId}", method = POST)
   public ResponseEntity<?> updateObjectiveProgress(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -337,6 +414,14 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param objectiveId
+   * @return
+   */
   @RequestMapping(value = "/toggleObjectiveArchive/{employeeId}", method = POST)
   public ResponseEntity<?> toggleObjectiveArchive(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -353,10 +438,13 @@ public class EmployeeController
     }
   }
 
-  //////////////////// END NEW OBJECTIVES
-
-  //////////////////// START NEW DEVELOPMENT NEEDS
-
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   */
   @RequestMapping(value = "/getDevelopmentNeeds/{employeeId}", method = GET)
   public ResponseEntity<?> getDevelopmentNeeds(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
@@ -371,6 +459,17 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param title
+   * @param description
+   * @param dueDate
+   * @param category
+   * @return
+   */
   @RequestMapping(value = "/addDevelopmentNeed/{employeeId}", method = POST)
   public ResponseEntity<?> addDevelopmentNeeds(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -397,6 +496,18 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param developmentNeedId
+   * @param title
+   * @param description
+   * @param dueDate
+   * @param category
+   * @return
+   */
   @RequestMapping(value = "/editDevelopmentNeed/{employeeId}", method = POST)
   public ResponseEntity<?> editDevelopmentNeed(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -420,6 +531,15 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param developmentNeedId
+   * @param comment
+   * @return
+   */
   @RequestMapping(value = "/deleteDevelopmentNeed/{employeeId}", method = POST)
   public ResponseEntity<?> deleteDevelopmentNeed(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -437,6 +557,16 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param developmentNeedId
+   * @param progress
+   * @param comment
+   * @return
+   */
   @RequestMapping(value = "/updateDevelopmentNeedProgress/{employeeId}", method = POST)
   public ResponseEntity<?> updateDevelopmentNeedProgress(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -456,6 +586,14 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param developmentNeedId
+   * @return
+   */
   @RequestMapping(value = "/toggleDevelopmentNeedArchive/{employeeId}", method = POST)
   public ResponseEntity<?> toggleDevelopmentNeedArchive(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -472,10 +610,13 @@ public class EmployeeController
     }
   }
 
-  //////////////////// END NEW DEVELOPMENT NEEDS
-
-  //////////////////// START NEW COMPETENCIES
-
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   */
   @RequestMapping(value = "/getCompetencies/{employeeId}", method = GET)
   public ResponseEntity<?> getCompetencies(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
   {
@@ -489,6 +630,14 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param competencyTitle
+   * @return
+   */
   @RequestMapping(value = "/toggleCompetency/{employeeId}", method = POST)
   public ResponseEntity<?> toggleCompetency(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Pattern(regexp = REGEX_COMPETENCY_TITLE, message = ERROR_COMPETENCY_TITLE) String competencyTitle)
@@ -504,8 +653,15 @@ public class EmployeeController
     }
   }
 
-  //////////////////// END NEW COMPETENCIES
-
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param emails
+   * @param feedback
+   * @return
+   */
   @RequestMapping(value = "/addFeedback/{employeeId}", method = POST)
   public ResponseEntity<?> addFeedback(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails,
@@ -527,6 +683,13 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   */
   @RequestMapping(value = "/getTags/{employeeId}", method = GET)
   public ResponseEntity<?> getTags(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
   {
@@ -540,6 +703,16 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param feedbackId
+   * @param objectiveIds
+   * @param developmentNeedIds
+   * @return
+   */
   @RequestMapping(value = "/updateFeedbackTags/{employeeId}", method = POST)
   public ResponseEntity<?> updateFeedbackTags(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -557,6 +730,16 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param noteId
+   * @param objectiveIds
+   * @param developmentNeedIds
+   * @return
+   */
   @RequestMapping(value = "/updateNotesTags/{employeeId}", method = POST)
   public ResponseEntity<?> updateNotesTags(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 0, message = ERROR_NOTE_ID) int noteId, @RequestParam Set<Integer> objectiveIds,
@@ -573,6 +756,13 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   */
   @RequestMapping(value = "/getCurrentRating/{employeeId}", method = GET)
   public ResponseEntity<?> getCurrentRating(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
   {
@@ -587,6 +777,14 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param selfEvaluation
+   * @return
+   */
   @RequestMapping(value = "/addSelfEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> addSelfEvaluation(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Size(max = 10_000, message = ERROR_LIMIT_EVALUATION) String selfEvaluation)
@@ -604,6 +802,13 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   */
   @RequestMapping(value = "/submitSelfEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> submitSelfEvaluation(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
@@ -626,6 +831,14 @@ public class EmployeeController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param emailAddress
+   * @return
+   */
   @RequestMapping(value = "/editUserEmailAddress/{employeeId}", method = POST)
   public ResponseEntity<?> editUserEmailAddress(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -646,5 +859,4 @@ public class EmployeeController
 
     return ok(retVal);
   }
-
 }

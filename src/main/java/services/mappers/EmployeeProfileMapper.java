@@ -1,9 +1,8 @@
 package services.mappers;
 
-import static utils.Conversions.ldapTimestampToDate;
+import static utils.Conversions.*;
 import static services.ad.query.LDAPQueries.*;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -24,12 +23,10 @@ import dataStructure.EmployeeProfile;
 
 //TODO Update map methods to user map string/chain eachother
 //TODO remove sopra
-
 public class EmployeeProfileMapper
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileMapper.class);
-  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-
+  
   private static final String REPORTEES_NOT_FOUND = "Exception while fetching reportees: {}";
   private static final String NOT_AN_EMPLOYEE = "Cannot create an EmployeeProfile: employeeType is not \"EMP\"";
   private static final String EMPLOYEE_NOT_FOUND = "Cannot create an EmployeeProfile: Exception thrown while fetching employeeID: ";

@@ -1,13 +1,8 @@
 package application;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.ResponseEntity.ok;
-
-import java.util.List;
-
-import javax.management.InvalidAttributeValueException;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.http.ResponseEntity.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 
 import controller.EmployeeController;
 import dataStructure.Employee;
-import services.EmployeeNotFoundException;
 import services.EmployeeProfileService;
 import services.EmployeeService;
 import services.db.MongoOperations;
@@ -34,7 +28,7 @@ import services.db.MorphiaOperations;
 public class AppControllerTest
 {
   /** Logger Property - Represents an implementation of the Logger interface that may be used here. */
-  private static final Logger LOG = LoggerFactory.getLogger(AppControllerTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AppControllerTest.class);
 
   /** Long Constant - Represents a valid employee ID. */
   private final long VALID_EMPLOYEE_ID = 675590;
@@ -80,6 +74,8 @@ public class AppControllerTest
   @Mock
   private Query mockQuery;
 
+//  TODO Commented code to be reviewed
+  
 //  /** List<Objective> Property - Mocked by Mockito. */
 //  @Mock
 //  private List<Objective_OLD> mockListOfObjectives;
@@ -91,11 +87,10 @@ public class AppControllerTest
   /**
    * Setup method that runs once before each test method.
    */
-  @SuppressWarnings("unchecked")
   @Before
   public void setup()
   {
-    // LOG.debug("AppControllerTest.setup()", true);
+     LOGGER.debug("AppControllerTest.setup()", true);
 
     unitUnderTest = new EmployeeController();
 
@@ -114,12 +109,14 @@ public class AppControllerTest
   @Test
   public void testWelcomePageShouldWorkAsExpected()
   {
-    // LOG.debug("AppControllerTest.testWelcomePageShouldWorkAsExpected()");
+     LOGGER.debug("AppControllerTest.testWelcomePageShouldWorkAsExpected()");
 
     ResponseEntity<String> expected = ok("Welcome to the MyCareer Project");
     assertEquals(expected, unitUnderTest.welcomePage());
   }
 
+  // TODO Commented code to be reviewed
+  
 //  /**
 //   * Unit test for the testGetObjectives method
 //   * 

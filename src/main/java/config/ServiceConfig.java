@@ -25,6 +25,11 @@ import services.ews.DistributionList;
 import services.ews.DistributionListCache;
 import services.ews.DistributionListService;
 
+/**
+ * 
+ * TODO: Describe this TYPE.
+ *
+ */
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
 public class ServiceConfig
@@ -58,53 +63,118 @@ public class ServiceConfig
   @Autowired
   private ADSearchSettings steriaADSearchSettings;
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public EmployeeService employeeService()
   {
-    return new EmployeeService(morphiaOperations, employeeOperations, objectivesHistoriesOperations, developmentNeedsHistoriesOperations,
-        competenciesHistoriesOperations, employeeProfileService(), env);
+    LOGGER.debug("Creating bean employeeService");
+
+    return new EmployeeService(morphiaOperations, employeeOperations, objectivesHistoriesOperations,
+        developmentNeedsHistoriesOperations, competenciesHistoriesOperations, employeeProfileService(), env);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public EmployeeProfileService employeeProfileService()
   {
+    LOGGER.debug("Creating bean employeeProfileService");
+
     return new EmployeeProfileService(morphiaOperations, employeeOperations, sopraADSearchSettings);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public ManagerService managerService()
   {
+    LOGGER.debug("Creating bean managerService");
+
     return new ManagerService(employeeService(), morphiaOperations, employeeOperations, objectivesHistoriesOperations,
         employeeProfileService(), env);
   }
-  
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public DistributionListService distributionListService()
   {
-    return new DistributionListService(distributionListCache(), employeeProfileService(), sopraADSearchSettings, steriaADSearchSettings);
+    LOGGER.debug("Creating bean distributionListService");
+
+    return new DistributionListService(distributionListCache(), employeeProfileService(), sopraADSearchSettings,
+        steriaADSearchSettings);
   }
-  
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public Cache<String, DistributionList> distributionListCache()
   {
+    LOGGER.debug("Creating bean distributionListCache");
+
     return new DistributionListCache(new HashMap<String, DistributionList>());
   }
-  
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public HistoryService historyService()
   {
+    LOGGER.debug("Creating bean historyService");
+
     return new HistoryService(morphiaOperations);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public HRService hrDataDAO()
   {
+    LOGGER.debug("Creating bean hrDataDAO");
+
     return new HRService(datastore, morphiaOperations);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public DataService dataService()
   {
+    LOGGER.debug("Creating bean dataService");
+
     return new DataService(employeeOperations);
   }
 }

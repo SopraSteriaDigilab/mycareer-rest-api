@@ -251,7 +251,6 @@ public class DistributionListService
     return distributionList;
   }
 
-  @SuppressWarnings("unchecked")
   private List<SearchResult> getAllMemberResults(final SearchResult dlResult, final ADSearchSettings adSearchSettings,
       final String userTree, final String employeeIDField) throws ADConnectionException, DistributionListException
   {

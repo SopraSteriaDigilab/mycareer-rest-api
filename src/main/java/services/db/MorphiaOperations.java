@@ -4,16 +4,11 @@ import static dataStructure.EmailAddresses.*;
 import static dataStructure.EmployeeProfile.*;
 import static dataStructure.Employee.*;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Criteria;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 
-import dataStructure.DBObject;
 import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import services.EmployeeNotFoundException;
@@ -126,14 +121,16 @@ public class MorphiaOperations
     return profile;
   }
 
-  // This currently is private, untested and unused, but may be used in future to update multiple fields in a single db
-  // call
-  private <T extends DBObject> void updateEmployee(final long employeeID, final Map<String, T> updates)
-  {
-    UpdateOperations<Employee> ops = datastore.createUpdateOperations(Employee.class);
-    updates.forEach((k, v) -> ops.set(k, v));
-    datastore.update(getEmployeeQuery(EMPLOYEE_ID, employeeID), ops);
-  }
+  // TODO Review commented code
+  
+//  // This currently is private, untested and unused, but may be used in future to update multiple fields in a single db
+//  // call
+//  private <T extends DBObject> void updateEmployee(final long employeeID, final Map<String, T> updates)
+//  {
+//    UpdateOperations<Employee> ops = datastore.createUpdateOperations(Employee.class);
+//    updates.forEach((k, v) -> ops.set(k, v));
+//    datastore.update(getEmployeeQuery(EMPLOYEE_ID, employeeID), ops);
+//  }
 
   /**
    * Updates an aspect of an employee's data using the given criteria. These include Objectives, Notes, and Development
@@ -159,8 +156,10 @@ public class MorphiaOperations
     return datastore.find(Employee.class, field, value);
   }
 
-  private String in(String field)
-  {
-    return field.concat(" in");
-  }
+  // TODO Review commented code
+  
+//  private String in(String field)
+//  {
+//    return field.concat(" in");
+//  }
 }

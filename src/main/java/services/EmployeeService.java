@@ -65,10 +65,7 @@ public class EmployeeService
   /** TYPE Property|Constant - Represents|Indicates... */
   private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeService.class);
 
-  private static final String ERROR_USER_NOT_FOUND = "The given user ID does not exist.";
-  private static final String INVALID_DEVELOPMENT_NEED_ID = "The given development Need ID does not exist.";
   private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: {} {} ";
-
   private static final String AUTO_GENERATED = "Auto Generated";
   private static final String COMMENT_DELTED_OBJECTIVE = "%s has deleted Objective '%s'. %s";
   private static final String COMMENT_DELETED_DEVELOPMENT_NEED = "%s has deleted Development Need '%s'. %s";

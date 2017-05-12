@@ -1,7 +1,5 @@
 package services.ews;
 
-import javax.naming.NamingException;
-
 public class DistributionListException extends Exception
 {
   /** TYPE Property|Constant - Represents|Indicates... */

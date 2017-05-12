@@ -1,5 +1,10 @@
 package dataStructure;
 
+/**
+ * 
+ * TODO: Describe this TYPE.
+ *
+ */
 public enum CRUD
 {
   ADD("added"), EDIT("edited"), COMPLETE("completed"), ARCHIVE("archived"), RESTORE("restored"), DELETE("deleted");
@@ -11,6 +16,12 @@ public enum CRUD
     this.verb = verb;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public String getVerb()
   {
     return verb;

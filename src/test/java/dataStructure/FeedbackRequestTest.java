@@ -70,6 +70,8 @@ public class FeedbackRequestTest
     assertEquals(unitUnderTest.isReplyReceived(), true);
   }
   
+//TODO Commented code to be reviewed
+  
 //  /**
 //   * Unit test for the getTimestamp method.
 //   * 

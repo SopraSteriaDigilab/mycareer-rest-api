@@ -15,23 +15,34 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import net.sourceforge.spnego.SpnegoHttpFilter;
 
+/**
+ * 
+ * TODO: Describe this TYPE.
+ *
+ */
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
 public class WebConfig extends OncePerRequestFilter
 {
-  private static final String SPNEGO_USERNAME = "mycareersvc";  // TODO move these out of application code
-  private static final String SPNEGO_PASSWORD = "Czam2mc2!";    // TODO move these out of application code
+  private static final String SPNEGO_USERNAME = "mycareersvc"; // TODO move these out of application code
+  private static final String SPNEGO_PASSWORD = "Czam2mc2!"; // TODO move these out of application code
 
   @Autowired
   private Environment env;
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public FilterRegistrationBean spnegoFilterRegistration()
   {
     FilterRegistrationBean registration = new FilterRegistrationBean();
-    
+
     System.out.println("----------------------------" + System.getProperty("user.dir"));
-    
+
     registration.setFilter(spnegoHttpFilter());
     registration.setName("spnegoHttpFilter");
     registration.addInitParameter("spnego.allow.basic", "true");
@@ -54,6 +65,21 @@ public class WebConfig extends OncePerRequestFilter
     return new SpnegoHttpFilter();
   }
 
+  /**
+   * 
+   * Override of NAME method.
+   *
+   * TODO: Describe this method.
+   *
+   * @see org.springframework.web.filter.OncePerRequestFilter#doFilterInternal(javax.servlet.http.HttpServletRequest,
+   *      javax.servlet.http.HttpServletResponse, javax.servlet.FilterChain)
+   *
+   * @param request
+   * @param response
+   * @param filterChain
+   * @throws ServletException
+   * @throws IOException
+   */
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException

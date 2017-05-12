@@ -1,9 +1,7 @@
 package services;
 
-import static dataStructure.EmployeeProfile.*;
 import static dataStructure.EmailAddresses.*;
 
-import java.util.List;
 import java.util.Set;
 
 import org.bson.Document;

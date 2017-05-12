@@ -1,17 +1,11 @@
 package services.db;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.BasicBSONList;
-
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
 public final class MongoUtils
 {
@@ -27,16 +21,18 @@ public final class MongoUtils
   private static final String SET = "$set";
   private static final String UNSET = "$unset";
   private static final String DATE_TO_STRING = "$dateToString";
-  private static final String COND = "$cond";
-  private static final String IF_NULL = "$ifNull";
-  private static final String EQ = "$eq";
-  private static final String LT = "$lt";
-  private static final String CONCAT = "$concat";
   private static final String INDEX_OF_CP = "$indexOfCP";
   private static final String SUBSTR_CP = "$substrCP";
   private static final String ADD_TO_SET = "$addToSet";
   private static final String IN = "$in";
-  private static final String OR = "$or";
+  
+  // TODO Review commented code
+//  private static final String OR = "$or";
+//  private static final String COND = "$cond";
+//  private static final String IF_NULL = "$ifNull";
+//  private static final String EQ = "$eq";
+//  private static final String LT = "$lt";
+//  private static final String CONCAT = "$concat";
 
   private MongoUtils()
   {
@@ -142,6 +138,8 @@ public final class MongoUtils
     return new Document(INDEX_OF_CP, indexOfCPList);
   }
 
+  // TODO Review commented code
+  
   // public static Document concat(final Object... objects)
   // {
   // return new Document(CONCAT, objects);

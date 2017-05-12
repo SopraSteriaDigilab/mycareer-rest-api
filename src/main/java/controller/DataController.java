@@ -15,6 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import services.DataService;
 
+/**
+ * 
+ * TODO: Describe this TYPE.
+ *
+ */
 @CrossOrigin
 @RestController
 @RequestMapping("/data")
@@ -25,25 +30,45 @@ public class DataController
 
   private DataService dataService;
 
+  /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
+   * @param dataService
+   */
   @Autowired
   public DataController(final DataService dataService)
   {
     this.dataService = dataService;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @RequestMapping(value = "/getAllEmailAddresses", method = GET)
   public ResponseEntity<Set<String>> getAllEmailAddresses()
   {
     LOGGER.debug("Retrieving all email addresses");
+
     final Set<String> emailAddresses = dataService.getAllEmailAddresses();
 
     return ok(emailAddresses);
   }
-  
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @RequestMapping(value = "/getAllNamesAndIds", method = GET)
   public ResponseEntity<?> getAllNamesAndIds()
   {
     LOGGER.debug("Retrieving all name and details");
+
     return ok(dataService.getAllNamesAndIds());
   }
 }

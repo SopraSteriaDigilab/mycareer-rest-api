@@ -33,9 +33,6 @@ public class EmployeeProfileService
   private final static Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileService.class);
 
   // Exception messages
-  private static final String TOO_MANY_RESULTS = "More than one match was found in the database";
-  private static final String INVALID_EMPLOYEE_ID = "Employee ID cannot be a negative number";
-  private static final String INVALID_USERNAME_OR_EMAIL_ADDRESS = "Not a valid username or email address";
   private static final String INVALID_EMAIL_ADDRESS = "Not a valid email address";
   private static final String INVALID_USERNAME = "Not a valid username";
   private static final String DUPLICATE_EMAIL_ADDRESS = "Employee with ID {} attempted to add an email addresss which already exists: {}";

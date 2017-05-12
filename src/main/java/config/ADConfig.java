@@ -20,6 +20,11 @@ import org.springframework.context.annotation.Configuration;
 import services.ad.ADSearchSettings;
 import services.ad.ADSearchSettingsImpl;
 
+/**
+ * 
+ * TODO: Describe this TYPE.
+ *
+ */
 @Configuration
 public class ADConfig
 {
@@ -45,27 +50,53 @@ public class ADConfig
   private static final String AD_STERIA_PRINCIPAL = new StringBuilder("cn=").append(AD_STERIA_USERNAME).append(",")
       .append(AD_STERIA_LOGIN_TREE).toString();
   private static final String[] AD_STERIA_ATTRIBUTES = { ACCOUNT_EXPIRES, COMPANY, DEPARTMENT, DIRECT_REPORTS,
-      EMPLOYEE_TYPE, EXTENSION_ATTRIBUTE_2, GIVEN_NAME, MAIL, MEMBER, MEMBER_OF, OU, SAM_ACCOUNT_NAME, SN, STERIA_SECTOR_UNIT,
-      TARGET_ADDRESS };
+      EMPLOYEE_TYPE, EXTENSION_ATTRIBUTE_2, GIVEN_NAME, MAIL, MEMBER, MEMBER_OF, OU, SAM_ACCOUNT_NAME, SN,
+      STERIA_SECTOR_UNIT, TARGET_ADDRESS };
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
-  ADSearchSettings sopraADSearchSettings()
+  public ADSearchSettings sopraADSearchSettings()
   {
+    LOGGER.debug("Creating bean sopraADSearchSettings");
+
     final ADSearchSettings sopraADSearchSettings = new ADSearchSettingsImpl(sopraSearchControls(), sopraADSettings());
+
     return sopraADSearchSettings;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
-  ADSearchSettings steriaADSearchSettings()
+  public ADSearchSettings steriaADSearchSettings()
   {
+    LOGGER.debug("Creating bean steriaADSearchSettings");
+
     final ADSearchSettings steriaADSearchSettings = new ADSearchSettingsImpl(steriaSearchControls(),
         steriaADSettings());
+
     return steriaADSearchSettings;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public Hashtable<String, String> sopraADSettings()
   {
+    LOGGER.debug("Creating bean sopraADSettings");
+
     final Hashtable<String, String> sopraADSettings = new Hashtable<>();
 
     sopraADSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
@@ -78,9 +109,17 @@ public class ADConfig
     return sopraADSettings;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public Hashtable<String, String> steriaADSettings()
   {
+    LOGGER.debug("Creating bean steriaADSettings");
+
     final Hashtable<String, String> steriaADSettings = new Hashtable<>();
 
     steriaADSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
@@ -93,20 +132,38 @@ public class ADConfig
     return steriaADSettings;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public SearchControls sopraSearchControls()
   {
+    LOGGER.debug("Creating bean sopraSearchControls");
+
     final SearchControls sopraSearchControls = new SearchControls();
+
     sopraSearchControls.setSearchScope(SUBTREE_SCOPE);
     sopraSearchControls.setReturningAttributes(AD_SOPRA_ATTRIBUTES);
 
     return sopraSearchControls;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   @Bean
   public SearchControls steriaSearchControls()
   {
+    LOGGER.debug("Creating bean steriaSearchControls");
+
     final SearchControls steriaSearchControls = new SearchControls();
+
     steriaSearchControls.setSearchScope(SUBTREE_SCOPE);
     steriaSearchControls.setReturningAttributes(AD_STERIA_ATTRIBUTES);
 

@@ -50,7 +50,9 @@ import services.ews.DistributionListService;
 import utils.Utils;
 
 /**
- * This class contains all the available roots of the web service
+ * 
+ * TODO: Describe this TYPE.
+ *
  */
 @CrossOrigin
 @RestController
@@ -132,6 +134,17 @@ public class ManagerController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param title
+   * @param description
+   * @param dueDate
+   * @param emails
+   * @return
+   */
   @RequestMapping(value = "/proposeObjective/{employeeId}", method = POST)
   public ResponseEntity<?> proposeObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
@@ -172,6 +185,14 @@ public class ManagerController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param distributionListName
+   * @return
+   */
   @RequestMapping(value = "/generateDistributionList/{employeeId}", method = POST)
   public ResponseEntity<?> generateDistributionList(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -223,6 +244,17 @@ public class ManagerController
     return ok(distributionList);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param title
+   * @param description
+   * @param dueDate
+   * @param distributionListName
+   * @return
+   */
   @RequestMapping(value = "/proposeObjectiveToDistributionList/{employeeId}", method = POST)
   public ResponseEntity<?> proposeObjectiveToDistributionList(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -248,6 +280,16 @@ public class ManagerController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param reporteeId
+   * @param managerEvaluation
+   * @param score
+   * @return
+   */
   @RequestMapping(value = "/addManagerEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> addManagerEvaluation(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -268,6 +310,14 @@ public class ManagerController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param reporteeId
+   * @return
+   */
   @RequestMapping(value = "/submitManagerEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> submitManagerEvaluation(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -291,6 +341,13 @@ public class ManagerController
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   */
   @RequestMapping(value = "/getActivityFeed/{employeeId}", method = GET)
   public ResponseEntity<?> getActivityFeed(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
   {

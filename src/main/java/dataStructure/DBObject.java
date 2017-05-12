@@ -21,7 +21,7 @@ public abstract class DBObject implements Serializable
   /** long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = 1L;
 
-  private static final String DOCUMENT_CONVERSION_EXCPETION = "Error converting DBObject to Document";
+  private static final String DOCUMENT_CONVERSION_EXCEPTION = "Error converting DBObject to Document";
 
   /** int Property - Represents Unique ID for the object. */
   private int id;
@@ -75,12 +75,13 @@ public abstract class DBObject implements Serializable
       {
         Gson gson = new Gson();
         String json = gson.toJson(this);
+        @SuppressWarnings("unchecked")
         HashMap<String, Object> result = new ObjectMapper().readValue(json, HashMap.class);
         return new Document(result);
       }
       catch (IOException e)
       {
-        throw new DocumentConversionException(DOCUMENT_CONVERSION_EXCPETION, e);
+        throw new DocumentConversionException(DOCUMENT_CONVERSION_EXCEPTION, e);
       }
   }
   

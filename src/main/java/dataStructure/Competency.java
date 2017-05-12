@@ -3,12 +3,12 @@ package dataStructure;
 import javax.management.InvalidAttributeValueException;
 
 /**
- * This class contains the definition of the Competency object.
+ * 
+ * TODO: Describe this TYPE.
  *
  */
 public class Competency extends DBObject implements Comparable<Competency>
 {
-
   /** Represents competency title of any Competencyobject. */
   public enum CompetencyTitle
   {
@@ -17,18 +17,32 @@ public class Competency extends DBObject implements Comparable<Competency>
             "Business Awareness"), FUTURE_ORIENTATION(
                 "Future Orientation"), INNOVATION_AND_CHANGE("Innovation and Change"), TEAMWORK("Teamwork");
 
-    private String competencyTitleStr; 
+    private String competencyTitleStr;
 
-    CompetencyTitle(String competencyTitleStr)
+    private CompetencyTitle(String competencyTitleStr)
     {
       this.competencyTitleStr = competencyTitleStr;
     }
 
+    /**
+     * 
+     * TODO: Describe this method.
+     *
+     * @return
+     */
     public String getCompetencyTitleStr()
     {
       return this.competencyTitleStr;
     }
 
+    /**
+     * 
+     * TODO: Describe this method.
+     *
+     * @param competencyTitleStr
+     * @return
+     * @throws InvalidAttributeValueException
+     */
     public static CompetencyTitle getCompetencyTitleFromString(String competencyTitleStr)
         throws InvalidAttributeValueException
     {
@@ -109,7 +123,18 @@ public class Competency extends DBObject implements Comparable<Competency>
     this.isSelected = isSelected;
     this.setLastModified();
   }
-  
+
+  /**
+   * 
+   * Override of NAME method.
+   *
+   * TODO: Describe this method.
+   *
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   *
+   * @param competency
+   * @return
+   */
   @Override
   public int compareTo(Competency competency)
   {
