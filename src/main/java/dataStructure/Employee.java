@@ -25,7 +25,8 @@ import dataStructure.Competency.CompetencyTitle;
 import dataStructure.DevelopmentNeed.Category;
 
 /**
- * This class contains the definition of the Employee object
+ * 
+ * TODO: Describe this TYPE.
  *
  */
 @Entity("employees")
@@ -33,15 +34,34 @@ public class Employee implements Serializable
 {
   private static final long serialVersionUID = 1L;
 
+  /** TODO describe */
   public static final String PROFILE = "profile";
+
+  /** TODO describe */
   public static final String OBJECTIVES = "objectives";
+
+  /** TODO describe */
   public static final String DEVELOPMENT_NEEDS = "developmentNeeds";
+
+  /** TODO describe */
   public static final String COMPETENCIES = "competencies";
+
+  /** TODO describe */
   public static final String NOTES = "notes";
+
+  /** TODO describe */
   public static final String FEEDBACK = "feedback";
+
+  /** TODO describe */
   public static final String FEEDBACK_REQUESTS = "feedbackRequests";
+
+  /** TODO describe */
   public static final String RATINGS = "ratings";
+
+  /** TODO describe */
   public static final String LAST_LOGON = "lastLogon";
+
+  /** TODO describe */
   public static final String ACTIVITY_FEED = "activityFeed";
 
   private static final int MAX_ACTIVITY_FEED_SIZE = 20;
@@ -93,6 +113,12 @@ public class Employee implements Serializable
     this.activityFeed = new ArrayList<Activity>();
   }
 
+  /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
+   * @param profile
+   */
   public Employee(final EmployeeProfile profile)
   {
     this();
@@ -103,6 +129,12 @@ public class Employee implements Serializable
   ///////////////////// OBJECTIVES METHODS FOLLOW ///////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public List<Objective> getCurrentObjectives()
   {
     final List<Objective> currentObjectives = objectives.stream().filter(Objective::isCurrent).sorted()
@@ -111,6 +143,13 @@ public class Employee implements Serializable
     return currentObjectives;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param objective
+   * @return
+   */
   public boolean addObjective(Objective objective)
   {
     objective.setId(nextObjectiveID());
@@ -118,6 +157,14 @@ public class Employee implements Serializable
     return this.objectives.add(objective);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param objective
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean editObjective(Objective objective) throws InvalidAttributeValueException
   {
 
@@ -133,6 +180,14 @@ public class Employee implements Serializable
     return true;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param objectiveId
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean deleteObjective(int objectiveId) throws InvalidAttributeValueException
   {
     Objective objective = getObjective(objectiveId);
@@ -149,6 +204,15 @@ public class Employee implements Serializable
     return this.getObjectives().remove(objective);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param objectiveId
+   * @param progress
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean updateObjectiveProgress(int objectiveId, Progress progress) throws InvalidAttributeValueException
   {
     Objective objective = getObjective(objectiveId);
@@ -164,6 +228,14 @@ public class Employee implements Serializable
     return true;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param objectiveId
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean toggleObjectiveArchive(int objectiveId) throws InvalidAttributeValueException
   {
     Objective objective = getObjective(objectiveId);
@@ -173,6 +245,14 @@ public class Employee implements Serializable
     return true;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param objectiveId
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public Objective getObjective(int objectiveId) throws InvalidAttributeValueException
   {
     Optional<Objective> objective = getObjectives().stream().filter(o -> o.getId() == objectiveId).findFirst();
@@ -182,6 +262,12 @@ public class Employee implements Serializable
     return objective.get();
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public int nextObjectiveID()
   {
     int max = 0;
@@ -196,15 +282,27 @@ public class Employee implements Serializable
   ///////////////// DEVELOPMENT NEEDS METHODS FOLLOW ////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public List<DevelopmentNeed> getCurrentDevelopmentNeeds()
   {
-    final List<DevelopmentNeed> currentDevelopmentNeeds = developmentNeeds.stream()
-        .filter(Objective::isCurrent)
+    final List<DevelopmentNeed> currentDevelopmentNeeds = developmentNeeds.stream().filter(Objective::isCurrent)
         .sorted().collect(Collectors.toList());
 
     return currentDevelopmentNeeds;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param developmentNeed
+   * @return
+   */
   public boolean addDevelopmentNeed(DevelopmentNeed developmentNeed)
   {
     developmentNeed.setId(nextDevelopmentNeedID());
@@ -212,6 +310,14 @@ public class Employee implements Serializable
     return this.developmentNeeds.add(developmentNeed);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param developmentNeed
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean editDevelopmentNeed(DevelopmentNeed developmentNeed) throws InvalidAttributeValueException
   {
     DevelopmentNeed developmentNeedToEdit = getDevelopmentNeed(developmentNeed.getId());
@@ -228,6 +334,14 @@ public class Employee implements Serializable
     return true;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param developmentNeedId
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean deleteDevelopmentNeed(int developmentNeedId) throws InvalidAttributeValueException
   {
     DevelopmentNeed developmentNeed = getDevelopmentNeed(developmentNeedId);
@@ -242,6 +356,15 @@ public class Employee implements Serializable
     return this.getDevelopmentNeeds().remove(developmentNeed);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param developmentNeedId
+   * @param progress
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean updateDevelopmentNeedProgress(int developmentNeedId, Progress progress)
       throws InvalidAttributeValueException
   {
@@ -258,6 +381,14 @@ public class Employee implements Serializable
     return true;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param developmentNeedId
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean toggleDevelopmentNeedArchive(int developmentNeedId) throws InvalidAttributeValueException
   {
     DevelopmentNeed developmentNeed = getDevelopmentNeed(developmentNeedId);
@@ -267,6 +398,14 @@ public class Employee implements Serializable
     return true;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param developmentNeedId
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public DevelopmentNeed getDevelopmentNeed(int developmentNeedId) throws InvalidAttributeValueException
   {
     Optional<DevelopmentNeed> developmentNeed = getDevelopmentNeeds().stream()
@@ -277,6 +416,12 @@ public class Employee implements Serializable
     return developmentNeed.get();
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public int nextDevelopmentNeedID()
   {
     int max = 0;
@@ -291,6 +436,14 @@ public class Employee implements Serializable
   //////////////////// COMPETENCIES METHODS FOLLOW //////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param competencyTitle
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean toggleCompetency(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
   {
     Competency competency = getCompetency(competencyTitle);
@@ -300,6 +453,14 @@ public class Employee implements Serializable
     return true;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param competencyTitle
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public Competency getCompetency(CompetencyTitle competencyTitle) throws InvalidAttributeValueException
   {
     Optional<Competency> competency = getCompetencies().stream()
@@ -314,21 +475,41 @@ public class Employee implements Serializable
   //////////////////////// NOTES METHODS FOLLOW /////////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public List<Note> getCurrentNotes()
   {
-    final List<Note> currentNotes = notes.stream()
-        .filter(Note::isCurrent)
-        .sorted().collect(Collectors.toList());
+    final List<Note> currentNotes = notes.stream().filter(Note::isCurrent).sorted().collect(Collectors.toList());
 
     return currentNotes;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param note
+   * @return
+   */
   public boolean addNote(Note note)
   {
     note.setId(this.getNotes().size() + 1);
     return this.notes.add(note);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param noteId
+   * @param objectiveIds
+   * @param developmentNeedIds
+   * @throws InvalidAttributeValueException
+   */
   public void updateNotesTags(int noteId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
       throws InvalidAttributeValueException
   {
@@ -338,6 +519,14 @@ public class Employee implements Serializable
     note.setTaggedDevelopmentNeedIds(developmentNeedIds);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param noteId
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public Note getNote(int noteId) throws InvalidAttributeValueException
   {
     Optional<Note> note = getNotes().stream().filter(n -> n.getId() == noteId).findFirst();
@@ -351,26 +540,54 @@ public class Employee implements Serializable
   ////////////////////// FEEDBACK METHODS FOLLOW ////////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public List<Feedback> getCurrentFeedback()
   {
-    final List<Feedback> currentFeedback = feedback.stream()
-        .filter(Feedback::isCurrent)
-        .sorted().collect(Collectors.toList());
+    final List<Feedback> currentFeedback = feedback.stream().filter(Feedback::isCurrent).sorted()
+        .collect(Collectors.toList());
 
     return currentFeedback;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param feedback
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public boolean addFeedback(Feedback feedback) throws InvalidAttributeValueException
   {
     throwIfNull(feedback);
     return this.feedback.add(feedback);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public int nextFeedbackID()
   {
     return this.feedback.size() + 1;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param feedbackId
+   * @param objectiveIds
+   * @param developmentNeedIds
+   * @throws InvalidAttributeValueException
+   */
   public void updateFeedbackTags(int feedbackId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
       throws InvalidAttributeValueException
   {
@@ -380,6 +597,14 @@ public class Employee implements Serializable
     feedback.setTaggedDevelopmentNeedIds(developmentNeedIds);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param feedbackId
+   * @return
+   * @throws InvalidAttributeValueException
+   */
   public Feedback getFeedback(int feedbackId) throws InvalidAttributeValueException
   {
     Optional<Feedback> feedback = getFeedback().stream().filter(f -> f.getId() == feedbackId).findFirst();
@@ -425,6 +650,15 @@ public class Employee implements Serializable
   /////////////////////// RATINGS METHODS FOLLOW ////////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param year
+   * @param managerEvaluation
+   * @param score
+   * @throws InvalidAttributeValueException
+   */
   public void addManagerEvaluation(int year, String managerEvaluation, int score) throws InvalidAttributeValueException
   {
     Rating rating = getRating(year);
@@ -439,29 +673,51 @@ public class Employee implements Serializable
     rating.setScore(score);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param year
+   * @param selfEvaluation
+   * @throws InvalidAttributeValueException
+   */
   public void addSelfEvaluation(int year, String selfEvaluation) throws InvalidAttributeValueException
   {
     Rating rating = getRating(year);
 
     if (rating.isSelfEvaluationSubmitted() || rating.isManagerEvaluationSubmitted())
       throw new InvalidAttributeValueException("The self evaluation has been submitted and can no longer be updated.");
-    
-    if (rating.isManagerEvaluationSubmitted())
-      throw new InvalidAttributeValueException("The manager evaluation has been submitted, the self evaluation can no longer be updated.");
+
+    if (rating.isManagerEvaluationSubmitted()) throw new InvalidAttributeValueException(
+        "The manager evaluation has been submitted, the self evaluation can no longer be updated.");
 
     rating.setSelfEvaluation(selfEvaluation);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param year
+   * @throws InvalidAttributeValueException
+   */
   public void submitSelfEvaluation(int year) throws InvalidAttributeValueException
   {
     Rating rating = getRating(year);
-    
-    if (rating.isManagerEvaluationSubmitted())
-      throw new InvalidAttributeValueException("The manager evaluation has been submitted, the self evaluation can no longer be submitted.");
-    
+
+    if (rating.isManagerEvaluationSubmitted()) throw new InvalidAttributeValueException(
+        "The manager evaluation has been submitted, the self evaluation can no longer be submitted.");
+
     rating.setSelfEvaluationSubmitted(true);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param year
+   * @throws InvalidAttributeValueException
+   */
   public void submitManagerEvaluation(int year) throws InvalidAttributeValueException
   {
     Rating rating = getRating(year);
@@ -517,6 +773,12 @@ public class Employee implements Serializable
     return activityFeed.add(activityString);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public Document getActivityFeedAsDocument()
   {
     List<Document> activityFeedList = new ArrayList<>();
@@ -584,6 +846,11 @@ public class Employee implements Serializable
     return competencies;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   */
   public void setCompetencies()
   {
     if (competencies == null)
@@ -675,11 +942,23 @@ public class Employee implements Serializable
     this.lastLogon = lastLogon;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public List<Activity> getActivityFeed()
   {
     return activityFeed;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param activityFeed
+   */
   public void setActivityFeed(final List<Activity> activityFeed)
   {
     this.activityFeed = activityFeed;

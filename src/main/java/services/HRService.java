@@ -19,26 +19,29 @@ import services.db.MorphiaOperations;
 import utils.EmployeeStatistics;
 
 /**
- * HR Service class.
  * 
+ * TODO: Describe this TYPE.
+ *
  */
 public class HRService
 {
-
+  /** TODO describe */
   public static final String ACCOUNT_EXPIRES = "profile.accountExpires";
 
-  /** Datastore Constant - Represents connection to the database */
+  /* Datastore Constant - Represents connection to the database */
   private final Datastore datastore;
 
   private final MorphiaOperations morphiaOperations;
 
-  /** EmployeeStatistics Constant - Represents employeeStats reference */
+  /* EmployeeStatistics Constant - Represents employeeStats reference */
   private final EmployeeStatistics employeeStats = new EmployeeStatistics();
 
   /**
-   * Datastore Constructor - Responsible for injecting the database connection to this object.
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
    *
    * @param datastore
+   * @param morphiaOperations
    */
   public HRService(final Datastore datastore, final MorphiaOperations morphiaOperations)
   {
@@ -46,6 +49,14 @@ public class HRService
     this.morphiaOperations = morphiaOperations;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   * @throws EmployeeNotFoundException
+   */
   public Employee getMyCareer(long employeeId) throws EmployeeNotFoundException
   {
     return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId);
@@ -138,23 +149,11 @@ public class HRService
     return employeeStats.getSectorBreakDown(employees);
   }
 
-  /**
-   * Employee query
-   * 
-   * @return An Employee query
-   */
   private Query<Employee> employeeQuery()
   {
     return datastore.find(Employee.class);
   }
 
-  /**
-   * Counts all the employees with the existing field
-   *
-   * @param query The query for the check
-   * @param field The field to check
-   * @return The number of employees with the field.
-   */
   private long countAll(Query<Employee> query, String field)
   {
     return datastore.find(Employee.class).field(ACCOUNT_EXPIRES).doesNotExist().field(field).exists().countAll();

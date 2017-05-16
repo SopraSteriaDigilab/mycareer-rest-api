@@ -13,9 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 
- * TODO: Describe this TYPE.
- *
+ * Container for the {@code main(String[])} method which starts the application.
  */
 @SpringBootApplication(exclude = { MongoAutoConfiguration.class, MongoDataAutoConfiguration.class })
 @ComponentScan(basePackages = { "application", "config", "services", "utils", "controller" })
@@ -35,10 +33,9 @@ public class Application
   public static final String LIVE_SERVER_NAME = "ldunsmycareer01";
 
   /**
+   * Sets the environment property and runs the Spring application.
    * 
-   * TODO: Describe this method.
-   *
-   * @param args
+   * @param args Not used
    */
   public static void main(String[] args)
   {

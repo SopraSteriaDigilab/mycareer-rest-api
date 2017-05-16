@@ -17,25 +17,51 @@ import services.mappers.InvalidEmployeeProfileException;
 import utils.Utils;
 
 /**
- * This class contains the definition of the EmployeeProfile object
+ * 
+ * TODO: Describe this TYPE.
+ *
  */
-// TODO remove validation on all setters.
 public class EmployeeProfile implements Serializable
 {
   private static final long serialVersionUID = 1L;
 
+  /** TODO describe */
   public static final String EMPLOYEE_ID = "profile.employeeID";
+
+  /** TODO describe */
   public static final String SURNAME = "profile.surname";
+
+  /** TODO describe */
   public static final String FORENAME = "profile.forename";
+
+  /** TODO describe */
   public static final String USERNAME = "profile.username";
+
+  /** TODO describe */
   public static final String EMAIL_ADDRESSES = "profile.emailAddresses";
+
+  /** TODO describe */
   public static final String IS_MANAGER = "profile.isManager";
+
+  /** TODO describe */
   public static final String HAS_HR_DASH = "profile.hasHRDash";
+
+  /** TODO describe */
   public static final String COMPANY = "profile.company";
+
+  /** TODO describe */
   public static final String DEPARTMENT = "profile.steriaDepartment";
+
+  /** TODO describe */
   public static final String SECTOR = "profile.sector";
+
+  /** TODO describe */
   public static final String SUPER_SECTOR = "profile.superSector";
+
+  /** TODO describe */
   public static final String REPORTEE_CNS = "profile.reporteeCNs";
+
+  /** TODO describe */
   public static final String ACCOUNT_EXPIRES = "profile.accountExpires";
 
   /** long Property - Represents the employee id */
@@ -80,7 +106,7 @@ public class EmployeeProfile implements Serializable
   /** Date Property - Represents the date the employees account expires. */
   private Date accountExpires;
 
-  /** Default Constructor - Responsible for initialising this object. */
+  /** No-args EmployeeProfile Constructor - Responsible for initialising this object. */
   public EmployeeProfile()
   {
     reporteeCNs = new ArrayList<String>();
@@ -88,7 +114,7 @@ public class EmployeeProfile implements Serializable
   }
 
   /**
-   * Constructor - Responsible for initialising with a builder.
+   * EmployeeProfile Constructor - Responsible for initialising with a builder.
    *
    * @param employeeID
    * @throws InvalidAttributeValueException
@@ -111,6 +137,12 @@ public class EmployeeProfile implements Serializable
     this.accountExpires = builder.accountExpires;
   }
 
+  /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
+   * @param employeeProfile
+   */
   public EmployeeProfile(EmployeeProfile employeeProfile)
   {
     this.employeeID = employeeProfile.employeeID;
@@ -393,6 +425,11 @@ public class EmployeeProfile implements Serializable
         + accountExpires + "]";
   }
 
+  /**
+   * 
+   * TODO: Describe this TYPE.
+   *
+   */
   public static class Builder
   {
 

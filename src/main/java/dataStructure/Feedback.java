@@ -9,31 +9,37 @@ import java.util.Set;
 import javax.management.InvalidAttributeValueException;
 
 /**
- * This class contains the definition of the feedback in MyCareer.
+ * 
+ * TODO: Describe this TYPE.
+ *
  */
 public class Feedback extends DBObject implements Comparable<Feedback>
 {
   private static final long serialVersionUID = 1L;
 
-  /** Email address of feedback provider */
+  /* Email address of feedback provider */
   private String providerEmail;
 
-  /** Name of feedback provider */
+  /* Name of feedback provider */
   private String providerName;
 
-  /** The feedback */
+  /* The feedback */
   private String feedbackDescription;
 
-  /** The objective ids tagged */
+  /* The objective ids tagged */
   private Set<Integer> taggedObjectiveIds;
 
-  /** The development need ids tagged */
+  /* The development need ids tagged */
   private Set<Integer> taggedDevelopmentNeedIds;
 
-  /** Time stamp of feedback */
+  /* Time stamp of feedback */
   private String timestamp;
 
-  /** Empty Constructor */
+  /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
+   */
   public Feedback()
   {
     taggedObjectiveIds = new HashSet<>();
@@ -41,6 +47,9 @@ public class Feedback extends DBObject implements Comparable<Feedback>
   }
 
   /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
    * @param id
    * @param providerEmail
    * @param feedbackDescription
@@ -58,6 +67,9 @@ public class Feedback extends DBObject implements Comparable<Feedback>
   }
 
   /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
    * @param id
    * @param providerEmail
    * @param providerName
@@ -149,18 +161,19 @@ public class Feedback extends DBObject implements Comparable<Feedback>
   {
     this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
-  
+
   /**
    * Removes a development need from taggedDevelopmentNeedIds.
    *
    * @param id
-   * @return {@code true} if the developmentNeedId existed in the map and was succesfully removed. {@code false} otherwise.
+   * @return {@code true} if the developmentNeedId existed in the map and was succesfully removed. {@code false}
+   *         otherwise.
    */
   public boolean removeDevelopmentNeedTag(final Integer id)
   {
     return taggedDevelopmentNeedIds.remove(id);
   }
-  
+
   /**
    * Removes an objective from taggedObjectiveIds.
    *
@@ -171,16 +184,33 @@ public class Feedback extends DBObject implements Comparable<Feedback>
   {
     return taggedObjectiveIds.remove(id);
   }
-  
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public boolean isCurrent()
   {
     final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
     final LocalDateTime added = LocalDateTime.parse(timestamp);
     final boolean isCurrent = added.isAfter(cutOffDate);
-    
+
     return isCurrent;
   }
 
+  /**
+   * 
+   * Override of NAME method.
+   *
+   * TODO: Describe this method.
+   *
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   *
+   * @param other
+   * @return
+   */
   @Override
   public int compareTo(final Feedback other)
   {

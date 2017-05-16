@@ -34,6 +34,11 @@ import utils.sequence.SequenceException;
 import utils.sequence.StringSequence;
 import services.ad.query.LDAPQuery;
 
+/**
+ * 
+ * TODO: Describe this TYPE.
+ *
+ */
 public class BulkUpdateService
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(BulkUpdateService.class);
@@ -56,8 +61,19 @@ public class BulkUpdateService
   private int notAnEmployee;
   private int exceptionsThrown;
 
+  /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
+   * @param morphiaOperations
+   * @param employeeOperations
+   * @param steriaADSearchSettings
+   * @param employeeProfileMapper
+   * @param distributionListCache
+   */
   public BulkUpdateService(final MorphiaOperations morphiaOperations, final MongoOperations employeeOperations,
-      final ADSearchSettings steriaADSearchSettings, final EmployeeProfileMapper employeeProfileMapper, Cache<String, DistributionList> distributionListCache)
+      final ADSearchSettings steriaADSearchSettings, final EmployeeProfileMapper employeeProfileMapper,
+      Cache<String, DistributionList> distributionListCache)
   {
     this.morphiaOperations = morphiaOperations;
     this.employeeOperations = employeeOperations;
@@ -66,6 +82,15 @@ public class BulkUpdateService
     this.distributionListCache = distributionListCache;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   * @throws ADConnectionException
+   * @throws NamingException
+   * @throws SequenceException
+   */
   @Scheduled(cron = "0 30 23 * * ?")
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
@@ -90,7 +115,7 @@ public class BulkUpdateService
         exceptionsThrown++;
       }
     }
-    
+
     distributionListCache.clear();
 
     final Instant endDBOps = Instant.now();
@@ -146,16 +171,6 @@ public class BulkUpdateService
     return allEmployeeProfiles;
   }
 
-  /**
-   * Matches what is stored in the database with the given employee profile.
-   * 
-   * If the employee ID of the given employee profile does not exist in the database, the employee is inserted. If the
-   * given employee profile is an exact match for an entry in the database, does nothing. Otherwise updates the employee
-   * in the database to match the given employee profile.
-   *
-   * @param employeeProfile the employee profile to upsert
-   * @return the new EmployeeProfile as stored in the MyCareer database
-   */
   private EmployeeProfile upsertEmployeeProfile(EmployeeProfile employeeProfile)
   {
     Employee employee = morphiaOperations.getEmployee(EMPLOYEE_ID, employeeProfile.getEmployeeID());
@@ -190,8 +205,10 @@ public class BulkUpdateService
   // TODO this doesn't belong here
   private Sequence<String> steriaFilterSequence() throws SequenceException
   {
-    final LDAPQuery initialQuery = and(fieldBeginsWith(CN, "A"), hasField(EXTENSION_ATTRIBUTE_2), basicQuery(EMPLOYEE_TYPE, EMPLOYEE));
-    return new StringSequence.StringSequenceBuilder().initial(initialQuery.get()) // first call to next() will return this
+    final LDAPQuery initialQuery = and(fieldBeginsWith(CN, "A"), hasField(EXTENSION_ATTRIBUTE_2),
+        basicQuery(EMPLOYEE_TYPE, EMPLOYEE));
+    return new StringSequence.StringSequenceBuilder().initial(initialQuery.get()) // first call to next() will return
+                                                                                  // this
         .characterToChange(6) // 'A'
         .increment(1) // increment by one character
         .size(26) // 26 Strings in the sequence

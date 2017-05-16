@@ -31,33 +31,43 @@ import services.ews.DistributionList;
 import services.ews.EmailService;
 import utils.Template;
 
+/**
+ * 
+ * TODO: Describe this TYPE.
+ *
+ */
 public class ManagerService
 {
-  /** TYPE Property|Constant - Represents|Indicates... */
   private static final Logger LOGGER = LoggerFactory.getLogger(ManagerService.class);
 
-  /** MorphiaOperations Property - Represents a reference to the database using morphia. */
+  /* MorphiaOperations Property - Represents a reference to the database using morphia. */
   private EmployeeService employeeService;
 
-  /** MorphiaOperations Property - Represents a reference to the database using morphia. */
+  /* MorphiaOperations Property - Represents a reference to the database using morphia. */
   private MorphiaOperations morphiaOperations;
 
-  /** MorphiaOperations Property - Represents a reference to the database using mongo java driver. */
+  /* MorphiaOperations Property - Represents a reference to the database using mongo java driver. */
   private MongoOperations employeeOperations;
 
-  /** MongoOperations Property - Represents a reference to the database using mongo java driver */
+  /* MongoOperations Property - Represents a reference to the database using mongo java driver */
   private MongoOperations objectivesHistoriesOperations;
 
-  /** EmployeeProfileService Property - Represents a reference to the employee profile service. */
+  /* EmployeeProfileService Property - Represents a reference to the employee profile service. */
   private EmployeeProfileService employeeProfileService;
 
-  /** Environment Property - Reference to environment to get property details. */
+  /* Environment Property - Reference to environment to get property details. */
   private Environment env;
 
   /**
-   * EmployeeService Constructor - Responsible for initialising dbConnection.
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
    *
-   * @param dbConnection
+   * @param employeeService
+   * @param morphiaOperations
+   * @param employeeOperations
+   * @param objectivesHistoriesOperations
+   * @param employeeProfileService
+   * @param env
    */
   public ManagerService(EmployeeService employeeService, MorphiaOperations morphiaOperations,
       MongoOperations employeeOperations, MongoOperations objectivesHistoriesOperations,
@@ -133,6 +143,16 @@ public class ManagerService
     return true;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param objective
+   * @param distributionList
+   * @throws EmployeeNotFoundException
+   * @throws DocumentConversionException
+   */
   public void proposeObjective(long employeeId, Objective objective, DistributionList distributionList)
       throws EmployeeNotFoundException, DocumentConversionException
   {
@@ -154,6 +174,17 @@ public class ManagerService
     sendObjectiveEmail(distributionList, objective);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param reporteeId
+   * @param year
+   * @param managerEvaluation
+   * @param score
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   */
   public void addManagerEvaluation(long reporteeId, int year, String managerEvaluation, int score)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -162,6 +193,17 @@ public class ManagerService
     morphiaOperations.updateEmployee(reporteeId, RATINGS, employee.getRatings());
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param year
+   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
+   * @throws FileNotFoundException
+   * @throws IOException
+   */
   public void submitManagerEvaluation(long employeeId, int year)
       throws InvalidAttributeValueException, EmployeeNotFoundException, FileNotFoundException, IOException
   {
@@ -183,6 +225,13 @@ public class ManagerService
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   */
   public List<Activity> getActivityFeed(final long employeeID)
   {
     final List<Long> reporteeIDs = getReportees(employeeID);

@@ -10,35 +10,34 @@ import java.util.Set;
 /**
  * This class contains the definition of the Note object
  */
-// TODO Add the spring validation here, (see the annotations in the employeeController) Then change the constructor to
-// take in a Note object.
 public class Note implements Serializable, Comparable<Note>
 {
-  /** long Constant - Represents serialVersionUID... */
+  /* long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = 1L;
 
+  // TODO Why is this an Object and not a String??
   private static final Object NOTE = "note";
 
-  /** int Property - Represents Unique ID for the object. */
+  /* int Property - Represents Unique ID for the object. */
   private int id;
 
-  /** String Property - Represents name of the note provider. */
+  /* String Property - Represents name of the note provider. */
   private String providerName;
 
-  /** String Property - Represents the description of the note. */
+  /* String Property - Represents the description of the note. */
   private String noteDescription;
 
-  /** The objective ids tagged */
+  /* The objective ids tagged */
   private Set<Integer> taggedObjectiveIds;
 
-  /** The development need ids tagged */
+  /* The development need ids tagged */
   private Set<Integer> taggedDevelopmentNeedIds;
 
-  /** String Property - Represents the timestamp of the note. */
+  /* String Property - Represents the timestamp of the note. */
   private String timestamp;
 
   /**
-   * Default Constructor - Responsible for initialising this object.
+   * No-args constructor - Responsible for initialising this object.
    */
   public Note()
   {
@@ -58,7 +57,7 @@ public class Note implements Serializable, Comparable<Note>
     this.setTimestamp();
     taggedObjectiveIds = new HashSet<>();
     taggedDevelopmentNeedIds = new HashSet<>();
-  }  
+  }
 
   /** @return the id */
   public int getId()
@@ -131,18 +130,19 @@ public class Note implements Serializable, Comparable<Note>
   {
     this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
-  
+
   /**
    * Removes a development need from taggedDevelopmentNeedIds.
    *
    * @param id
-   * @return {@code true} if the developmentNeedId existed in the map and was succesfully removed. {@code false} otherwise.
+   * @return {@code true} if the developmentNeedId existed in the map and was succesfully removed. {@code false}
+   *         otherwise.
    */
   public boolean removeDevelopmentNeedTag(final Integer id)
   {
     return taggedDevelopmentNeedIds.remove(id);
   }
-  
+
   /**
    * Removes an objective from taggedObjectiveIds.
    *
@@ -153,24 +153,49 @@ public class Note implements Serializable, Comparable<Note>
   {
     return taggedObjectiveIds.remove(id);
   }
-  
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param activityType
+   * @param profile
+   * @return
+   */
   public Activity createActivity(final CRUD activityType, final EmployeeProfile profile)
   {
-    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb()).append(" ")
-        .append(NOTE).append(" #").append(getId()).append(": ").append(noteDescription).toString();
-    
+    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb())
+        .append(" ").append(NOTE).append(" #").append(getId()).append(": ").append(noteDescription).toString();
+
     return new Activity(activityString, timestamp);
   }
-  
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public boolean isCurrent()
   {
     final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
     final LocalDateTime added = LocalDateTime.parse(timestamp);
     final boolean isCurrent = added.isAfter(cutOffDate);
-    
+
     return isCurrent;
   }
 
+  /**
+   * 
+   * Override of NAME method.
+   *
+   * TODO: Describe this method.
+   *
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   *
+   * @param other
+   * @return
+   */
   @Override
   public int compareTo(final Note other)
   {

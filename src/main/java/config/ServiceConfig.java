@@ -26,9 +26,15 @@ import services.ews.DistributionListCache;
 import services.ews.DistributionListService;
 
 /**
+ * Spring Configuration class for spring beans providing services required by the REST controllers.
  * 
- * TODO: Describe this TYPE.
- *
+ * @see EmployeeService
+ * @see EmployeeProfileService
+ * @see DataService
+ * @see HistoryService
+ * @see HRService
+ * @see ManagerService
+ * @see DistributionListService
  */
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
@@ -64,10 +70,12 @@ public class ServiceConfig
   private ADSearchSettings steriaADSearchSettings;
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for the Employee service
    *
-   * @return
+   * @return the Employee service
+   * @see EmployeeService
+   * @see EmployeeController
+   * @see Employee
    */
   @Bean
   public EmployeeService employeeService()
@@ -79,10 +87,12 @@ public class ServiceConfig
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for the EmployeeProfile service
    *
-   * @return
+   * @return the EmployeeProfile service
+   * @see EmployeeProfileService
+   * @see EmployeeController
+   * @see EmployeeProfile
    */
   @Bean
   public EmployeeProfileService employeeProfileService()
@@ -93,10 +103,11 @@ public class ServiceConfig
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for the manager service
    *
-   * @return
+   * @return the manager service
+   * @see Employee
+   * @see ManagerController
    */
   @Bean
   public ManagerService managerService()
@@ -108,10 +119,11 @@ public class ServiceConfig
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for the distribution list service
    *
-   * @return
+   * @return the distribution list service
+   * @see DistributionListService
+   * @see DistributionList
    */
   @Bean
   public DistributionListService distributionListService()
@@ -123,10 +135,12 @@ public class ServiceConfig
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for the distribution list cache, required by the DistributionListService.
    *
-   * @return
+   * @return the distribution list cache
+   * @see Cache
+   * @see DistributionListService
+   * @see DistributionList
    */
   @Bean
   public Cache<String, DistributionList> distributionListCache()
@@ -137,10 +151,11 @@ public class ServiceConfig
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for the history service
    *
-   * @return
+   * @return the history service
+   * @see HistoryService
+   * @see HistoryController
    */
   @Bean
   public HistoryService historyService()
@@ -151,24 +166,26 @@ public class ServiceConfig
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for the EmployeeProfile service
    *
-   * @return
+   * @return the HR service
+   * @see HRService
+   * @see HRController
    */
   @Bean
-  public HRService hrDataDAO()
+  public HRService hrService()
   {
-    LOGGER.debug("Creating bean hrDataDAO");
+    LOGGER.debug("Creating bean hrService");
 
     return new HRService(datastore, morphiaOperations);
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for the data service
    *
-   * @return
+   * @return the data service
+   * @see DataService
+   * @see DataController
    */
   @Bean
   public DataService dataService()

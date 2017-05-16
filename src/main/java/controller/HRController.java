@@ -35,7 +35,7 @@ public class HRController
 
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
 
-  /** HRDataDAO Constant - Represents the service to be user for hr data. */
+  /** hrService Constant - Represents the service to be user for hr data. */
   @Autowired
   private HRService hrService;
 

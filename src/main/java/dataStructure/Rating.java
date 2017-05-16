@@ -6,38 +6,36 @@ import java.time.Month;
 
 public class Rating implements Serializable
 {
-  public static final String EMPTY_STRING = "";
-
-  /** TYPE Property|Constant - Represents|Indicates... */
+  /* TYPE Property|Constant - Represents|Indicates... */
   private static final long serialVersionUID = 1L;
 
-  /** int property - Represents the year of the rating. */
+  /* int property - Represents the year of the rating. */
   private int year;
 
-  /** String Property - Represents self evaluation of employee. */
+  /* String Property - Represents self evaluation of employee. */
   private String selfEvaluation;
 
-  /** String Property - Represents the employees manager evaluation. */
+  /* String Property - Represents the employees manager evaluation. */
   private String managerEvaluation;
 
-  /** String Property - Represents the users score. */
+  /* String Property - Represents the users score. */
   private int score;
-  
-  /** boolean Property - Indicates if the self evaluation has submitted. */
+
+  /* boolean Property - Indicates if the self evaluation has submitted. */
   private boolean isSelfEvaluationSubmitted;
-  
-  /** boolean Property - Indicated if the manager evaluation has been submitted. */
+
+  /* boolean Property - Indicated if the manager evaluation has been submitted. */
   private boolean isManagerEvaluationSubmitted;
 
   /**
-   * Default Constructor - Responsible for initialising this object.
+   * No-args Constructor - Responsible for initialising this object.
    */
   public Rating()
   {
     this.setYear(getRatingYear());
     this.setScore(0);
-    this.setSelfEvaluation(EMPTY_STRING);
-    this.setManagerEvaluation(EMPTY_STRING);
+    this.setSelfEvaluation("");
+    this.setManagerEvaluation("");
     this.setSelfEvaluationSubmitted(false);
     this.setManagerEvaluationSubmitted(false);
   }
@@ -49,8 +47,8 @@ public class Rating implements Serializable
   {
     this.setYear(year);
     this.setScore(0);
-    this.setSelfEvaluation(EMPTY_STRING);
-    this.setManagerEvaluation(EMPTY_STRING);
+    this.setSelfEvaluation("");
+    this.setManagerEvaluation("");
     this.setSelfEvaluationSubmitted(false);
     this.setManagerEvaluationSubmitted(false);
   }
@@ -102,7 +100,7 @@ public class Rating implements Serializable
   {
     this.score = score;
   }
-  
+
   /** @return the isSelfEvaluationSubmitted */
   public boolean isSelfEvaluationSubmitted()
   {

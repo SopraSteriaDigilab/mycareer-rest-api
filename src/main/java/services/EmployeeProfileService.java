@@ -49,6 +49,14 @@ public class EmployeeProfileService
   private final MorphiaOperations morphiaOperations;
   private final MongoOperations employeeOperations;
 
+  /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
+   * @param morphiaOperations
+   * @param employeeOperations
+   * @param sopraADSearchSettings
+   */
   public EmployeeProfileService(final MorphiaOperations morphiaOperations, final MongoOperations employeeOperations,
       final ADSearchSettings sopraADSearchSettings)
   {
@@ -164,16 +172,17 @@ public class EmployeeProfileService
    *
    * @param employeeId The employee ID of the user profile to amend
    * @param emailAddress The email address to add, provided by the user
-   * @throws DuplicateEmailAddressException 
+   * @throws DuplicateEmailAddressException
    */
-  public boolean editUserEmailAddress(final Long employeeId, final String emailAddress) throws DuplicateEmailAddressException
+  public boolean editUserEmailAddress(final Long employeeId, final String emailAddress)
+      throws DuplicateEmailAddressException
   {
     if (!isUniqueEmailAddress(emailAddress))
     {
       LOGGER.info(DUPLICATE_EMAIL_ADDRESS, employeeId, emailAddress);
       throw new DuplicateEmailAddressException();
     }
-    
+
     boolean updated = false;
 
     try
@@ -189,21 +198,40 @@ public class EmployeeProfileService
     return updated;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param profile
+   */
+  public void setHasHRDash(final EmployeeProfile profile)
+  {
+    try
+    {
+      profile.setHasHRDash(hasHRDash(profile.getEmployeeID()));
+    }
+    catch (final ADConnectionException e)
+    {
+      LOGGER.warn(HR_PERMISSION_EXCEPTION, profile.getEmployeeID());
+      profile.setHasHRDash(false);
+    }
+  }
+
   private boolean isUniqueEmailAddress(String emailAddress)
   {
     final String[] emailFields = { LDAPQueries.MAIL, LDAPQueries.TARGET_ADDRESS, USER_ADDRESS };
     boolean unique = false;
-    
+
     for (final String field : emailFields)
     {
       unique = !employeeOperations.valueExists(field, emailAddress);
-      
+
       if (!unique)
       {
         break;
       }
     }
-    
+
     return unique;
   }
 
@@ -232,19 +260,6 @@ public class EmployeeProfileService
     }
 
     return profile;
-  }
-
-  public void setHasHRDash(final EmployeeProfile profile)
-  {
-    try
-    {
-      profile.setHasHRDash(hasHRDash(profile.getEmployeeID()));
-    }
-    catch (final ADConnectionException e)
-    {
-      LOGGER.warn(HR_PERMISSION_EXCEPTION, profile.getEmployeeID());
-      profile.setHasHRDash(false);
-    }
   }
 
   private boolean hasHRDash(final long employeeID) throws ADConnectionException

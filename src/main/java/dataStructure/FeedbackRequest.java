@@ -6,31 +6,39 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * FeedbackRequest object for MyCareer.
  * 
+ * TODO: Describe this TYPE.
+ *
  */
 public class FeedbackRequest implements Serializable
 {
   private static final long serialVersionUID = 1L;
 
-  /** Unique ID for the object. */
+  /* Unique ID for the object. */
   private String id;
 
-  /** Email of recipient */
+  /* Email of recipient */
   private String recipient;
 
-  /** State of whether feedback has been given */
+  /* State of whether feedback has been given */
   private boolean replyReceived;
 
-  /** Time stamp of feedback request */
+  /* Time stamp of feedback request */
   private String timestamp;
 
-  /** Empty Constructor */
+  /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
+   */
   public FeedbackRequest()
   {
   }
 
   /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
    * @param id
    * @param recipient
    */
@@ -91,6 +99,13 @@ public class FeedbackRequest implements Serializable
     this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param profile
+   * @return
+   */
   public Activity createActivity(final EmployeeProfile profile)
   {
     final String activityString = new StringBuilder(profile.getFullName()).append(" requested feedback from ")

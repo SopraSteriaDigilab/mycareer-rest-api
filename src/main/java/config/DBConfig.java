@@ -21,13 +21,15 @@ import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
 
+import services.BulkUpdateService;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 
 /**
+ * Spring Configuration class for spring beans related to the database
  * 
- * TODO: Describe this TYPE.
- *
+ * @see MorphiaOperations
+ * @see MongoOperations
  */
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
@@ -39,15 +41,16 @@ public class DBConfig
   private Environment env;
 
   /**
+   * Spring bean definition for the Morphia Datastore.
    * 
-   * TODO: Describe this method.
+   * Constructs a {@code Morphia} instance, and creates and returns its corresponding {@code Datastore} object. Builds
+   * indexes before returning.
    *
-   * @param client
-   * @return
-   * @throws MongoException
+   * @param client the Mongo client object used to create the Datastore
+   * @return the Datastore
    */
   @Bean
-  public Datastore datastore(final MongoClient client) throws MongoException
+  public Datastore datastore(final MongoClient client)
   {
     LOGGER.debug("Creating bean datastore");
 
@@ -61,24 +64,24 @@ public class DBConfig
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for Mongo operations performed on a collection named "employees".
    *
-   * @return
+   * @return a MongoOperations instance for the employees collection
+   * @see MongoOperations
    */
   @Bean
   public MongoOperations employeeOperations()
   {
     LOGGER.debug("Creating bean employeeOperations");
 
-    return new MongoOperations(mongoClient(), EMPLOYEE);
+    return new MongoOperations(mongoClient(), EMPLOYEES);
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for Mongo operations performed on a collection named objectivesHistories.
    *
-   * @return
+   * @return a MongoOperations instance for the objectivesHistories collection
+   * @see MongoOperations
    */
   @Bean
   public MongoOperations objectivesHistoriesOperations()
@@ -89,10 +92,10 @@ public class DBConfig
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for Mongo operations performed on a collection named developmentNeedsHistories.
    *
-   * @return
+   * @return a MongoOperations instance for the developmentNeedsHistories collection
+   * @see MongoOperations
    */
   @Bean
   public MongoOperations developmentNeedsHistoriesOperations()
@@ -103,10 +106,10 @@ public class DBConfig
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for Mongo operations performed on a collection named competenciesHistories.
    *
-   * @return
+   * @return a MongoOperations instance for the competenciesHistories collection
+   * @see MongoOperations
    */
   @Bean
   public MongoOperations competenciesHistoriesOperations()
@@ -117,11 +120,11 @@ public class DBConfig
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for operations performed by Morphia on the given Datastore
    *
-   * @param datastore
-   * @return
+   * @param datastore the Datastore that operatiosn are to be performed on
+   * @return the MorphiaOperations instance
+   * @see MorphiaOperations
    */
   @Bean
   public MorphiaOperations morphiaOperations(final Datastore datastore)
@@ -132,17 +135,16 @@ public class DBConfig
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Spring bean definition for the Mongo client defined in the "${ENVIRONMENT}.properties" file.
    *
-   * @return
+   * @return the MongoClient
+   * @see MongoClient
    */
   @Bean
   public MongoClient mongoClient()
   {
     LOGGER.debug("Creating bean mongoClient");
 
-    // TODO This currently doesn't fully work. the waitTime is not taken by the DB
     MongoClientOptions options = MongoClientOptions.builder().maxWaitTime(10_000).connectTimeout(10_000).build();
     List<ServerAddress> serverList = new ArrayList<>();
     serverList.add(new ServerAddress(env.getProperty("db.host1"), Integer.parseInt(env.getProperty("db.host1.port"))));

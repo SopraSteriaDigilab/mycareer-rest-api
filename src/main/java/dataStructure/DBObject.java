@@ -14,19 +14,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 /**
- * This class contains the definition of an object to be stored in the DB.
+ * 
+ * TODO: Describe this TYPE.
+ *
  */
 public abstract class DBObject implements Serializable
 {
-  /** long Constant - Represents serialVersionUID... */
+  /* long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = 1L;
 
   private static final String DOCUMENT_CONVERSION_EXCEPTION = "Error converting DBObject to Document";
 
-  /** int Property - Represents Unique ID for the object. */
+  /* int Property - Represents Unique ID for the object. */
   private int id;
 
-  /** String Property - Represents the time the objective was last modified. */
+  /* String Property - Represents the time the objective was last modified. */
   private Date lastModified;
 
   /**
@@ -63,26 +65,39 @@ public abstract class DBObject implements Serializable
   {
     this.lastModified = localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE));
   }
-  
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public Date getLastModifiedAsDate()
   {
     return lastModified;
   }
-  
-  public Document toDocument() throws DocumentConversionException 
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   * @throws DocumentConversionException
+   */
+  public Document toDocument() throws DocumentConversionException
   {
-      try
-      {
-        Gson gson = new Gson();
-        String json = gson.toJson(this);
-        @SuppressWarnings("unchecked")
-        HashMap<String, Object> result = new ObjectMapper().readValue(json, HashMap.class);
-        return new Document(result);
-      }
-      catch (IOException e)
-      {
-        throw new DocumentConversionException(DOCUMENT_CONVERSION_EXCEPTION, e);
-      }
+    try
+    {
+      Gson gson = new Gson();
+      String json = gson.toJson(this);
+      @SuppressWarnings("unchecked")
+      HashMap<String, Object> result = new ObjectMapper().readValue(json, HashMap.class);
+      return new Document(result);
+    }
+    catch (IOException e)
+    {
+      throw new DocumentConversionException(DOCUMENT_CONVERSION_EXCEPTION, e);
+    }
   }
-  
+
 }

@@ -21,9 +21,9 @@ import services.ad.ADSearchSettings;
 import services.ad.ADSearchSettingsImpl;
 
 /**
+ * Spring Configuration class for spring beans related to active directory search settings.
  * 
- * TODO: Describe this TYPE.
- *
+ * @see services.ad
  */
 @Configuration
 public class ADConfig
@@ -54,10 +54,10 @@ public class ADConfig
       STERIA_SECTOR_UNIT, TARGET_ADDRESS };
 
   /**
+   * Spring bean definition for the Sopra active directory (EMEAAD) search settings and controls.
    * 
-   * TODO: Describe this method.
-   *
-   * @return
+   * @return the Sopra AD search settings
+   * @see ADSearchSettings
    */
   @Bean
   public ADSearchSettings sopraADSearchSettings()
@@ -70,10 +70,10 @@ public class ADConfig
   }
 
   /**
+   * Spring bean definition for the Steria active directory (AD One) search settings and controls.
    * 
-   * TODO: Describe this method.
-   *
-   * @return
+   * @return the Steria AD search settings
+   * @see ADSearchSettings
    */
   @Bean
   public ADSearchSettings steriaADSearchSettings()
@@ -87,10 +87,9 @@ public class ADConfig
   }
 
   /**
+   * Spring bean definition for the Sopra AD connection settings.
    * 
-   * TODO: Describe this method.
-   *
-   * @return
+   * @return Hashtable containing the Sopra AD connection settings
    */
   @Bean
   public Hashtable<String, String> sopraADSettings()
@@ -110,10 +109,9 @@ public class ADConfig
   }
 
   /**
+   * Spring bean definition for the Steria AD connection settings.
    * 
-   * TODO: Describe this method.
-   *
-   * @return
+   * @return Hashtable containing the Steria AD connection settings
    */
   @Bean
   public Hashtable<String, String> steriaADSettings()
@@ -133,10 +131,10 @@ public class ADConfig
   }
 
   /**
+   * Spring bean definition for the Sopra AD search controls
    * 
-   * TODO: Describe this method.
-   *
-   * @return
+   * @return SearchControls for the Sopra AD
+   * @see SearchControls
    */
   @Bean
   public SearchControls sopraSearchControls()
@@ -152,10 +150,10 @@ public class ADConfig
   }
 
   /**
+   * Spring bean definition for the Steria AD search controls
    * 
-   * TODO: Describe this method.
-   *
-   * @return
+   * @return SearchControls for the Steria AD
+   * @see SearchControls
    */
   @Bean
   public SearchControls steriaSearchControls()

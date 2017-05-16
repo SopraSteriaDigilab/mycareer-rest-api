@@ -9,7 +9,9 @@ import java.util.Date;
 import org.bson.Document;
 
 /**
- * This class contains the definition of the Objective object.
+ * 
+ * TODO: Describe this TYPE.
+ *
  */
 public class Objective extends DBObject implements Comparable<Objective>
 {
@@ -20,16 +22,29 @@ public class Objective extends DBObject implements Comparable<Objective>
 
     private String progressStr;
 
-    Progress(String progressStr)
+    private Progress(String progressStr)
     {
       this.progressStr = progressStr;
     }
 
+    /**
+     * 
+     * TODO: Describe this method.
+     *
+     * @return
+     */
     public String getProgressStr()
     {
       return this.progressStr;
     }
 
+    /**
+     * 
+     * TODO: Describe this method.
+     *
+     * @param progressString
+     * @return
+     */
     public static Progress getProgressFromString(String progressString)
     {
       switch (progressString)
@@ -45,34 +60,34 @@ public class Objective extends DBObject implements Comparable<Objective>
     }
   }
 
-  /** long Constant - Represents serialVersionUID... */
+  /* long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = -8210647573312345743L;
 
   private static final Object OBJECTIVE = "objective";
 
-  /** String Property - Represents the timestamp of the objective. */
+  /* String Property - Represents the timestamp of the objective. */
   private Date createdOn;
 
-  /** String Property - Represents the objective title */
+  /* String Property - Represents the objective title */
   private String title;
 
-  /** String Property - Represents the objective description */
+  /* String Property - Represents the objective description */
   private String description;
 
-  /** String Property - Represents the due date of the objective */
+  /* String Property - Represents the due date of the objective */
   private Date dueDate;
 
-  /** String Property - Represents the name of the person that made the objective */
+  /* String Property - Represents the name of the person that made the objective */
   private String proposedBy;
 
-  /** String Property - Represents the progress of the objective */
+  /* String Property - Represents the progress of the objective */
   private String progress;
 
-  /** boolean Property - Represents the state of the objective */
+  /* boolean Property - Represents the state of the objective */
   private boolean isArchived;
 
   /**
-   * Default Constructor - Responsible for initialising this object.
+   * No-args Constructor - Responsible for initialising this object.
    */
   public Objective()
   {
@@ -80,7 +95,7 @@ public class Objective extends DBObject implements Comparable<Objective>
   }
 
   /**
-   * Objective_NEW Constructor - Responsible for initialising this object.
+   * Objective Constructor - Responsible for initialising this object.
    *
    */
   public Objective(String title, String description, LocalDate dueDate)
@@ -95,7 +110,7 @@ public class Objective extends DBObject implements Comparable<Objective>
   }
 
   /**
-   * Objective_NEW Constructor - Responsible for initialising this object.
+   * Objective Constructor - Responsible for initialising this object.
    *
    */
   public Objective(int id, String title, String description, LocalDate dueDate)
@@ -197,6 +212,17 @@ public class Objective extends DBObject implements Comparable<Objective>
     this.setLastModified();
   }
 
+  /**
+   * 
+   * Override of NAME method.
+   *
+   * TODO: Describe this method.
+   *
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   *
+   * @param objective
+   * @return
+   */
   @Override
   public int compareTo(Objective objective)
   {
@@ -230,16 +256,36 @@ public class Objective extends DBObject implements Comparable<Objective>
     return differences;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public Date getCreatedOnAsDate()
   {
     return createdOn;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public Date getDueDateAsDate()
   {
     return dueDate;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param activityType
+   * @param profile
+   * @return
+   */
   public Activity createActivity(final CRUD activityType, final EmployeeProfile profile)
   {
     final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb())
@@ -248,6 +294,12 @@ public class Objective extends DBObject implements Comparable<Objective>
     return new Activity(activityString, getLastModified());
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
   public boolean isCurrent()
   {
     final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);

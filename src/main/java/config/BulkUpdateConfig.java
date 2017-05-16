@@ -16,9 +16,9 @@ import services.mappers.EmployeeProfileMapper;
 import utils.sequence.SequenceException;
 
 /**
+ * Spring Configuration class for spring beans related to nightly bulk update service.
  * 
- * TODO: Describe this TYPE.
- *
+ * @see BulkUpdateService
  */
 @Configuration
 public class BulkUpdateConfig
@@ -38,14 +38,13 @@ public class BulkUpdateConfig
   private Cache<String, DistributionList> distributionListCache;
 
   /**
+   * Spring bean definition for the nightly bulk update service
    * 
-   * TODO: Describe this method.
-   *
-   * @return
-   * @throws SequenceException
+   * @return the bulk update service
+   * @see BulkUpdateService
    */
   @Bean
-  public BulkUpdateService bulkUpdateService() throws SequenceException
+  public BulkUpdateService bulkUpdateService()
   {
     LOGGER.debug("Creating bean bulkUpdateService");
 
@@ -54,10 +53,10 @@ public class BulkUpdateConfig
   }
 
   /**
+   * Spring bean definition for the employee profile mapper.
    * 
-   * TODO: Describe this method.
-   *
-   * @return
+   * @return the employee profile mapper
+   * @see EmployeeProfileMapper
    */
   @Bean
   public EmployeeProfileMapper employeeProfileMapper()

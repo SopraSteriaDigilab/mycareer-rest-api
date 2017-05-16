@@ -37,7 +37,7 @@ public class MongoOperations
    */
   public enum Collection
   {
-    EMPLOYEE("employees"), OBJECTIVES_HISTORY("objectivesHistories"), DEVELOPMENT_NEEDS_HISTORY(
+    EMPLOYEES("employees"), OBJECTIVES_HISTORY("objectivesHistories"), DEVELOPMENT_NEEDS_HISTORY(
         "developmentNeedsHistories"), COMPETENCIES_HISTORY("competenciesHistories");
 
     private String collectionStr;
@@ -137,7 +137,7 @@ public class MongoOperations
 
     return aggregationResultsToSet(rawResults, listName);
   }
-  
+
   /**
    * Finds a document and returns the specified field based on the filter.
    *
@@ -145,11 +145,12 @@ public class MongoOperations
    * @param filterValue
    * @param field
    */
-  public Document getField(Document filter, String field){
+  public Document getField(Document filter, String field)
+  {
     Document d = mongoCollection.find(filter).first();
-    return (Document)d.get(field);
+    return (Document) d.get(field);
   }
-  
+
   /**
    * Finds a document and returns the specified field based on the filter.
    *
@@ -157,17 +158,17 @@ public class MongoOperations
    * @param filterValue
    * @param field
    */
-  public FindIterable<Document> getFields(Document filter, String... fields){
+  public FindIterable<Document> getFields(Document filter, String... fields)
+  {
     Document projection = new Document(ID, 0);
-    for(String field : fields){
+    for (String field : fields)
+    {
       projection.append(field, 1);
     }
-    
+
     FindIterable<Document> d = mongoCollection.find().projection(projection);
     return d;
   }
-  
-  
 
   @SuppressWarnings("unchecked")
   private <T> List<T> aggregationResultsToList(final AggregateIterable<Document> aggregationResults,
@@ -222,6 +223,14 @@ public class MongoOperations
     return result.getModifiedCount() == 1;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param filter
+   * @param keyValuePairs
+   * @return
+   */
   public boolean unsetFields(Bson filter, Document keyValuePairs)
   {
     UpdateResult result = mongoCollection.updateOne(filter, unset(keyValuePairs));
@@ -268,6 +277,14 @@ public class MongoOperations
         createdOn);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param field
+   * @param value
+   * @return
+   */
   public boolean valueExists(final String field, final String value)
   {
     return mongoCollection.count(new Document(field, value)) > 0L;

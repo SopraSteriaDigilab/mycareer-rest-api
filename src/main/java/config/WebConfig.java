@@ -1,7 +1,6 @@
 package config;
 
 import java.io.IOException;
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -10,20 +9,22 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import net.sourceforge.spnego.SpnegoHttpFilter;
 
 /**
- * 
- * TODO: Describe this TYPE.
- *
+ * Spring Configuration class for filter and authentication spring beans
  */
 @Configuration
 @PropertySource("${ENVIRONMENT}.properties")
 public class WebConfig extends OncePerRequestFilter
 {
+  private final Logger LOGGER = LoggerFactory.getLogger(WebConfig.class);
+
   private static final String SPNEGO_USERNAME = "mycareersvc"; // TODO move these out of application code
   private static final String SPNEGO_PASSWORD = "Czam2mc2!"; // TODO move these out of application code
 
@@ -31,19 +32,20 @@ public class WebConfig extends OncePerRequestFilter
   private Environment env;
 
   /**
+   * Spring bean definition for the SPNEGO filter registration.
    * 
-   * TODO: Describe this method.
+   * Constructs a {@code FilterRegistrationBean} and an {@code SpnegoHttpFilter}, sets initial parameters and returns.
    *
-   * @return
+   * @return the SPNEGO FilterRegistrationBean
    */
   @Bean
   public FilterRegistrationBean spnegoFilterRegistration()
   {
     FilterRegistrationBean registration = new FilterRegistrationBean();
 
-    System.out.println("----------------------------" + System.getProperty("user.dir"));
+    LOGGER.info("----------------------------" + System.getProperty("user.dir"));
 
-    registration.setFilter(spnegoHttpFilter());
+    registration.setFilter(new SpnegoHttpFilter());
     registration.setName("spnegoHttpFilter");
     registration.addInitParameter("spnego.allow.basic", "true");
     registration.addInitParameter("spnego.allow.localhost", "true");
@@ -60,26 +62,7 @@ public class WebConfig extends OncePerRequestFilter
     return registration;
   }
 
-  private Filter spnegoHttpFilter()
-  {
-    return new SpnegoHttpFilter();
-  }
-
-  /**
-   * 
-   * Override of NAME method.
-   *
-   * TODO: Describe this method.
-   *
-   * @see org.springframework.web.filter.OncePerRequestFilter#doFilterInternal(javax.servlet.http.HttpServletRequest,
-   *      javax.servlet.http.HttpServletResponse, javax.servlet.FilterChain)
-   *
-   * @param request
-   * @param response
-   * @param filterChain
-   * @throws ServletException
-   * @throws IOException
-   */
+  /** {@inheritDoc} */
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException

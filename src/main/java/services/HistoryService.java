@@ -21,27 +21,65 @@ import services.db.MorphiaOperations;
 public class HistoryService
 {
   private MorphiaOperations morphiaOperations;
-  
+
+  /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
+   * @param morphiaOperations
+   */
   public HistoryService(final MorphiaOperations morphiaOperations)
   {
     this.morphiaOperations = morphiaOperations;
   }
-  
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   * @throws EmployeeNotFoundException
+   */
   public List<Objective> getObjectives(long employeeId) throws EmployeeNotFoundException
   {
     return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId).getObjectives();
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   * @throws EmployeeNotFoundException
+   */
   public List<DevelopmentNeed> getDevelopmentNeeds(long employeeId) throws EmployeeNotFoundException
   {
     return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId).getDevelopmentNeeds();
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   * @throws EmployeeNotFoundException
+   */
   public List<Note> getNotes(long employeeId) throws EmployeeNotFoundException
   {
     return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId).getNotes();
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   * @throws EmployeeNotFoundException
+   */
   public List<Feedback> getFeedback(long employeeId) throws EmployeeNotFoundException
   {
     List<Feedback> feedbackList = morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId).getFeedback();
@@ -50,6 +88,14 @@ public class HistoryService
     return feedbackList;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   * @throws EmployeeNotFoundException
+   */
   public List<Rating> getRatings(long employeeId) throws EmployeeNotFoundException
   {
     return morphiaOperations.getEmployeeOrThrow(EMPLOYEE_ID, employeeId).getRatings();

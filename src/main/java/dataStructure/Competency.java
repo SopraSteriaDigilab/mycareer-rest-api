@@ -79,7 +79,9 @@ public class Competency extends DBObject implements Comparable<Competency>
   private boolean isSelected;
 
   /**
-   * Default Constructor - Responsible for initialising this object.
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
    */
   public Competency()
   {

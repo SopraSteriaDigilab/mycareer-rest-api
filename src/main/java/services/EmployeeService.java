@@ -54,7 +54,8 @@ import utils.Utils;
 import utils.Validate;
 
 /**
- * This class contains the definition of the EmployeeDAO object
+ * 
+ * TODO: Describe this TYPE.
  *
  */
 @Component
@@ -75,25 +76,25 @@ public class EmployeeService
 
   private static final String EMPTY_STRING = "";
 
-  /** MorphiaOperations Property - Represents a reference to the database using morphia. */
+  /* MorphiaOperations Property - Represents a reference to the database using morphia. */
   private MorphiaOperations morphiaOperations;
 
-  /** MongoOperations Property - Represents a reference to the database using mongo java driver */
+  /* MongoOperations Property - Represents a reference to the database using mongo java driver */
   private MongoOperations employeeOperations;
 
-  /** MongoOperations Property - Represents a reference to the database using mongo java driver */
+  /* MongoOperations Property - Represents a reference to the database using mongo java driver */
   private MongoOperations objectivesHistoriesOperations;
 
-  /** MongoOperations Property - Represents a reference to the database using mongo java driver */
+  /* MongoOperations Property - Represents a reference to the database using mongo java driver */
   private MongoOperations developmentNeedsHistoriesOperations;
 
-  /** MongoOperations Property - Represents a reference to the database using mongo java driver */
+  /* MongoOperations Property - Represents a reference to the database using mongo java driver */
   private MongoOperations competenciesHistoriesOperations;
 
-  /** EmployeeProfileService Property - Represents a reference to the employee profile service. */
+  /* EmployeeProfileService Property - Represents a reference to the employee profile service. */
   private EmployeeProfileService employeeProfileService;
 
-  /** Environment Property - Reference to environment to get property details. */
+  /* Environment Property - Reference to environment to get property details. */
   private Environment env;
 
   /**
@@ -148,7 +149,14 @@ public class EmployeeService
 
     return employee;
   }
-  
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeID
+   * @return
+   */
   public Employee getEmployeeNullable(final long employeeID)
   {
     return morphiaOperations.getEmployee(EMPLOYEE_ID, employeeID);
@@ -176,11 +184,28 @@ public class EmployeeService
   ///////////////////// OBJECTIVES METHODS FOLLOW ///////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   * @throws EmployeeNotFoundException
+   */
   public List<Objective> getObjectives(long employeeId) throws EmployeeNotFoundException
   {
     return getEmployee(employeeId).getCurrentObjectives();
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param objective
+   * @throws EmployeeNotFoundException
+   * @throws DocumentConversionException
+   */
   public void addObjective(long employeeId, Objective objective)
       throws EmployeeNotFoundException, DocumentConversionException
   {
@@ -197,6 +222,15 @@ public class EmployeeService
     updateActivityFeed(employee);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param objective
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   */
   public void editObjective(long employeeId, Objective objective)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -219,6 +253,16 @@ public class EmployeeService
     updateActivityFeed(employee);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param objectiveId
+   * @param comment
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   */
   public void deleteObjective(long employeeId, int objectiveId, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -244,6 +288,20 @@ public class EmployeeService
         String.format(COMMENT_DELTED_OBJECTIVE, employee.getProfile().getFullName(), title, commentAdded)));
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param objectiveId
+   * @param progress
+   * @param comment
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   * @throws JsonParseException
+   * @throws JsonMappingException
+   * @throws IOException
+   */
   public void updateObjectiveProgress(long employeeId, int objectiveId, Progress progress, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException, JsonParseException, JsonMappingException,
       IOException
@@ -270,6 +328,15 @@ public class EmployeeService
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param objectiveId
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   */
   public void toggleObjectiveArchive(long employeeId, int objectiveId)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -291,11 +358,28 @@ public class EmployeeService
   ///////////////// DEVELOPMENT NEEDS METHODS FOLLOW ////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   * @throws EmployeeNotFoundException
+   */
   public List<DevelopmentNeed> getDevelopmentNeeds(long employeeId) throws EmployeeNotFoundException
   {
     return getEmployee(employeeId).getCurrentDevelopmentNeeds();
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param developmentNeed
+   * @throws EmployeeNotFoundException
+   * @throws DocumentConversionException
+   */
   public void addDevelopmentNeed(long employeeId, DevelopmentNeed developmentNeed)
       throws EmployeeNotFoundException, DocumentConversionException
   {
@@ -312,6 +396,15 @@ public class EmployeeService
     updateActivityFeed(employee);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param developmentNeed
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   */
   public void editDevelopmentNeed(long employeeId, DevelopmentNeed developmentNeed)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -334,6 +427,16 @@ public class EmployeeService
     updateActivityFeed(employee);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param developmentNeedId
+   * @param comment
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   */
   public void deleteDevelopmentNeed(long employeeId, int developmentNeedId, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -360,6 +463,17 @@ public class EmployeeService
         String.format(COMMENT_DELETED_DEVELOPMENT_NEED, employee.getProfile().getFullName(), title, commentAdded)));
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param developmentNeedId
+   * @param progress
+   * @param comment
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   */
   public void updateDevelopmentNeedProgress(long employeeId, int developmentNeedId, Progress progress, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -384,6 +498,15 @@ public class EmployeeService
     }
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param developmentNeedId
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   */
   public void toggleDevelopmentNeedArchive(long employeeId, int developmentNeedId)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -406,11 +529,28 @@ public class EmployeeService
   //////////////////// COMPETENCIES METHODS FOLLOW //////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   * @throws EmployeeNotFoundException
+   */
   public List<Competency> getCompetencies(long employeeId) throws EmployeeNotFoundException
   {
     return getEmployee(employeeId).getCompetencies();
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param competencyTitle
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   */
   public void toggleCompetency(long employeeId, CompetencyTitle competencyTitle)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -531,6 +671,17 @@ public class EmployeeService
 
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param providerEmail
+   * @param recipientEmail
+   * @param feedbackDescription
+   * @param isFeedbackRequest
+   * @throws InvalidAttributeValueException
+   * @throws EmployeeNotFoundException
+   */
   public void addFeedback(String providerEmail, String recipientEmail, String feedbackDescription,
       boolean isFeedbackRequest) throws InvalidAttributeValueException, EmployeeNotFoundException
   {
@@ -643,13 +794,6 @@ public class EmployeeService
     }
   }
 
-  /**
-   * Add a feedbackRequest to an employee.
-   *
-   * @param employee
-   * @param feedbackRequest
-   * @throws InvalidAttributeValueException
-   */
   private void addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest)
       throws InvalidAttributeValueException
   {
@@ -665,12 +809,31 @@ public class EmployeeService
   /////////////////////// RATINGS METHODS FOLLOW ////////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param year
+   * @return
+   * @throws EmployeeNotFoundException
+   */
   public Rating getRating(long employeeId, int year) throws EmployeeNotFoundException
   {
     Employee employee = getEmployee(employeeId);
     return employee.getRating(year);
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param year
+   * @param selfEvaluation
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   */
   public void addSelfEvaluation(long employeeId, int year, String selfEvaluation)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -679,6 +842,17 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, RATINGS, employee.getRatings());
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param year
+   * @throws EmployeeNotFoundException
+   * @throws FileNotFoundException
+   * @throws IOException
+   * @throws InvalidAttributeValueException
+   */
   public void submitSelfEvaluation(long employeeId, int year)
       throws EmployeeNotFoundException, FileNotFoundException, IOException, InvalidAttributeValueException
   {
@@ -708,6 +882,13 @@ public class EmployeeService
   ////////////////////// LAST LOGON METHODS FOLLOW //////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param profile
+   * @throws EmployeeNotFoundException
+   */
   public void updateLastLoginDate(EmployeeProfile profile) throws EmployeeNotFoundException
   {
     Employee employee = getEmployee(profile.getEmployeeID());
@@ -719,6 +900,14 @@ public class EmployeeService
   //////////////////////// TAGS METHODS FOLLOW //////////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @return
+   * @throws services.EmployeeNotFoundException
+   */
   public Map<String, Map<Integer, String>> getTags(long employeeId) throws services.EmployeeNotFoundException
   {
     Map<String, Map<Integer, String>> tags = new HashMap<>();
@@ -734,6 +923,17 @@ public class EmployeeService
     return tags;
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param feedbackId
+   * @param objectiveIds
+   * @param developmentNeedIds
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   */
   public void updateFeedbackTags(long employeeId, int feedbackId, Set<Integer> objectiveIds,
       Set<Integer> developmentNeedIds) throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -753,6 +953,17 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param employeeId
+   * @param noteId
+   * @param objectiveIds
+   * @param developmentNeedIds
+   * @throws EmployeeNotFoundException
+   * @throws InvalidAttributeValueException
+   */
   public void updateNotesTags(long employeeId, int noteId, Set<Integer> objectiveIds, Set<Integer> developmentNeedIds)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
@@ -772,6 +983,13 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
   }
 
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param reporteeCN
+   * @return
+   */
   public String getManagerEmailAddress(String reporteeCN)
   {
     Document filter = new Document("profile.reporteeCNs", MongoUtils.in(Arrays.asList(reporteeCN)));
@@ -786,5 +1004,4 @@ public class EmployeeService
 
     return emailAddresses.getPreferred();
   }
-
 }
