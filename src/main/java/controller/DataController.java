@@ -16,25 +16,23 @@ import org.springframework.web.bind.annotation.RestController;
 import services.DataService;
 
 /**
+ * REST controller for end points providing data directly from the database.
  * 
- * TODO: Describe this TYPE.
- *
+ * @see DataService
  */
 @CrossOrigin
 @RestController
 @RequestMapping("/data")
 public class DataController
 {
-  /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
   private static final Logger LOGGER = LoggerFactory.getLogger(DataController.class);
 
   private DataService dataService;
 
   /**
-   * 
-   * TYPE Constructor - Responsible for initialising this object.
+   * DataController Constructor - Responsible for initialising this object.
    *
-   * @param dataService
+   * @param dataService the service layer for DataController end points
    */
   @Autowired
   public DataController(final DataService dataService)
@@ -43,10 +41,7 @@ public class DataController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @return
+   * @return a {@code ResponseEntity<Set<String>>} of all email addresses in the database.
    */
   @RequestMapping(value = "/getAllEmailAddresses", method = GET)
   public ResponseEntity<Set<String>> getAllEmailAddresses()
@@ -59,10 +54,7 @@ public class DataController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @return
+   * @return a {@code ResponseEntity<?>} containing all forenames, surnames and employee IDs in the database
    */
   @RequestMapping(value = "/getAllNamesAndIds", method = GET)
   public ResponseEntity<?> getAllNamesAndIds()

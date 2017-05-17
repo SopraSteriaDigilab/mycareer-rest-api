@@ -1,19 +1,18 @@
 package controller;
 
 /**
- * 
- * TODO: Describe this TYPE.
+ * Exception which indicates that an {@code Employee}s data is restricted in the current context and may not be
+ * accessed.
  *
+ * @see Employee
  */
 public class EmployeeDataRestrictionException extends Exception
 {
-  /** TYPE Property|Constant - Represents|Indicates... */
   private static final long serialVersionUID = 1L;
 
   /**
-   * 
-   * TYPE Constructor - Responsible for initialising this object.
-   *
+   * EmployeeDataRestrictionException Constructor - Initialises this exception with a standard exception message for
+   * this type.
    */
   public EmployeeDataRestrictionException()
   {

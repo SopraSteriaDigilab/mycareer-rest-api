@@ -22,9 +22,10 @@ import services.HRService;
 import services.HistoryService;
 
 /**
+ * REST controller for end points providing access to historical employee data.
  * 
- * TODO: Describe this TYPE.
- *
+ * @see HistoryService
+ * @see HRService
  */
 @CrossOrigin
 @RestController
@@ -32,7 +33,6 @@ import services.HistoryService;
 @RequestMapping("/history")
 public class HistoryController
 {
-  /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
   private static final Logger LOGGER = LoggerFactory.getLogger(HistoryController.class);
 
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
@@ -44,11 +44,11 @@ public class HistoryController
   private HRService hrService;
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP GET request to fetch all data corresponding to the employee with the given employee ID.
    *
-   * @param employeeId
-   * @return
+   * @param employeeId The employee ID of the employee whose data is to be returned. Must be an integer greater than 0.
+   * @return {@code ResponseEntity<Employee> with OK response and body containing the employee with {@code employeeId}.
+   *         Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getMyCareer/{employeeId}", method = GET)
   public ResponseEntity<?> getMyCareer(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
@@ -68,11 +68,12 @@ public class HistoryController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP GET request to fetch all objectives corresponding to the employee with the given employee ID.
    *
-   * @param employeeId
-   * @return
+   * @param employeeId The employee ID of the employee whose objectives are to be returned. Must be an integer greater
+   *          than 0.
+   * @return {@code ResponseEntity<List<Objective>> with OK response and body containing all objectives of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getObjectives/{employeeId}", method = GET)
   public ResponseEntity<?> getObjectives(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
@@ -90,11 +91,12 @@ public class HistoryController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP GET request to fetch all development needs corresponding to the employee with the given employee ID.
    *
-   * @param employeeId
-   * @return
+   * @param employeeId The employee ID of the employee whose development needs are to be returned. Must be an integer
+   *          greater than 0.
+   * @return {@code ResponseEntity<List<DevelopmentNeed>> with OK response and body containing all development needs of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getDevelopmentNeeds/{employeeId}", method = GET)
   public ResponseEntity<?> getDevelopmentNeeds(
@@ -113,11 +115,12 @@ public class HistoryController
   }
 
   /**
-   * 
-   * GET end point - gets all notes for a user
-   * 
-   * @param employeeID the ID of the employee
-   * @return list of notes
+   * HTTP GET request to fetch all notes corresponding to the employee with the given employee ID.
+   *
+   * @param employeeId The employee ID of the employee whose notes are to be returned. Must be an integer greater than
+   *          0.
+   * @return {@code ResponseEntity<List<DevelopmentNeed>> with OK response and body containing all notes of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getNotes/{employeeID}", method = GET)
   public ResponseEntity<?> getNotes(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
@@ -135,11 +138,12 @@ public class HistoryController
   }
 
   /**
-   * 
-   * This method allows the front-end to retrieve the latest version of each feedback related to a specific user
-   * 
-   * @param employeeID the employee ID (>0)
-   * @return list of feedback (only the latest version of them)
+   * HTTP GET request to fetch all feedback corresponding to the employee with the given employee ID.
+   *
+   * @param employeeId The employee ID of the employee whose feedback is to be returned. Must be an integer greater than
+   *          0.
+   * @return {@code ResponseEntity<List<DevelopmentNeed>> with OK response and body containing all feedback of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getFeedback/{employeeID}", method = GET)
   public ResponseEntity<?> getFeedback(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)

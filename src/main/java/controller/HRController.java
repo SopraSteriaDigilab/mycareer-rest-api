@@ -22,20 +22,20 @@ import services.EmployeeProfileService;
 import services.HRService;
 
 /**
- * HRController Class - Rest controller for the HR of MyCareer.
- *
+ * REST controller for end points providing HR with statistical data.
+ * 
+ * @see HRService
+ * @see EmployeeProfileService
  */
 @CrossOrigin
 @RestController
 @RequestMapping("/hr")
 public class HRController
 {
-  /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
   private static final Logger LOGGER = LoggerFactory.getLogger(HRController.class);
 
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
 
-  /** hrService Constant - Represents the service to be user for hr data. */
   @Autowired
   private HRService hrService;
 
@@ -43,12 +43,13 @@ public class HRController
   private EmployeeProfileService employeeProfileService;
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP GET request to fetch the data for an employee corresponding to {@code searchEmployeeId}.
    *
-   * @param employeeId
-   * @param searchEmployeeId
-   * @return
+   * @param employeeId The employee ID of the employee performing the search. Must be an integer greater than 0.
+   * @param searchEmployeeId The employee ID of the employee whose data is to be returned. Must be an integer greater
+   *          than 0.
+   * @return {@code ResponseEntity<Employee> with OK response and body containing the employee with
+   *         {@code searchEmployeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/{employeeId}/getCareer/{searchEmployeeId}", method = GET)
   public ResponseEntity<?> getMyCareer(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -76,7 +77,7 @@ public class HRController
   }
 
   /**
-   * GET End Point - Gets overview of my career stats
+   * HTTP GET request - Gets an overview of MyCareer statistics.
    *
    * @return
    */
@@ -89,7 +90,7 @@ public class HRController
   }
 
   /**
-   * GET End Point - Gets lists of employees with department data
+   * HTTP GET request - Gets lists of employees with department data
    *
    * @return
    */
@@ -102,7 +103,7 @@ public class HRController
   }
 
   /**
-   * GET End Point - Gets lists of employees and the number of feedback they have received
+   * HTTP GET request - Gets lists of employees and the number of feedback they have received
    *
    * @return
    */
@@ -115,7 +116,7 @@ public class HRController
   }
 
   /**
-   * GET End Point - Gets lists of employees and their objective statistics
+   * HTTP GET request - Gets lists of employees and their objective statistics
    *
    * @return
    */
@@ -128,7 +129,7 @@ public class HRController
   }
 
   /**
-   * GET End Point - Gets lists of employees and their development needs statistics
+   * HTTP GET request - Gets lists of employees and their development needs statistics
    *
    * @return
    */
@@ -141,7 +142,7 @@ public class HRController
   }
 
   /**
-   * GET End Point - Gets lists of employees with started and in progress development needs with categories.
+   * HTTP GET request - Gets lists of employees with started and in progress development needs with categories.
    *
    * @return
    */
@@ -154,7 +155,7 @@ public class HRController
   }
 
   /**
-   * GET End Point - Gets list of sectors and statistics about employees, objectives and development needs in each
+   * HTTP GET request - Gets list of sectors and statistics about employees, objectives and development needs in each
    * sector.
    *
    * @return

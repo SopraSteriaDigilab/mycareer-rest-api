@@ -43,6 +43,8 @@ import dataStructure.Note;
 import dataStructure.Objective;
 import dataStructure.Rating;
 import services.EmployeeNotFoundException;
+import services.EmployeeProfileService;
+import services.EmployeeService;
 import services.ManagerService;
 import services.ews.DistributionList;
 import services.ews.DistributionListException;
@@ -50,9 +52,10 @@ import services.ews.DistributionListService;
 import utils.Utils;
 
 /**
+ * REST controller for end points providing manager access and control.
  * 
- * TODO: Describe this TYPE.
- *
+ * @see ManagerService
+ * @see DistributionListService
  */
 @CrossOrigin
 @RestController
@@ -87,11 +90,12 @@ public class ManagerController
   private DistributionListService distributionListService;
 
   /**
+   * HTTP GET request to fetch the profiles of the reportees of the employee with the given employee ID.
    * 
-   * This method allows the front-end to retrieve all the reportees associated with a user
-   * 
-   * @param employeeID the ID of an employee
-   * @return list of ADProfileBasics
+   * @param employeeID The employee ID of the employee whose reportees' profiles are to be returned. Must be an integer
+   *          greater than 0.
+   * @return {@code ResponseEntity<List<EmployeeProfile>> with OK response and body containing the profiles of the reportees of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getReportees/{employeeID}", method = GET)
   public ResponseEntity<?> getReportees(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
@@ -100,10 +104,6 @@ public class ManagerController
     {
       return ok(managerService.getReporteesForUser(employeeID));
     }
-    catch (MongoException me)
-    {
-      return badRequest().body("DataBase Connection Error");
-    }
     catch (Exception e)
     {
       return badRequest().body(e.getMessage());
@@ -111,10 +111,31 @@ public class ManagerController
   }
 
   /**
-   * POST End point - Add note to reportee.
-   * 
-   * @return
+   * HTTP POST request to add a note to the employee with the given employee ID.
    *
+   * @param employeeID The employee ID of the employee to whom an objective is to be added. Must be an integer greater
+   *          than 0.
+   * @param providerName POST request parameter - the name of the person or entity who is adding the note. Must be
+   *          non-null and contain between 1 and 150 characters.
+   * @param noteDescription POST request parameter - the description of the note to be added. Must be non-null and
+   *          contain between 1 and 1,000 characters.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the note
+   *         was successfully added. Bad Request response with error message otherwise.
+   */
+
+  /**
+   * HTTP POST request to add a note to a reportee of the employee with the given employee ID.
+   *
+   * @param employeeID The employee ID of the employee who is adding a note to a reportee. Must be an integer greater
+   *          than 0.
+   * @param reporteeEmployeeID POST request parameter - the employee ID of the employee to whom a note is to be added.
+   *          Must be an integer greater than 0.
+   * @param providerName POST request parameter - the name of the person or entity who is adding the note. Must be
+   *          non-null and contain between 1 and 150 characters.
+   * @param noteDescription POST request parameter - the description of the note to be added. Must be non-null and
+   *          contain between 1 and 1,000 characters.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the reportee was found and the note
+   *         was successfully added. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/addNoteToReportee/{employeeID}", method = POST)
   public ResponseEntity<String> addNoteToReportee(
@@ -126,6 +147,7 @@ public class ManagerController
     try
     {
       managerService.addNoteToReportee(reporteeEmployeeID, new Note(providerName, noteDescription));
+
       return ok("Note inserted correctly");
     }
     catch (final EmployeeNotFoundException e)
@@ -135,15 +157,21 @@ public class ManagerController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to add an objective to one or more employees. Also sends an email to each of the employees to
+   * whom an objective was added.
    *
-   * @param employeeId
-   * @param title
-   * @param description
-   * @param dueDate
-   * @param emails
-   * @return
+   * @param employeeId The employee ID of the employee who is proposing an objective. Must be an integer greater than 0.
+   * @param title POST request parameter - the title of the objective to be added. Must be non-null and contain between
+   *          1 and 150 characters.
+   * @param description POST request parameter - the description of the objective to be added. Must be non-null and
+   *          contain between 1 and 2,000 characters.
+   * @param dueDate POST request parameter - the date by which the objective should be achieved. Must be of the form
+   *          yyyy-MM.
+   * @param emails POST request parameter - a comma separated list of email addresses of employees to whom an objective
+   *          is to be added. Must be non-null and contain at least 1 character.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee proposing the objective
+   *         was found, all of the email addresses were matched to employees, and the objective was successfully added
+   *         to them. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/proposeObjective/{employeeId}", method = POST)
   public ResponseEntity<?> proposeObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -186,12 +214,16 @@ public class ManagerController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to check whether a distribution list has been cached. If not, generates a distribution list and
+   * adds it to the cache.
    *
-   * @param employeeId
-   * @param distributionListName
-   * @return
+   * @param employeeId The employee ID of the employee who is generating the distribution list. Must be an integer
+   *          greater than 0.
+   * @param distributionListName POST request parameter - the name of the distribution list to add. Must be non-null and
+   *          contain between 1 and 100 characters.
+   * @return {@code ResponseEntity<DistributionList>} with OK response and details of the members of the distribution
+   *         list if it was successfully generated or found in the cache. Bad Request response with error message
+   *         otherwise.
    */
   @RequestMapping(value = "/generateDistributionList/{employeeId}", method = POST)
   public ResponseEntity<?> generateDistributionList(
@@ -245,15 +277,23 @@ public class ManagerController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to add an objective to employees who are members of a previously cached distribution list.
+   * Distribution lists are generated and cached using {@code generateDistributionList}. Also sends an email to each of
+   * the employees to whom an objective was added.
    *
-   * @param employeeId
-   * @param title
-   * @param description
-   * @param dueDate
-   * @param distributionListName
-   * @return
+   * @param employeeId The employee ID of the employee who is proposing an objective. Must be an integer greater than 0.
+   * @param title POST request parameter - the title of the objective to be added. Must be non-null and contain between
+   *          1 and 150 characters.
+   * @param description POST request parameter - the description of the objective to be added. Must be non-null and
+   *          contain between 1 and 2,000 characters.
+   * @param dueDate POST request parameter - the date by which the objective should be achieved. Must be of the form
+   *          yyyy-MM.
+   * @param distributionListName POST request parameter - the name of the distribution list whose members are to be
+   *          proposed an objective. Must be non-null and contain between 1 and 100 characters.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee proposing the objective
+   *         was found, the distribution list was found in the cache, and the objective was successfully added to all
+   *         members of it. Bad Request response with error message otherwise.
+   * @see generateDistributionList
    */
   @RequestMapping(value = "/proposeObjectiveToDistributionList/{employeeId}", method = POST)
   public ResponseEntity<?> proposeObjectiveToDistributionList(
@@ -281,14 +321,17 @@ public class ManagerController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to save a manager evaluation to a reportee.
    *
-   * @param employeeId
-   * @param reporteeId
-   * @param managerEvaluation
-   * @param score
-   * @return
+   * @param employeeId The employee ID of the manager saving the manager evaluation. Must be an integer greater than 0.
+   * @param reporteeId POST request parameter - The employee ID of the reportee to whom a manager evaluation is to be
+   *          saved. Must be an integer greater than 0.
+   * @param managerEvaluation POST request parameter - the manager evaluation of the employee with the
+   *          {@code reporteeId}. Must contain between 0 and 10,000 characters.
+   * @param score POST request parameter - the score given to the employee as part of the manager evaluation. Must be an
+   *          integer between 0 and 5.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the
+   *         manager evaluation was successfully added. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/addManagerEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> addManagerEvaluation(
@@ -297,9 +340,13 @@ public class ManagerController
       @RequestParam @Size(max = 10_000, message = ERROR_LIMIT_EVALUATION) String managerEvaluation,
       @RequestParam @Min(value = 0, message = ERROR_SCORE) @Max(value = 5, message = ERROR_SCORE) int score)
   {
+    if (!Rating.isRatingPeriod())
+    {
+      return badRequest().body("Manager evaluations can only be added during the ratings submission window.");
+    }
+
     try
     {
-      // TODO will have to add validation so this can only be edited in the right time of year.
       int year = Rating.getRatingYear();
       managerService.addManagerEvaluation(reporteeId, year, managerEvaluation, score);
       return ok("Evaluation Added");
@@ -311,21 +358,27 @@ public class ManagerController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to submit a previously saved manager evaluation to a reportee. Also sends an email to the
+   * reportee to inform them of the submission.
    *
-   * @param employeeId
-   * @param reporteeId
-   * @return
+   * @param employeeId The employee ID of the manager saving the manager evaluation. Must be an integer greater than 0.
+   * @param reporteeId POST request parameter - The employee ID of the reportee to whom a manager evaluation is to be
+   *          saved. Must be an integer greater than 0.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the
+   *         manager evaluation was successfully submitted. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/submitManagerEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> submitManagerEvaluation(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeId)
   {
+    if (!Rating.isRatingPeriod())
+    {
+      return badRequest().body("Manager evaluations can only be added during the ratings submission window.");
+    }
+
     try
     {
-      // TODO will have to add validation so this can only be edited in the right time of year.
       int year = Rating.getRatingYear();
       managerService.submitManagerEvaluation(reporteeId, year);
       return ok("Evaluation Submitted");
@@ -342,11 +395,12 @@ public class ManagerController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP GET request to fetch the activity feeds of reportees for a line manager.
    *
-   * @param employeeId
-   * @return
+   * @param employeeId The employee ID of the manager whose reportees' activity feeds are to be returned. Must be an
+   *          integer greater than 0.
+   * @return {@code ResponseEntity<List<ActivityFeed>>} with OK response and the activity feeds of the reportees of the
+   *         line manager with the given employee ID.
    */
   @RequestMapping(value = "/getActivityFeed/{employeeId}", method = GET)
   public ResponseEntity<?> getActivityFeed(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)

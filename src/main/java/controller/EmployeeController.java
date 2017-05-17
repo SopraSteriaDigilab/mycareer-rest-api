@@ -46,9 +46,10 @@ import services.EmployeeProfileService;
 import services.EmployeeService;
 
 /**
+ * REST controller for end points providing user access and control.
  * 
- * TODO: Describe this TYPE.
- *
+ * @see EmployeeService
+ * @see EmployeeProfileService
  */
 @CrossOrigin
 @RestController
@@ -56,7 +57,6 @@ import services.EmployeeService;
 @Validated
 public class EmployeeController
 {
-  /** Logger Constant - Represents an implementation of the Logger interface that may be used here.. */
   private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeController.class);
 
   private static final String ERROR_EMPLOYEE_ID = "The given Employee ID is invalid";
@@ -97,11 +97,14 @@ public class EmployeeController
   @Autowired
   private EmployeeProfileService employeeProfileService;
 
+  //////////////////////////////////////////////////////////////////////////////
+  //////////////////// INTRO/LOGON END POINT METHODS FOLLOW ////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
   /**
+   * HTTP GET request for a simple welcome message.
    * 
-   * TODO: Describe this method.
-   *
-   * @return
+   * @return a {@code ResponseEntity<String>} containing a simple welcome message.
    */
   @RequestMapping(value = "/", method = GET)
   public ResponseEntity<String> welcomePage()
@@ -110,8 +113,7 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP GET request for portal users.
    *
    * @param request
    * @param response
@@ -138,11 +140,12 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP GET request to fetch the employee profile of the user making the request.
    *
    * @param request
-   * @return
+   * @return {@code ResponseEntity<EmployeeProfile>} with OK response and body containing the employee profile of the
+   *         user making the request. Bad Request response with error message if the identity of the user could not be
+   *         determined or if the employee could not found.
    */
   @RequestMapping(value = "/logMeIn", method = GET)
   public ResponseEntity<?> index(HttpServletRequest request)
@@ -165,98 +168,14 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * This method allows the front-end to retrieve the latest version of each feedback related to a specific user
-   * 
-   * @param employeeID the employee ID (>0)
-   * @return list of feedback (only the latest version of them)
-   */
-  @RequestMapping(value = "/getFeedback/{employeeID}", method = GET)
-  public ResponseEntity<?> getFeedback(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
-  {
-    try
-    {
-      return ok(employeeService.getFeedback(employeeID));
-    }
-    catch (final EmployeeNotFoundException e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-  }
-
-  /**
-   * 
-   * GET end point - gets all notes for a user
-   * 
-   * @param employeeID the ID of the employee
-   * @return list of notes
-   */
-  @RequestMapping(value = "/getNotes/{employeeID}", method = GET)
-  public ResponseEntity<?> getNotes(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
-  {
-    try
-    {
-      return ok(employeeService.getNotes(employeeID));
-    }
-    catch (final EmployeeNotFoundException e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-  }
-
-  /**
-   * POST End point - Adds note to employee
+   * HTTP GET request to fetch an employee profile from the database based on the given employee username or email
+   * address.
    *
-   */
-  @RequestMapping(value = "/addNote/{employeeID}", method = POST)
-  public ResponseEntity<String> addNote(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_NOTE_PROVIDER_NAME) @Size(max = 150, message = ERROR_LIMIT_PROVIDER_NAME) String providerName,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_NOTE_DESCRIPTION) @Size(max = 1000, message = ERROR_LIMIT_NOTE_DESCRIPTION) String noteDescription)
-  {
-    try
-    {
-      employeeService.addNote(employeeID, new Note(providerName, noteDescription));
-      return ok("Note inserted");
-    }
-    catch (final EmployeeNotFoundException e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-
-  }
-
-  /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @param employeeID
-   * @param emailsTo
-   * @param notes
-   * @return
-   */
-  @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
-  public ResponseEntity<String> createFeedbackRequest(
-      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_EMAIL_RECIPIENTS) String emailsTo,
-      @RequestParam @Size(max = 1000, message = ERROR_LIMIT_NOTE_DESCRIPTION) String notes)
-  {
-    try
-    {
-      employeeService.processFeedbackRequest(employeeID, emailsTo, notes);
-      return ok("Your feedback request has been processed.");
-    }
-    catch (Exception e)
-    {
-      return badRequest().body(e.getMessage());
-    }
-  }
-
-  /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @param userNameEmail
-   * @return
+   * @param userNameEmail An employee's username or email address. Must be non-null and contain between 1 and 300
+   *          characters.
+   * @return {@code ResponseEntity<EmployeeProfile>} with OK response and body containing the employee profile of the
+   *         employee with the given username or email address. Bad Request response with error message if employee not
+   *         found.
    */
   @RequestMapping(value = "/authenticateUserProfile", method = GET)
   public ResponseEntity<?> authenticateUserProfile(
@@ -272,12 +191,17 @@ public class EmployeeController
     }
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+  //////////////////// OBJECTIVES END POINT METHODS FOLLOW /////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP GET request to fetch the current objectives of the employee corresponding to the given employee ID.
    *
-   * @param employeeId
-   * @return
+   * @param employeeId The employee ID of the employee whose objectives are to be returned. Must be an integer greater
+   *          than 0.
+   * @return {@code ResponseEntity<List<Objective>> with OK response and body containing the current objectives of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getObjectives/{employeeId}", method = GET)
   public ResponseEntity<?> getObjectives(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
@@ -293,19 +217,23 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to add an objective to the employee with the given employee ID.
    *
-   * @param employeeId
-   * @param title
-   * @param description
-   * @param dueDate
-   * @return
+   * @param employeeId The employee ID of the employee to whom an objective is to be added. Must be an integer greater
+   *          than 0.
+   * @param title POST request parameter - the title of the objective to be added. Must be non-null and contain between
+   *          1 and 150 characters.
+   * @param description POST request parameter - the description of the objective to be added. Must be non-null and
+   *          contain between 1 and 2,000 characters.
+   * @param dueDate POST request parameter - the date by which the objective should be achieved. Must be of the form
+   *          yyyy-MM.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the
+   *         objective was successfully added. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/addObjective/{employeeId}", method = POST)
   public ResponseEntity<?> addObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_DESCRIPTION) @Size(max = 2000, message = ERROR_LIMIT_DESCRIPTION) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_DESCRIPTION) @Size(max = 2_000, message = ERROR_LIMIT_DESCRIPTION) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate)
   {
     try
@@ -326,21 +254,26 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to edit an existing objective of the employee with the given employee ID.
    *
-   * @param employeeId
-   * @param objectiveId
-   * @param title
-   * @param description
-   * @param dueDate
-   * @return
+   * @param employeeId The employee ID of the employee whose objective is to be edited. Must be an integer greater than
+   *          0.
+   * @param objectiveId POST request parameter - the ID number of the objective to be edited. Must be an integer greater
+   *          than 0.
+   * @param title POST request parameter - the new title of the objective to be edited. Must be non-null and contain
+   *          between 1 and 150 characters.
+   * @param description POST request parameter - the new description of the objective to be edited. Must be non-null and
+   *          contain between 1 and 2,000 characters.
+   * @param dueDate POST request parameter - the new date by which the objective to be edited should be achieved. Must
+   *          be of the form yyyy-MM.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee and objective were
+   *         found and the objective was successfully edited. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/editObjective/{employeeId}", method = POST)
   public ResponseEntity<?> editObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_OBJECTIVE_DESCRIPTION) @Size(max = 2000, message = ERROR_LIMIT_OBJECTIVE_DESCRIPTION) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_OBJECTIVE_DESCRIPTION) @Size(max = 2_000, message = ERROR_LIMIT_OBJECTIVE_DESCRIPTION) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate)
   {
     try
@@ -356,18 +289,23 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to permanently delete an objective from the employee with the given employee ID. Also adds an
+   * auto-generated note to the employee if the objective was successfully deleted.
    *
-   * @param employeeId
-   * @param objectiveId
-   * @param comment
-   * @return
+   * @param employeeId The employee ID of the employee whose objective is to be deleted. Must be an integer greater than
+   *          0.
+   * @param objectiveId POST request parameter - the ID number of the objective to be deleted. Must be an integer
+   *          greater than 0.
+   * @param comment POST request parameter - a comment to include in the auto-generated note. Must contain between 0 and
+   *          1,000 characters.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee and objective were
+   *         found, the objective was successfully deleted, and the auto-generated note was successfully added. Bad
+   *         Request response with error message otherwise.
    */
   @RequestMapping(value = "/deleteObjective/{employeeId}", method = POST)
   public ResponseEntity<?> deleteObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
-      @RequestParam @Size(max = 1000, message = ERROR_LIMIT_COMMENT) String comment)
+      @RequestParam @Size(max = 1_000, message = ERROR_LIMIT_COMMENT) String comment)
   {
     try
     {
@@ -381,21 +319,27 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to update the progress of an existing objective of the employee with the given employee ID. Also
+   * adds an auto-generated note to the employee if the objective progress was successfully updated.
    *
-   * @param employeeId
-   * @param objectiveId
-   * @param progress
-   * @param comment
-   * @return
+   * @param employeeId The employee ID of the employee whose objective is to be updated. Must be an integer greater than
+   *          0.
+   * @param objectiveId POST request parameter - the ID number of the objective whose progress is to be updated. Must be
+   *          an integer greater than 0.
+   * @param progress POST request parameter - the progress level that the objective is to be updated to. Progress levels
+   *          are 0 - Proposed, 1 - In-Progress, 2 - Complete. Must be an integer between 0 and 2.
+   * @param comment POST request parameter - a comment to include in the auto-generated note. Must contain between 0 and
+   *          1,000 characters.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee and objective were
+   *         found, the objective progress was successfully updated, and the auto-generated note was successfully added.
+   *         Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/updateObjectiveProgress/{employeeId}", method = POST)
   public ResponseEntity<?> updateObjectiveProgress(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_OBJECTIVE_ID) int objectiveId,
       @RequestParam @Min(value = 0, message = ERROR_PROGRESS) @Max(value = 2, message = ERROR_PROGRESS) int progress,
-      @RequestParam @Size(max = 1000, message = ERROR_LIMIT_COMMENT) String comment)
+      @RequestParam @Size(max = 1_000, message = ERROR_LIMIT_COMMENT) String comment)
   {
     try
     {
@@ -415,12 +359,16 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to archive an active objective or restore/re-activate an archived objective from the employee
+   * with the given employee ID.
    *
-   * @param employeeId
-   * @param objectiveId
-   * @return
+   * @param employeeId The employee ID of the employee whose objective is to be archived or restored. Must be an integer
+   *          greater than 0.
+   * @param objectiveId POST request parameter - the ID number of the objective to archive or restore. Must be an
+   *          integer greater than 0.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee and objective were
+   *         found, and the objective was successfully archived or restored. Bad Request response with error message
+   *         otherwise.
    */
   @RequestMapping(value = "/toggleObjectiveArchive/{employeeId}", method = POST)
   public ResponseEntity<?> toggleObjectiveArchive(
@@ -438,12 +386,17 @@ public class EmployeeController
     }
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+  ///////////////// DEVELOPMENT NEEDS END POINT METHODS FOLLOW /////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP GET request to fetch the current development needs of the employee corresponding to the given employee ID.
    *
-   * @param employeeId
-   * @return
+   * @param employeeId The employee ID of the employee whose development needs are to be returned. Must be an integer
+   *          greater than 0.
+   * @return {@code ResponseEntity<List<DevelopmentNeed>> with OK response and body containing the current development needs of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getDevelopmentNeeds/{employeeId}", method = GET)
   public ResponseEntity<?> getDevelopmentNeeds(
@@ -460,21 +413,27 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to add a development need to the employee with the given employee ID.
    *
-   * @param employeeId
-   * @param title
-   * @param description
-   * @param dueDate
-   * @param category
-   * @return
+   * @param employeeId The employee ID of the employee to whom a development need is to be added. Must be an integer
+   *          greater than 0.
+   * @param title POST request parameter - the title of the development need to be added. Must be non-null and contain
+   *          between 1 and 150 characters.
+   * @param description POST request parameter - the description of the development need to be added. Must be non-null
+   *          and contain between 1 and 2,000 characters.
+   * @param dueDate POST request parameter - the date by which the development need should be achieved. Must be of the
+   *          form yyyy-MM.
+   * @param category POST request parameter - the category of the development need to be added. Categories are 0 - Job
+   *          Training, 1 - Classroom Training, 2 - Online, 3 - Self Study, 4 - Other. Must be an integer between 0 and
+   *          4.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the
+   *         development need was successfully added. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/addDevelopmentNeed/{employeeId}", method = POST)
   public ResponseEntity<?> addDevelopmentNeeds(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_DESCRIPTION) @Size(max = 2000, message = ERROR_LIMIT_DESCRIPTION) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_DESCRIPTION) @Size(max = 2_000, message = ERROR_LIMIT_DESCRIPTION) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
       @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
   {
@@ -497,23 +456,31 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to edit an existing development need of the employee with the given employee ID.
    *
-   * @param employeeId
-   * @param developmentNeedId
-   * @param title
-   * @param description
-   * @param dueDate
-   * @param category
-   * @return
+   * @param employeeId The employee ID of the employee whose development need is to be edited. Must be an integer
+   *          greater than 0.
+   * @param developmentNeedId POST request parameter - the ID number of the development need to be edited. Must be an
+   *          integer greater than 0.
+   * @param title POST request parameter - the new title of the development need to be edited. Must be non-null and
+   *          contain between 1 and 150 characters.
+   * @param descriptionn POST request parameter - the new description of the development need to be edited. Must be
+   *          non-null and contain between 1 and 2,000 characters.
+   * @param dueDate POST request parameter - the new date by which the development need should be achieved. Must be of
+   *          the form yyyy-MM.
+   * @param category POST request parameter - the new category of the development need to be edited. Categories are 0 -
+   *          Job Training, 1 - Classroom Training, 2 - Online, 3 - Self Study, 4 - Other. Must be an integer between 0
+   *          and 4.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee and development need
+   *         were found and the development need was successfully edited. Bad Request response with error message
+   *         otherwise.
    */
   @RequestMapping(value = "/editDevelopmentNeed/{employeeId}", method = POST)
   public ResponseEntity<?> editDevelopmentNeed(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_DESCRIPTION) @Size(max = 2000, message = ERROR_LIMIT_DESCRIPTION) String description,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_DESCRIPTION) @Size(max = 2_000, message = ERROR_LIMIT_DESCRIPTION) String description,
       @RequestParam @Pattern(regexp = REGEX_YEAR_MONTH, message = ERROR_DATE_FORMAT) String dueDate,
       @RequestParam @Min(value = 0, message = ERROR_CATEGORY) @Max(value = 4, message = ERROR_CATEGORY) int category)
   {
@@ -532,19 +499,24 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to permanently delete a development need from the employee with the given employee ID. Also adds
+   * an auto-generated note to the employee if the development need was successfully deleted.
    *
-   * @param employeeId
-   * @param developmentNeedId
-   * @param comment
-   * @return
+   * @param employeeId The employee ID of the employee whose development need is to be deleted. Must be an integer
+   *          greater than 0.
+   * @param developmentNeedId POST request parameter - the ID number of the development need to be deleted. Must be an
+   *          integer greater than 0.
+   * @param comment POST request parameter - a comment to include in the auto-generated note. Must contain between 0 and
+   *          1,000 characters.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee and development need
+   *         were found, the development need was successfully deleted, and the auto-generated note was successfully
+   *         added. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/deleteDevelopmentNeed/{employeeId}", method = POST)
   public ResponseEntity<?> deleteDevelopmentNeed(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
-      @RequestParam @Size(max = 1000, message = ERROR_LIMIT_COMMENT) String comment)
+      @RequestParam @Size(max = 1_000, message = ERROR_LIMIT_COMMENT) String comment)
   {
     try
     {
@@ -558,21 +530,27 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to update the progress of an existing development need of the employee with the given employee
+   * ID. Also adds an auto-generated note to the employee if the development need progress was successfully updated.
    *
-   * @param employeeId
-   * @param developmentNeedId
-   * @param progress
-   * @param comment
-   * @return
+   * @param employeeId The employee ID of the employee whose development need is to be updated. Must be an integer
+   *          greater than 0.
+   * @param developmentNeedId POST request parameter - the ID number of the development need whose progress is to be
+   *          updated. Must be an integer greater than 0.
+   * @param progress POST request parameter - the progress level that the development need is to be updated to. Progress
+   *          levels are 0 - Proposed, 1 - In-Progress, 2 - Complete. Must be an integer between 0 and 2.
+   * @param comment POST request parameter - a comment to include in the auto-generated note. Must contain between 0 and
+   *          1,000 characters.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee and development need
+   *         were found, the development need progress was successfully updated, and the auto-generated note was
+   *         successfully added. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/updateDevelopmentNeedProgress/{employeeId}", method = POST)
   public ResponseEntity<?> updateDevelopmentNeedProgress(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_DEVELOPMENT_NEED_ID) int developmentNeedId,
       @RequestParam @Min(value = 0, message = ERROR_PROGRESS) @Max(value = 2, message = ERROR_PROGRESS) int progress,
-      @RequestParam @Size(max = 1000, message = ERROR_LIMIT_COMMENT) String comment)
+      @RequestParam @Size(max = 1_000, message = ERROR_LIMIT_COMMENT) String comment)
   {
     try
     {
@@ -587,12 +565,16 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to archive an active development need or restore/re-activate an archived development need from
+   * the employee with the given employee ID.
    *
-   * @param employeeId
-   * @param developmentNeedId
-   * @return
+   * @param employeeId The employee ID of the employee whose development need is to be archived or restored. Must be an
+   *          integer greater than 0.
+   * @param developmentNeedId POST request parameter - the ID number of the development need to archive or restore. Must
+   *          be an integer greater than 0.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee and development need
+   *         were found, and the development need was successfully archived or restored. Bad Request response with error
+   *         message otherwise.
    */
   @RequestMapping(value = "/toggleDevelopmentNeedArchive/{employeeId}", method = POST)
   public ResponseEntity<?> toggleDevelopmentNeedArchive(
@@ -610,12 +592,17 @@ public class EmployeeController
     }
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+  /////////////////// COMPETENCIES END POINT METHODS FOLLOW ////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP GET request to fetch the competencies of the employee corresponding to the given employee ID.
    *
-   * @param employeeId
-   * @return
+   * @param employeeId The employee ID of the employee whose competencies are to be returned. Must be an integer greater
+   *          than 0.
+   * @return {@code ResponseEntity<List<Competency>> with OK response and body containing the competencies of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getCompetencies/{employeeId}", method = GET)
   public ResponseEntity<?> getCompetencies(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
@@ -631,12 +618,17 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to toggle whether or not a competency is being focused on by the employee with the given employee
+   * ID.
    *
-   * @param employeeId
-   * @param competencyTitle
-   * @return
+   * @param employeeId The employee ID of the employee whose competency is to be toggled. Must be an integer greater
+   *          than 0.
+   * @param competencyTitle POST request parameter - the title of the competency to toggle. Must match one of the
+   *          following exactly (case-sensitive): "Accountability", "Effective Communication", "Leadership", "Service
+   *          Excellence", "Business Awareness", "Future Orientation", "Innovation and Change", "Teamwork".
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the
+   *         competency was successfully toggled from {@code true} to {@code false} or vice versa. Bad Request response
+   *         with error message otherwise.
    */
   @RequestMapping(value = "/toggleCompetency/{employeeId}", method = POST)
   public ResponseEntity<?> toggleCompetency(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -653,19 +645,102 @@ public class EmployeeController
     }
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+  /////////////////////// NOTES END POINT METHODS FOLLOW ///////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
   /**
+   * HTTP GET request to fetch the current notes of the employee corresponding to the given employee ID.
    * 
-   * TODO: Describe this method.
+   * @param employeeID The employee ID of the employee whose notes are to be returned. Must be an integer greater than
+   *          0.
+   * @return {@code ResponseEntity<List<Note>> with OK response and body containing the current notes of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
+   */
+  @RequestMapping(value = "/getNotes/{employeeID}", method = GET)
+  public ResponseEntity<?> getNotes(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
+  {
+    try
+    {
+      return ok(employeeService.getNotes(employeeID));
+    }
+    catch (final EmployeeNotFoundException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+
+  /**
+   * HTTP POST request to add a note to the employee with the given employee ID.
    *
-   * @param employeeId
-   * @param emails
-   * @param feedback
-   * @return
+   * @param employeeID The employee ID of the employee to whom an objective is to be added. Must be an integer greater
+   *          than 0.
+   * @param providerName POST request parameter - the name of the person or entity who is adding the note. Must be
+   *          non-null and contain between 1 and 150 characters.
+   * @param noteDescription POST request parameter - the description of the note to be added. Must be non-null and
+   *          contain between 1 and 1,000 characters.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the note
+   *         was successfully added. Bad Request response with error message otherwise.
+   */
+  @RequestMapping(value = "/addNote/{employeeID}", method = POST)
+  public ResponseEntity<String> addNote(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_NOTE_PROVIDER_NAME) @Size(max = 150, message = ERROR_LIMIT_PROVIDER_NAME) String providerName,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_NOTE_DESCRIPTION) @Size(max = 1_000, message = ERROR_LIMIT_NOTE_DESCRIPTION) String noteDescription)
+  {
+    try
+    {
+      employeeService.addNote(employeeID, new Note(providerName, noteDescription));
+      return ok("Note inserted");
+    }
+    catch (final EmployeeNotFoundException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  ///////////////////// FEEDBACK END POINT METHODS FOLLOW //////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * HTTP GET request to fetch the current feedback of the employee corresponding to the given employee ID.
+   *
+   * @param employeeID The employee ID of the employee whose feedback is to be returned. Must be an integer greater than
+   *          0.
+   * @return {@code ResponseEntity<List<Feedback>> with OK response and body containing the current feedback of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
+   */
+  @RequestMapping(value = "/getFeedback/{employeeID}", method = GET)
+  public ResponseEntity<?> getFeedback(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
+  {
+    try
+    {
+      return ok(employeeService.getFeedback(employeeID));
+    }
+    catch (final EmployeeNotFoundException e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+
+  /**
+   * HTTP POST request for the employee with the given employee ID to add feedback to one or more employees with the
+   * given {@code emails}.
+   *
+   * @param employeeId The employee ID of the employee who is providing feedback. Must be an integer greater than 0.
+   * @param emails POST request parameter - a comma separated list of email addresses of employees to whom feedback is
+   *          to be added. Must be non-null and contain at least 1 character.
+   * @param feedback POST request parameter - the feedback being provided. Must be non-null and contain between 1 and
+   *          5,000 characters.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found, all of the
+   *         email addresses were matched to employees, and the feedback was successfully added to them. Bad Request
+   *         response with error message otherwise.
    */
   @RequestMapping(value = "/addFeedback/{employeeId}", method = POST)
   public ResponseEntity<?> addFeedback(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMAILS_EMPTY) String emails,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_FEEDBACK) @Size(max = 5000, message = ERROR_LIMIT_FEEDBACK) String feedback)
+      @RequestParam @NotBlank(message = ERROR_EMPTY_FEEDBACK) @Size(max = 5_000, message = ERROR_LIMIT_FEEDBACK) String feedback)
   {
     try
     {
@@ -683,12 +758,51 @@ public class EmployeeController
     }
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+  ///////////////// FEEDBACK REQUEST END POINT METHODS FOLLOW //////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request for an employee with the given employee ID to request feedback by email.
    *
-   * @param employeeId
-   * @return
+   * @param employeeID The employee ID of the employee who is requesting feedback. Must be an integer greater than 0.
+   * @param emailsTo POST request parameter - a comma separated list of email addresses to which a feedback request
+   *          email is to be sent. Must be non-null, contain at least 1 character, and contain between 1 and 19 comma
+   *          separated strings.
+   * @param notes POST request parameter - personalised notes to be added to the feedback request email. Must contain
+   *          between 0 and 1,000 characters.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and a
+   *         feedback request email was successfully sent to each of the comma separated email addresses. Bad Request
+   *         response with error message otherwise.
+   */
+  @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
+  public ResponseEntity<String> createFeedbackRequest(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @NotBlank(message = ERROR_EMPTY_EMAIL_RECIPIENTS) String emailsTo,
+      @RequestParam @Size(max = 1_000, message = ERROR_LIMIT_NOTE_DESCRIPTION) String notes)
+  {
+    try
+    {
+      employeeService.processFeedbackRequest(employeeID, emailsTo, notes);
+      return ok("Your feedback request has been processed.");
+    }
+    catch (Exception e)
+    {
+      return badRequest().body(e.getMessage());
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  /////////////////////// TAGS END POINT METHODS FOLLOW ////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * HTTP GET request to fetch the tags of the employee corresponding to the given employee ID.
+   *
+   * @param employeeId The employee ID of the employee whose tags are to be returned. Must be an integer greater than 0.
+   * @return {@code ResponseEntity<List<Map<String, Map<Integer, String>>>> with OK response and body containing the
+   *         tags of the employee with {@code employeeId}. Bad request response with error message if the employee ID
+   *         could not be found.
    */
   @RequestMapping(value = "/getTags/{employeeId}", method = GET)
   public ResponseEntity<?> getTags(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
@@ -704,14 +818,19 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to update the feedback tags of the employee with the given employee ID.
    *
-   * @param employeeId
-   * @param feedbackId
-   * @param objectiveIds
-   * @param developmentNeedIds
-   * @return
+   * @param employeeId The employee ID of the employee whose feedback tags are to be updated. Must be an integer greater
+   *          than 0.
+   * @param feedbackId POST request parameter - the ID number of the feedback whose tags are to be updated. Must be an
+   *          integer greater than 0.
+   * @param objectiveIds POST request parameter - a {@code Set} of ID numbers of the objectives which are to be tagged
+   *          in the feedback whose tags are to be updated.
+   * @param developmentNeedIds POST request parameter - a {@code Set} of ID numbers of the development needs which are
+   *          to be tagged in the feedback whose tags are to be updated.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee, feedback ID,
+   *         objectives IDs and development need IDs were all found and the feedback tags were successfully updated. Bad
+   *         Request response with error message otherwise.
    */
   @RequestMapping(value = "/updateFeedbackTags/{employeeId}", method = POST)
   public ResponseEntity<?> updateFeedbackTags(
@@ -731,14 +850,19 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to update the notes tags of the employee with the given employee ID.
    *
-   * @param employeeId
-   * @param noteId
-   * @param objectiveIds
-   * @param developmentNeedIds
-   * @return
+   * @param employeeId The employee ID of the employee whose notes tags are to be updated. Must be an integer greater
+   *          than 0.
+   * @param noteId POST request parameter - the ID number of the note whose tags are to be updated. Must be an integer
+   *          greater than 0.
+   * @param objectiveIds POST request parameter - a {@code Set} of ID numbers of the objectives which are to be tagged
+   *          in the note whose tags are to be updated.
+   * @param developmentNeedIds POST request parameter - a {@code Set} of ID numbers of the development needs which are
+   *          to be tagged in the note whose tags are to be updated.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee, note ID, objectives
+   *         IDs and development need IDs were all found and the note tags were successfully updated. Bad Request
+   *         response with error message otherwise.
    */
   @RequestMapping(value = "/updateNotesTags/{employeeId}", method = POST)
   public ResponseEntity<?> updateNotesTags(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -756,12 +880,17 @@ public class EmployeeController
     }
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+  ////////////////////// RATINGS END POINT METHODS FOLLOW //////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP GET request to get the current rating of the employee with the given employee ID.
    *
-   * @param employeeId
-   * @return
+   * @param employeeId The employee ID of the employee whose current rating is to be returned. Must be an integer
+   *          greater than 0.
+   * @return {@code ResponseEntity<Rating> with OK response and body containing the current rating of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getCurrentRating/{employeeId}", method = GET)
   public ResponseEntity<?> getCurrentRating(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
@@ -778,20 +907,26 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to save a self-evaluation to the employee with the given employee ID.
    *
-   * @param employeeId
-   * @param selfEvaluation
-   * @return
+   * @param employeeId The employee ID of the employee to whom a self-evaluation is to be saved. Must be an integer
+   *          greater than 0.
+   * @param selfEvaluation POST request parameter - the self-evaluation of the employee with the {@code employeeId}.
+   *          Must contain between 0 and 10,000 characters.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the
+   *         self-evaluation was successfully added. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/addSelfEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> addSelfEvaluation(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Size(max = 10_000, message = ERROR_LIMIT_EVALUATION) String selfEvaluation)
   {
+    if (!Rating.isRatingPeriod())
+    {
+      return badRequest().body("Self-evaluations can only be added during the ratings submission window.");
+    }
+
     try
     {
-      // TODO will have to add validation so this can only be edited in the right time of year.
       int year = Rating.getRatingYear();
       employeeService.addSelfEvaluation(employeeId, year, selfEvaluation);
       return ok("Evaluation Added");
@@ -803,19 +938,25 @@ public class EmployeeController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to submit a previously saved self-evaluation to the employee with the given employee ID. Also
+   * sends an email to the employee's line manager to inform them of the submission.
    *
-   * @param employeeId
-   * @return
+   * @param employeeId The employee ID of the employee whose self-evaluation is to be submitted. Must be an integer
+   *          greater than 0.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the
+   *         self-evaluation was successfully submitted. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/submitSelfEvaluation/{employeeId}", method = POST)
   public ResponseEntity<?> submitSelfEvaluation(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
   {
+    if (!Rating.isRatingPeriod())
+    {
+      return badRequest().body("Self-evaluations can only be submitted during the ratings submission window.");
+    }
+
     try
     {
-      // TODO will have to add validation so this can only be edited in the right time of year.
       int year = Rating.getRatingYear();
       employeeService.submitSelfEvaluation(employeeId, year);
       return ok("Evaluation Submitted");
@@ -831,13 +972,21 @@ public class EmployeeController
     }
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+  //////////////// JOINT VENTURE EMAIL END POINT METHODS FOLLOW ////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP POST request to add an additional, user email address of the employee with the given employee ID. If the
+   * employee already has a user email address, it will be overwritten.
    *
-   * @param employeeId
-   * @param emailAddress
-   * @return
+   * @param employeeId The employee ID of the employee whose self-evaluation is to be submitted. Must be an integer
+   *          greater than 0.
+   * @param emailAddress The email address to be added to the employee with the given employee ID. Must be a well-formed
+   *          email address.
+   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the user
+   *         email address was successfully added or updated. Bad Request response with error message otherwise.
+   * @see Email
    */
   @RequestMapping(value = "/editUserEmailAddress/{employeeId}", method = POST)
   public ResponseEntity<?> editUserEmailAddress(
