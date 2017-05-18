@@ -340,10 +340,11 @@ public class ManagerController
       @RequestParam @Size(max = 10_000, message = ERROR_LIMIT_EVALUATION) String managerEvaluation,
       @RequestParam @Min(value = 0, message = ERROR_SCORE) @Max(value = 5, message = ERROR_SCORE) int score)
   {
-    if (!Rating.isRatingPeriod())
-    {
-      return badRequest().body("Manager evaluations can only be added during the ratings submission window.");
-    }
+    // TODO Uncomment this code once UAT is complete
+//    if (!Rating.isRatingPeriod())
+//    {
+//      return badRequest().body("Manager evaluations can only be added during the ratings submission window.");
+//    }
 
     try
     {
@@ -372,10 +373,11 @@ public class ManagerController
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeId)
   {
-    if (!Rating.isRatingPeriod())
-    {
-      return badRequest().body("Manager evaluations can only be added during the ratings submission window.");
-    }
+    // TODO Uncomment this code once UAT is complete
+//    if (!Rating.isRatingPeriod())
+//    {
+//      return badRequest().body("Manager evaluations can only be added during the ratings submission window.");
+//    }
 
     try
     {

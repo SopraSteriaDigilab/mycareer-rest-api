@@ -920,10 +920,11 @@ public class EmployeeController
   public ResponseEntity<?> addSelfEvaluation(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @Size(max = 10_000, message = ERROR_LIMIT_EVALUATION) String selfEvaluation)
   {
-    if (!Rating.isRatingPeriod())
-    {
-      return badRequest().body("Self-evaluations can only be added during the ratings submission window.");
-    }
+    // TODO Uncomment this code once UAT is complete
+//    if (!Rating.isRatingPeriod())
+//    {
+//      return badRequest().body("Self-evaluations can only be added during the ratings submission window.");
+//    }
 
     try
     {
@@ -950,10 +951,11 @@ public class EmployeeController
   public ResponseEntity<?> submitSelfEvaluation(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)
   {
-    if (!Rating.isRatingPeriod())
-    {
-      return badRequest().body("Self-evaluations can only be submitted during the ratings submission window.");
-    }
+    // TODO Uncomment this code once UAT is complete
+//    if (!Rating.isRatingPeriod())
+//    {
+//      return badRequest().body("Self-evaluations can only be submitted during the ratings submission window.");
+//    }
 
     try
     {
