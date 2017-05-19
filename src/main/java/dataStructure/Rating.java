@@ -142,6 +142,12 @@ public class Rating implements Serializable
     return date.getYear();
   }
 
+  /**
+   * Checks whether the current moment falls within the ratings window. The ratings window runs from 1st October until
+   * 28th/29th February inclusive.
+   *
+   * @return {@code true} if the current moment falls within the ratings window. {@code false} otherwise.
+   */
   public static boolean isRatingPeriod()
   {
     final Month currentMonth = YearMonth.now().plusMonths(5).getMonth();

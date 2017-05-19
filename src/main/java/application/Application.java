@@ -22,15 +22,9 @@ public class Application
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
-  // Server names
-  /** Name of the development server */
-  public static final String DEV_SERVER_NAME = "ldunsmycareerdev01";
-
-  /** Name of the UAT server */
-  public static final String UAT_SERVER_NAME = "ldunsmycareeruat01";
-
-  /** Name of the live server */
-  public static final String LIVE_SERVER_NAME = "ldunsmycareer01";
+  private static final String DEV_SERVER_NAME = "ldunsmycareerdev01";
+  private static final String UAT_SERVER_NAME = "ldunsmycareeruat01";
+  private static final String LIVE_SERVER_NAME = "ldunsmycareer01";
 
   /**
    * Sets the environment property and runs the Spring application.
