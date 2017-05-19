@@ -208,9 +208,11 @@ public class BulkUpdateService
   {
     final LDAPQuery initialQuery = and(fieldBeginsWith(CN, "A"), hasField(EXTENSION_ATTRIBUTE_2),
         basicQuery(EMPLOYEE_TYPE, EMPLOYEE));
+    final String initialQueryString = initialQuery.get();
+    final int firstLetter = initialQueryString.indexOf("cn=A") + 4;  
     return new StringSequence.StringSequenceBuilder().initial(initialQuery.get()) // first call to next() will return
                                                                                   // this
-        .characterToChange(6) // 'A'
+        .characterToChange(firstLetter) // 'A'
         .increment(1) // increment by one character
         .size(26) // 26 Strings in the sequence
         .build();
