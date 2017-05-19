@@ -1,15 +1,19 @@
 package dataStructure;
 
-import javax.management.InvalidAttributeValueException;
-
 /**
+ * An employee's competency from the Sopra Steria <a
+ * href=http://portal.corp.sopra/hr/HR_IN_ST/MyPath/Competency_Framework/Pages/default.aspx>competency framework</a>.
+ * All employee's have all competencies, but they may choose which ones to focus upon.
  * 
- * TODO: Describe this TYPE.
- *
+ * @see Employee
+ * @see DBObject
  */
 public class Competency extends DBObject implements Comparable<Competency>
 {
-  /** Represents competency title of any Competencyobject. */
+  /**
+   * The names and titles of the competencies in the Sopra Steria <a
+   * href=http://portal.corp.sopra/hr/HR_IN_ST/MyPath/Competency_Framework/Pages/default.aspx>competency framework</a>
+   */
   public enum CompetencyTitle
   {
     ACCOUNTABILITY("Accountability"), EFFECTIVE_COMMUNICATION("Effective Communication"), LEADERSHIP(
@@ -24,74 +28,49 @@ public class Competency extends DBObject implements Comparable<Competency>
       this.competencyTitleStr = competencyTitleStr;
     }
 
-    /**
-     * 
-     * TODO: Describe this method.
-     *
-     * @return
-     */
+    /** @return The title string of this {@code CompetencyTitle} */
     public String getCompetencyTitleStr()
     {
-      return this.competencyTitleStr;
+      return competencyTitleStr;
     }
 
     /**
-     * 
-     * TODO: Describe this method.
-     *
-     * @param competencyTitleStr
-     * @return
-     * @throws InvalidAttributeValueException
+     * @param competencyTitleStr The title of a competency
+     * @return The {@code CompetencyTitle} instance whose title is equal to the provided {@code competencyTitleStr}.
+     * @throws IllegalArgumentException if the provided {@code competencyTitleStr} did not match a competency title.
      */
-    public static CompetencyTitle getCompetencyTitleFromString(String competencyTitleStr)
-        throws InvalidAttributeValueException
+    public static CompetencyTitle getCompetencyTitleFromString(final String competencyTitleStr)
+        throws IllegalArgumentException
     {
-      switch (competencyTitleStr)
+      for (final CompetencyTitle competencyTitle : values())
       {
-        case "Accountability":
-          return CompetencyTitle.ACCOUNTABILITY;
-        case "Effective Communication":
-          return CompetencyTitle.EFFECTIVE_COMMUNICATION;
-        case "Leadership":
-          return CompetencyTitle.LEADERSHIP;
-        case "Service Excellence":
-          return CompetencyTitle.SERVICE_EXCELLENCE;
-        case "Business Awareness":
-          return CompetencyTitle.BUSINESS_AWARENESS;
-        case "Future Orientation":
-          return CompetencyTitle.FUTURE_ORIENTATION;
-        case "Innovation and Change":
-          return CompetencyTitle.INNOVATION_AND_CHANGE;
-        case "Teamwork":
-          return CompetencyTitle.TEAMWORK;
+        if (competencyTitle.competencyTitleStr.equals(competencyTitleStr))
+        {
+          return competencyTitle;
+        }
       }
-      throw new InvalidAttributeValueException("This enum string does not exist");
+
+      throw new IllegalArgumentException("This enum string does not exist");
     }
   }
 
-  /** long Constant - Represents serialVersionUID... */
-  private static final long serialVersionUID = 1327626647922503101L;
+  private static final long serialVersionUID = 1L;
 
-  /** String Property - Represents the title of the competency. */
   private String title;
-
-  /** boolean Property - Indicates if the competenct is selected. */
   private boolean isSelected;
 
   /**
-   * 
-   * TYPE Constructor - Responsible for initialising this object.
-   *
+   * Competency Constructor - No-args constructor provided for use by Morphia. Should not be used in application code.
    */
   public Competency()
   {
   }
 
   /**
-   * Competeny_NEW Constructor - Responsible for initialising this object.
+   * Competency Constructor - Responsible for initialising this object.
    *
-   * @param title
-   * @param isSelected
+   * @param id The id number of this competency.
+   * @param title The title of this competency.
    */
   public Competency(int id, CompetencyTitle title)
   {
@@ -113,7 +92,7 @@ public class Competency extends DBObject implements Comparable<Competency>
     this.setLastModified();
   }
 
-  /** @return the isSelected */
+  /** @return isSelected - {@code true} if this competency is being focussed upon. */
   public boolean isSelected()
   {
     return isSelected;
@@ -127,15 +106,16 @@ public class Competency extends DBObject implements Comparable<Competency>
   }
 
   /**
+   * Override of compareTo method.
    * 
-   * Override of NAME method.
+   * Compares the negated focus of this competency with the negated focus of the other competency. Ignores all other
+   * aspects of the two competencies.
    *
-   * TODO: Describe this method.
-   *
+   * @see isSelected()
    * @see java.lang.Comparable#compareTo(java.lang.Object)
+   * @see Boolean#compare
    *
-   * @param competency
-   * @return
+   * @return {@code Boolean.compare(!this.isSelected(), !competency.isSelected());}
    */
   @Override
   public int compareTo(Competency competency)

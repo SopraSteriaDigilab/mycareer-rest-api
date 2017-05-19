@@ -14,32 +14,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 /**
- * 
- * TODO: Describe this TYPE.
- *
+ * A Java object used by Morphia as a template for mapping from a MongoDB document. Contains basic members used by most
+ * MyCareer data structures.
  */
 public abstract class DBObject implements Serializable
 {
-  /* long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = 1L;
 
   private static final String DOCUMENT_CONVERSION_EXCEPTION = "Error converting DBObject to Document";
 
-  /* int Property - Represents Unique ID for the object. */
   private int id;
-
-  /* String Property - Represents the time the objective was last modified. */
   private Date lastModified;
 
   /**
-   * Default Constructor - Responsible for initialising this object.
-   *
-   * @param id
-   * @param lastModified
+   * DBObject Constructor - No-args constructor provided for use by Morphia. Should not be used in application code.
    */
   public DBObject()
   {
-    this.setLastModified();
+    setLastModified();
   }
 
   /** @return the id. */
@@ -54,35 +46,27 @@ public abstract class DBObject implements Serializable
     this.id = id;
   }
 
-  /** @return the timeStamp. */
+  /** @return A string representation of the date/time this DB object was last modified. */
   public String getLastModified()
   {
     return dateToLocalDateTime(lastModified).toString();
   }
 
-  /** @param lastModified */
+  /** Sets the last modified date/time of this DB object to the current moment. */
   public void setLastModified()
   {
-    this.lastModified = localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE));
+    lastModified = localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE));
   }
 
-  /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @return
-   */
+  /** @return The last modified date/time */
   public Date getLastModifiedAsDate()
   {
     return lastModified;
   }
 
   /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @return
-   * @throws DocumentConversionException
+   * @return A {@code Document} representation of this {@code DBObject}.
+   * @throws DocumentConversionException if there was exception while attempting to convert
    */
   public Document toDocument() throws DocumentConversionException
   {

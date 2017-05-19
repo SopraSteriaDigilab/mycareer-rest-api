@@ -1,6 +1,7 @@
 package dataStructure;
 
 import static utils.Conversions.*;
+import static dataStructure.Action.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -108,8 +109,8 @@ public class FeedbackRequest implements Serializable
    */
   public Activity createActivity(final EmployeeProfile profile)
   {
-    final String activityString = new StringBuilder(profile.getFullName()).append(" requested feedback from ")
-        .append(recipient).toString();
+    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(REQUEST.getVerb())
+        .append(" feedback from ").append(recipient).toString();
 
     return new Activity(activityString, timestamp);
   }

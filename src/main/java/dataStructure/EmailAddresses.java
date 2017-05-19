@@ -5,19 +5,37 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * A set of email addresses associated with an employee profile.
  * 
- * TODO: Describe this TYPE.
- *
+ * @see EmployeeProfile
  */
 public class EmailAddresses
 {
-  /** TODO describe */
+  /**
+   * The fully qualified field name used to store the mail field of an emailAddresses which is itself a field of the
+   * profile field within an {@code Employee} in the employees collection in MongoDB
+   * 
+   * @see EmployeeProfile
+   * @see Employee
+   */
   public static final String MAIL = "profile.emailAddresses.mail";
 
-  /** TODO describe */
+  /**
+   * The fully qualified field name used to store the targetAddress field of an emailAddresses which is itself a field
+   * of the profile field within an {@code Employee} in the employees collection in MongoDB
+   * 
+   * @see EmployeeProfile
+   * @see Employee
+   */
   public static final String TARGET_ADDRESS = "profile.emailAddresses.targetAddress";
 
-  /** TODO describe */
+  /**
+   * The fully qualified field name used to store the userAddress field of an emailAddresses which is itself a field of
+   * the profile field within an {@code Employee} in the employees collection in MongoDB
+   * 
+   * @see EmployeeProfile
+   * @see Employee
+   */
   public static final String USER_ADDRESS = "profile.emailAddresses.userAddress";
 
   private String mail;
@@ -25,20 +43,15 @@ public class EmailAddresses
   private String userAddress;
 
   /**
-   * 
-   * TYPE Constructor - Responsible for initialising this object.
+   * EmailAddresses Constructor - No-args constructor provided for use by Morphia. Should not be used in application
+   * code.
    *
    */
   public EmailAddresses()
   {
   }
 
-  /**
-   * 
-   * TYPE Constructor - Responsible for initialising this object.
-   *
-   * @param builder
-   */
+  /** @param builder The builder from which to initialise a new instance of {@code EmailAddresses} */
   public EmailAddresses(Builder builder)
   {
     this.mail = builder.mail;
@@ -46,12 +59,7 @@ public class EmailAddresses
     this.userAddress = builder.userAddress;
   }
 
-  /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @return
-   */
+  /** @return A {@code Set<String>} of the email addresses respresented by this instance. */
   public Set<String> toSet()
   {
     Set<String> emailAddresses = new HashSet<>();
@@ -67,89 +75,51 @@ public class EmailAddresses
     return emailAddresses;
   }
 
-  /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @return
-   */
+  /** @return {@code true} if this instance has a non-null userAddress field. */
   public boolean hasUserAddress()
   {
     return userAddress != null;
   }
 
-  /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @return
-   */
+  /** @return The mail email address */
   public String getMail()
   {
     return mail;
   }
 
-  /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @param mail
-   */
+  /** @param mail The value to set. */
   public void setMail(String mail)
   {
     this.mail = mail;
   }
 
-  /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @return
-   */
+  /** @return The targetAddress email address */
   public String getTargetAddress()
   {
     return targetAddress;
   }
 
-  /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @param targetAddress
-   */
+  /** @param targetAddress The value to set. */
   public void setTargetAddress(String targetAddress)
   {
     this.targetAddress = targetAddress;
   }
 
-  /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @return
-   */
+  /** @return The userAddress email address */
   public String getUserAddress()
   {
     return userAddress;
   }
 
-  /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @param userAddress
-   */
+  /** @param userAddress The value to set. */
   public void setUserAddress(String userAddress)
   {
     this.userAddress = userAddress;
   }
 
   /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @param emailAddress
-   * @return
+   * @param emailAddress The return value of this method if the user address field is {@code null}.
+   * @return The userAddress of this instance if it is non-null. The provided {@code emailAddress} parameter otherwise.
    */
   public String getPreferred(final String emailAddress)
   {
@@ -161,17 +131,21 @@ public class EmailAddresses
     return emailAddress;
   }
 
-  /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @return
-   */
+  /** @return The userAddress of this instance if it is non-null. The mail of this instance otherwise. */
   public String getPreferred()
   {
     return getPreferred(mail);
   }
 
+  /**
+   * Override of equals method.
+   *
+   * @see java.lang.Object#equals(java.lang.Object)
+   *
+   * @param o The other object to compare for equality with this object.
+   * @return {@code true} if {@code o} is an instance of {@code EmailAddresses} and its members are all equal to this
+   *         object's members, or it is the same instance. {@code false} otherwise.
+   */
   @Override
   public boolean equals(Object o)
   {
@@ -190,12 +164,14 @@ public class EmailAddresses
     return Objects.equals(mail, emailAddresses.mail) && Objects.equals(targetAddress, emailAddresses.targetAddress);
   }
 
+  /** {@inheritDoc} */
   @Override
   public int hashCode()
   {
     return Objects.hash(mail, targetAddress);
   }
 
+  /** {@inheritDoc} */
   @Override
   public String toString()
   {
@@ -203,9 +179,7 @@ public class EmailAddresses
   }
 
   /**
-   * 
-   * TODO: Describe this TYPE.
-   *
+   * Builder used to fluently construct instances of {@code EmailAddresses}.
    */
   public static class Builder
   {
@@ -214,20 +188,15 @@ public class EmailAddresses
     private String userAddress;
 
     /**
-     * 
-     * TYPE Constructor - Responsible for initialising this object.
-     *
+     * Builder Constructor - Responsible for initialising this object.
      */
     public Builder()
     {
     }
 
     /**
-     * 
-     * TODO: Describe this method.
-     *
-     * @param mail
-     * @return
+     * @param mail The value of mail to set.
+     * @return This builder.
      */
     public Builder mail(String mail)
     {
@@ -236,11 +205,8 @@ public class EmailAddresses
     }
 
     /**
-     * 
-     * TODO: Describe this method.
-     *
-     * @param targetAddress
-     * @return
+     * @param targetAddress The value of targetAddress to set.
+     * @return This builder.
      */
     public Builder targetAddress(String targetAddress)
     {
@@ -249,11 +215,8 @@ public class EmailAddresses
     }
 
     /**
-     * 
-     * TODO: Describe this method.
-     *
-     * @param userAddress
-     * @return
+     * @param userAddress The value of userAddress to set.
+     * @return This builder.
      */
     public Builder userAddress(String userAddress)
     {
@@ -261,12 +224,7 @@ public class EmailAddresses
       return this;
     }
 
-    /**
-     * 
-     * TODO: Describe this method.
-     *
-     * @return
-     */
+    /** @return A new instance of {@code EmailAddresses} using the member values set in this builder. */
     public EmailAddresses build()
     {
       return new EmailAddresses(this);

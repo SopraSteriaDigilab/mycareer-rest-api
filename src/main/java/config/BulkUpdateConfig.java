@@ -13,7 +13,6 @@ import services.db.MorphiaOperations;
 import services.ews.Cache;
 import services.ews.DistributionList;
 import services.mappers.EmployeeProfileMapper;
-import utils.sequence.SequenceException;
 
 /**
  * Spring Configuration class for spring beans related to nightly bulk update service.

@@ -2,7 +2,7 @@ package services;
 
 import static dataStructure.EmployeeProfile.*;
 import static dataStructure.Employee.*;
-import static dataStructure.CRUD.*;
+import static dataStructure.Action.*;
 import static services.db.MongoOperations.*;
 import static utils.Utils.*;
 import static utils.Conversions.*;
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import dataStructure.CRUD;
+import dataStructure.Action;
 import dataStructure.Competency;
 import dataStructure.Competency.CompetencyTitle;
 import dataStructure.DevelopmentNeed;
@@ -342,7 +342,7 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
     Objective objective = employee.getObjective(objectiveId);
-    CRUD crud = objective.getArchived() ? RESTORE : ARCHIVE;
+    Action crud = objective.getArchived() ? RESTORE : ARCHIVE;
 
     employee.toggleObjectiveArchive(objectiveId);
     employee.addActivity(objective.createActivity(crud, employee.getProfile()));
@@ -512,7 +512,7 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
     DevelopmentNeed developmentNeed = employee.getDevelopmentNeed(developmentNeedId);
-    CRUD crud = developmentNeed.getArchived() ? RESTORE : ARCHIVE;
+    Action crud = developmentNeed.getArchived() ? RESTORE : ARCHIVE;
 
     employee.toggleDevelopmentNeedArchive(developmentNeedId);
     employee.addActivity(employee.getDevelopmentNeed(developmentNeedId).createActivity(crud, employee.getProfile()));

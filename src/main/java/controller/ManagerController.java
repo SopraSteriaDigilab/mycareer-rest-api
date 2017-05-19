@@ -36,15 +36,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mongodb.MongoException;
-
 import dataStructure.DocumentConversionException;
 import dataStructure.Note;
 import dataStructure.Objective;
 import dataStructure.Rating;
 import services.EmployeeNotFoundException;
-import services.EmployeeProfileService;
-import services.EmployeeService;
 import services.ManagerService;
 import services.ews.DistributionList;
 import services.ews.DistributionListException;
@@ -109,19 +105,6 @@ public class ManagerController
       return badRequest().body(e.getMessage());
     }
   }
-
-  /**
-   * HTTP POST request to add a note to the employee with the given employee ID.
-   *
-   * @param employeeID The employee ID of the employee to whom an objective is to be added. Must be an integer greater
-   *          than 0.
-   * @param providerName POST request parameter - the name of the person or entity who is adding the note. Must be
-   *          non-null and contain between 1 and 150 characters.
-   * @param noteDescription POST request parameter - the description of the note to be added. Must be non-null and
-   *          contain between 1 and 1,000 characters.
-   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the note
-   *         was successfully added. Bad Request response with error message otherwise.
-   */
 
   /**
    * HTTP POST request to add a note to a reportee of the employee with the given employee ID.
