@@ -93,8 +93,7 @@ public class BulkUpdateService
    * @throws NamingException
    * @throws SequenceException
    */
-//  @Scheduled(cron = "0 30 23 * * ?")
-  @Scheduled(fixedRate = 999999999)
+  @Scheduled(cron = "0 30 23 * * ?")
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
     LOGGER.info(BEGIN_UPDATE);
