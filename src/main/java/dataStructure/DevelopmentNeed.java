@@ -6,8 +6,6 @@ import javax.management.InvalidAttributeValueException;
 
 import org.bson.Document;
 
-import dataStructure.Competency.CompetencyTitle;
-
 /**
  * An employee's development need. Used by Morphia as a template for mapping from a MongoDB document.
  */

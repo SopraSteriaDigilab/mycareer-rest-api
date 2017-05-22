@@ -33,17 +33,15 @@ public class ADConfig
   private static final String AUTHENTICATION = "simple";
   private static final String LDAP_CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
   private static final String TIMEOUT_ATTRIBUTE_KEY = "com.sun.jndi.ldap.read.timeout";
-  private static final String TIMEOUT_ATTRIBUTE = "30000";
+  private static final String TIMEOUT_ATTRIBUTE = "60000";
 
   private static final String AD_SOPRA_HOST = "ldap://duns.ldap-ad.dmsi.corp.sopra"; // TODO move this out of application code
-  private static final String AD_SOPRA_URL = AD_SOPRA_HOST.concat(":3268"); // TODO move this out of application code
   private static final String AD_SOPRA_USERNAME = "svc_mycareer@emea.msad.sopra"; // TODO move this out of application code
   private static final String AD_SOPRA_PASSWORD = "N9T$SiPSZ"; // TODO move this out of application code
   private static final String AD_SOPRA_PRINCIPAL = AD_SOPRA_USERNAME;
   private static final String[] AD_SOPRA_ATTRIBUTES = { EXTENSION_ATTRIBUTE_7, MEMBER, MEMBER_OF };
 
   private static final String AD_STERIA_HOST = "ldap://one.steria.dom"; // TODO move this out of application code
-  private static final String AD_STERIA_URL = AD_STERIA_HOST.concat(":3268"); // TODO move this out of application code
   private static final String AD_STERIA_USERNAME = "UK-SVC-CAREER"; // TODO move this out of application code
   private static final String AD_STERIA_PASSWORD = "3I=AkSiGRr"; // TODO move this out of application code
   private static final String AD_STERIA_LOGIN_TREE = "OU=Service Accounts,OU=UKCentral,OU=UK,OU=Resources,DC=one,DC=steria,DC=dom";
@@ -96,16 +94,16 @@ public class ADConfig
   {
     LOGGER.debug("Creating bean sopraADSettings");
 
-    final Hashtable<String, String> sopraADSettings = new Hashtable<>();
+    final Hashtable<String, String> sopraADLocalSettings = new Hashtable<>();
 
-    sopraADSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
-    sopraADSettings.put(PROVIDER_URL, AD_SOPRA_URL);
-    sopraADSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
-    sopraADSettings.put(SECURITY_PRINCIPAL, AD_SOPRA_PRINCIPAL);
-    sopraADSettings.put(SECURITY_CREDENTIALS, AD_SOPRA_PASSWORD);
-    sopraADSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
+    sopraADLocalSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
+    sopraADLocalSettings.put(PROVIDER_URL, AD_SOPRA_HOST);
+    sopraADLocalSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
+    sopraADLocalSettings.put(SECURITY_PRINCIPAL, AD_SOPRA_PRINCIPAL);
+    sopraADLocalSettings.put(SECURITY_CREDENTIALS, AD_SOPRA_PASSWORD);
+    sopraADLocalSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
 
-    return sopraADSettings;
+    return sopraADLocalSettings;
   }
 
   /**
@@ -118,16 +116,16 @@ public class ADConfig
   {
     LOGGER.debug("Creating bean steriaADSettings");
 
-    final Hashtable<String, String> steriaADSettings = new Hashtable<>();
+    final Hashtable<String, String> steriaADLocalSettings = new Hashtable<>();
 
-    steriaADSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
-    steriaADSettings.put(PROVIDER_URL, AD_STERIA_URL);
-    steriaADSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
-    steriaADSettings.put(SECURITY_PRINCIPAL, AD_STERIA_PRINCIPAL);
-    steriaADSettings.put(SECURITY_CREDENTIALS, AD_STERIA_PASSWORD);
-    steriaADSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
+    steriaADLocalSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
+    steriaADLocalSettings.put(PROVIDER_URL, AD_STERIA_HOST);
+    steriaADLocalSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
+    steriaADLocalSettings.put(SECURITY_PRINCIPAL, AD_STERIA_PRINCIPAL);
+    steriaADLocalSettings.put(SECURITY_CREDENTIALS, AD_STERIA_PASSWORD);
+    steriaADLocalSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
 
-    return steriaADSettings;
+    return steriaADLocalSettings;
   }
 
   /**

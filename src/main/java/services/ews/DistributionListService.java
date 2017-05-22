@@ -1,5 +1,7 @@
 package services.ews;
 
+import static services.ad.ADSearchSettingsImpl.LdapPort.*;
+
 import static services.ad.ADOperations.*;
 import static services.ad.query.LDAPQueries.*;
 import static services.ews.DistributionList.*;
@@ -287,7 +289,7 @@ public class DistributionListService
 
     try
     {
-      allResults = searchADAsList(adSearchSettings, userTree, query.get());
+      allResults = searchADAsList(adSearchSettings, userTree, query.get(), GLOBAL);
     }
     catch (NamingException | NullPointerException e)
     {
@@ -389,7 +391,7 @@ public class DistributionListService
 
     try
     {
-      result = searchADSingleResult(settings, tree, filter);
+      result = searchADSingleResult(settings, tree, filter, GLOBAL);
     }
     catch (final ADConnectionException e)
     {

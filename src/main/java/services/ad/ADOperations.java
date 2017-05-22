@@ -12,6 +12,7 @@ import javax.naming.directory.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import services.ad.ADSearchSettingsImpl.LdapPort;
 import utils.sequence.Sequence;
 import utils.sequence.SequenceException;
 
@@ -43,10 +44,10 @@ public final class ADOperations
    *           result could not be returned for an unknown reason
    */
   public static SearchResult searchADSingleResult(final ADSearchSettings adSearchSettings, final String tree,
-      final String filter) throws ADConnectionException
+      final String filter, final LdapPort ldapPort) throws ADConnectionException
   {
     SearchResult result = null;
-    NamingEnumeration<SearchResult> allResults = searchAD(adSearchSettings, tree, filter);
+    NamingEnumeration<SearchResult> allResults = searchAD(adSearchSettings, tree, filter, ldapPort);
 
     try
     {
@@ -80,13 +81,13 @@ public final class ADOperations
    * @throws ADConnectionException if the results could not be returned for an unknown reason
    */
   public static NamingEnumeration<SearchResult> searchAD(final ADSearchSettings adSearchSettings, final String tree,
-      final String filter) throws ADConnectionException
+      final String filter, final LdapPort ldapPort) throws ADConnectionException
   {
     NamingEnumeration<SearchResult> result = null;
 
     try (final ADConnection connection = new ADConnectionImpl(adSearchSettings))
     {
-      result = connection.searchAD(tree, filter);
+      result = connection.searchAD(tree, filter, ldapPort);
     }
     catch (final NamingException e)
     {
@@ -108,9 +109,9 @@ public final class ADOperations
    * @throws NamingException if there was a problem adding the results to a {@code List}
    */
   public static List<SearchResult> searchADAsList(final ADSearchSettings adSearchSettings, final String tree,
-      final String filter) throws ADConnectionException, NamingException
+      final String filter, final LdapPort ldapPort) throws ADConnectionException, NamingException
   {
-    return namingEnumToList(searchAD(adSearchSettings, tree, filter));
+    return namingEnumToList(searchAD(adSearchSettings, tree, filter, ldapPort));
   }
 
   /**
@@ -127,7 +128,7 @@ public final class ADOperations
    */
   // TODO: The logging in this method is very messy!
   public static List<SearchResult> searchAD(ADSearchSettings adSearchSettings, String tree,
-      Sequence<String> filterSequence) throws ADConnectionException, NamingException, SequenceException
+      Sequence<String> filterSequence, final LdapPort ldapPort) throws ADConnectionException, NamingException, SequenceException
   {
     final List<SearchResult> finalResult = new ArrayList<>();
     StringBuilder out = new StringBuilder("{");
@@ -137,7 +138,7 @@ public final class ADOperations
     while (filterSequence.hasNext())
     {
       String filter = filterSequence.next();
-      NamingEnumeration<SearchResult> result = searchAD(adSearchSettings, tree, filter);
+      NamingEnumeration<SearchResult> result = searchAD(adSearchSettings, tree, filter, ldapPort);
 
       while (result.hasMore())
       {
