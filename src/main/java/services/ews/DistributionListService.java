@@ -370,16 +370,18 @@ public class DistributionListService
 
     NamingEnumeration<String> ids = attributes.getIDs();
 
+    LOGGER.debug("Attribute IDs follow: ");
+    
     try
     {
       while (ids.hasMore())
       {
-        LOGGER.info(ids.next().toString());
+        LOGGER.debug("Attribute ID: ".concat(ids.next().toString()));
       }
     }
     catch (Exception e)
     {
-      LOGGER.info("error while printing IDs");
+      LOGGER.debug("error while printing IDs");
     }
 
     return attributes.get(fieldName);

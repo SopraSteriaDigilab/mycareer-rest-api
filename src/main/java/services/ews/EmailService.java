@@ -194,6 +194,7 @@ public class EmailService
     {
       String from = email.getFrom().getAddress();
       Set<EmailAddress> recipients = new HashSet<>(email.getToRecipients().getItems());
+      // TODO review commented code
       // Set<EmailAddress> ccRecipients = new HashSet<>(email.getCcRecipients().getItems());
       String subject = (email.getSubject() == null) ? "" : email.getSubject().toLowerCase();
       String body = (email.getBody() == null) ? "" : email.getBody().toString().trim();

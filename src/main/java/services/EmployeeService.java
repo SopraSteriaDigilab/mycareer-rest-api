@@ -7,6 +7,7 @@ import static services.db.MongoOperations.*;
 import static utils.Utils.*;
 import static utils.Conversions.*;
 import static com.mongodb.client.model.Filters.*;
+import static services.db.MongoUtils.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -46,7 +47,6 @@ import dataStructure.Objective;
 import dataStructure.Objective.Progress;
 import dataStructure.Rating;
 import services.db.MongoOperations;
-import services.db.MongoUtils;
 import services.db.MorphiaOperations;
 import services.ews.EmailService;
 import utils.Template;
@@ -992,7 +992,9 @@ public class EmployeeService
    */
   public String getManagerEmailAddress(String reporteeCN)
   {
-    Document filter = new Document("profile.reporteeCNs", MongoUtils.in(Arrays.asList(reporteeCN)));
+    LOGGER.debug("Finding manager... reporteeCN value: {}", reporteeCN);
+    
+    Document filter = new Document("profile.reporteeCNs", in(Arrays.asList(reporteeCN)));
     Document profile = employeeOperations.getField(filter, "profile");
     Document emails = (Document) profile.get("emailAddresses");
 
