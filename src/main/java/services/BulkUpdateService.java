@@ -94,8 +94,7 @@ public class BulkUpdateService
    * @throws NamingException
    * @throws SequenceException
    */
-  // @Scheduled(cron = "0 30 23 * * ?")
-  @Scheduled(fixedRate = 999999999)
+  @Scheduled(cron = "0 30 23 * * ?")
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
     LOGGER.info(BEGIN_UPDATE);
@@ -138,13 +137,13 @@ public class BulkUpdateService
    * @throws NamingException
    * @throws SequenceException
    */
-  public List<EmployeeProfile> fetchAllAdProfiles()
-      throws ADConnectionException, NamingException, SequenceException
+  public List<EmployeeProfile> fetchAllAdProfiles() throws ADConnectionException, NamingException, SequenceException
   {
     // There are approximately 6,200 employees, hence initial capacity of 10,000
     final List<EmployeeProfile> allEmployeeProfiles = new ArrayList<>(10_000);
     final List<SearchResult> steriaList = searchAD(steriaADSearchSettings, AD_TREE, steriaFilterSequence(), LOCAL);
-    final LDAPQuery query = and(hasField(CN), hasField(EXTENSION_ATTRIBUTE_2), basicQuery(LDAPQueries.EMPLOYEE_TYPE, EMPLOYEE));
+    final LDAPQuery query = and(hasField(CN), hasField(EXTENSION_ATTRIBUTE_2),
+        basicQuery(LDAPQueries.EMPLOYEE_TYPE, EMPLOYEE));
     steriaList.addAll(searchADAsList(steriaADSearchSettings, AD_UNUSED_OBJECT_TREE, query.get(), LOCAL));
 
     for (final SearchResult result : steriaList)
