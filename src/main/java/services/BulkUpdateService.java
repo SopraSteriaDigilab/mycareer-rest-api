@@ -34,6 +34,7 @@ import services.mappers.InvalidEmployeeProfileException;
 import utils.sequence.Sequence;
 import utils.sequence.SequenceException;
 import utils.sequence.StringSequence;
+import services.ad.query.LDAPQueries;
 import services.ad.query.LDAPQuery;
 
 /**
@@ -93,7 +94,7 @@ public class BulkUpdateService
    * @throws NamingException
    * @throws SequenceException
    */
-//  @Scheduled(cron = "0 30 23 * * ?")
+  // @Scheduled(cron = "0 30 23 * * ?")
   @Scheduled(fixedRate = 999999999)
   public int syncDBWithADs() throws ADConnectionException, NamingException, SequenceException
   {
@@ -101,16 +102,16 @@ public class BulkUpdateService
     inserted = updated = alreadyUpToDate = exceptionsThrown = notAnEmployee = 0;
 
     final Instant startADOps = Instant.now();
-    final List<EmployeeProfile> allEmployeeProfiles = fetchAllEmployeeProfiles();
+    final List<EmployeeProfile> allAdProfiles = fetchAllAdProfiles();
     final Instant endADOps = Instant.now();
 
     final Instant startDBOps = Instant.now();
 
-    for (EmployeeProfile profile : allEmployeeProfiles)
+    for (EmployeeProfile adProfile : allAdProfiles)
     {
       try
       {
-        upsertEmployeeProfile(profile);
+        upsertEmployeeProfile(adProfile);
       }
       catch (Exception e)
       {
@@ -123,7 +124,7 @@ public class BulkUpdateService
 
     final Instant endDBOps = Instant.now();
 
-    logMetadata(startADOps, endADOps, startDBOps, endDBOps, allEmployeeProfiles.size());
+    logMetadata(startADOps, endADOps, startDBOps, endDBOps, allAdProfiles.size());
 
     LOGGER.info(END_UPDATE);
     return inserted + updated + alreadyUpToDate;
@@ -137,13 +138,13 @@ public class BulkUpdateService
    * @throws NamingException
    * @throws SequenceException
    */
-  public List<EmployeeProfile> fetchAllEmployeeProfiles()
+  public List<EmployeeProfile> fetchAllAdProfiles()
       throws ADConnectionException, NamingException, SequenceException
   {
     // There are approximately 6,200 employees, hence initial capacity of 10,000
     final List<EmployeeProfile> allEmployeeProfiles = new ArrayList<>(10_000);
     final List<SearchResult> steriaList = searchAD(steriaADSearchSettings, AD_TREE, steriaFilterSequence(), LOCAL);
-    final LDAPQuery query = and(hasField(CN), hasField(EXTENSION_ATTRIBUTE_2), basicQuery(EMPLOYEE_TYPE, EMPLOYEE));
+    final LDAPQuery query = and(hasField(CN), hasField(EXTENSION_ATTRIBUTE_2), basicQuery(LDAPQueries.EMPLOYEE_TYPE, EMPLOYEE));
     steriaList.addAll(searchADAsList(steriaADSearchSettings, AD_UNUSED_OBJECT_TREE, query.get(), LOCAL));
 
     for (final SearchResult result : steriaList)
@@ -174,33 +175,33 @@ public class BulkUpdateService
     return allEmployeeProfiles;
   }
 
-  private EmployeeProfile upsertEmployeeProfile(EmployeeProfile employeeProfile)
+  private EmployeeProfile upsertEmployeeProfile(EmployeeProfile newProfile)
   {
-    Employee employee = morphiaOperations.getEmployee(EMPLOYEE_ID, employeeProfile.getEmployeeID());
+    Employee dbEmployee = morphiaOperations.getEmployee(EMPLOYEE_ID, newProfile.getEmployeeID());
 
-    if (employee == null)
+    if (dbEmployee == null)
     {
-      morphiaOperations.saveEmployee(new Employee(employeeProfile));
-      inserted++;
-      return employeeProfile;
+      morphiaOperations.saveEmployee(new Employee(newProfile));
+      ++inserted;
     }
-    else if (employee.getProfile().equals(employeeProfile))
+    else if (dbEmployee.getProfile().equals(newProfile))
     {
-      alreadyUpToDate++;
-      return employeeProfile;
+      ++alreadyUpToDate;
+    }
+    else
+    {
+      updateEmployee(dbEmployee.getProfile(), newProfile);
+      ++updated;
     }
 
-    updateEmployee(employee.getProfile(), employeeProfile);
-    updated++;
-
-    return employeeProfile;
+    return newProfile;
   }
 
   // Performs an update of an existing employee
-  private void updateEmployee(EmployeeProfile profile, EmployeeProfile employeeProfile)
+  private void updateEmployee(EmployeeProfile currentProfile, EmployeeProfile newProfile)
   {
-    Document filter = new Document(EmployeeProfile.EMPLOYEE_ID, profile.getEmployeeID());
-    Document newFields = profile.differences(employeeProfile);
+    Document filter = new Document(EMPLOYEE_ID, currentProfile.getEmployeeID());
+    Document newFields = currentProfile.differences(newProfile);
 
     employeeOperations.setFields(filter, newFields);
   }
@@ -209,9 +210,9 @@ public class BulkUpdateService
   private Sequence<String> steriaFilterSequence() throws SequenceException
   {
     final LDAPQuery initialQuery = and(fieldBeginsWith(CN, "A"), hasField(EXTENSION_ATTRIBUTE_2),
-        basicQuery(EMPLOYEE_TYPE, EMPLOYEE));
+        basicQuery(LDAPQueries.EMPLOYEE_TYPE, EMPLOYEE));
     final String initialQueryString = initialQuery.get();
-    final int firstLetter = initialQueryString.indexOf("cn=A") + 3;  
+    final int firstLetter = initialQueryString.indexOf("cn=A") + 3;
     return new StringSequence.StringSequenceBuilder().initial(initialQuery.get()) // first call to next() will return
                                                                                   // this
         .characterToChange(firstLetter) // 'A'

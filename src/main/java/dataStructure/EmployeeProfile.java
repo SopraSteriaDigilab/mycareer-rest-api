@@ -29,6 +29,9 @@ public class EmployeeProfile implements Serializable
   public static final String EMPLOYEE_ID = "profile.employeeID";
 
   /** TODO describe */
+  public static final String EMPLOYEE_TYPE = "profile.employeeType";
+
+  /** TODO describe */
   public static final String SURNAME = "profile.surname";
 
   /** TODO describe */
@@ -339,7 +342,7 @@ public class EmployeeProfile implements Serializable
    */
   public Document toDocument()
   {
-    return new Document(EMPLOYEE_ID, employeeID).append(SURNAME, surname).append(FORENAME, forename)
+    return new Document(EMPLOYEE_ID, employeeID).append(EMPLOYEE_TYPE, employeeType).append(SURNAME, surname).append(FORENAME, forename)
         .append(USERNAME, username).append(MAIL, emailAddresses.getMail())
         .append(TARGET_ADDRESS, emailAddresses.getTargetAddress()).append(USER_ADDRESS, emailAddresses.getUserAddress())
         .append(IS_MANAGER, isManager).append(HAS_HR_DASH, hasHRDash).append(COMPANY, company)
@@ -390,11 +393,15 @@ public class EmployeeProfile implements Serializable
 
     EmployeeProfile employeeProfile = (EmployeeProfile) o;
 
+    // TODO this clause should be added once the hr dashboard group is moved to ADOne and included as part of the bulk
+    // update service
+    // && Objects.equals(hasHRDash, employeeProfile.hasHRDash)
+
     return employeeID == employeeProfile.employeeID && Objects.equals(employeeType, employeeProfile.employeeType)
         && Objects.equals(surname, employeeProfile.surname) && Objects.equals(forename, employeeProfile.forename)
         && Objects.equals(username, employeeProfile.username)
         && Objects.equals(emailAddresses, employeeProfile.emailAddresses) && isManager == employeeProfile.isManager
-        && Objects.equals(hasHRDash, employeeProfile.hasHRDash) && Objects.equals(company, employeeProfile.company)
+        && Objects.equals(company, employeeProfile.company)
         && Objects.equals(steriaDepartment, employeeProfile.steriaDepartment)
         && Objects.equals(sector, employeeProfile.sector) && Objects.equals(superSector, employeeProfile.superSector)
         && Objects.deepEquals(reporteeCNs, employeeProfile.reporteeCNs)
@@ -411,8 +418,10 @@ public class EmployeeProfile implements Serializable
   @Override
   public int hashCode()
   {
-    return Objects.hash(employeeID, employeeType, surname, forename, username, emailAddresses, isManager, hasHRDash,
-        company, steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
+    // TODO add hasHRDash once the hr dashboard group is moved to ADOne and included as part of the bulk
+    // update service
+    return Objects.hash(employeeID, employeeType, surname, forename, username, emailAddresses, isManager, company,
+        steriaDepartment, sector, superSector, reporteeCNs, accountExpires);
   }
 
   @Override
