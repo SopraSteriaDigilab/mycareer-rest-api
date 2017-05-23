@@ -227,7 +227,7 @@ public class EmployeeController
    *          contain between 1 and 2,000 characters.
    * @param dueDate POST request parameter - the date by which the objective should be achieved. Must be of the form
    *          yyyy-MM.
-   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the
+   * @return {@code ResponseEntity<String>} with ID of the objective if the employee was found and the
    *         objective was successfully added. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/addObjective/{employeeId}", method = POST)
@@ -238,9 +238,10 @@ public class EmployeeController
   {
     try
     {
-      employeeService.addObjective(employeeId,
+      final int id = employeeService.addObjective(employeeId,
           new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))));
-      return ok("Objective inserted correctly");
+      
+      return ok(id);
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
     {
@@ -426,11 +427,11 @@ public class EmployeeController
    * @param category POST request parameter - the category of the development need to be added. Categories are 0 - Job
    *          Training, 1 - Classroom Training, 2 - Online, 3 - Self Study, 4 - Other. Must be an integer between 0 and
    *          4.
-   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the
+   * @return {@code ResponseEntity<Integer>} with the id of the development need if the employee was found and the
    *         development need was successfully added. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/addDevelopmentNeed/{employeeId}", method = POST)
-  public ResponseEntity<?> addDevelopmentNeeds(
+  public ResponseEntity<?> addDevelopmentNeed(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
       @RequestParam @NotBlank(message = ERROR_EMPTY_TITLE) @Size(max = 150, message = ERROR_LIMIT_TITLE) String title,
       @RequestParam @NotBlank(message = ERROR_EMPTY_DESCRIPTION) @Size(max = 2_000, message = ERROR_LIMIT_DESCRIPTION) String description,
@@ -439,10 +440,11 @@ public class EmployeeController
   {
     try
     {
-      employeeService.addDevelopmentNeed(employeeId,
+      final int id = employeeService.addDevelopmentNeed(employeeId,
           new DevelopmentNeed(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)),
               DevelopmentNeed.Category.valueOf(CATEGORY_LIST[category])));
-      return ok("Development Need inserted correctly");
+      
+      return ok(id);
     }
     catch (InvalidAttributeValueException | EmployeeNotFoundException e)
     {
@@ -679,18 +681,19 @@ public class EmployeeController
    *          non-null and contain between 1 and 150 characters.
    * @param noteDescription POST request parameter - the description of the note to be added. Must be non-null and
    *          contain between 1 and 1,000 characters.
-   * @return {@code ResponseEntity<String>} with OK response and success message if the employee was found and the note
+   * @return {@code ResponseEntity<String>} with the ID of the note if the employee was found and the note
    *         was successfully added. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/addNote/{employeeID}", method = POST)
-  public ResponseEntity<String> addNote(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+  public ResponseEntity<?> addNote(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
       @RequestParam @NotBlank(message = ERROR_EMPTY_NOTE_PROVIDER_NAME) @Size(max = 150, message = ERROR_LIMIT_PROVIDER_NAME) String providerName,
       @RequestParam @NotBlank(message = ERROR_EMPTY_NOTE_DESCRIPTION) @Size(max = 1_000, message = ERROR_LIMIT_NOTE_DESCRIPTION) String noteDescription)
   {
     try
     {
-      employeeService.addNote(employeeID, new Note(providerName, noteDescription));
-      return ok("Note inserted");
+      final int id = employeeService.addNote(employeeID, new Note(providerName, noteDescription));
+      
+      return ok(id);
     }
     catch (final EmployeeNotFoundException e)
     {

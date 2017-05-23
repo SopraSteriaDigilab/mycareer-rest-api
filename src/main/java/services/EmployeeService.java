@@ -203,10 +203,11 @@ public class EmployeeService
    *
    * @param employeeId
    * @param objective
+   * @return
    * @throws EmployeeNotFoundException
    * @throws DocumentConversionException
    */
-  public void addObjective(long employeeId, Objective objective)
+  public int addObjective(long employeeId, Objective objective)
       throws EmployeeNotFoundException, DocumentConversionException
   {
     Employee employee = getEmployee(employeeId);
@@ -220,6 +221,8 @@ public class EmployeeService
         objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
     morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
     updateActivityFeed(employee);
+    
+    return objective.getId();
   }
 
   /**
@@ -377,10 +380,11 @@ public class EmployeeService
    *
    * @param employeeId
    * @param developmentNeed
+   * @return
    * @throws EmployeeNotFoundException
    * @throws DocumentConversionException
    */
-  public void addDevelopmentNeed(long employeeId, DevelopmentNeed developmentNeed)
+  public int addDevelopmentNeed(long employeeId, DevelopmentNeed developmentNeed)
       throws EmployeeNotFoundException, DocumentConversionException
   {
     Employee employee = getEmployee(employeeId);
@@ -394,6 +398,8 @@ public class EmployeeService
         developmentNeed.toDocument());
     morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
     updateActivityFeed(employee);
+    
+    return developmentNeed.getId();
   }
 
   /**
@@ -586,10 +592,10 @@ public class EmployeeService
    *
    * @param employeeId
    * @param note
-   * @return
+   * @return The ID number of the added note
    * @throws EmployeeNotFoundException
    */
-  public boolean addNote(long employeeID, Note note) throws EmployeeNotFoundException
+  public int addNote(long employeeID, Note note) throws EmployeeNotFoundException
   {
     Employee employee = getEmployee(employeeID);
     EmployeeProfile profile = employee.getProfile();
@@ -602,7 +608,8 @@ public class EmployeeService
     }
 
     morphiaOperations.updateEmployee(profile.getEmployeeID(), NOTES, employee.getNotes());
-    return true;
+    
+    return note.getId();
   }
 
   ///////////////////////////////////////////////////////////////////////////
