@@ -776,7 +776,7 @@ public class EmployeeController
    *         response with error message otherwise.
    */
   @RequestMapping(value = "/generateFeedbackRequest/{employeeID}", method = POST)
-  public ResponseEntity<String> createFeedbackRequest(
+  public ResponseEntity<?> createFeedbackRequest(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
       @RequestParam @NotBlank(message = ERROR_EMPTY_EMAIL_RECIPIENTS) String emailsTo,
       @RequestParam @Size(max = 1_000, message = ERROR_LIMIT_NOTE_DESCRIPTION) String notes)
@@ -788,7 +788,7 @@ public class EmployeeController
     }
     catch (Exception e)
     {
-      return badRequest().body(e.getMessage());
+      return badRequest().body(error(e.getMessage()));
     }
   }
 
