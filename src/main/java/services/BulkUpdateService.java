@@ -1,5 +1,7 @@
 package services;
 
+import static services.ad.ADSearchSettingsImpl.LdapPort.*;
+
 import static services.ad.ADOperations.searchAD;
 import static services.ad.ADOperations.searchADAsList;
 import static dataStructure.EmployeeProfile.*;
@@ -140,9 +142,9 @@ public class BulkUpdateService
   {
     // There are approximately 6,200 employees, hence initial capacity of 10,000
     final List<EmployeeProfile> allEmployeeProfiles = new ArrayList<>(10_000);
-    final List<SearchResult> steriaList = searchAD(steriaADSearchSettings, AD_TREE, steriaFilterSequence());
+    final List<SearchResult> steriaList = searchAD(steriaADSearchSettings, AD_TREE, steriaFilterSequence(), LOCAL);
     final LDAPQuery query = and(hasField(CN), hasField(EXTENSION_ATTRIBUTE_2), basicQuery(EMPLOYEE_TYPE, EMPLOYEE));
-    steriaList.addAll(searchADAsList(steriaADSearchSettings, AD_UNUSED_OBJECT_TREE, query.get()));
+    steriaList.addAll(searchADAsList(steriaADSearchSettings, AD_UNUSED_OBJECT_TREE, query.get(), LOCAL));
 
     for (final SearchResult result : steriaList)
     {
@@ -208,9 +210,11 @@ public class BulkUpdateService
   {
     final LDAPQuery initialQuery = and(fieldBeginsWith(CN, "A"), hasField(EXTENSION_ATTRIBUTE_2),
         basicQuery(EMPLOYEE_TYPE, EMPLOYEE));
+    final String initialQueryString = initialQuery.get();
+    final int firstLetter = initialQueryString.indexOf("cn=A") + 3;  
     return new StringSequence.StringSequenceBuilder().initial(initialQuery.get()) // first call to next() will return
                                                                                   // this
-        .characterToChange(6) // 'A'
+        .characterToChange(firstLetter) // 'A'
         .increment(1) // increment by one character
         .size(26) // 26 Strings in the sequence
         .build();

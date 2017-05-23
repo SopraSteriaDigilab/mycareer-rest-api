@@ -119,7 +119,7 @@ public class HistoryController
    *
    * @param employeeId The employee ID of the employee whose notes are to be returned. Must be an integer greater than
    *          0.
-   * @return {@code ResponseEntity<List<DevelopmentNeed>> with OK response and body containing all notes of the employee with
+   * @return {@code ResponseEntity<List<Note>> with OK response and body containing all notes of the employee with
    *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getNotes/{employeeID}", method = GET)
@@ -142,7 +142,7 @@ public class HistoryController
    *
    * @param employeeId The employee ID of the employee whose feedback is to be returned. Must be an integer greater than
    *          0.
-   * @return {@code ResponseEntity<List<DevelopmentNeed>> with OK response and body containing all feedback of the employee with
+   * @return {@code ResponseEntity<List<Feedback>> with OK response and body containing all feedback of the employee with
    *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getFeedback/{employeeID}", method = GET)
@@ -161,11 +161,12 @@ public class HistoryController
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * HTTP GET request to fetch all ratings corresponding to the employee with the given employee ID.
    *
-   * @param employeeId
-   * @return
+   * @param employeeId The employee ID of the employee whose ratings are to be returned. Must be an integer greater than
+   *          0.
+   * @return {@code ResponseEntity<List<Rating>> with OK response and body containing all ratings of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
    */
   @RequestMapping(value = "/getRatings/{employeeId}", method = GET)
   public ResponseEntity<?> getRatings(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId)

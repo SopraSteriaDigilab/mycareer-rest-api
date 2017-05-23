@@ -5,7 +5,6 @@ import static java.time.Month.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.Year;
 import java.time.YearMonth;
 
 public class Rating implements Serializable
@@ -143,10 +142,15 @@ public class Rating implements Serializable
     return date.getYear();
   }
 
+  /**
+   * Checks whether the current moment falls within the ratings window. The ratings window runs from 1st October until
+   * 28th/29th February inclusive.
+   *
+   * @return {@code true} if the current moment falls within the ratings window. {@code false} otherwise.
+   */
   public static boolean isRatingPeriod()
   {
-    final YearMonth currentYearMonth = YearMonth.now();
-    final Month currentMonth = currentYearMonth.getMonth();
+    final Month currentMonth = YearMonth.now().plusMonths(5).getMonth();
 
     return currentMonth.equals(OCTOBER) || currentMonth.equals(NOVEMBER) || currentMonth.equals(DECEMBER)
         || currentMonth.equals(JANUARY) || currentMonth.equals(FEBRUARY);

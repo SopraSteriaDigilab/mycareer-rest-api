@@ -88,7 +88,7 @@ public class EmployeeController
   private static final String ERROR_LIMIT_EVALUATION = "Max Evaluation length is 10,000 characters";
   private static final String ERROR_LIMIT_USERNAME_EMAIL = "The username or email address provided is invalid";
 
-  private static final String[] CATEGORY_LIST = { "JobTraining", "ClassroomTraining", "Online", "SelfStudy", "Other" };
+  private static final String[] CATEGORY_LIST = { "JOB_TRAINING", "CLASSROOM_TRAINING", "ONLINE", "SELF_STUDY", "OTHER" };
   private static final String[] PROGRESS_LIST = { "PROPOSED", "IN_PROGRESS", "COMPLETE" };
 
   @Autowired

@@ -2,11 +2,12 @@ package services;
 
 import static dataStructure.EmployeeProfile.*;
 import static dataStructure.Employee.*;
-import static dataStructure.CRUD.*;
+import static dataStructure.Action.*;
 import static services.db.MongoOperations.*;
 import static utils.Utils.*;
 import static utils.Conversions.*;
 import static com.mongodb.client.model.Filters.*;
+import static services.db.MongoUtils.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -31,7 +32,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import dataStructure.CRUD;
+import dataStructure.Action;
 import dataStructure.Competency;
 import dataStructure.Competency.CompetencyTitle;
 import dataStructure.DevelopmentNeed;
@@ -46,7 +47,6 @@ import dataStructure.Objective;
 import dataStructure.Objective.Progress;
 import dataStructure.Rating;
 import services.db.MongoOperations;
-import services.db.MongoUtils;
 import services.db.MorphiaOperations;
 import services.ews.EmailService;
 import utils.Template;
@@ -342,7 +342,7 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
     Objective objective = employee.getObjective(objectiveId);
-    CRUD crud = objective.getArchived() ? RESTORE : ARCHIVE;
+    Action crud = objective.getArchived() ? RESTORE : ARCHIVE;
 
     employee.toggleObjectiveArchive(objectiveId);
     employee.addActivity(objective.createActivity(crud, employee.getProfile()));
@@ -512,7 +512,7 @@ public class EmployeeService
   {
     Employee employee = getEmployee(employeeId);
     DevelopmentNeed developmentNeed = employee.getDevelopmentNeed(developmentNeedId);
-    CRUD crud = developmentNeed.getArchived() ? RESTORE : ARCHIVE;
+    Action crud = developmentNeed.getArchived() ? RESTORE : ARCHIVE;
 
     employee.toggleDevelopmentNeedArchive(developmentNeedId);
     employee.addActivity(employee.getDevelopmentNeed(developmentNeedId).createActivity(crud, employee.getProfile()));
@@ -992,7 +992,9 @@ public class EmployeeService
    */
   public String getManagerEmailAddress(String reporteeCN)
   {
-    Document filter = new Document("profile.reporteeCNs", MongoUtils.in(Arrays.asList(reporteeCN)));
+    LOGGER.debug("Finding manager... reporteeCN value: {}", reporteeCN);
+    
+    Document filter = new Document("profile.reporteeCNs", in(Arrays.asList(reporteeCN)));
     Document profile = employeeOperations.getField(filter, "profile");
     Document emails = (Document) profile.get("emailAddresses");
 

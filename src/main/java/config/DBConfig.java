@@ -18,10 +18,8 @@ import org.springframework.core.env.Environment;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
-import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
 
-import services.BulkUpdateService;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 

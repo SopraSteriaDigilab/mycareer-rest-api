@@ -1,5 +1,7 @@
 package services.ews;
 
+import static services.ad.ADSearchSettingsImpl.LdapPort.*;
+
 import static services.ad.ADOperations.*;
 import static services.ad.query.LDAPQueries.*;
 import static services.ews.DistributionList.*;
@@ -287,7 +289,7 @@ public class DistributionListService
 
     try
     {
-      allResults = searchADAsList(adSearchSettings, userTree, query.get());
+      allResults = searchADAsList(adSearchSettings, userTree, query.get(), GLOBAL);
     }
     catch (NamingException | NullPointerException e)
     {
@@ -368,16 +370,18 @@ public class DistributionListService
 
     NamingEnumeration<String> ids = attributes.getIDs();
 
+    LOGGER.debug("Attribute IDs follow: ");
+    
     try
     {
       while (ids.hasMore())
       {
-        LOGGER.info(ids.next().toString());
+        LOGGER.debug("Attribute ID: ".concat(ids.next().toString()));
       }
     }
     catch (Exception e)
     {
-      LOGGER.info("error while printing IDs");
+      LOGGER.debug("error while printing IDs");
     }
 
     return attributes.get(fieldName);
@@ -389,7 +393,7 @@ public class DistributionListService
 
     try
     {
-      result = searchADSingleResult(settings, tree, filter);
+      result = searchADSingleResult(settings, tree, filter, GLOBAL);
     }
     catch (final ADConnectionException e)
     {

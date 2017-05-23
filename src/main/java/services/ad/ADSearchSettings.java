@@ -4,13 +4,15 @@ import java.util.Hashtable;
 
 import javax.naming.directory.SearchControls;
 
+import services.ad.ADSearchSettingsImpl.LdapPort;
+
 /**
  * 
  * TODO: Describe this TYPE.
  *
  */
 public interface ADSearchSettings
-{
+{  
   /**
    * Returns the {@code SearchControls} of these {@code ADSearchSettings}.
    *
@@ -21,5 +23,5 @@ public interface ADSearchSettings
   /**
    * Returns the environment settings for these {@code ADSearchSettings}.
    */
-  Hashtable<String, String> getEnvironmentSettings();
+  Hashtable<String, String> getEnvironmentSettings(final LdapPort ldapPort);
 }

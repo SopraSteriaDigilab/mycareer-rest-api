@@ -26,7 +26,7 @@ import dataStructure.EmployeeProfile;
 public class EmployeeProfileMapper
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileMapper.class);
-  
+
   private static final String REPORTEES_NOT_FOUND = "Exception while fetching reportees: {}";
   private static final String NOT_AN_EMPLOYEE = "Cannot create an EmployeeProfile: employeeType is not \"EMP\"";
   private static final String EMPLOYEE_NOT_FOUND = "Cannot create an EmployeeProfile: Exception thrown while fetching employeeID: ";
@@ -56,10 +56,10 @@ public class EmployeeProfileMapper
     profile = new EmployeeProfile.Builder().employeeID(mapEmployeeID(attributes, EXTENSION_ATTRIBUTE_2))
         .employeeType(mapString(EMPLOYEE_TYPE, attributes)).forename(mapString(GIVEN_NAME, attributes))
         .surname(mapString(SN, attributes)).username(mapString(SAM_ACCOUNT_NAME, attributes))
-        .emailAddresses(emailAddresses).company(mapString(COMPANY, attributes))
-        .superSector(mapString(OU, attributes)).sector(mapSector(attributes))
-        .steriaDepartment(mapString(DEPARTMENT, attributes)).manager(mapIsManager(attributes))
-        .reporteeCNs(mapReporteeCNs(attributes)).accountExpires(mapAccountExpires(attributes)).build();
+        .emailAddresses(emailAddresses).company(mapString(COMPANY, attributes)).superSector(mapString(OU, attributes))
+        .sector(mapSector(attributes)).steriaDepartment(mapString(DEPARTMENT, attributes))
+        .manager(mapIsManager(attributes)).reporteeCNs(mapReporteeCNs(attributes))
+        .accountExpires(mapAccountExpires(attributes)).build();
   }
 
   private boolean isEmployee(final Attributes attributes)
@@ -121,11 +121,7 @@ public class EmployeeProfileMapper
       String employeeIDString = (String) attributes.get(employeeIDAttribute).get();
       employeeID = Long.parseLong(employeeIDString.substring(1));
     }
-    catch (NamingException | NoSuchElementException | NullPointerException e)
-    {
-      throw new InvalidEmployeeProfileException(EMPLOYEE_NOT_FOUND, e);
-    }
-    catch (ClassCastException e)
+    catch (NamingException | NoSuchElementException | NullPointerException | ClassCastException e)
     {
       throw new InvalidEmployeeProfileException(EMPLOYEE_NOT_FOUND, e);
     }

@@ -1,42 +1,30 @@
 package dataStructure;
 
 /**
- * TODO: Describe this TYPE.
- *
+ * Exception thrown when a Java object could not be converted to a {@code Document}.
+ * 
+ * @see Document
+ * @see DBObject
  */
 public class DocumentConversionException extends Exception
 {
-  /** long Constant - Represents the serial version. */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * 
-   * TYPE Constructor - Responsible for initialising this object.
-   *
-   * @param message
-   */
+  /** @param message The exception message. */
   public DocumentConversionException(final String message)
   {
     super(message);
   }
 
-  /**
-   * 
-   * TYPE Constructor - Responsible for initialising this object.
-   *
-   * @param wrappedException
-   */
+  /** @param wrappedException The exception which caused this exception. */
   public DocumentConversionException(Exception wrappedException)
   {
     super(wrappedException);
   }
 
   /**
-   * 
-   * TYPE Constructor - Responsible for initialising this object.
-   *
-   * @param message
-   * @param wrappedException
+   * @param message The exception message.
+   * @param wrappedException The exception which caused this exception.
    */
   public DocumentConversionException(String message, Exception wrappedException)
   {

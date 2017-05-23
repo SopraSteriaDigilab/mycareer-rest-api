@@ -7,20 +7,19 @@ import javax.management.InvalidAttributeValueException;
 import org.bson.Document;
 
 /**
- * 
- * TODO: Describe this TYPE.
- *
+ * An employee's development need. Used by Morphia as a template for mapping from a MongoDB document.
  */
 public class DevelopmentNeed extends Objective
 {
-  /* long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = 1L;
 
-  /** Represent Category of a development need. */
+  /**
+   * A category of development need.
+   */
   public enum Category
   {
-    JobTraining("On Job Training"), ClassroomTraining("Classroom Training"), Online("Online or E-learning"), SelfStudy(
-        "Self Study"), Other("Other");
+    JOB_TRAINING("On Job Training"), CLASSROOM_TRAINING("Classroom Training"), ONLINE(
+        "Online or E-learning"), SELF_STUDY("Self Study"), OTHER("Other");
 
     private String categoryStr;
 
@@ -29,43 +28,29 @@ public class DevelopmentNeed extends Objective
       this.categoryStr = categoryStr;
     }
 
-    /**
-     * 
-     * TODO: Describe this method.
-     *
-     * @return
-     */
+    /** @return The full string description of this category. */
     public String getCategoryStr()
     {
       return this.categoryStr;
     }
 
     /**
-     * 
-     * TODO: Describe this method.
-     *
-     * @param categoryString
-     * @return
-     * @throws InvalidAttributeValueException
+     * @param categoryString The full string description of a category
+     * @return The {@code Category} instance whose full description is equal to the provided {@code categoryString}.
+     * @throws IllegalArgumentException if the provided {@code categoryString} did not match a category description.
      */
     public static Category getCategoryFromString(String categoryString) throws InvalidAttributeValueException
     {
-      switch (categoryString)
+      for (final Category category : values())
       {
-        case "On Job Training":
-          return Category.JobTraining;
-        case "Classroom Training":
-          return Category.ClassroomTraining;
-        case "Online or E-learning":
-          return Category.Online;
-        case "Self Study":
-          return Category.SelfStudy;
-        case "Other":
-          return Category.Other;
+        if (category.categoryStr.equals(categoryString))
+        {
+          return category;
+        }
       }
-      throw new InvalidAttributeValueException("This enum string does not exist");
-    }
 
+      throw new IllegalArgumentException("This enum string does not exist");
+    }
   }
 
   // TODO Why is this an Object and not a String??
@@ -75,7 +60,8 @@ public class DevelopmentNeed extends Objective
   private String category;
 
   /**
-   * No-args Constructor - Responsible for initialising this object.
+   * DevelopmentNeed Constructor - No-args constructor provided for use by Morphia. Should not be used in application
+   * code.
    */
   public DevelopmentNeed()
   {
@@ -99,7 +85,7 @@ public class DevelopmentNeed extends Objective
     this.setId(id);
   }
 
-  /** @return the category */
+  /** @return the full description of the category of this development need */
   public String getCategory()
   {
     return this.category;
@@ -115,13 +101,11 @@ public class DevelopmentNeed extends Objective
   /**
    * Override of differences method.
    *
-   * Returns a document containing the differences (only title, description, dueDate & category) of the development
-   * need.
-   *
    * @see dataStructure.Objective#differences(dataStructure.Objective)
    *
-   * @param objective
-   * @return
+   * @param objective The objective to compare with this.
+   * @return a document containing the differences (only title, description, dueDate & category) of the development
+   *         need.
    */
   @Override
   public Document differences(Objective objective)
@@ -136,18 +120,18 @@ public class DevelopmentNeed extends Objective
   }
 
   /**
-   * 
-   * Override of NAME method.
+   * Override of createActivity method.
    *
-   * TODO: Describe this method.
+   * Creates an item of activity describing the given action performed on this development need by the given employee.
    *
-   * @see dataStructure.Objective#createActivity(dataStructure.CRUD, dataStructure.EmployeeProfile)
+   * @see dataStructure.Objective#createActivity(dataStructure.Action, dataStructure.EmployeeProfile)
    *
-   * @param activityType
-   * @param profile
-   * @return
+   * @param activityType The action performed.
+   * @param profile The profile of the employee performing the action.
+   * @return The generated activity.
    */
-  public Activity createActivity(final CRUD activityType, final EmployeeProfile profile)
+  @Override
+  public Activity createActivity(final Action activityType, final EmployeeProfile profile)
   {
     final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb())
         .append(" ").append(DEVELOPMENT_NEED).append(" #").append(getId()).append(": ").append(getTitle()).toString();

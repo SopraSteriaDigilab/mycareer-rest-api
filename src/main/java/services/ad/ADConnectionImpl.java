@@ -10,6 +10,8 @@ import javax.naming.directory.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import services.ad.ADSearchSettingsImpl.LdapPort;
+
 /**
  * Represents a connection to an active directory.
  * 
@@ -66,18 +68,18 @@ public class ADConnectionImpl implements ADConnection
    * @throws NoSuchElementException If the search produced no results.
    */
   @Override
-  public NamingEnumeration<SearchResult> searchAD(final String searchTree, final String searchFilter)
-      throws ADConnectionException, NamingException
+  public NamingEnumeration<SearchResult> searchAD(final String searchTree, final String searchFilter,
+      final LdapPort ldapPort) throws ADConnectionException, NamingException
   {
     final NamingEnumeration<SearchResult> result;
 
-    establishConnection();
-    result = search(searchTree, searchFilter, adSearchSettings.getSearchControls());
+    establishConnection(ldapPort);
+    result = search(searchTree, searchFilter, adSearchSettings.getSearchControls(), ldapPort);
 
     return result;
   }
 
-  private void establishConnection() throws ADConnectionException
+  private void establishConnection(final LdapPort ldapPort) throws ADConnectionException
   {
     if (connection != null)
     {
@@ -86,17 +88,17 @@ public class ADConnectionImpl implements ADConnection
 
     try
     {
-      connection = new InitialDirContext(adSearchSettings.getEnvironmentSettings());
+      connection = new InitialDirContext(adSearchSettings.getEnvironmentSettings(ldapPort));
     }
     catch (final NamingException | RuntimeException ex)
     {
-      LOGGER.error(CONNECTION_EXCEPTION_MSG.concat(adSearchSettings.getEnvironmentSettings().toString()), ex);
+      LOGGER.error(CONNECTION_EXCEPTION_MSG.concat(adSearchSettings.getEnvironmentSettings(ldapPort).toString()), ex);
       throw new ADConnectionException(CONNECTION_EXCEPTION_MSG, ex);
     }
   }
 
   private NamingEnumeration<SearchResult> search(final String searchTree, final String searchFilter,
-      final SearchControls searchCtls) throws ADConnectionException
+      final SearchControls searchCtls, final LdapPort ldapPort) throws ADConnectionException
   {
     try
     {
@@ -104,9 +106,8 @@ public class ADConnectionImpl implements ADConnection
     }
     catch (final NamingException | RuntimeException ex)
     {
-      LOGGER.error(
-          SEARCH_EXCEPTION_MSG.concat("Query: " + searchFilter + adSearchSettings.getEnvironmentSettings().toString()),
-          ex);
+      LOGGER.error(SEARCH_EXCEPTION_MSG.concat("Query: " + searchFilter + ", Environment settings: "
+          + adSearchSettings.getEnvironmentSettings(ldapPort).toString()), ex);
       throw new ADConnectionException(SEARCH_EXCEPTION_MSG, ex);
     }
   }

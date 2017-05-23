@@ -25,43 +25,92 @@ import dataStructure.Competency.CompetencyTitle;
 import dataStructure.DevelopmentNeed.Category;
 
 /**
+ * A Sopra Steria UK permanent employee and their MyCareer data. Used by Morphia for mapping from a MongoDB document.
+ * Represents a top level document in MongoDB in the employees collection.
  * 
- * TODO: Describe this TYPE.
- *
+ * @see EmployeeController
+ * @see EmployeeService
+ * @see EmployeeProfile
+ * @see Objective
+ * @see DevelopmentNeed
+ * @see Competency
+ * @see Note
+ * @see Feedback
+ * @see FeedbackRequest
+ * @see Rating
+ * @see Activity
  */
 @Entity("employees")
 public class Employee implements Serializable
 {
   private static final long serialVersionUID = 1L;
 
-  /** TODO describe */
+  /**
+   * The field name used to store the employee's profile.
+   * 
+   * @see EmployeeProfile
+   */
   public static final String PROFILE = "profile";
 
-  /** TODO describe */
+  /**
+   * The field name used to store the employee's objectives.
+   * 
+   * @see Objective
+   */
   public static final String OBJECTIVES = "objectives";
 
-  /** TODO describe */
+  /**
+   * The field name used to store the employee's development needs.
+   * 
+   * @see DevelopmentNeed
+   */
   public static final String DEVELOPMENT_NEEDS = "developmentNeeds";
 
-  /** TODO describe */
+  /**
+   * The field name used to store the employee's competencies.
+   * 
+   * @see Competency
+   */
   public static final String COMPETENCIES = "competencies";
 
-  /** TODO describe */
+  /**
+   * The field name used to store the employee's notes.
+   * 
+   * @see Note
+   */
   public static final String NOTES = "notes";
 
-  /** TODO describe */
+  /**
+   * The field name used to store the employee's feedback.
+   * 
+   * @see Feedback
+   */
   public static final String FEEDBACK = "feedback";
 
-  /** TODO describe */
+  /**
+   * The field name used to store the employee's feedback requests.
+   * 
+   * @see FeedbackRequest
+   */
   public static final String FEEDBACK_REQUESTS = "feedbackRequests";
 
-  /** TODO describe */
+  /**
+   * The field name used to store the employee's ratings.
+   * 
+   * @see Rating
+   */
   public static final String RATINGS = "ratings";
 
-  /** TODO describe */
+  /**
+   * The field name used to store a string representation of the last time this employee logged on to MyCareer.
+   */
   public static final String LAST_LOGON = "lastLogon";
 
-  /** TODO describe */
+  /**
+   * The field name used to store the employee's recent activities.
+   * 
+   * @see Activity
+   */
   public static final String ACTIVITY_FEED = "activityFeed";
 
   private static final int MAX_ACTIVITY_FEED_SIZE = 20;
@@ -93,14 +142,14 @@ public class Employee implements Serializable
   @Embedded
   private List<Rating> ratings;
 
-  /** Date Property - Represents the date of the last logon for the user */
+  /* Date Property - Represents the date of the last logon for the user */
   private Date lastLogon;
 
-  /** Queue<String> Property - Represents the last 50 actions performed by this employee */
+  /* List<Activity> Property - Represents this employee's recent activities */
   @Embedded
   private List<Activity> activityFeed;
 
-  /** No-args Constructor - Responsible for initialising this object. */
+  /** Employee Constructor - No-args constructor responsible for initialising this object. */
   public Employee()
   {
     this.feedback = new ArrayList<Feedback>();
@@ -115,9 +164,9 @@ public class Employee implements Serializable
 
   /**
    * 
-   * TYPE Constructor - Responsible for initialising this object.
+   * Employee Constructor - Responsible for initialising this object.
    *
-   * @param profile
+   * @param profile The employee's profile
    */
   public Employee(final EmployeeProfile profile)
   {
@@ -130,10 +179,8 @@ public class Employee implements Serializable
   ///////////////////////////////////////////////////////////////////////////
 
   /**
-   * 
-   * TODO: Describe this method.
-   *
-   * @return
+   * @return A list of this employee's current objectives.
+   * @see Objective#isCurrent
    */
   public List<Objective> getCurrentObjectives()
   {
@@ -144,11 +191,10 @@ public class Employee implements Serializable
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Adds an objective to this employee.
    *
-   * @param objective
-   * @return
+   * @param objective The objective to add.
+   * @return {@code true} if the objective was successfully added. {@code false} otherwise.
    */
   public boolean addObjective(Objective objective)
   {
@@ -158,20 +204,22 @@ public class Employee implements Serializable
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Edits one this employee's objective with the same ID number as the provided objective. The provided objective is
+   * not edited.
    *
-   * @param objective
-   * @return
-   * @throws InvalidAttributeValueException
+   * @param objective The objective whose ID number matches the objective to be edited.
+   * @return {@code true} if the objective was successfully edited.
+   * @throws InvalidAttributeValueException If an objective with the same ID number as the provided objective does not
+   *           exist for this employee, or if it exists, but is archived or complete.
    */
   public boolean editObjective(Objective objective) throws InvalidAttributeValueException
   {
-
     Objective objectiveToEdit = getObjective(objective.getId());
 
     if (objectiveToEdit.getArchived() || objectiveToEdit.getProgress().equals(Progress.COMPLETE.getProgressStr()))
+    {
       throw new InvalidAttributeValueException("Cannot Edit archived/complete Objective.");
+    }
 
     objectiveToEdit.setDescription(objective.getDescription());
     objectiveToEdit.setTitle(objective.getTitle());
@@ -181,12 +229,12 @@ public class Employee implements Serializable
   }
 
   /**
-   * 
-   * TODO: Describe this method.
+   * Deletes this employee's objective with the ID number {@code objectiveId}. Only archived objectives may be deleted.
    *
-   * @param objectiveId
-   * @return
-   * @throws InvalidAttributeValueException
+   * @param objectiveId The ID number of the objective to delete.
+   * @return {@code true} if the objective was successfully deleted.
+   * @throws InvalidAttributeValueException If an objective with the provided ID number does not exist for this
+   *           employee, or if it exists but is not archived.
    */
   public boolean deleteObjective(int objectiveId) throws InvalidAttributeValueException
   {
@@ -963,8 +1011,4 @@ public class Employee implements Serializable
   {
     this.activityFeed = activityFeed;
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  /////////////////////// PRIVATE METHODS FOLLOW ////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////
 }

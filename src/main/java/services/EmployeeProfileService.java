@@ -1,5 +1,7 @@
 package services;
 
+import static services.ad.ADSearchSettingsImpl.LdapPort.*;
+
 import static dataStructure.EmployeeProfile.*;
 import static dataStructure.EmailAddresses.*;
 import static services.ad.ADOperations.*;
@@ -265,7 +267,7 @@ public class EmployeeProfileService
   private boolean hasHRDash(final long employeeID) throws ADConnectionException
   {
     final String filter = basicQuery(EXTENSION_ATTRIBUTE_7, "s" + employeeID).get();
-    final SearchResult result = searchADSingleResult(sopraADSearchSettings, AD_SOPRA_TREE, filter);
+    final SearchResult result = searchADSingleResult(sopraADSearchSettings, AD_SOPRA_TREE, filter, LOCAL);
 
     return mapHRPermission(result.getAttributes());
   }

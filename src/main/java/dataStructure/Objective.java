@@ -286,7 +286,7 @@ public class Objective extends DBObject implements Comparable<Objective>
    * @param profile
    * @return
    */
-  public Activity createActivity(final CRUD activityType, final EmployeeProfile profile)
+  public Activity createActivity(final Action activityType, final EmployeeProfile profile)
   {
     final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb())
         .append(" ").append(OBJECTIVE).append(" #").append(getId()).append(": ").append(title).toString();
