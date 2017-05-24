@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 
 import com.mongodb.MongoException;
 
+import dataStructure.EmailAddresses;
 import dataStructure.EmployeeProfile;
 import services.ad.ADConnectionException;
 import services.ad.ADSearchSettings;
-import services.ad.query.LDAPQueries;
 import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 
@@ -221,7 +221,7 @@ public class EmployeeProfileService
 
   private boolean isUniqueEmailAddress(String emailAddress)
   {
-    final String[] emailFields = { LDAPQueries.MAIL, LDAPQueries.TARGET_ADDRESS, USER_ADDRESS };
+    final String[] emailFields = { EmailAddresses.MAIL, EmailAddresses.TARGET_ADDRESS, USER_ADDRESS };
     boolean unique = false;
 
     for (final String field : emailFields)

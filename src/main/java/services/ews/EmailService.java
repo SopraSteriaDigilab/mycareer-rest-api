@@ -128,8 +128,6 @@ public class EmailService
     }
 
     message.sendAndSaveCopy();
-    // emailService.close();
-    // TODO throws an error
   }
 
   /**
@@ -173,12 +171,6 @@ public class EmailService
     {
       LOGGER.error(e.getMessage());
     }
-    finally
-    {
-      // emailService.close();
-      // TODO throws an error
-    }
-
   }
 
   /**
