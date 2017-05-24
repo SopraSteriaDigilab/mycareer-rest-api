@@ -1,15 +1,15 @@
 package controller;
 
-import static application.GlobalExceptionHandler.error;
-import static org.springframework.http.ResponseEntity.badRequest;
-import static org.springframework.http.ResponseEntity.ok;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static utils.Validate.presentOrFutureYearMonthToLocalDate;
+import static application.GlobalExceptionHandler.*;
+import static org.springframework.http.ResponseEntity.*;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
+import static utils.Validate.*;
+import static controller.responseUtils.ResponseEntities.*;
 
 import java.io.IOException;
 import java.time.YearMonth;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -117,21 +117,20 @@ public class ManagerController
    *          non-null and contain between 1 and 150 characters.
    * @param noteDescription POST request parameter - the description of the note to be added. Must be non-null and
    *          contain between 1 and 1,000 characters.
-   * @return {@code ResponseEntity<String>} with OK response and success message if the reportee was found and the note
-   *         was successfully added. Bad Request response with error message otherwise.
+   * @return {@code ResponseEntity<String>} with OK response, success message and the note ID number if the reportee was
+   *         found and the note was successfully added. Bad Request response with error message otherwise.
    */
   @RequestMapping(value = "/addNoteToReportee/{employeeID}", method = POST)
-  public ResponseEntity<String> addNoteToReportee(
-      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+  public ResponseEntity<?> addNoteToReportee(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
       @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeEmployeeID,
       @NotBlank(message = ERROR_EMPTY_NOTE_PROVIDER_NAME) @Size(max = 150, message = ERROR_LIMIT_PROVIDER_NAME) String providerName,
       @NotBlank(message = ERROR_EMPTY_NOTE_DESCRIPTION) @Size(max = 1_000, message = ERROR_LIMIT_NOTE_DESCRIPTION) String noteDescription)
   {
     try
     {
-      managerService.addNoteToReportee(reporteeEmployeeID, new Note(providerName, noteDescription));
+      final int noteID = managerService.addNoteToReportee(reporteeEmployeeID, new Note(providerName, noteDescription));
 
-      return ok("Note inserted correctly");
+      return success("Note inserted correctly", "noteID", noteID);
     }
     catch (final EmployeeNotFoundException e)
     {
@@ -152,9 +151,10 @@ public class ManagerController
    *          yyyy-MM.
    * @param emails POST request parameter - a comma separated list of email addresses of employees to whom an objective
    *          is to be added. Must be non-null and contain at least 1 character.
-   * @return {@code ResponseEntity<String>} with OK response and success message if the employee proposing the objective
-   *         was found, all of the email addresses were matched to employees, and the objective was successfully added
-   *         to them. Bad Request response with error message otherwise.
+   * @return {@code ResponseEntity<String>} with OK response, success message and the successfully added objectiveIDs if
+   *         the employee proposing the objective was found, one or more of the email addresses were matched to
+   *         employees, and the objective was successfully added to them. Bad Request response with error message
+   *         otherwise.
    */
   @RequestMapping(value = "/proposeObjective/{employeeId}", method = POST)
   public ResponseEntity<?> proposeObjective(@PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeId,
@@ -170,24 +170,20 @@ public class ManagerController
       final DistributionList customDistributionList = distributionListService.customDistributionList(emailSet,
           invalidEmailAddresses);
 
-      if (invalidEmailAddresses.isEmpty())
-      {
-        managerService.proposeObjective(employeeId,
-            new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))),
-            customDistributionList);
-
-        return ok("Objective inserted correctly");
-      }
-      else if (emailSet.isEmpty())
+      if (customDistributionList == null)
       {
         throw new IllegalArgumentException(
-            "Employees not found for the following Email Addresses: " + invalidEmailAddresses.toString());
+            "Employees not found for the following Email Addresses: ".concat(invalidEmailAddresses.toString()));
       }
-      else
-      {
-        throw new IllegalArgumentException("Objective proposed for: " + emailSet.toString()
-            + ". Employees not found for the following Email Addresses: " + invalidEmailAddresses.toString());
-      }
+
+      final Map<Long, Integer> objectiveIDs = managerService.proposeObjective(employeeId,
+          new Objective(title, description, presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate))),
+          customDistributionList);
+      final String successMessage = invalidEmailAddresses.isEmpty() ? "Objective inserted correctly"
+          : "Objective proposed for: " + customDistributionList.getEmailAddresses().toString()
+              + ". Employees not found for the following Email Addresses: " + invalidEmailAddresses.toString();
+
+      return success(successMessage, "objectiveIDs", objectiveIDs);
     }
     catch (IllegalArgumentException | EmployeeNotFoundException | DocumentConversionException
         | InvalidAttributeValueException | DistributionListException e)
@@ -273,9 +269,9 @@ public class ManagerController
    *          yyyy-MM.
    * @param distributionListName POST request parameter - the name of the distribution list whose members are to be
    *          proposed an objective. Must be non-null and contain between 1 and 100 characters.
-   * @return {@code ResponseEntity<String>} with OK response and success message if the employee proposing the objective
-   *         was found, the distribution list was found in the cache, and the objective was successfully added to all
-   *         members of it. Bad Request response with error message otherwise.
+   * @return {@code ResponseEntity<String>} with OK response, success message and the objective ID numbers if the
+   *         employee proposing the objective was found, the distribution list was found in the cache, and the objective
+   *         was successfully added to all members of it. Bad Request response with error message otherwise.
    * @see generateDistributionList
    */
   @RequestMapping(value = "/proposeObjectiveToDistributionList/{employeeId}", method = POST)
@@ -291,10 +287,9 @@ public class ManagerController
       final Objective objective = new Objective(title, description,
           presentOrFutureYearMonthToLocalDate(YearMonth.parse(dueDate)));
       final DistributionList distributionList = distributionListService.getCachedDistributionList(distributionListName);
+      final Map<Long, Integer> objectiveIDs = managerService.proposeObjective(employeeId, objective, distributionList);
 
-      managerService.proposeObjective(employeeId, objective, distributionList);
-
-      return ok("Objective inserted correctly");
+      return success("Objective inserted correctly", "objectiveIDs", objectiveIDs);
     }
     catch (IllegalArgumentException | DocumentConversionException | EmployeeNotFoundException
         | InvalidAttributeValueException e)
@@ -324,10 +319,10 @@ public class ManagerController
       @RequestParam @Min(value = 0, message = ERROR_SCORE) @Max(value = 5, message = ERROR_SCORE) int score)
   {
     // TODO Uncomment this code once UAT is complete
-//    if (!Rating.isRatingPeriod())
-//    {
-//      return badRequest().body("Manager evaluations can only be added during the ratings submission window.");
-//    }
+    // if (!Rating.isRatingPeriod())
+    // {
+    // return badRequest().body("Manager evaluations can only be added during the ratings submission window.");
+    // }
 
     try
     {
@@ -357,10 +352,10 @@ public class ManagerController
       @RequestParam @Min(value = 1, message = ERROR_EMPLOYEE_ID) long reporteeId)
   {
     // TODO Uncomment this code once UAT is complete
-//    if (!Rating.isRatingPeriod())
-//    {
-//      return badRequest().body("Manager evaluations can only be added during the ratings submission window.");
-//    }
+    // if (!Rating.isRatingPeriod())
+    // {
+    // return badRequest().body("Manager evaluations can only be added during the ratings submission window.");
+    // }
 
     try
     {

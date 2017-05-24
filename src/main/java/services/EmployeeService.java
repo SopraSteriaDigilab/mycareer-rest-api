@@ -221,7 +221,7 @@ public class EmployeeService
         objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
     morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
     updateActivityFeed(employee);
-    
+
     return objective.getId();
   }
 
@@ -263,10 +263,11 @@ public class EmployeeService
    * @param employeeId
    * @param objectiveId
    * @param comment
+   * @return
    * @throws EmployeeNotFoundException
    * @throws InvalidAttributeValueException
    */
-  public void deleteObjective(long employeeId, int objectiveId, String comment)
+  public int deleteObjective(long employeeId, int objectiveId, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
@@ -287,7 +288,8 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, NOTES, employee.getNotes());
     morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
     updateActivityFeed(employee);
-    addNote(employeeId, new Note(AUTO_GENERATED,
+
+    return addNote(employeeId, new Note(AUTO_GENERATED,
         String.format(COMMENT_DELTED_OBJECTIVE, employee.getProfile().getFullName(), title, commentAdded)));
   }
 
@@ -299,36 +301,37 @@ public class EmployeeService
    * @param objectiveId
    * @param progress
    * @param comment
+   * @return
    * @throws EmployeeNotFoundException
    * @throws InvalidAttributeValueException
    * @throws JsonParseException
    * @throws JsonMappingException
    * @throws IOException
    */
-  public void updateObjectiveProgress(long employeeId, int objectiveId, Progress progress, String comment)
+  public Integer updateObjectiveProgress(long employeeId, int objectiveId, Progress progress, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException, JsonParseException, JsonMappingException,
       IOException
   {
-    Employee employee = getEmployee(employeeId);
-    Objective objective = employee.getObjective(objectiveId);
+    final Employee employee = getEmployee(employeeId);
+    final Objective objective = employee.getObjective(objectiveId);
 
     employee.updateObjectiveProgress(objectiveId, progress);
-
     objectivesHistoriesOperations.addToObjDevHistory(
         objectiveHistoryIdFilter(employeeId, objectiveId, objective.getCreatedOn()),
         new Document("progress", progress.getProgressStr()).append("timestamp", objective.getLastModifiedAsDate()));
-
     morphiaOperations.updateEmployee(employeeId, OBJECTIVES, employee.getObjectives());
 
     if (progress.equals(Progress.COMPLETE))
     {
       employee.addActivity(objective.createActivity(COMPLETE, employee.getProfile()));
       updateActivityFeed(employee);
-      String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
-      addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_OBJECTIVE,
-          employee.getProfile().getFullName(), objective.getTitle(), commentAdded)));
+      final String commentAdded = (!comment.isEmpty()) ? String.format(COMMENT_ADDED, comment) : EMPTY_STRING;
 
+      return addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_OBJECTIVE,
+          employee.getProfile().getFullName(), objective.getTitle(), commentAdded)));
     }
+
+    return null;
   }
 
   /**
@@ -398,7 +401,7 @@ public class EmployeeService
         developmentNeed.toDocument());
     morphiaOperations.updateEmployee(employeeId, DEVELOPMENT_NEEDS, employee.getDevelopmentNeeds());
     updateActivityFeed(employee);
-    
+
     return developmentNeed.getId();
   }
 
@@ -440,10 +443,11 @@ public class EmployeeService
    * @param employeeId
    * @param developmentNeedId
    * @param comment
+   * @return
    * @throws EmployeeNotFoundException
    * @throws InvalidAttributeValueException
    */
-  public void deleteDevelopmentNeed(long employeeId, int developmentNeedId, String comment)
+  public int deleteDevelopmentNeed(long employeeId, int developmentNeedId, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
@@ -465,7 +469,7 @@ public class EmployeeService
     morphiaOperations.updateEmployee(employeeId, FEEDBACK, employee.getFeedback());
     updateActivityFeed(employee);
 
-    addNote(employeeId, new Note(AUTO_GENERATED,
+    return addNote(employeeId, new Note(AUTO_GENERATED,
         String.format(COMMENT_DELETED_DEVELOPMENT_NEED, employee.getProfile().getFullName(), title, commentAdded)));
   }
 
@@ -477,10 +481,11 @@ public class EmployeeService
    * @param developmentNeedId
    * @param progress
    * @param comment
+   * @return
    * @throws EmployeeNotFoundException
    * @throws InvalidAttributeValueException
    */
-  public void updateDevelopmentNeedProgress(long employeeId, int developmentNeedId, Progress progress, String comment)
+  public Integer updateDevelopmentNeedProgress(long employeeId, int developmentNeedId, Progress progress, String comment)
       throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
@@ -499,9 +504,11 @@ public class EmployeeService
     {
       employee.addActivity(developmentNeed.createActivity(COMPLETE, employee.getProfile()));
       updateActivityFeed(employee);
-      addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_DEVELOPMENT_NEED,
+      return addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_DEVELOPMENT_NEED,
           employee.getProfile().getFullName(), developmentNeed.getTitle(), comment)));
     }
+    
+    return null;
   }
 
   /**
@@ -608,7 +615,7 @@ public class EmployeeService
     }
 
     morphiaOperations.updateEmployee(profile.getEmployeeID(), NOTES, employee.getNotes());
-    
+
     return note.getId();
   }
 
@@ -1000,7 +1007,7 @@ public class EmployeeService
   public String getManagerEmailAddress(String reporteeCN)
   {
     LOGGER.debug("Finding manager... reporteeCN value: {}", reporteeCN);
-    
+
     Document filter = new Document("profile.reporteeCNs", in(Arrays.asList(reporteeCN)));
     Document profile = employeeOperations.getField(filter, "profile");
     Document emails = (Document) profile.get("emailAddresses");

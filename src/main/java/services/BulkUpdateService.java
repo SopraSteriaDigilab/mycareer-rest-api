@@ -126,18 +126,11 @@ public class BulkUpdateService
     logMetadata(startADOps, endADOps, startDBOps, endDBOps, allAdProfiles.size());
 
     LOGGER.info(END_UPDATE);
+
     return inserted + updated + alreadyUpToDate;
   }
 
-  /**
-   * Fetches a list of all Sopra Steria UK employees.
-   *
-   * @return The list of all Sopra Steria employees.
-   * @throws ADConnectionException if there was a problem connecting to the active directory or performing the search.
-   * @throws NamingException
-   * @throws SequenceException
-   */
-  public List<EmployeeProfile> fetchAllAdProfiles() throws ADConnectionException, NamingException, SequenceException
+  private List<EmployeeProfile> fetchAllAdProfiles() throws ADConnectionException, NamingException, SequenceException
   {
     // There are approximately 6,200 employees, hence initial capacity of 10,000
     final List<EmployeeProfile> allEmployeeProfiles = new ArrayList<>(10_000);
@@ -220,6 +213,42 @@ public class BulkUpdateService
         .build();
   }
 
+  private void logMetadata(final List<SearchResult> resultsList, final List<EmployeeProfile> allEmployeeProfiles)
+  {
+    // Some metadata.
+    // TODO don't think this belongs here
+    LOGGER.info("Steria list size: {}", resultsList.size());
+    LOGGER.info("EmployeeProfiles generated: {}", allEmployeeProfiles.size());
+    LOGGER.info("With employee ID: {}", allEmployeeProfiles.stream().filter(e -> e.getEmployeeID() > 0).count());
+    LOGGER.info("With employee type: {}", allEmployeeProfiles.stream()
+        .filter(e -> e.getEmployeeType() != null && !e.getEmployeeType().isEmpty()).count());
+    LOGGER.info("With username: {}",
+        allEmployeeProfiles.stream().filter(e -> e.getUsername() != null && !e.getUsername().isEmpty()).count());
+    LOGGER.info("With forename: {}",
+        allEmployeeProfiles.stream().filter(e -> e.getForename() != null && !e.getForename().isEmpty()).count());
+    LOGGER.info("With surname: {}",
+        allEmployeeProfiles.stream().filter(e -> e.getSurname() != null && !e.getSurname().isEmpty()).count());
+    LOGGER.info("With email address \"mail\": {}",
+        allEmployeeProfiles.stream().filter(e -> e.getEmailAddresses() != null
+            && e.getEmailAddresses().getMail() != null && !e.getEmailAddresses().getMail().isEmpty()).count());
+    LOGGER.info("With email address \"targetAddress\": {}",
+        allEmployeeProfiles.stream().filter(e -> e.getEmailAddresses() != null
+            && e.getEmailAddresses().getTargetAddress() != null && !e.getEmailAddresses().getTargetAddress().isEmpty())
+            .count());
+    LOGGER.info("With reportees: {}",
+        allEmployeeProfiles.stream().filter(e -> e.getReporteeCNs() != null && !e.getReporteeCNs().isEmpty()).count());
+    LOGGER.info("With department: {}", allEmployeeProfiles.stream()
+        .filter(e -> e.getSteriaDepartment() != null && !e.getSteriaDepartment().isEmpty()).count());
+    LOGGER.info("With sector: {}",
+        allEmployeeProfiles.stream().filter(e -> e.getSector() != null && !e.getSector().isEmpty()).count());
+    LOGGER.info("With super sector: {}",
+        allEmployeeProfiles.stream().filter(e -> e.getSuperSector() != null && !e.getSuperSector().isEmpty()).count());
+    LOGGER.info("With company: {}",
+        allEmployeeProfiles.stream().filter(e -> e.getCompany() != null && !e.getCompany().isEmpty()).count());
+    LOGGER.info("With leaving date: {}",
+        allEmployeeProfiles.stream().filter(e -> e.getAccountExpires() != null).count());
+  }
+
   private void logMetadata(Instant startADOps, Instant endADOps, Instant startDBOps, Instant endDBOps, int entriesFound)
   {
     final Duration adOpsTime = Duration.between(startADOps, endADOps);
@@ -235,35 +264,5 @@ public class BulkUpdateService
     LOGGER.info("AD Operations time: {}", adOpsTime);
     LOGGER.info("DB Operations time: {}", dbOpsTime);
     LOGGER.info("Total time to sync: {}", totalOpsTime);
-  }
-
-  private void logMetadata(final List<SearchResult> resultsList, final List<EmployeeProfile> allEmployeeProfiles)
-  {
-    // Some metadata.
-    // TODO don't think this belongs here
-
-    LOGGER.info("Steria list size: {}", resultsList.size());
-    LOGGER.info("EmployeeProfiles generated: {}", allEmployeeProfiles.size());
-    LOGGER.info("With employee ID: {}", allEmployeeProfiles.stream().filter(e -> e.getEmployeeID() > 0).count());
-    LOGGER.info("With username: {}",
-        allEmployeeProfiles.stream().filter(e -> e.getUsername() != null && !e.getUsername().isEmpty()).count());
-    LOGGER.info("With forename: {}",
-        allEmployeeProfiles.stream().filter(e -> e.getForename() != null && !e.getForename().isEmpty()).count());
-    LOGGER.info("With surname: {}",
-        allEmployeeProfiles.stream().filter(e -> e.getSurname() != null && !e.getSurname().isEmpty()).count());
-    LOGGER.info("With email address: {}", allEmployeeProfiles.stream()
-        .filter(e -> e.getEmailAddresses() != null && !e.getEmailAddresses().toSet().isEmpty()).count());
-    LOGGER.info("With reportees: {}",
-        allEmployeeProfiles.stream().filter(e -> e.getReporteeCNs() != null && !e.getReporteeCNs().isEmpty()).count());
-    LOGGER.info("With department: {}", allEmployeeProfiles.stream()
-        .filter(e -> e.getSteriaDepartment() != null && !e.getSteriaDepartment().isEmpty()).count());
-    LOGGER.info("With sector: {}",
-        allEmployeeProfiles.stream().filter(e -> e.getSector() != null && !e.getSector().isEmpty()).count());
-    LOGGER.info("With super sector: {}",
-        allEmployeeProfiles.stream().filter(e -> e.getSuperSector() != null && !e.getSuperSector().isEmpty()).count());
-    LOGGER.info("With company: {}",
-        allEmployeeProfiles.stream().filter(e -> e.getCompany() != null && !e.getCompany().isEmpty()).count());
-    LOGGER.info("With leaving date: {}",
-        allEmployeeProfiles.stream().filter(e -> e.getAccountExpires() != null).count());
   }
 }

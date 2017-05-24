@@ -9,7 +9,9 @@ import static dataStructure.Activity.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -119,11 +121,11 @@ public class ManagerService
    *
    * @param reporteeEmployeeID
    * @param note
-   * @return
+   * @return The note id number
    * @throws InvalidAttributeValueException
    * @throws EmployeeNotFoundException
    */
-  public boolean addNoteToReportee(long reporteeEmployeeID, Note note) throws EmployeeNotFoundException
+  public int addNoteToReportee(long reporteeEmployeeID, Note note) throws EmployeeNotFoundException
   {
     employeeService.addNote(reporteeEmployeeID, note);
 
@@ -140,7 +142,7 @@ public class ManagerService
       LOGGER.error("Email could not be sent for a proposed objective. Error: {}", e);
     }
 
-    return true;
+    return note.getId();
   }
 
   /**
@@ -153,10 +155,11 @@ public class ManagerService
    * @throws EmployeeNotFoundException
    * @throws DocumentConversionException
    */
-  public void proposeObjective(long employeeId, Objective objective, DistributionList distributionList)
+  public Map<Long, Integer> proposeObjective(long employeeId, Objective objective, DistributionList distributionList)
       throws EmployeeNotFoundException, DocumentConversionException
   {
     final Employee proposer = employeeService.getEmployee(employeeId);
+    final Map<Long, Integer> objectiveIDs = new HashMap<>();
     final Set<EmployeeProfile> profileList = distributionList.getList();
 
     objective.setProposedBy(proposer.getProfile().getFullName());
@@ -164,14 +167,17 @@ public class ManagerService
     for (final EmployeeProfile employeeProfile : profileList)
     {
       final Employee employee = employeeService.getEmployee(employeeProfile.getEmployeeID());
-
+      
       employee.addObjective(objective);
+      objectiveIDs.put(employeeProfile.getEmployeeID(), objective.getId());
       objectivesHistoriesOperations.addToObjDevHistory(
           objectiveHistoryIdFilter(employeeId, objective.getId(), objective.getCreatedOn()), objective.toDocument());
       morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), OBJECTIVES, employee.getObjectives());
     }
 
     sendObjectiveEmail(distributionList, objective);
+    
+    return objectiveIDs;
   }
 
   /**
