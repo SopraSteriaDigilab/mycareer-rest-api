@@ -119,16 +119,16 @@ public class ADConfig
   {
     LOGGER.debug("Creating bean steriaADSettings");
 
-    final Hashtable<String, String> steriaADLocalSettings = new Hashtable<>();
+    final Hashtable<String, String> steriaADSettings = new Hashtable<>();
 
-    steriaADLocalSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
-    steriaADLocalSettings.put(PROVIDER_URL, env.getProperty(AD_STERIA_HOST_KEY));
-    steriaADLocalSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
-    steriaADLocalSettings.put(SECURITY_PRINCIPAL, env.getProperty(AD_STERIA_PRINCIPAL_KEY));
-    steriaADLocalSettings.put(SECURITY_CREDENTIALS, env.getProperty(AD_STERIA_PASSWORD_KEY));
-    steriaADLocalSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
+    steriaADSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
+    steriaADSettings.put(PROVIDER_URL, env.getProperty(AD_STERIA_HOST_KEY));
+    steriaADSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
+    steriaADSettings.put(SECURITY_PRINCIPAL, env.getProperty(AD_STERIA_PRINCIPAL_KEY));
+    steriaADSettings.put(SECURITY_CREDENTIALS, env.getProperty(AD_STERIA_PASSWORD_KEY));
+    steriaADSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
 
-    return steriaADLocalSettings;
+    return steriaADSettings;
   }
 
   /**
