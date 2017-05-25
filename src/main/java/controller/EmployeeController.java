@@ -836,7 +836,7 @@ public class EmployeeController
   @RequestMapping(value = "/dismissFeedbackRequest/{employeeID}", method = POST)
   public ResponseEntity<?> dismissFeedbackRequest(
       @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
-      @RequestParam @NotBlank(message = ERROR_EMPTY_FEEDBACK_REQUEST_ID) @Size(min = 24, max = 24, message = ERROR_INVALID_FEEDBACK_REQUEST_ID) String feedbackRequestID)
+      @RequestParam @Size(min = 24, max = 24, message = ERROR_INVALID_FEEDBACK_REQUEST_ID) String feedbackRequestID)
   {
     try
     {
