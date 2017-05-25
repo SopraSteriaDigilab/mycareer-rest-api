@@ -17,6 +17,30 @@ public class Feedback extends DBObject implements Comparable<Feedback>
 {
   private static final long serialVersionUID = 1L;
 
+  /** TODO describe */
+  public static final String ID = "feedback.id";
+
+  /** TODO describe */
+  public static final String LAST_MODIFIED = "feedback.lastModified";
+
+  /** TODO describe */
+  public static final String PROVIDER_EMAIL = "feedback.providerEmail";
+
+  /** TODO describe */
+  public static final String PROVIDER_NAME = "feedback.providerName";
+
+  /** TODO describe */
+  public static final String DESCRIPTION = "feedback.feedbackDescription";
+
+  /** TODO describe */
+  public static final String TAGGED_OBJECTIVES = "feedback.taggedObjectiveIds";
+
+  /** TODO describe */
+  public static final String TAGGED_DEVELOPMENT_NEEDS = "feedback.taggedDevelopmentNeedIds";
+
+  /** TODO describe */
+  public static final String TIMESTAMP = "feedback.timestamp";
+
   /* Email address of feedback provider */
   private String providerEmail;
 

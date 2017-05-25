@@ -15,75 +15,43 @@ import org.bson.Document;
  */
 public class Objective extends DBObject implements Comparable<Objective>
 {
-  /** Represents progress of any Objective object. */
-  public enum Progress
-  {
-    PROPOSED("Proposed"), IN_PROGRESS("In-Progress"), COMPLETE("Complete");
-
-    private String progressStr;
-
-    private Progress(String progressStr)
-    {
-      this.progressStr = progressStr;
-    }
-
-    /**
-     * 
-     * TODO: Describe this method.
-     *
-     * @return
-     */
-    public String getProgressStr()
-    {
-      return this.progressStr;
-    }
-
-    /**
-     * 
-     * TODO: Describe this method.
-     *
-     * @param progressString
-     * @return
-     */
-    public static Progress getProgressFromString(String progressString)
-    {
-      switch (progressString)
-      {
-        case "Proposed":
-          return Progress.PROPOSED;
-        case "In-Progress":
-          return Progress.IN_PROGRESS;
-        case "Complete":
-          return Progress.COMPLETE;
-      }
-      throw new IllegalArgumentException("The String provided does not match a valid Progress enum");
-    }
-  }
-
-  /* long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = -8210647573312345743L;
 
-  private static final Object OBJECTIVE = "objective";
+  /** TODO describe */
+  public static final String ID = "objectives.id";
 
-  /* String Property - Represents the timestamp of the objective. */
+  /** TODO describe */
+  public static final String LAST_MODIFIED = "objectives.lastModified";
+
+  /** TODO describe */
+  public static final String CREATED_ON = "objectives.createdOn";
+
+  /** TODO describe */
+  public static final String TITLE = "objectives.title";
+
+  /** TODO describe */
+  public static final String DESCRIPTION = "objectives.description";
+
+  /** TODO describe */
+  public static final String DUE_DATE = "objectives.dueDate";
+
+  /** TODO describe */
+  public static final String PROPOSED_BY = "objectives.proposedBy";
+
+  /** TODO describe */
+  public static final String PROGRESS = "objectives.progress";
+
+  /** TODO describe */
+  public static final String IS_ARCHIVED = "objectives.isArchived";
+
+  private static final String OBJECTIVE = "objective";
+
   private Date createdOn;
-
-  /* String Property - Represents the objective title */
   private String title;
-
-  /* String Property - Represents the objective description */
   private String description;
-
-  /* String Property - Represents the due date of the objective */
   private Date dueDate;
-
-  /* String Property - Represents the name of the person that made the objective */
   private String proposedBy;
-
-  /* String Property - Represents the progress of the objective */
   private String progress;
-
-  /* boolean Property - Represents the state of the objective */
   private boolean isArchived;
 
   /**
@@ -309,5 +277,50 @@ public class Objective extends DBObject implements Comparable<Objective>
         || dueDate.isAfter(cutOffDate);
 
     return isCurrent;
+  }
+
+  /** Represents progress of any Objective object. */
+  public enum Progress
+  {
+    PROPOSED("Proposed"), IN_PROGRESS("In-Progress"), COMPLETE("Complete");
+
+    private String progressStr;
+
+    private Progress(String progressStr)
+    {
+      this.progressStr = progressStr;
+    }
+
+    /**
+     * 
+     * TODO: Describe this method.
+     *
+     * @return
+     */
+    public String getProgressStr()
+    {
+      return this.progressStr;
+    }
+
+    /**
+     * 
+     * TODO: Describe this method.
+     *
+     * @param progressString
+     * @return
+     */
+    public static Progress getProgressFromString(String progressString)
+    {
+      switch (progressString)
+      {
+        case "Proposed":
+          return Progress.PROPOSED;
+        case "In-Progress":
+          return Progress.IN_PROGRESS;
+        case "Complete":
+          return Progress.COMPLETE;
+      }
+      throw new IllegalArgumentException("The String provided does not match a valid Progress enum");
+    }
   }
 }

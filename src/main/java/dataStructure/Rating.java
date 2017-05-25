@@ -9,25 +9,31 @@ import java.time.YearMonth;
 
 public class Rating implements Serializable
 {
-  /* TYPE Property|Constant - Represents|Indicates... */
   private static final long serialVersionUID = 1L;
 
-  /* int property - Represents the year of the rating. */
+  /** TODO describe */
+  public static final String YEAR = "ratings.year";
+
+  /** TODO describe */
+  public static final String SELF_EVALUATION = "ratings.selfEvaluation";
+
+  /** TODO describe */
+  public static final String MANAGER_EVALUATION = "ratings.managerEvaluation";
+
+  /** TODO describe */
+  public static final String SCORE = "ratings.score";
+
+  /** TODO describe */
+  public static final String IS_SELF_EVALUATION_SUBMITTED = "ratings.isSelfEvaluationSubmitted";
+
+  /** TODO describe */
+  public static final String IS_MANAGER_EVALUATION_SUBMITTED = "ratings.isManagerEvaluationSubmitted";
+
   private int year;
-
-  /* String Property - Represents self evaluation of employee. */
   private String selfEvaluation;
-
-  /* String Property - Represents the employees manager evaluation. */
   private String managerEvaluation;
-
-  /* String Property - Represents the users score. */
   private int score;
-
-  /* boolean Property - Indicates if the self evaluation has submitted. */
   private boolean isSelfEvaluationSubmitted;
-
-  /* boolean Property - Indicated if the manager evaluation has been submitted. */
   private boolean isManagerEvaluationSubmitted;
 
   /**
@@ -155,5 +161,4 @@ public class Rating implements Serializable
     return currentMonth.equals(OCTOBER) || currentMonth.equals(NOVEMBER) || currentMonth.equals(DECEMBER)
         || currentMonth.equals(JANUARY) || currentMonth.equals(FEBRUARY);
   }
-
 }

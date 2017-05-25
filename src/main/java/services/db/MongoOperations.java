@@ -30,31 +30,7 @@ import com.mongodb.client.result.UpdateResult;
  */
 public class MongoOperations
 {
-
-  /**
-   * Collection enum. Represents the different collections on the Development database.
-   *
-   */
-  public enum Collection
-  {
-    EMPLOYEES("employees"), OBJECTIVES_HISTORY("objectivesHistories"), DEVELOPMENT_NEEDS_HISTORY(
-        "developmentNeedsHistories"), COMPETENCIES_HISTORY("competenciesHistories");
-
-    private String collectionStr;
-
-    Collection(String collectionStr)
-    {
-      this.collectionStr = collectionStr;
-    }
-
-    public String getCollectionStr()
-    {
-      return this.collectionStr;
-    }
-  }
-
   private static final String DB_NAME = "Development";
-
   private static final String ID = "_id";
   private static final String EMPLOYEE_ID = "employeeID";
   private static final String OBJECTIVE_ID = "objectiveID";
@@ -288,5 +264,27 @@ public class MongoOperations
   public boolean valueExists(final String field, final String value)
   {
     return mongoCollection.count(new Document(field, value)) > 0L;
+  }
+
+  /**
+   * Collection enum. Represents the different collections on the Development database.
+   *
+   */
+  public enum Collection
+  {
+    EMPLOYEES("employees"), OBJECTIVES_HISTORY("objectivesHistories"), DEVELOPMENT_NEEDS_HISTORY(
+        "developmentNeedsHistories"), COMPETENCIES_HISTORY("competenciesHistories");
+
+    private String collectionStr;
+
+    private Collection(String collectionStr)
+    {
+      this.collectionStr = collectionStr;
+    }
+
+    public String getCollectionStr()
+    {
+      return this.collectionStr;
+    }
   }
 }

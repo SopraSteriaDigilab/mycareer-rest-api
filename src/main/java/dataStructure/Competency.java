@@ -10,51 +10,19 @@ package dataStructure;
  */
 public class Competency extends DBObject implements Comparable<Competency>
 {
-  /**
-   * The names and titles of the competencies in the Sopra Steria <a
-   * href=http://portal.corp.sopra/hr/HR_IN_ST/MyPath/Competency_Framework/Pages/default.aspx>competency framework</a>
-   */
-  public enum CompetencyTitle
-  {
-    ACCOUNTABILITY("Accountability"), EFFECTIVE_COMMUNICATION("Effective Communication"), LEADERSHIP(
-        "Leadership"), SERVICE_EXCELLENCE("Service Excellence"), BUSINESS_AWARENESS(
-            "Business Awareness"), FUTURE_ORIENTATION(
-                "Future Orientation"), INNOVATION_AND_CHANGE("Innovation and Change"), TEAMWORK("Teamwork");
-
-    private String competencyTitleStr;
-
-    private CompetencyTitle(String competencyTitleStr)
-    {
-      this.competencyTitleStr = competencyTitleStr;
-    }
-
-    /** @return The title string of this {@code CompetencyTitle} */
-    public String getCompetencyTitleStr()
-    {
-      return competencyTitleStr;
-    }
-
-    /**
-     * @param competencyTitleStr The title of a competency
-     * @return The {@code CompetencyTitle} instance whose title is equal to the provided {@code competencyTitleStr}.
-     * @throws IllegalArgumentException if the provided {@code competencyTitleStr} did not match a competency title.
-     */
-    public static CompetencyTitle getCompetencyTitleFromString(final String competencyTitleStr)
-        throws IllegalArgumentException
-    {
-      for (final CompetencyTitle competencyTitle : values())
-      {
-        if (competencyTitle.competencyTitleStr.equals(competencyTitleStr))
-        {
-          return competencyTitle;
-        }
-      }
-
-      throw new IllegalArgumentException("This enum string does not exist");
-    }
-  }
-
   private static final long serialVersionUID = 1L;
+
+  /** TODO describe */
+  public static final String ID = "competencies.id";
+
+  /** TODO describe */
+  public static final String LAST_MODIFIED = "competencies.lastModified";
+
+  /** TODO describe */
+  public static final String TITLE = "competencies.title";
+
+  /** TODO describe */
+  public static final String IS_SELECTED = "competencies.isSelected";
 
   private String title;
   private boolean isSelected;
@@ -123,4 +91,47 @@ public class Competency extends DBObject implements Comparable<Competency>
     return Boolean.compare(!this.isSelected(), !competency.isSelected());
   }
 
+  /**
+   * The names and titles of the competencies in the Sopra Steria <a
+   * href=http://portal.corp.sopra/hr/HR_IN_ST/MyPath/Competency_Framework/Pages/default.aspx>competency framework</a>
+   */
+  public enum CompetencyTitle
+  {
+    ACCOUNTABILITY("Accountability"), EFFECTIVE_COMMUNICATION("Effective Communication"), LEADERSHIP(
+        "Leadership"), SERVICE_EXCELLENCE("Service Excellence"), BUSINESS_AWARENESS(
+            "Business Awareness"), FUTURE_ORIENTATION(
+                "Future Orientation"), INNOVATION_AND_CHANGE("Innovation and Change"), TEAMWORK("Teamwork");
+
+    private String competencyTitleStr;
+
+    private CompetencyTitle(String competencyTitleStr)
+    {
+      this.competencyTitleStr = competencyTitleStr;
+    }
+
+    /** @return The title string of this {@code CompetencyTitle} */
+    public String getCompetencyTitleStr()
+    {
+      return competencyTitleStr;
+    }
+
+    /**
+     * @param competencyTitleStr The title of a competency
+     * @return The {@code CompetencyTitle} instance whose title is equal to the provided {@code competencyTitleStr}.
+     * @throws IllegalArgumentException if the provided {@code competencyTitleStr} did not match a competency title.
+     */
+    public static CompetencyTitle getCompetencyTitleFromString(final String competencyTitleStr)
+        throws IllegalArgumentException
+    {
+      for (final CompetencyTitle competencyTitle : values())
+      {
+        if (competencyTitle.competencyTitleStr.equals(competencyTitleStr))
+        {
+          return competencyTitle;
+        }
+      }
+
+      throw new IllegalArgumentException("This enum string does not exist");
+    }
+  }
 }

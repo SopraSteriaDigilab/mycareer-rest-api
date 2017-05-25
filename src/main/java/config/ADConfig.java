@@ -14,8 +14,11 @@ import javax.naming.directory.SearchControls;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 
 import services.ad.ADSearchSettings;
 import services.ad.ADSearchSettingsImpl;
@@ -26,6 +29,7 @@ import services.ad.ADSearchSettingsImpl;
  * @see services.ad
  */
 @Configuration
+@PropertySource("activeDirectory.properties")
 public class ADConfig
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(ADConfig.class);
@@ -35,21 +39,21 @@ public class ADConfig
   private static final String TIMEOUT_ATTRIBUTE_KEY = "com.sun.jndi.ldap.read.timeout";
   private static final String TIMEOUT_ATTRIBUTE = "60000";
 
-  private static final String AD_SOPRA_HOST = "ldap://duns.ldap-ad.dmsi.corp.sopra"; // TODO move this out of application code
-  private static final String AD_SOPRA_USERNAME = "svc_mycareer@emea.msad.sopra"; // TODO move this out of application code
-  private static final String AD_SOPRA_PASSWORD = "N9T$SiPSZ"; // TODO move this out of application code
-  private static final String AD_SOPRA_PRINCIPAL = AD_SOPRA_USERNAME;
+  private static final String AD_SOPRA_HOST_KEY = "sopra.host";
+  private static final String AD_SOPRA_USERNAME_KEY = "sopra.username";
+  private static final String AD_SOPRA_PASSWORD_KEY = "sopra.password";
   private static final String[] AD_SOPRA_ATTRIBUTES = { EXTENSION_ATTRIBUTE_7, MEMBER, MEMBER_OF };
 
-  private static final String AD_STERIA_HOST = "ldap://one.steria.dom"; // TODO move this out of application code
-  private static final String AD_STERIA_USERNAME = "UK-SVC-CAREER"; // TODO move this out of application code
-  private static final String AD_STERIA_PASSWORD = "3I=AkSiGRr"; // TODO move this out of application code
+  private static final String AD_STERIA_HOST_KEY = "steria.host";
+  private static final String AD_STERIA_USERNAME_KEY = "steria.username";
+  private static final String AD_STERIA_PASSWORD_KEY = "steria.password";
   private static final String AD_STERIA_LOGIN_TREE = "OU=Service Accounts,OU=UKCentral,OU=UK,OU=Resources,DC=one,DC=steria,DC=dom";
-  private static final String AD_STERIA_PRINCIPAL = new StringBuilder("cn=").append(AD_STERIA_USERNAME).append(",")
-      .append(AD_STERIA_LOGIN_TREE).toString();
   private static final String[] AD_STERIA_ATTRIBUTES = { ACCOUNT_EXPIRES, COMPANY, DEPARTMENT, DIRECT_REPORTS,
       EMPLOYEE_TYPE, EXTENSION_ATTRIBUTE_2, GIVEN_NAME, MAIL, MEMBER, MEMBER_OF, OU, SAM_ACCOUNT_NAME, SN,
       STERIA_SECTOR_UNIT, TARGET_ADDRESS };
+
+  @Autowired
+  private Environment env;
 
   /**
    * Spring bean definition for the Sopra active directory (EMEAAD) search settings and controls.
@@ -94,16 +98,17 @@ public class ADConfig
   {
     LOGGER.debug("Creating bean sopraADSettings");
 
-    final Hashtable<String, String> sopraADLocalSettings = new Hashtable<>();
+    final Hashtable<String, String> sopraADSettings = new Hashtable<>();
+    final String principal = env.getProperty(AD_SOPRA_USERNAME_KEY);
 
-    sopraADLocalSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
-    sopraADLocalSettings.put(PROVIDER_URL, AD_SOPRA_HOST);
-    sopraADLocalSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
-    sopraADLocalSettings.put(SECURITY_PRINCIPAL, AD_SOPRA_PRINCIPAL);
-    sopraADLocalSettings.put(SECURITY_CREDENTIALS, AD_SOPRA_PASSWORD);
-    sopraADLocalSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
+    sopraADSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
+    sopraADSettings.put(PROVIDER_URL, env.getProperty(AD_SOPRA_HOST_KEY));
+    sopraADSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
+    sopraADSettings.put(SECURITY_PRINCIPAL, principal);
+    sopraADSettings.put(SECURITY_CREDENTIALS, env.getProperty(AD_SOPRA_PASSWORD_KEY));
+    sopraADSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
 
-    return sopraADLocalSettings;
+    return sopraADSettings;
   }
 
   /**
@@ -117,12 +122,14 @@ public class ADConfig
     LOGGER.debug("Creating bean steriaADSettings");
 
     final Hashtable<String, String> steriaADLocalSettings = new Hashtable<>();
+    final String principal = new StringBuilder("cn=").append(env.getProperty(AD_STERIA_USERNAME_KEY)).append(",")
+        .append(AD_STERIA_LOGIN_TREE).toString();
 
     steriaADLocalSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
-    steriaADLocalSettings.put(PROVIDER_URL, AD_STERIA_HOST);
+    steriaADLocalSettings.put(PROVIDER_URL, env.getProperty(AD_STERIA_HOST_KEY));
     steriaADLocalSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
-    steriaADLocalSettings.put(SECURITY_PRINCIPAL, AD_STERIA_PRINCIPAL);
-    steriaADLocalSettings.put(SECURITY_CREDENTIALS, AD_STERIA_PASSWORD);
+    steriaADLocalSettings.put(SECURITY_PRINCIPAL, principal);
+    steriaADLocalSettings.put(SECURITY_CREDENTIALS, env.getProperty(AD_STERIA_PASSWORD_KEY));
     steriaADLocalSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
 
     return steriaADLocalSettings;

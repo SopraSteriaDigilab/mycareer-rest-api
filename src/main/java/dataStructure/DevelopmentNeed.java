@@ -13,48 +13,37 @@ public class DevelopmentNeed extends Objective
 {
   private static final long serialVersionUID = 1L;
 
-  /**
-   * A category of development need.
-   */
-  public enum Category
-  {
-    JOB_TRAINING("On Job Training"), CLASSROOM_TRAINING("Classroom Training"), ONLINE(
-        "Online or E-learning"), SELF_STUDY("Self Study"), OTHER("Other");
+  /** TODO describe */
+  public static final String ID = "developmentNeeds.id";
 
-    private String categoryStr;
+  /** TODO describe */
+  public static final String LAST_MODIFIED = "developmentNeeds.lastModified";
 
-    private Category(String categoryStr)
-    {
-      this.categoryStr = categoryStr;
-    }
+  /** TODO describe */
+  public static final String CREATED_ON = "developmentNeeds.createdOn";
 
-    /** @return The full string description of this category. */
-    public String getCategoryStr()
-    {
-      return this.categoryStr;
-    }
+  /** TODO describe */
+  public static final String TITLE = "developmentNeeds.title";
 
-    /**
-     * @param categoryString The full string description of a category
-     * @return The {@code Category} instance whose full description is equal to the provided {@code categoryString}.
-     * @throws IllegalArgumentException if the provided {@code categoryString} did not match a category description.
-     */
-    public static Category getCategoryFromString(String categoryString) throws InvalidAttributeValueException
-    {
-      for (final Category category : values())
-      {
-        if (category.categoryStr.equals(categoryString))
-        {
-          return category;
-        }
-      }
+  /** TODO describe */
+  public static final String DESCRIPTION = "developmentNeeds.description";
 
-      throw new IllegalArgumentException("This enum string does not exist");
-    }
-  }
+  /** TODO describe */
+  public static final String DUE_DATE = "developmentNeeds.dueDate";
 
-  // TODO Why is this an Object and not a String??
-  private static final Object DEVELOPMENT_NEED = "development need";
+  /** TODO describe */
+  public static final String PROPOSED_BY = "developmentNeeds.proposedBy";
+
+  /** TODO describe */
+  public static final String PROGRESS = "developmentNeeds.progress";
+
+  /** TODO describe */
+  public static final String IS_ARCHIVED = "developmentNeeds.isArchived";
+
+  /** TODO describe */
+  public static final String CATEGORY = "developmentNeeds.category";
+
+  private static final String DEVELOPMENT_NEED = "development need";
 
   /* int Property - Represents the category of the objective */
   private String category;
@@ -137,5 +126,45 @@ public class DevelopmentNeed extends Objective
         .append(" ").append(DEVELOPMENT_NEED).append(" #").append(getId()).append(": ").append(getTitle()).toString();
 
     return new Activity(activityString, getLastModified());
+  }
+
+  /**
+   * A category of development need.
+   */
+  public enum Category
+  {
+    JOB_TRAINING("On Job Training"), CLASSROOM_TRAINING("Classroom Training"), ONLINE(
+        "Online or E-learning"), SELF_STUDY("Self Study"), OTHER("Other");
+
+    private String categoryStr;
+
+    private Category(String categoryStr)
+    {
+      this.categoryStr = categoryStr;
+    }
+
+    /** @return The full string description of this category. */
+    public String getCategoryStr()
+    {
+      return this.categoryStr;
+    }
+
+    /**
+     * @param categoryString The full string description of a category
+     * @return The {@code Category} instance whose full description is equal to the provided {@code categoryString}.
+     * @throws IllegalArgumentException if the provided {@code categoryString} did not match a category description.
+     */
+    public static Category getCategoryFromString(String categoryString) throws InvalidAttributeValueException
+    {
+      for (final Category category : values())
+      {
+        if (category.categoryStr.equals(categoryString))
+        {
+          return category;
+        }
+      }
+
+      throw new IllegalArgumentException("This enum string does not exist");
+    }
   }
 }

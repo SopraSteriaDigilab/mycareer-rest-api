@@ -12,11 +12,27 @@ import java.util.Set;
  */
 public class Note implements Serializable, Comparable<Note>
 {
-  /* long Constant - Represents serialVersionUID... */
   private static final long serialVersionUID = 1L;
 
-  // TODO Why is this an Object and not a String??
-  private static final Object NOTE = "note";
+  /** TODO describe */
+  public static final String ID = "notes.id";
+
+  /** TODO describe */
+  public static final String PROVIDER_NAME = "notes.providerName";
+
+  /** TODO describe */
+  public static final String DESCRIPTION = "notes.noteDescription";
+
+  /** TODO describe */
+  public static final String TAGGED_OBJECTIVES = "notes.taggedObjectiveIds";
+
+  /** TODO describe */
+  public static final String TAGGED_DEVELOPMENT_NEEDS = "notes.taggedDevelopmentNeedIds";
+
+  /** TODO describe */
+  public static final String TIMESTAMP = "notes.timestamp";
+
+  private static final String NOTE = "note";
 
   /* int Property - Represents Unique ID for the object. */
   private int id;

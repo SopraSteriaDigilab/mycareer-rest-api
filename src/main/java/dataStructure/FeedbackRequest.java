@@ -15,6 +15,18 @@ public class FeedbackRequest implements Serializable
 {
   private static final long serialVersionUID = 1L;
 
+  /** TODO describe */
+  public static final String ID = "feedbackRequests.id";
+
+  /** TODO describe */
+  public static final String RECIPIENT = "feedbackRequests.recipient";
+
+  /** TODO describe */
+  public static final String REPLY_RECEIVED = "feedbackRequests.replyReceived";
+
+  /** TODO describe */
+  public static final String TIMESTAMP = "feedbackRequests.timestamp";
+
   /* Unique ID for the object. */
   private String id;
 
