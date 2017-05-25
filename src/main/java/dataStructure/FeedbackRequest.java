@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * TODO: Describe this TYPE.
  *
  */
-public class FeedbackRequest implements Serializable
+public class FeedbackRequest implements Comparable<FeedbackRequest>, Serializable
 {
   private static final long serialVersionUID = 1L;
 
@@ -25,18 +25,15 @@ public class FeedbackRequest implements Serializable
   public static final String REPLY_RECEIVED = "feedbackRequests.replyReceived";
 
   /** TODO describe */
+  public static final String DISMISSED = "feedbackRequests.dismissed";
+
+  /** TODO describe */
   public static final String TIMESTAMP = "feedbackRequests.timestamp";
 
-  /* Unique ID for the object. */
   private String id;
-
-  /* Email of recipient */
   private String recipient;
-
-  /* State of whether feedback has been given */
   private boolean replyReceived;
-
-  /* Time stamp of feedback request */
+  private boolean dismissed;
   private String timestamp;
 
   /**
@@ -57,10 +54,8 @@ public class FeedbackRequest implements Serializable
    */
   public FeedbackRequest(String id, String recipient)
   {
-    super();
     this.id = id;
     this.recipient = recipient;
-    setReplyReceived(false);
     setTimestamp();
   }
 
@@ -94,6 +89,18 @@ public class FeedbackRequest implements Serializable
     return replyReceived;
   }
 
+  /** @param dismissed set whether this feedback request has been dismissed */
+  public void setDismissed(boolean dismissed)
+  {
+    this.dismissed = dismissed;
+  }
+
+  /** @return {@code true} if this feedback request has been dismissed */
+  public boolean isDismissed()
+  {
+    return dismissed;
+  }
+
   /** @param replyReceived the replyReceived to set */
   public void setReplyReceived(boolean replyReceived)
   {
@@ -125,5 +132,43 @@ public class FeedbackRequest implements Serializable
         .append(" feedback from ").append(recipient).toString();
 
     return new Activity(activityString, timestamp);
+  }
+
+  /**
+   * @return {@code true} if this feedback request has not been dismissed by the requester, has not had a response from
+   *         the recipient, and was sent within the last year.
+   */
+  public boolean isCurrent()
+  {
+    if (replyReceived || dismissed)
+    {
+      return false;
+    }
+
+    final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
+    final LocalDateTime added = LocalDateTime.parse(timestamp);
+    final boolean isCurrent = added.isAfter(cutOffDate);
+
+    return isCurrent;
+  }
+
+  /**
+   * 
+   * Override of NAME method.
+   *
+   * TODO: Describe this method.
+   *
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   *
+   * @param other
+   * @return
+   */
+  @Override
+  public int compareTo(final FeedbackRequest other)
+  {
+    final LocalDateTime thisTimestamp = LocalDateTime.parse(timestamp);
+    final LocalDateTime otherTimestamp = LocalDateTime.parse(other.timestamp);
+
+    return thisTimestamp.compareTo(otherTimestamp);
   }
 }

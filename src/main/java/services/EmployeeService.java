@@ -485,8 +485,8 @@ public class EmployeeService
    * @throws EmployeeNotFoundException
    * @throws InvalidAttributeValueException
    */
-  public Integer updateDevelopmentNeedProgress(long employeeId, int developmentNeedId, Progress progress, String comment)
-      throws EmployeeNotFoundException, InvalidAttributeValueException
+  public Integer updateDevelopmentNeedProgress(long employeeId, int developmentNeedId, Progress progress,
+      String comment) throws EmployeeNotFoundException, InvalidAttributeValueException
   {
     Employee employee = getEmployee(employeeId);
     DevelopmentNeed developmentNeed = employee.getDevelopmentNeed(developmentNeedId);
@@ -507,7 +507,7 @@ public class EmployeeService
       return addNote(employeeId, new Note(AUTO_GENERATED, String.format(COMMENT_COMPLETED_DEVELOPMENT_NEED,
           employee.getProfile().getFullName(), developmentNeed.getTitle(), comment)));
     }
-    
+
     return null;
   }
 
@@ -763,6 +763,16 @@ public class EmployeeService
   ///////////////////////////////////////////////////////////////////////////
 
   /**
+   * @param employeeID the employee ID of the employee whose feedback requests are to be retrieved
+   * @return A list of all active feedback requests sent by the employee with the given ID
+   * @throws EmployeeNotFoundException if the employee ID could not be found.
+   */
+  public List<FeedbackRequest> getFeedbackRequests(long employeeID) throws EmployeeNotFoundException
+  {
+    return getEmployee(employeeID).getCurrentFeedbackRequests();
+  }
+
+  /**
    * Sends Emails to the recipients and updates the database.
    * 
    * @param employeeId
@@ -785,7 +795,6 @@ public class EmployeeService
     {
       String tempID = generateFeedbackRequestID(employeeID);
       String subject = String.format("Feedback Request from %s - %s", requester.getProfile().getFullName(), employeeID);
-      // String body = String.format("%s \n\n Feedback_Request: %s", notes, tempID);
       String body = Template.populateTemplate(env.getProperty("templates.feedback.request"), requesterName, notes,
           tempID);
       try
@@ -798,6 +807,7 @@ public class EmployeeService
         errorRecipientList.add(recipient);
         continue;
       }
+
       addFeedbackRequest(requester, new FeedbackRequest(tempID, recipient));
     }
 

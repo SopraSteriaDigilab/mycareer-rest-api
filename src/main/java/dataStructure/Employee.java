@@ -667,6 +667,17 @@ public class Employee implements Serializable
   ///////////////////////////////////////////////////////////////////////////
 
   /**
+   * @return A list of this employee's current feedback requests.
+   */
+  public List<FeedbackRequest> getCurrentFeedbackRequests()
+  {
+    final List<FeedbackRequest> currentFeedbackRequests = feedbackRequests.stream().filter(FeedbackRequest::isCurrent).sorted()
+        .collect(Collectors.toList());
+
+    return currentFeedbackRequests;
+  }
+
+  /**
    * @param id
    * @return Returns the feedback request with the given id.
    * @throws InvalidAttributeValueException

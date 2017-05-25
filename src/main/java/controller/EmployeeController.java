@@ -10,6 +10,7 @@ import static controller.responseUtils.ResponseEntities.*;
 
 import java.io.IOException;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
@@ -38,6 +39,7 @@ import dataStructure.Competency.CompetencyTitle;
 import dataStructure.DevelopmentNeed;
 import dataStructure.DocumentConversionException;
 import dataStructure.EmployeeProfile;
+import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
 import dataStructure.Rating;
@@ -775,6 +777,30 @@ public class EmployeeController
   //////////////////////////////////////////////////////////////////////////////
 
   /**
+   * HTTP GET request to fetch the active feedback requests of the employee with the given employee ID.
+   *
+   * @param employeeID The employee ID of the employee whose feedback is to be returned. Must be an integer greater than
+   *          0.
+   * @return {@code ResponseEntity<List<FeedbackRequest>> with OK response and body containing the active feedback requests of the employee with
+   *         {@code employeeId}. Bad request response with error message if the employee ID could not be found.
+   */
+  @RequestMapping(value = "/getFeedbackRequests/{employeeID}", method = GET)
+  public ResponseEntity<?> getFeedbackRequests(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID)
+  {
+    try
+    {
+      List<FeedbackRequest> currentFeedbackRequests = employeeService.getFeedbackRequests(employeeID);
+
+      return ok(currentFeedbackRequests);
+    }
+    catch (EmployeeNotFoundException e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  /**
    * HTTP POST request for an employee with the given employee ID to request feedback by email.
    *
    * @param employeeID The employee ID of the employee who is requesting feedback. Must be an integer greater than 0.
@@ -796,6 +822,7 @@ public class EmployeeController
     try
     {
       employeeService.processFeedbackRequest(employeeID, emailsTo, notes);
+
       return ok("Your feedback request has been processed.");
     }
     catch (Exception e)
