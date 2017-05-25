@@ -59,6 +59,14 @@ public class FeedbackRequest implements Comparable<FeedbackRequest>, Serializabl
     setTimestamp();
   }
 
+  /**
+   * Dismisses this feedback request.
+   */
+  public void dismiss()
+  {
+    dismissed = true;
+  }
+
   /** @return the id */
   public String getId()
   {

@@ -671,8 +671,8 @@ public class Employee implements Serializable
    */
   public List<FeedbackRequest> getCurrentFeedbackRequests()
   {
-    final List<FeedbackRequest> currentFeedbackRequests = feedbackRequests.stream().filter(FeedbackRequest::isCurrent).sorted()
-        .collect(Collectors.toList());
+    final List<FeedbackRequest> currentFeedbackRequests = feedbackRequests.stream().filter(FeedbackRequest::isCurrent)
+        .sorted().collect(Collectors.toList());
 
     return currentFeedbackRequests;
   }
@@ -703,6 +703,27 @@ public class Employee implements Serializable
     if (feedbackRequest == null) throw new InvalidAttributeValueException("This object is invalid.");
 
     return this.feedbackRequests.add(feedbackRequest);
+  }
+
+  /**
+   * Dismisses the feedback request with the given ID.
+   *
+   * @param feedbackRequestID The ID of the feedback request to dismiss.
+   * @return {@code true} if the feedback request was found and was dismissed.  {@code false} otherwise. 
+   */
+  public boolean dismissFeedbackRequest(String feedbackRequestID)
+  {
+    final FeedbackRequest request = feedbackRequests.stream().filter(fr -> feedbackRequestID.equals(fr)).findFirst()
+        .get();
+    
+    if (request == null)
+    {
+      return false;
+    }
+    
+    request.dismiss();
+
+    return true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
