@@ -40,14 +40,13 @@ public class ADConfig
   private static final String TIMEOUT_ATTRIBUTE = "60000";
 
   private static final String AD_SOPRA_HOST_KEY = "sopra.host";
-  private static final String AD_SOPRA_USERNAME_KEY = "sopra.username";
+  private static final String AD_SOPRA_PRINCIPAL_KEY = "sopra.principal";
   private static final String AD_SOPRA_PASSWORD_KEY = "sopra.password";
   private static final String[] AD_SOPRA_ATTRIBUTES = { EXTENSION_ATTRIBUTE_7, MEMBER, MEMBER_OF };
 
   private static final String AD_STERIA_HOST_KEY = "steria.host";
-  private static final String AD_STERIA_USERNAME_KEY = "steria.username";
+  private static final String AD_STERIA_PRINCIPAL_KEY = "steria.principal";
   private static final String AD_STERIA_PASSWORD_KEY = "steria.password";
-  private static final String AD_STERIA_LOGIN_TREE = "OU=Service Accounts,OU=UKCentral,OU=UK,OU=Resources,DC=one,DC=steria,DC=dom";
   private static final String[] AD_STERIA_ATTRIBUTES = { ACCOUNT_EXPIRES, COMPANY, DEPARTMENT, DIRECT_REPORTS,
       EMPLOYEE_TYPE, EXTENSION_ATTRIBUTE_2, GIVEN_NAME, MAIL, MEMBER, MEMBER_OF, OU, SAM_ACCOUNT_NAME, SN,
       STERIA_SECTOR_UNIT, TARGET_ADDRESS };
@@ -99,12 +98,11 @@ public class ADConfig
     LOGGER.debug("Creating bean sopraADSettings");
 
     final Hashtable<String, String> sopraADSettings = new Hashtable<>();
-    final String principal = env.getProperty(AD_SOPRA_USERNAME_KEY);
 
     sopraADSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
     sopraADSettings.put(PROVIDER_URL, env.getProperty(AD_SOPRA_HOST_KEY));
     sopraADSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
-    sopraADSettings.put(SECURITY_PRINCIPAL, principal);
+    sopraADSettings.put(SECURITY_PRINCIPAL, env.getProperty(AD_SOPRA_PRINCIPAL_KEY));
     sopraADSettings.put(SECURITY_CREDENTIALS, env.getProperty(AD_SOPRA_PASSWORD_KEY));
     sopraADSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
 
@@ -122,13 +120,11 @@ public class ADConfig
     LOGGER.debug("Creating bean steriaADSettings");
 
     final Hashtable<String, String> steriaADLocalSettings = new Hashtable<>();
-    final String principal = new StringBuilder("cn=").append(env.getProperty(AD_STERIA_USERNAME_KEY)).append(",")
-        .append(AD_STERIA_LOGIN_TREE).toString();
 
     steriaADLocalSettings.put(INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY);
     steriaADLocalSettings.put(PROVIDER_URL, env.getProperty(AD_STERIA_HOST_KEY));
     steriaADLocalSettings.put(SECURITY_AUTHENTICATION, AUTHENTICATION);
-    steriaADLocalSettings.put(SECURITY_PRINCIPAL, principal);
+    steriaADLocalSettings.put(SECURITY_PRINCIPAL, env.getProperty(AD_STERIA_PRINCIPAL_KEY));
     steriaADLocalSettings.put(SECURITY_CREDENTIALS, env.getProperty(AD_STERIA_PASSWORD_KEY));
     steriaADLocalSettings.put(TIMEOUT_ATTRIBUTE_KEY, TIMEOUT_ATTRIBUTE);
 
