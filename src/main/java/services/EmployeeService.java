@@ -818,6 +818,26 @@ public class EmployeeService
     }
   }
 
+  /**
+   * Dismisses the feedback request with given ID from the employee with the given ID.
+   *
+   * @param employeeID
+   * @param feedbackRequestID
+   * @return {@code true} if the employee and feedback request were found and the request was successfully dismissed.
+   *         {@code false} if the request could not be found.
+   * @throws EmployeeNotFoundException if the employee ID could not be found.
+   * @throws InvalidAttributeValueException
+   */
+  public boolean dismissFeedbackRequest(long employeeID, String feedbackRequestID)
+      throws EmployeeNotFoundException, InvalidAttributeValueException
+  {
+    Employee employee = getEmployee(employeeID);
+    boolean result = employee.dismissFeedbackRequest(feedbackRequestID);
+    morphiaOperations.updateEmployee(employee.getProfile().getEmployeeID(), FEEDBACK_REQUESTS,
+        employee.getFeedbackRequests());
+    return result;
+  }
+
   private void addFeedbackRequest(Employee employee, FeedbackRequest feedbackRequest)
       throws InvalidAttributeValueException
   {

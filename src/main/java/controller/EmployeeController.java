@@ -77,6 +77,8 @@ public class EmployeeController
   private static final String ERROR_LIMIT_NOTE_DESCRIPTION = "Max Description length is 1000 characters.";
   private static final String ERROR_EMPTY_OBJECTIVE_DESCRIPTION = "Objective description can not be empty.";
   private static final String ERROR_LIMIT_OBJECTIVE_DESCRIPTION = "Max Description length is 2,000 characters.";
+  private static final String ERROR_INVALID_FEEDBACK_REQUEST_ID = "Invalid feedback request ID";
+  private static final String ERROR_EMPTY_FEEDBACK_REQUEST_ID = "Feedback request ID can not be empty.";
   private static final String ERROR_LIMIT_COMMENT = "Max Comment length is 1000 characters.";
   private static final String ERROR_EMPTY_FEEDBACK = "The feedback cannot be empty.";
   private static final String ERROR_LIMIT_FEEDBACK = "Max feedback length is 5000";
@@ -824,6 +826,24 @@ public class EmployeeController
       employeeService.processFeedbackRequest(employeeID, emailsTo, notes);
 
       return ok("Your feedback request has been processed.");
+    }
+    catch (Exception e)
+    {
+      return badRequest().body(error(e.getMessage()));
+    }
+  }
+
+  @RequestMapping(value = "/dismissFeedbackRequest/{employeeID}", method = POST)
+  public ResponseEntity<?> dismissFeedbackRequest(
+      @PathVariable @Min(value = 1, message = ERROR_EMPLOYEE_ID) long employeeID,
+      @RequestParam @Size(min = 24, max = 24, message = ERROR_INVALID_FEEDBACK_REQUEST_ID) String feedbackRequestID)
+  {
+    try
+    {
+      final boolean dismissed = employeeService.dismissFeedbackRequest(employeeID, feedbackRequestID);
+      final String retVal = dismissed ? "Feedback request dismissed" : "Feedback request not found";
+      
+      return ok(retVal);
     }
     catch (Exception e)
     {
