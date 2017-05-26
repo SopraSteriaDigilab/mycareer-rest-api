@@ -678,20 +678,6 @@ public class Employee implements Serializable
   }
 
   /**
-   * @param id
-   * @return Returns the feedback request with the given id.
-   * @throws InvalidAttributeValueException
-   */
-  public FeedbackRequest getFeedbackRequest(String id) throws InvalidAttributeValueException
-  {
-    for (FeedbackRequest feedbackRequest : this.feedbackRequests)
-    {
-      if (feedbackRequest.getId().equals(id)) return feedbackRequest;
-    }
-    throw new InvalidAttributeValueException("Feedback Request does not exist.");
-  }
-
-  /**
    * Add feedback request to employee
    * 
    * @param feedbackRequest
@@ -709,21 +695,31 @@ public class Employee implements Serializable
    * Dismisses the feedback request with the given ID.
    *
    * @param feedbackRequestID The ID of the feedback request to dismiss.
-   * @return {@code true} if the feedback request was found and was dismissed.  {@code false} otherwise. 
+   * @return {@code true} if the feedback request was found and was dismissed. {@code false} otherwise.
+   * @throws InvalidAttributeValueException
    */
-  public boolean dismissFeedbackRequest(String feedbackRequestID)
+  public boolean dismissFeedbackRequest(String feedbackRequestID) throws InvalidAttributeValueException
   {
-    final FeedbackRequest request = feedbackRequests.stream().filter(fr -> feedbackRequestID.equals(fr)).findFirst()
-        .get();
-    
-    if (request == null)
-    {
-      return false;
-    }
-    
-    request.dismiss();
+    FeedbackRequest feedbackRequest = getFeedbackRequest(feedbackRequestID);
+
+    feedbackRequest.dismiss();
 
     return true;
+  }
+
+  /**
+   * @param id
+   * @return Returns the feedback request with the given id.
+   * @throws InvalidAttributeValueException
+   */
+  public FeedbackRequest getFeedbackRequest(String id) throws InvalidAttributeValueException
+  {
+    Optional<FeedbackRequest> feedbackRequest = getFeedbackRequests().stream().filter(f -> f.getId().equals(id))
+        .findFirst();
+
+    if (!feedbackRequest.isPresent()) throw new InvalidAttributeValueException("Feedback Request not found.");
+
+    return feedbackRequest.get();
   }
 
   ///////////////////////////////////////////////////////////////////////////
