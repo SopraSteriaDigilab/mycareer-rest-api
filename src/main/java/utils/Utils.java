@@ -16,6 +16,7 @@ import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchResult;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,23 +124,15 @@ public class Utils
    */
   public static String getRecipientFromUndeliverableEmail(String body) throws InvalidAttributeValueException
   {
-    // TODO There must be a million better ways to do this. This was the quick fix, sorry.
     Validate.stringsNotEmptyNotNullOrThrow(body);
-    String searchStr = "your message to ";
 
-    String[] lines = body.split("\n");
-
-    if (lines.length < 2 || lines[1].isEmpty()) return "";
-
-    int start = lines[1].toLowerCase().indexOf(searchStr);
-    if (start == -1) return "";
-
-    start += searchStr.length();
-
-    int end = lines[1].toLowerCase().indexOf(" ", start);
-    if (end == -1) return "";
-
-    String recipient = lines[1].substring(start, end);
+    String emailString = StringUtils.substringBetween(body, "Delivery has failed to these recipients or groups:",
+        "The email address that you entered couldn't be found.");
+    String recipient = StringUtils.substringBetween(emailString, "(", ")");
+    if (recipient == null)
+    {
+      return "";
+    }
 
     return recipient.trim();
   }
@@ -230,25 +223,25 @@ public class Utils
 
     return otherValue;
   }
-  
+
   /**
    * Removes the key and value from the map if the value is null.
-  *
-  * @param map
-  * @param key
-  * @param value
-  */
- public static <K, V> void removeNullValues(Map<K, V> map)
- {
-   @SuppressWarnings("unchecked")
-  final K[] keys = (K[]) map.keySet().toArray();
-   
-   for (K key : keys)
-   {
-     removeIfNull(map, key, map.get(key));
-   }
- }
-  
+   *
+   * @param map
+   * @param key
+   * @param value
+   */
+  public static <K, V> void removeNullValues(Map<K, V> map)
+  {
+    @SuppressWarnings("unchecked")
+    final K[] keys = (K[]) map.keySet().toArray();
+
+    for (K key : keys)
+    {
+      removeIfNull(map, key, map.get(key));
+    }
+  }
+
   /**
    * Removes the key and value from the map if the value is null.
    *
@@ -263,9 +256,10 @@ public class Utils
       map.remove(key);
     }
   }
-  
-  public static String nameIdToCN(String firstName, String lastName, long id){
+
+  public static String nameIdToCN(String firstName, String lastName, long id)
+  {
     return String.format("%s %s - %s", lastName.toUpperCase(), firstName, id);
   }
-  
+
 }
