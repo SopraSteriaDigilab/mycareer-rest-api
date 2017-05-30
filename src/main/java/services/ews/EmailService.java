@@ -341,8 +341,6 @@ public class EmailService
 
     Set<String> errorRecipient = employee.getProfile().getEmailAddresses().toSet();
     String errorSubject = "Feedback Request Issue";
-    // String errorBody = String.format("There was an issue processing your feedback to %s, please make sure the email
-    // address is correct and try again",intendedRecipient);
     String errorBody = Template.populateTemplate(env.getProperty("templates.error.invalidemail"), intendedRecipient);
 
     sendEmail(errorRecipient, errorSubject, errorBody);

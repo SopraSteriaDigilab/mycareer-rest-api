@@ -128,15 +128,12 @@ public class Utils
   {
     Validate.stringsNotEmptyNotNullOrThrow(body);
 
-    String emailString = StringUtils.substringBetween(body, "Delivery has failed to these recipients or groups:",
-        "The email address that you entered couldn't be found.");
+    String searchStr = "Delivery has failed to these recipients or groups:";
+    int start = body.indexOf(searchStr);
     
-    if (emailString == null)
-    {
-      return "";
-    }
+    String emailBody = body.substring(start);
     
-    String recipient = mathAndGetEmail(emailString);
+    String recipient = mathAndGetEmail(emailBody);
 
     return recipient.trim();
   }
