@@ -675,6 +675,15 @@ public class EmployeeService
       }
     }
 
+    if (!successfullRecipientList.isEmpty())
+    {
+      String subject = "Feedback Sent from MyCareer";
+      String body = Template.populateTemplate(env.getProperty("templates.feedback.sent.notification"),
+          successfullRecipientList.toString(), feedback);
+      System.out.println(body);
+      EmailService.sendEmail(employee.getProfile().getEmailAddresses().getPreferred(), subject, body);
+    }
+
     if (!errorRecipientList.isEmpty())
     {
       if (successfullRecipientList.isEmpty()) throw new InvalidAttributeValueException(

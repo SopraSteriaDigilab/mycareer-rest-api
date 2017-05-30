@@ -136,7 +136,7 @@ public class EmailService
    * 
    * @throws Exception
    */
-  @Scheduled(fixedRate = 60_000)
+//  @Scheduled(fixedRate = 60_000)
   private void findEmails()
   {
     try
