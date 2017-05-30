@@ -128,8 +128,11 @@ public class Utils
   {
     Validate.stringsNotEmptyNotNullOrThrow(body);
 
-    String searchStr = "Delivery has failed to these recipients or groups:";
+    String searchStr = "groups:";
     int start = body.indexOf(searchStr);
+    
+    if(start == -1)
+      return "";
     
     String emailBody = body.substring(start);
     

@@ -58,7 +58,7 @@ public class UtilsTest
   private final String EMAIL_STRING_3 = "c@test.com";
 
   /** TODO TYPE Property|Constant - Represents|Indicates... */
-  private final String UNDELIVERABLE_EMAIL_STRING = "a@test.com (a@test.com)";
+  private final String UNDELIVERABLE_EMAIL_STRING = "a@test.com";
 
   /** TODO TYPE Property|Constant - Represents|Indicates... */
   private final String EMAILS_STRING = "a@test.com, b@test.com, c@test.com";
@@ -71,7 +71,7 @@ public class UtilsTest
 
   /** TODO TYPE Property|Constant - Represents|Indicates... */
   private final String VALID_UNDELIVERABLE_EMAIL = "Delivery has failed to these recipients or groups: "
-      + UNDELIVERABLE_EMAIL_STRING + "The email address that you entered couldn't be found. ";
+      + UNDELIVERABLE_EMAIL_STRING + " The email address that you entered couldn't be found. ";
 
   /** TODO TYPE Property|Constant - Represents|Indicates... */
   private final String INVALID_UNDELIVERABLE_EMAIL = "[Office 365 picture] \n Some other text.";
