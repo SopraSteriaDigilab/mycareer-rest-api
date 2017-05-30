@@ -659,15 +659,15 @@ public class EmployeeService
       try
       {
         Employee feedbackRecipient = morphiaOperations.getEmployeeFromEmailAddressOrThrow(email);
-        String preferredEmailAddress = feedbackRecipient.getProfile().getEmailAddresses().getPreferred(email);
+        String preferredEmailAddress = feedbackRecipient.getProfile().getEmailAddresses().getPreferred();
         addFeedback(employeeEmail, feedbackRecipient, preferredEmailAddress, feedback, isFeedbackRequest);
-        successfullRecipientList.add(preferredEmailAddress);
+        successfullRecipientList.add(email);
 
         String subject = String.format("Feedback from %s", employee.getProfile().getFullName());
         String body = Template.populateTemplate(env.getProperty("templates.feedback.generic"),
             employee.getProfile().getFullName());
 
-        EmailService.sendEmail(email, subject, body);
+        EmailService.sendEmail(preferredEmailAddress, subject, body);
       }
       catch (EmployeeNotFoundException e)
       {
