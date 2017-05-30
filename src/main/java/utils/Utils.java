@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
@@ -128,13 +130,26 @@ public class Utils
 
     String emailString = StringUtils.substringBetween(body, "Delivery has failed to these recipients or groups:",
         "The email address that you entered couldn't be found.");
-    String recipient = StringUtils.substringBetween(emailString, "(", ")");
-    if (recipient == null)
+    
+    if (emailString == null)
     {
       return "";
     }
+    
+    String recipient = mathAndGetEmail(emailString);
 
     return recipient.trim();
+  }
+  
+  public static String mathAndGetEmail(String input){
+    Pattern pattern = Pattern.compile(
+        "[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))");
+    
+    Matcher matcher = pattern.matcher(input);
+    if(matcher.find())
+      return matcher.group();
+    
+    return "";
   }
 
   /**
