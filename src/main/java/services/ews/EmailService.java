@@ -186,8 +186,6 @@ public class EmailService
     {
       String from = email.getFrom().getAddress();
       Set<EmailAddress> recipients = new HashSet<>(email.getToRecipients().getItems());
-      // TODO review commented code
-      // Set<EmailAddress> ccRecipients = new HashSet<>(email.getCcRecipients().getItems());
       String subject = (email.getSubject() == null) ? "" : email.getSubject().toLowerCase();
       String body = (email.getBody() == null) ? "" : email.getBody().toString().trim();
 
@@ -243,8 +241,6 @@ public class EmailService
     {
       String errorRecipient = from;
       String errorSubject = "Error Processing Feedback";
-      // String errorBody = "There was an issue processing your feedback, please try reply to the feedback request "
-      // + "email and do make sure not to changed any of the details on the email.";
       String errorBody = Template.populateTemplate(env.getProperty("templates.error.invalidfeedback"));
 
       sendEmail(errorRecipient, errorSubject, errorBody);
