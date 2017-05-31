@@ -1,9 +1,13 @@
 package dataStructure;
 
+import static dataStructure.Action.*;
 import static java.time.Month.*;
+import static utils.Conversions.*;
 
 import java.io.Serializable;
+import java.security.UnrecoverableKeyException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.YearMonth;
 
@@ -60,6 +64,20 @@ public class Rating implements Serializable
     this.setManagerEvaluation("");
     this.setSelfEvaluationSubmitted(false);
     this.setManagerEvaluationSubmitted(false);
+  }
+  
+  /**
+   * Creates an item of activity describing the submission of this rating's self-evaluation by the given employee.
+   *
+   * @param profile The profile of the employee to whom this rating belongs.
+   * @return The generated activity.
+   */
+  public Activity createActivity(EmployeeProfile profile)
+  {
+    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(SUBMIT.getVerb())
+        .append(" their self-evaluation.").toString();
+
+    return new Activity(activityString, LocalDateTime.now(UK_TIMEZONE));
   }
 
   /** @return the year */

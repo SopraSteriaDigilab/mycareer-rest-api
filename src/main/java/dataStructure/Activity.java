@@ -5,6 +5,7 @@ import static utils.Conversions.*;
 
 import java.util.Date;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.bson.Document;
@@ -63,6 +64,18 @@ public class Activity implements Serializable
   {
     this.description = description;
     this.timestamp = timestamp;
+  }
+
+  /**
+   * Activity Constructor - Responsible for initialising this object.
+   *
+   * @param description A description of this activity
+   * @param timestamp The date that this activity occurred.
+   */
+  public Activity(final String description, final LocalDateTime timestamp)
+  {
+    this.description = description;
+    this.timestamp = localDateTimetoDate(timestamp);
   }
 
   /**
