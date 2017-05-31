@@ -841,9 +841,7 @@ public class EmployeeController
     try
     {
       final boolean dismissed = employeeService.dismissFeedbackRequest(employeeID, feedbackRequestID);
-      final String retVal = dismissed ? "Feedback request dismissed" : "Feedback request not found";
-      
-      return ok(retVal);
+      return dismissed ? ok("Feedback request dismissed") : badRequest().body("Feedback request not found");
     }
     catch (Exception e)
     {

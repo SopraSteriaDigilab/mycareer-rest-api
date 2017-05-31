@@ -8,7 +8,7 @@ package dataStructure;
 public enum Action
 {
   ADD("added"), EDIT("edited"), COMPLETE("completed"), ARCHIVE("archived"), RESTORE("restored"), DELETE(
-      "deleted"), REQUEST("requested");
+      "deleted"), REQUEST("requested"), SUBMIT("submitted");
 
   private final String verb;
 

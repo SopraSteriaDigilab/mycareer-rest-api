@@ -915,6 +915,8 @@ public class EmployeeService
 
     String reporteeCN = Utils.nameIdToCN(employee.getProfile().getForename(), employee.getProfile().getSurname(),
         employee.getProfile().getEmployeeID());
+    employee.addActivity(employee.getRating(year).createActivity(employee.getProfile()));
+    updateActivityFeed(employee);
 
     String managerEmail = getManagerEmailAddress(reporteeCN);
     String subject = String.format("Self Evaluation Submitted - %s.", employee.getProfile().getFullName());
