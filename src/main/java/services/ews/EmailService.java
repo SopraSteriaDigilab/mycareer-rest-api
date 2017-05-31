@@ -136,7 +136,7 @@ public class EmailService
    * 
    * @throws Exception
    */
-//  @Scheduled(fixedRate = 60_000)
+  // @Scheduled(fixedRate = 60_000)
   private void findEmails()
   {
     try
@@ -193,16 +193,19 @@ public class EmailService
       {
         undeliverableFeedbackFound(subject, body);
       }
+      else if (subject.contains("automatic reply"))
+      {
+        /* Ignore automatic replies */
+        
+        LOGGER.debug("Automatic reply email found.");
+      }
+      else if (subject.contains("feedback request"))
+      {
+        requestedFeedbackFound(from, recipients, body);
+      }
       else
       {
-        if (subject.contains("feedback request"))
-        {
-          requestedFeedbackFound(from, recipients, body);
-        }
-        else
-        {
-          genericFeedbackFound(from, recipients, body);
-        }
+        genericFeedbackFound(from, recipients, body);
       }
 
       email.setIsRead(true);
@@ -333,7 +336,7 @@ public class EmailService
    */
   private static void undeliverableFeedbackFound(String subject, String body) throws Exception
   {
-    LOGGER.debug("Undelivered Email found.");
+    LOGGER.debug("Undeliverable email found.");
 
     long employeeID = Utils.getEmployeeIDFromFeedbackRequestSubject(subject);
     Employee employee = employeeService.getEmployee(employeeID);
@@ -345,7 +348,7 @@ public class EmailService
 
     sendEmail(errorRecipient, errorSubject, errorBody);
 
-    LOGGER.info("Undelivered Email processed, error email sent.");
+    LOGGER.info("Undeliverable email processed; error email sent.");
   }
 
   /**

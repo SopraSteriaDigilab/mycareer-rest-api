@@ -78,7 +78,6 @@ public class EmployeeController
   private static final String ERROR_EMPTY_OBJECTIVE_DESCRIPTION = "Objective description can not be empty.";
   private static final String ERROR_LIMIT_OBJECTIVE_DESCRIPTION = "Max Description length is 2,000 characters.";
   private static final String ERROR_INVALID_FEEDBACK_REQUEST_ID = "Invalid feedback request ID";
-  private static final String ERROR_EMPTY_FEEDBACK_REQUEST_ID = "Feedback request ID can not be empty.";
   private static final String ERROR_LIMIT_COMMENT = "Max Comment length is 1000 characters.";
   private static final String ERROR_EMPTY_FEEDBACK = "The feedback cannot be empty.";
   private static final String ERROR_LIMIT_FEEDBACK = "Max feedback length is 5000";
