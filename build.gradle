@@ -13,6 +13,7 @@ apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'pmd'
 apply plugin: 'findbugs'
+apply plugin: "jacoco"
 
 pmd {
     toolVersion = '5.5.1'
@@ -54,6 +55,39 @@ tasks.withType(FindBugs) {
   	  html.enabled = false
     }
 }
+
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+    reportsDir = file("$buildDir/reports/jacoco")
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination "${buildDir}/reports/jacoco"
+    }
+}
+
+test {
+    jacoco {
+        append = false
+        destinationFile = file("$buildDir/reports/jacoco/jacocoTest.exec")
+        classDumpFile = file("$buildDir/reports/jacoco/classpathdumps")
+    }
+}
+
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integration-test/java')
+        }
+        resources.srcDir file('src/integration-test/resources')
+    }
+}
+
 
 //Define the name of the JAR file created when the project is built as an executable archive
 jar {
