@@ -7,6 +7,7 @@ import static utils.Conversions.localDateTimetoDate;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Objects;
 
 import org.bson.Document;
 
@@ -140,36 +141,28 @@ public class Activity implements Serializable
   {
     this.timestamp = timestamp;
   }
-  
 
-@Override
-public int hashCode() {
-	final int prime = 31;
-	int result = 1;
-	result = prime * result + ((description == null) ? 0 : description.hashCode());
-	result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
-	return result;
-}
+  @Override
+  public int hashCode()
+  {
+    return Objects.hash(description, timestamp);
+  }
 
-@Override
-public boolean equals(Object obj) {
-	if (this == obj)
-		return true;
-	if (obj == null)
-		return false;
-	if (getClass() != obj.getClass())
-		return false;
-	Activity other = (Activity) obj;
-	if (description == null) {
-		if (other.description != null)
-			return false;
-	} else if (!description.equals(other.description))
-		return false;
-	if (timestamp == null) {
-		if (other.timestamp != null)
-			return false;
-	} else if (!timestamp.equals(other.timestamp))
-		return false;
-	return true;
-}
+  @Override
+  public boolean equals(final Object o)
+  {
+    if (this == o)
+    {
+      return true;
+    }
+
+    if (!(o instanceof Activity))
+    {
+      return false;
+    }
+
+    final Activity other = (Activity) o;
+
+    return Objects.equals(description, other.description) && Objects.equals(timestamp, other.timestamp);
+  }
 }

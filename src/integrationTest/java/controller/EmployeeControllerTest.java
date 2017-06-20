@@ -1,4 +1,4 @@
-package java.controller;
+package controller;
 
 public class EmployeeControllerTest {
 
