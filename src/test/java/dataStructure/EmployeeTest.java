@@ -1,9 +1,6 @@
 package dataStructure;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -19,9 +16,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import dataStructure.Objective.Progress;
 import model.Models;
 
 /**
@@ -214,53 +211,304 @@ public class EmployeeTest {
 		setPrivateField("competencies", obj, null);
 	}
 
-	/**
-	 * Unit test for the setFeedback method.
-	 * 
-	 * @throws InvalidAttributeValueException
-	 */
-	@Test
-	public void testSetFeedback() {
-		List<Feedback> feedbackList = Arrays.asList(Models.getFeedback());
-		unitUnderTest.setFeedback(feedbackList);
-		assertEquals(unitUnderTest.getFeedback(), feedbackList);
-	}
-
-	/**
-	 * Unit test for the setSpecificFeedback method : valid ID.
-	 *
-	 * @throws InvalidAttributeValueException
-	 */
-	@Test
-	public void testGetSpecificFeedbackWithValidID() throws InvalidAttributeValueException {
-		Feedback feedback=Models.getFeedback();
-		List<Feedback> feedbackList = Arrays.asList(feedback);
-		unitUnderTest.setFeedback(feedbackList);
-		assertEquals(unitUnderTest.getFeedback(VALID_ID),feedback);
-	}
-
 	/*
-	/**
-	 * Unit test for the getLatestVersionObjectives method : null objectives.
+	 * /** Unit test for the getLatestVersionObjectives method : null
+	 * objectives.
 	 * 
 	 * @throws InvalidAttributeValueException
+	 * 
 	 * @throws IllegalAccessException
+	 * 
 	 * @throws IllegalArgumentException
+	 * 
 	 * @throws SecurityException
+	 * 
 	 * @throws NoSuchFieldException
 	 *
-	@Test
-	public void testGetLatestVersionOfObjectivesNullCase() throws InvalidAttributeValueException,
-			IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		Field f = unitUnderTest.getClass().getDeclaredField("objectives");
-		f.setAccessible(true);
-		f.set(unitUnderTest, null);
-		assertEquals(unitUnderTest.getObjectives(), null);
-	}
-	*/
+	 * @Test public void testGetLatestVersionOfObjectivesNullCase() throws
+	 * InvalidAttributeValueException, IllegalArgumentException,
+	 * IllegalAccessException, NoSuchFieldException, SecurityException { Field f
+	 * = unitUnderTest.getClass().getDeclaredField("objectives");
+	 * f.setAccessible(true); f.set(unitUnderTest, null);
+	 * assertEquals(unitUnderTest.getObjectives(), null); }
+	 */
+
+	///////////////////////////////////////////////////////////////////////////
+	///////////////////// OBJECTIVES TEST METHODS FOLLOW //////////////////////
+	///////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Unit test for the getLatestVersionObjectives method : valid objectives.
+	 * Unit test for the getCurrentObjectives method : valid objectives.
+	 * 
+	 */
+	@Test
+	public void testGetCurrentObjectives() {
+		List<Objective> objList = Arrays.asList(Models.getObjective());
+		unitUnderTest.setObjectives(objList);
+		assertEquals(unitUnderTest.getCurrentObjectives(), objList);
+	}
+
+	/**
+	 * Unit test for the addObjective method : valid objective.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testAddObjectiveWithValidObjective() throws InvalidAttributeValueException {
+		Objective obj = Models.getObjective();
+		assertEquals(unitUnderTest.addObjective(obj), true);
+	}
+
+	/**
+	 * Unit test for the addObjective method : check if objectives is null.
+	 * 
+	 * @throws SecurityException
+	 * @throws NoSuchFieldException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * 
+	 */
+	/*
+	 * @Test public void testAddObjectiveCheckIfObjectivesIsNull() throws
+	 * InvalidAttributeValueException, IllegalArgumentException,
+	 * IllegalAccessException, NoSuchFieldException, SecurityException {
+	 * Objective obj = new Objective(1, 1, 1, "1", "1", "3010-01");
+	 * setPrivateField("objectives", unitUnderTest, null);
+	 * assertTrue(unitUnderTest.addObjective(obj)); }
+	 * 
+	 */
+
+	/**
+	 * Unit test for the editObjective method : valid objective.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testEditObjectiveWithValidObjective() throws InvalidAttributeValueException {
+
+		Objective obj = Models.getObjective();
+		List<Objective> objList = Arrays.asList(obj);
+		unitUnderTest.setObjectives(objList);
+		assertEquals(unitUnderTest.editObjective(obj), true);
+	}
+
+	/**
+	 * Unit test for the editObjective method : invalid objective. Objective
+	 * archived.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testEditObjectiveWithArchivedObjective() throws InvalidAttributeValueException {
+
+		Objective obj = Models.getObjective();
+		obj.isArchived(true);
+		List<Objective> objList = Arrays.asList(obj);
+		unitUnderTest.setObjectives(objList);
+		unitUnderTest.editObjective(obj);
+	}
+
+	/**
+	 * Unit test for the editObjective method : invalid objective. Objective
+	 * complete
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testEditObjectiveWithCompleteObjective() throws InvalidAttributeValueException {
+
+		Objective obj = Models.getObjective();
+		obj.setProgress(Progress.COMPLETE);
+		List<Objective> objList = Arrays.asList(obj);
+		unitUnderTest.setObjectives(objList);
+		unitUnderTest.editObjective(obj);
+	}
+
+	/**
+	 * Unit test for the deleteObjective method : valid objective.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testDeleteObjectiveWithValidObjective() throws InvalidAttributeValueException {
+
+		Objective obj = Models.getObjective();
+		obj.isArchived(true);
+		List<Objective> objList = new ArrayList<Objective>(Arrays.asList(obj));
+		unitUnderTest.setObjectives(objList);
+		assertEquals(unitUnderTest.deleteObjective(VALID_ID), true);
+	}
+
+	/**
+	 * Unit test for the deleteObjective method : invalid objective.
+	 * 
+	 * Objective not archived.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testDeleteObjectiveWithInvalidObjective() throws InvalidAttributeValueException {
+
+		Objective obj = Models.getObjective();
+		List<Objective> objList = new ArrayList<Objective>(Arrays.asList(obj));
+		unitUnderTest.setObjectives(objList);
+		unitUnderTest.deleteObjective(VALID_ID);
+	}
+
+	/**
+	 * Unit test for the updateObjectiveProgress method : invalid objective.
+	 * 
+	 * Progress is the same as already set.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testUpdateObjectiveProgressWithValidObjective() throws InvalidAttributeValueException {
+
+		Objective obj = Models.getObjective();
+		List<Objective> objList = Arrays.asList(obj);
+		unitUnderTest.setObjectives(objList);
+		assertEquals(unitUnderTest.updateObjectiveProgress(VALID_ID, Progress.COMPLETE), true);
+	}
+
+	/**
+	 * Unit test for the updateObjective method : valid objective.
+	 * 
+	 * Invalid Progress > Same as already set.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testUpdateObjectiveProgressWithInvalidProgress() throws InvalidAttributeValueException {
+
+		Objective obj = Models.getObjective();
+		List<Objective> objList = Arrays.asList(obj);
+		unitUnderTest.setObjectives(objList);
+		unitUnderTest.updateObjectiveProgress(VALID_ID, Progress.PROPOSED);
+	}
+
+	/**
+	 * Unit test for the updateObjective method : valid objective.
+	 * 
+	 * Objective complete.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testUpdateObjectiveProgressWithCompleteObjective() throws InvalidAttributeValueException {
+
+		Objective obj = Models.getObjective();
+		obj.setProgress(Progress.COMPLETE);
+		List<Objective> objList = Arrays.asList(obj);
+		unitUnderTest.setObjectives(objList);
+		unitUnderTest.updateObjectiveProgress(VALID_ID, Progress.PROPOSED);
+	}
+
+	/**
+	 * Unit test for the updateObjective method : valid objective.
+	 * 
+	 * Objective archived.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testUpdateObjectiveProgressWithArchivedObjective() throws InvalidAttributeValueException {
+
+		Objective obj = Models.getObjective();
+		obj.isArchived(true);
+		List<Objective> objList = Arrays.asList(obj);
+		unitUnderTest.setObjectives(objList);
+		unitUnderTest.updateObjectiveProgress(VALID_ID, Progress.PROPOSED);
+	}
+
+	/**
+	 * Unit test for the updateObjective method : valid objective.
+	 * 
+	 * Objective archived and completed.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testUpdateObjectiveProgressWithArchivedAndComplete() throws InvalidAttributeValueException {
+
+		Objective obj = Models.getObjective();
+		obj.isArchived(true);
+		obj.setProgress(Progress.COMPLETE);
+		List<Objective> objList = Arrays.asList(obj);
+		unitUnderTest.setObjectives(objList);
+		unitUnderTest.updateObjectiveProgress(VALID_ID, Progress.PROPOSED);
+	}
+
+	/**
+	 * Unit test for the toggleObjectiveArchive method : Valid objective.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testToggleObjectiveArchiveFalseWithValidObjective() throws InvalidAttributeValueException {
+
+		Objective obj = Models.getObjective();
+		List<Objective> objList = Arrays.asList(obj);
+		unitUnderTest.setObjectives(objList);
+		assertEquals(unitUnderTest.toggleObjectiveArchive(VALID_ID), true);
+	}
+
+	/**
+	 * Unit test for the toggleObjectiveArchive method : Valid objective.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testToggleObjectiveArchiveTrueWithValidObjective() throws InvalidAttributeValueException {
+
+		Objective obj = Models.getObjective();
+		obj.isArchived(true);
+		List<Objective> objList = Arrays.asList(obj);
+		unitUnderTest.setObjectives(objList);
+		assertEquals(unitUnderTest.toggleObjectiveArchive(VALID_ID), true);
+	}
+
+	/**
+	 * Unit test for the getSpecificObjective method : valid objectives.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testGetSpecificObjectiveValidObjective() throws InvalidAttributeValueException {
+		Objective obj = Models.getObjective();
+		List<Objective> objList = Arrays.asList(obj);
+		unitUnderTest.setObjectives(objList);
+		assertEquals(unitUnderTest.getObjective(VALID_ID), obj);
+	}
+
+	/**
+	 * Unit test for the getSpecificObjective method : Invalid objectives.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testGetSpecificObjectiveInvalidObjective() throws InvalidAttributeValueException {
+		Objective obj = Models.getObjective();
+		List<Objective> objList = Arrays.asList(obj);
+		unitUnderTest.setObjectives(objList);
+		assertEquals(unitUnderTest.getObjective(INVALID_ID), obj);
+	}
+
+	/**
+	 * Unit test for the getObjectives method : valid objectives.
 	 * 
 	 * @throws InvalidAttributeValueException
 	 */
@@ -272,97 +520,296 @@ public class EmployeeTest {
 		assertEquals(unitUnderTest.getObjectives(), objList);
 	}
 
+	///////////////////////////////////////////////////////////////////////////
+	///////////////// DEVELOPMENT NEEDS TEST METHODS FOLLOW ///////////////////
+	///////////////////////////////////////////////////////////////////////////
+
 	/**
-	 * Unit test for the getLatestVersionOfSpecificObjective method : valid
-	 * objectives.
+	 * Unit test for the getCurrentDevelopmentNeeds method : valid objectives.
 	 * 
-	 * @throws InvalidAttributeValueException
 	 */
 	@Test
-	public void testGetSpecificObjectiveValidObjectives() throws InvalidAttributeValueException {
-		Objective obj = Models.getObjective();
-		List<Objective> objList = Arrays.asList(obj);
-		unitUnderTest.setObjectives(objList);
-		assertEquals(unitUnderTest.getObjective(VALID_ID), obj);
+	public void testGetCurrentDevelopmentNeeds() {
+		List<DevelopmentNeed> devNeedList = Arrays.asList(Models.getDevelopmentNeed());
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		assertEquals(unitUnderTest.getCurrentDevelopmentNeeds(), devNeedList);
 	}
 
 	/**
-	 * Unit test for the setNotes method.
+	 * Unit test for the addDevelopmentNeed method : valid objective.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testAddDevelopmentNeedWithValidDevelopmentNeed() throws InvalidAttributeValueException {
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		assertEquals(unitUnderTest.addDevelopmentNeed(devNeed), true);
+	}
+
+	/**
+	 * Unit test for the addDevelopmentNeed method : check if objectives is
+	 * null.
+	 * 
+	 * @throws SecurityException
+	 * @throws NoSuchFieldException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * 
+	 */
+	/*
+	 * @Test public void testAddDevelopmentNeedCheckIfDevelopmentNeedsIsNull()
+	 * throws InvalidAttributeValueException, IllegalArgumentException,
+	 * IllegalAccessException, NoSuchFieldException, SecurityException {
+	 * DevelopmentNeed devNeed = new DevelopmentNeed(1, 1, 1, "1", "1",
+	 * "3010-01"); setPrivateField("objectives", unitUnderTest, null);
+	 * assertTrue(unitUnderTest.addDevelopmentNeed(devNeed)); }
+	 * 
+	 */
+
+	/**
+	 * Unit test for the editDevelopmentNeed method : valid objective.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testEditDevelopmentNeedWithValidDevelopmentNeed() throws InvalidAttributeValueException {
+
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		assertEquals(unitUnderTest.editDevelopmentNeed(devNeed), true);
+	}
+
+	/**
+	 * Unit test for the editDevelopmentNeed method : invalid objective.
+	 * DevelopmentNeed archived.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testEditDevelopmentNeedWithArchivedDevelopmentNeed() throws InvalidAttributeValueException {
+
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		devNeed.isArchived(true);
+		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		unitUnderTest.editDevelopmentNeed(devNeed);
+	}
+
+	/**
+	 * Unit test for the editDevelopmentNeed method : invalid objective.
+	 * DevelopmentNeed complete
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testEditDevelopmentNeedWithCompleteDevelopmentNeed() throws InvalidAttributeValueException {
+
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		devNeed.setProgress(Progress.COMPLETE);
+		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		unitUnderTest.editDevelopmentNeed(devNeed);
+	}
+
+	/**
+	 * Unit test for the deleteDevelopmentNeed method : valid objective.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testDeleteDevelopmentNeedWithValidDevelopmentNeed() throws InvalidAttributeValueException {
+
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		devNeed.isArchived(true);
+		List<DevelopmentNeed> devNeedList = new ArrayList<DevelopmentNeed>(Arrays.asList(devNeed));
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		assertEquals(unitUnderTest.deleteDevelopmentNeed(VALID_ID), true);
+	}
+
+	/**
+	 * Unit test for the deleteDevelopmentNeed method : invalid objective.
+	 * 
+	 * DevelopmentNeed not archived.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testDeleteDevelopmentNeedWithInvalidDevelopmentNeed() throws InvalidAttributeValueException {
+
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		List<DevelopmentNeed> devNeedList = new ArrayList<DevelopmentNeed>(Arrays.asList(devNeed));
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		unitUnderTest.deleteDevelopmentNeed(VALID_ID);
+	}
+
+	/**
+	 * Unit test for the updateDevelopmentNeedProgress method : invalid
+	 * objective.
+	 * 
+	 * Progress is the same as already set.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testUpdateDevelopmentNeedProgressWithValidDevelopmentNeed() throws InvalidAttributeValueException {
+
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		assertEquals(unitUnderTest.updateDevelopmentNeedProgress(VALID_ID, Progress.COMPLETE), true);
+	}
+
+	/**
+	 * Unit test for the updateDevelopmentNeed method : valid objective.
+	 * 
+	 * Invalid Progress > Same as already set.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testUpdateDevelopmentNeedProgressWithInvalidProgress() throws InvalidAttributeValueException {
+
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		unitUnderTest.updateDevelopmentNeedProgress(VALID_ID, Progress.PROPOSED);
+	}
+
+	/**
+	 * Unit test for the updateDevelopmentNeed method : valid objective.
+	 * 
+	 * DevelopmentNeed complete.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testUpdateDevelopmentNeedProgressWithCompleteDevelopmentNeed() throws InvalidAttributeValueException {
+
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		devNeed.setProgress(Progress.COMPLETE);
+		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		unitUnderTest.updateDevelopmentNeedProgress(VALID_ID, Progress.PROPOSED);
+	}
+
+	/**
+	 * Unit test for the updateDevelopmentNeed method : valid objective.
+	 * 
+	 * DevelopmentNeed archived.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testUpdateDevelopmentNeedProgressWithArchivedDevelopmentNeed() throws InvalidAttributeValueException {
+
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		devNeed.isArchived(true);
+		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		unitUnderTest.updateDevelopmentNeedProgress(VALID_ID, Progress.PROPOSED);
+	}
+
+	/**
+	 * Unit test for the updateDevelopmentNeed method : valid objective.
+	 * 
+	 * DevelopmentNeed archived and completed.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testUpdateDevelopmentNeedProgressWithArchivedAndComplete() throws InvalidAttributeValueException {
+
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		devNeed.isArchived(true);
+		devNeed.setProgress(Progress.COMPLETE);
+		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		unitUnderTest.updateDevelopmentNeedProgress(VALID_ID, Progress.PROPOSED);
+	}
+
+	/**
+	 * Unit test for the toggleDevelopmentNeedArchive method : Valid objective.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testToggleDevelopmentNeedArchiveFalseWithValidDevelopmentNeed() throws InvalidAttributeValueException {
+
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		assertEquals(unitUnderTest.toggleDevelopmentNeedArchive(VALID_ID), true);
+	}
+
+	/**
+	 * Unit test for the toggleDevelopmentNeedArchive method : Valid objective.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testToggleDevelopmentNeedArchiveTrueWithValidDevelopmentNeed() throws InvalidAttributeValueException {
+
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		devNeed.isArchived(true);
+		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		assertEquals(unitUnderTest.toggleDevelopmentNeedArchive(VALID_ID), true);
+	}
+
+	/**
+	 * Unit test for the getSpecificDevelopmentNeed method : valid objectives.
 	 * 
 	 * @throws InvalidAttributeValueException
 	 */
 	@Test
-	public void testSetNotes() throws InvalidAttributeValueException {
-		List<Note> notesList = Arrays.asList(Models.getNote());
-		unitUnderTest.setNotes(notesList);
-		assertEquals(unitUnderTest.getNotes(), notesList);
+	public void testGetSpecificDevelopmentNeedValidDevelopmentNeed() throws InvalidAttributeValueException {
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		assertEquals(unitUnderTest.getDevelopmentNeed(VALID_ID), devNeed);
 	}
-	/*
-	  *//**
-		 * Unit test for the getLatestVersionDevelopmentNeedsList method.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 * @throws IllegalAccessException
-		 * @throws IllegalArgumentException
-		 * @throws SecurityException
-		 * @throws NoSuchFieldException
-		 */
-	/*
-	 * @Test public void testGetLatestVersionDevelopmentNeedsListNullCase()
-	 * throws InvalidAttributeValueException, IllegalArgumentException,
-	 * IllegalAccessException, NoSuchFieldException, SecurityException { Field f
-	 * = unitUnderTest.getClass().getDeclaredField("developmentNeeds");
-	 * f.setAccessible(true); f.set(unitUnderTest, null);
-	 * assertEquals(unitUnderTest.getLatestVersionDevelopmentNeeds(), null); }
+
+	/**
+	 * Unit test for the getSpecificDevelopmentNeed method : Invalid objectives.
 	 * 
-	 *//**
-		 * Unit test for the getLatestVersionDevelopmentNeedsList method. valid
-		 * development need.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-	/*
-	 * @Test public void
-	 * testGetLatestVersionDevelopmentNeedsListValidDevelopmentNeeds() throws
-	 * InvalidAttributeValueException, IllegalArgumentException,
-	 * IllegalAccessException, NoSuchFieldException, SecurityException {
-	 * DevelopmentNeed dev = new DevelopmentNeed(1, 1, 1, "1", "1");
-	 * List<DevelopmentNeed> devList = Arrays.asList(dev);
-	 * List<List<DevelopmentNeed>> devListList = Arrays.asList(devList);
-	 * unitUnderTest.setDevelopmentNeedsList(devListList);
-	 * assertEquals(unitUnderTest.getLatestVersionDevelopmentNeeds(), devList);
-	 * }
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testGetSpecificDevelopmentNeedInvalidDevelopmentNeed() throws InvalidAttributeValueException {
+		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		assertEquals(unitUnderTest.getDevelopmentNeed(INVALID_ID), devNeed);
+	}
+
+	/**
+	 * Unit test for the getDevelopmentNeeds method : valid objectives.
 	 * 
-	 *//**
-		 * Unit test for the getLatestVersionOfSpecificDevelopmentNeeds method :
-		 * valid development need.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-	/*
-	 * @Test public void
-	 * testGetLatestVersionOfSpecificDevelopmentNeedsValidDevelopmentNeeds()
-	 * throws InvalidAttributeValueException { DevelopmentNeed dev = new
-	 * DevelopmentNeed(1, 1, 1, "1", "1"); List<DevelopmentNeed> devList =
-	 * Arrays.asList(dev); List<List<DevelopmentNeed>> devListList =
-	 * Arrays.asList(devList);
-	 * unitUnderTest.setDevelopmentNeedsList(devListList);
-	 * assertEquals(unitUnderTest.getLatestVersionOfSpecificDevelopmentNeed(1),
-	 * dev); }
-	 * 
-	 *//**
-		 * Unit test for the getLatestVersionOfSpecificDevelopmentNeed method :
-		 * development need not found.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-	/*
-	 * @Test public void testGetLatestVersionOfSpecificDevelopmentNeedNotFound()
-	 * throws InvalidAttributeValueException {
-	 * assertEquals(unitUnderTest.getLatestVersionOfSpecificDevelopmentNeed(5649
-	 * ), null); }
-	 * 
-	 *//**
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testGetDevelopmentNeedsValidDevelopmentNeeds() throws InvalidAttributeValueException,
+			IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		List<DevelopmentNeed> devNeedList = Arrays.asList(Models.getDevelopmentNeed());
+		unitUnderTest.setDevelopmentNeeds(devNeedList);
+		assertEquals(unitUnderTest.getDevelopmentNeeds(), devNeedList);
+	}
+
+	/**
 		 * Unit test for the getFeedbackRequest method : valid ID.
 		 * 
 		 * @throws InvalidAttributeValueException
@@ -423,6 +870,7 @@ public class EmployeeTest {
 		 * 
 		 * @throws InvalidAttributeValueException
 		 */
+
 	/*
 	 * @Test public void
 	 * testGetLatestVersionOfSpecificCompetencyValidCompetency() throws
@@ -433,130 +881,98 @@ public class EmployeeTest {
 	 * assertEquals(unitUnderTest.getLatestVersionOfSpecificCompetency(1),
 	 * comp); }
 	 * 
-	 *//**
-		 * Unit test for the setLastLogon method.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-	/*
-	 * @Test public void testSetLastLogon() throws
-	 * InvalidAttributeValueException { unitUnderTest.setLastLogon(date);
-	 * assertEquals(unitUnderTest.getLastLogon(), date); }
+	 */
+
+	/**
+	 * Unit test for the setLastLogon method.
 	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testSetLastLogon() throws InvalidAttributeValueException {
+		unitUnderTest.setLastLogon(date);
+		assertEquals(unitUnderTest.getLastLogon(), date);
+	}
+
+	/**
+	 * Unit test for the addFeedback method : valid feedback.
 	 * 
-	 *//**
-		 * Unit test for the addFeedback method : valid feedback.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-	/*
-	 * @Test public void testAddFeedbackWithValidFeedback() throws
-	 * InvalidAttributeValueException {
-	 * assertEquals(unitUnderTest.addFeedback(mockFeedback), true); }
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testAddFeedbackWithValidFeedback() throws InvalidAttributeValueException {
+		Feedback feedback = Models.getFeedback();
+		assertEquals(unitUnderTest.addFeedback(feedback), true);
+	}
+
+	/**
+	 * Unit test for the setFeedback method.
 	 * 
-	 *//**
-		 * Unit test for the addObjective method : valid objective.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-	/*
-	 * @Test public void testAddObjectiveWithValidObjective() throws
-	 * InvalidAttributeValueException { Objective obj = new Objective(1, 1, 1,
-	 * "1", "1", "3010-01"); assertEquals(unitUnderTest.addObjective(obj),
-	 * true); }
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testSetFeedback() {
+		List<Feedback> feedbackList = Arrays.asList(Models.getFeedback());
+		unitUnderTest.setFeedback(feedbackList);
+		assertEquals(unitUnderTest.getFeedback(), feedbackList);
+	}
+
+	/**
+	 * Unit test for the setSpecificFeedback method : valid ID.
+	 *
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testGetSpecificFeedbackWithValidID() throws InvalidAttributeValueException {
+		Feedback feedback = Models.getFeedback();
+		List<Feedback> feedbackList = Arrays.asList(feedback);
+		unitUnderTest.setFeedback(feedbackList);
+		assertEquals(unitUnderTest.getFeedback(VALID_ID), feedback);
+	}
+
+	/**
+	 * Unit test for the setSpecificFeedback method : invalid ID.
+	 *
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testGetSpecificFeedbackWithNoFeedback() throws InvalidAttributeValueException {
+		Feedback feedback = Models.getFeedback();
+		List<Feedback> feedbackList = Arrays.asList(feedback);
+		unitUnderTest.setFeedback(feedbackList);
+		assertEquals(unitUnderTest.getFeedback(INVALID_ID), feedback);
+	}
+
+	/**
+	 * Unit test for the addNote method.
 	 * 
-	 *//**
-		 * Unit test for the addObjective method : check if objectives is null.
-		 * 
-		 * @throws SecurityException
-		 * @throws NoSuchFieldException
-		 * @throws IllegalAccessException
-		 * @throws IllegalArgumentException
-		 * 
-		 */
-	/*
-	 * @Test public void testAddObjectiveCheckIfObjectivesIsNull() throws
-	 * InvalidAttributeValueException, IllegalArgumentException,
-	 * IllegalAccessException, NoSuchFieldException, SecurityException {
-	 * Objective obj = new Objective(1, 1, 1, "1", "1", "3010-01");
-	 * setPrivateField("objectives", unitUnderTest, null);
-	 * assertTrue(unitUnderTest.addObjective(obj)); }
-	 * 
-	 *//**
-		 * Unit test for the editObjective method : valid objective.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-	/*
-	 * @Test public void testEditObjectiveWithValidObjective() throws
-	 * InvalidAttributeValueException {
-	 * 
-	 * Objective obj = new Objective(1, 1, 1, "1", "1", "3010-01");
-	 * List<Objective> objList = Arrays.asList(obj); List<List<Objective>>
-	 * objListList = Arrays.asList(objList);
-	 * unitUnderTest.setObjectives(objListList);
-	 * assertEquals(unitUnderTest.editObjective(obj), true); }
-	 * 
-	 *//**
-		 * Unit test for the addNote method.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
+	 * @throws InvalidAttributeValueException
+	 */
 	/*
 	 * @Test public void testAddNote() throws InvalidAttributeValueException {
 	 * assertEquals(unitUnderTest.addNote(mockNote),
 	 * unitUnderTest.getNotes().add(mockNote)); }
 	 * 
-	 *//**
-		 * Unit test for the addObjective method : valid objective.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-	/*
-	 * @Test public void testAddDevelopmentNeedWithValidObjective() throws
-	 * InvalidAttributeValueException { DevelopmentNeed dev = new
-	 * DevelopmentNeed(1, 1, 1, "1", "1");
-	 * assertEquals(unitUnderTest.addDevelopmentNeed(dev), true); }
+	 */
+	/**
+	 * Unit test for the setNotes method.
 	 * 
-	 *//**
-		 * Unit test for the addDevelopmentNeed method : check if
-		 * developmentNeeds is null.
-		 * 
-		 * @throws SecurityException
-		 * @throws NoSuchFieldException
-		 * @throws IllegalAccessException
-		 * @throws IllegalArgumentException
-		 * 
-		 */
-	/*
-	 * @Test public void testAddDevelopmentNeedCheckIfDevelopmentNeedsIsNull()
-	 * throws InvalidAttributeValueException, IllegalArgumentException,
-	 * IllegalAccessException, NoSuchFieldException, SecurityException {
-	 * DevelopmentNeed dev = new DevelopmentNeed(1, 1, 1, "1", "1");
-	 * setPrivateField("developmentNeeds", unitUnderTest, null);
-	 * assertTrue(unitUnderTest.addDevelopmentNeed(dev)); }
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testSetNotes() throws InvalidAttributeValueException {
+		List<Note> notesList = Arrays.asList(Models.getNote());
+		unitUnderTest.setNotes(notesList);
+		assertEquals(unitUnderTest.getNotes(), notesList);
+	}
+
+	/**
+	 * Unit test for the addFeedbackRequest method : valid feedback request.
 	 * 
-	 *//**
-		 * Unit test for the editDevelopmentNeed method : valid development
-		 * need.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-	/*
-	 * @Test public void testEditDevelopmentNeedWithValidDevelopmentNeed()
-	 * throws InvalidAttributeValueException {
-	 * 
-	 * DevelopmentNeed dev = new DevelopmentNeed(1, 1, 1, "1", "1");
-	 * List<DevelopmentNeed> devList = Arrays.asList(dev);
-	 * List<List<DevelopmentNeed>> devListList = Arrays.asList(devList);
-	 * unitUnderTest.setDevelopmentNeedsList(devListList);
-	 * assertEquals(unitUnderTest.editDevelopmentNeed(dev), true); }
-	 * 
-	 *//**
-		 * Unit test for the addFeedbackRequest method : valid feedback request.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
+	 * @throws InvalidAttributeValueException
+	 */
 	/*
 	 * @Test public void testAddFeedbackRequestWithValidFeedbackRequest() throws
 	 * InvalidAttributeValueException {

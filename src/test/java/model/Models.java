@@ -9,6 +9,8 @@ import java.util.List;
 
 import javax.management.InvalidAttributeValueException;
 
+import dataStructure.DevelopmentNeed;
+import dataStructure.DevelopmentNeed.Category;
 import dataStructure.EmailAddresses;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
@@ -147,12 +149,21 @@ public class Models {
 	}
 	
 	/**
-	 * Get an Objective
+	 * Get a Note
 	 *
 	 * @return
 	 */
 	public static Note getNote(){
 		return new Note(USERNAME, DESCRIPTION);
+	}
+	
+	/**
+	 * Get a DevelopmentNeed
+	 *
+	 * @return
+	 */
+	public static DevelopmentNeed getDevelopmentNeed(){
+		return new DevelopmentNeed(ID, TITLE, DESCRIPTION, LOCALDATE_FIXED, Category.CLASSROOM_TRAINING);
 	}
 	
 }
