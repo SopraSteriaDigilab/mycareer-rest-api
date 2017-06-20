@@ -1,5 +1,6 @@
 package model;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -12,6 +13,8 @@ import dataStructure.EmailAddresses;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
+import dataStructure.Note;
+import dataStructure.Objective;
 
 /**
  * Models to be used in the tests.
@@ -35,7 +38,7 @@ public class Models {
 	public static final String FULL_NAME = "First Last";
 
 	/** TYPE Property|Constant - Represents|Indicates... */
-	public static final String EMAIL_ADRESS = "a@b.c";
+	public static final String EMAIL_ADDRESS = "a@b.c";
 
 	/** TYPE Property|Constant - Represents|Indicates... */
 	public static final String USERNAME = "Username";
@@ -68,7 +71,7 @@ public class Models {
 	public static final List<String> REPORTEES = Arrays.asList(FIRST_NAME, FIRST_NAME, FIRST_NAME);
 
 	/** TYPE Property|Constant - Represents|Indicates... */
-	public static final int ID = 1;
+	public static final int ID = 675590;
 
 	/** TYPE Property|Constant - Represents|Indicates... */
 	public static final String TITLE = "Title";
@@ -78,6 +81,9 @@ public class Models {
 
 	/** TYPE Property|Constant - Represents|Indicates... */
 	public static final Date DATE_FIXED = new GregorianCalendar(2099, Calendar.JUNE, 20).getTime();
+	
+	/** TYPE Property|Constant - Represents|Indicates... */
+	public static final LocalDate LOCALDATE_FIXED = LocalDate.of(2099, 07, 20);
 
 	/** TYPE Property|Constant - Represents|Indicates... */
 	public static final boolean STATUS = true;
@@ -94,11 +100,11 @@ public class Models {
 
 		return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).employeeType(EMP_TYPE).forename(FIRST_NAME).surname(LAST_NAME)
 				.emailAddresses(getEmailAddresses()).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR)
-				.sector(SECTOR).steriaDepartment(STERIA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER).accountExpires(DATE_FIXED).build();
+				.sector(SECTOR).steriaDepartment(STERIA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER).accountExpires(DATE_FIXED).reporteeCNs(REPORTEES).build();
 	}
 
 	public static EmailAddresses getEmailAddresses() {
-		EmailAddresses emailAddresses=new EmailAddresses.Builder().mail(EMAIL_ADRESS).targetAddress(EMAIL_ADRESS).build();
+		EmailAddresses emailAddresses=new EmailAddresses.Builder().mail(EMAIL_ADDRESS).targetAddress(EMAIL_ADDRESS).build();
 		return emailAddresses;
 	}
 
@@ -119,7 +125,7 @@ public class Models {
 	 * @return
 	 */
 	public static Feedback getFeedback() {
-		return new Feedback(ID, EMAIL_ADRESS, FULL_NAME, DESCRIPTION);
+		return new Feedback(ID, EMAIL_ADDRESS, FULL_NAME, DESCRIPTION);
 	}
 
 	/**
@@ -128,6 +134,25 @@ public class Models {
 	 * @return
 	 */
 	public static FeedbackRequest getFeedbackRequest() {
-		return new FeedbackRequest(GUID, EMAIL_ADRESS);
+		return new FeedbackRequest(GUID, EMAIL_ADDRESS);
 	}
+	
+	/**
+	 * Get an Objective
+	 *
+	 * @return
+	 */
+	public static Objective getObjective(){
+		return new Objective(ID, TITLE, DESCRIPTION, LOCALDATE_FIXED);
+	}
+	
+	/**
+	 * Get an Objective
+	 *
+	 * @return
+	 */
+	public static Note getNote(){
+		return new Note(USERNAME, DESCRIPTION);
+	}
+	
 }
