@@ -5,6 +5,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.management.InvalidAttributeValueException;
@@ -37,6 +38,12 @@ public class EmployeeProfileTest {
 
 	/** TYPE Property|Constant - Represents|Indicates... */
 	private final List<String> VALID_REPORTEE_LIST = Arrays.asList("a");
+	
+	/** TYPE Property|Constant - Represents|Indicates... */
+	private final String VALID_EMPLOYEE_TYPE = "MNG";
+	
+	/** TYPE Property|Constant - Represents|Indicates... */
+	private final Date VALID_DATE = new Date();
 
 	@InjectMocks
 	private EmployeeProfile unitUnderTest, unitUnderTestEmpty;
@@ -218,6 +225,29 @@ public class EmployeeProfileTest {
 	public void testSetSuperSectorWithValidSuperSector() throws InvalidAttributeValueException {
 		unitUnderTest.setSuperSector(VALID_SECTOR_SUPERSECTOR);
 		assertEquals(unitUnderTest.getSuperSector(), VALID_SECTOR_SUPERSECTOR);
+	}
+	
+	/**
+	 * Unit test for the setEmployeeType method : valid EmployeeType.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testSetEmployeeTypeWithValidEmployeeType() throws InvalidAttributeValueException {
+		unitUnderTest.setEmployeeType(VALID_EMPLOYEE_TYPE);
+		assertEquals(unitUnderTest.getEmployeeType(), VALID_EMPLOYEE_TYPE);
+	}
+	
+	/**
+	 * Unit test for the setAccountExpires method : valid Date.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testSetAccountExpiresWithValidDate() throws InvalidAttributeValueException {
+		
+		unitUnderTest.setAccountExpires(VALID_DATE);
+		assertEquals(unitUnderTest.getAccountExpires(), VALID_DATE);
 	}
 
 	/**
