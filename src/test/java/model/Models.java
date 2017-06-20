@@ -1,7 +1,12 @@
 package model;
 
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+
+import javax.management.InvalidAttributeValueException;
 
 import dataStructure.EmailAddresses;
 import dataStructure.EmployeeProfile;
@@ -72,7 +77,7 @@ public class Models {
 	public static final String DESCRIPTION = "Description";
 
 	/** TYPE Property|Constant - Represents|Indicates... */
-	public static final String DATE = "2018-12";
+	public static final Date DATE_FIXED = new GregorianCalendar(2099, Calendar.JUNE, 20).getTime();
 
 	/** TYPE Property|Constant - Represents|Indicates... */
 	public static final boolean STATUS = true;
@@ -87,9 +92,9 @@ public class Models {
 	 */
 	public static EmployeeProfile getProfile() {
 
-		return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).forename(FIRST_NAME).surname(LAST_NAME)
+		return new EmployeeProfile.Builder().employeeID(EMPLOYEE_ID).employeeType(EMP_TYPE).forename(FIRST_NAME).surname(LAST_NAME)
 				.emailAddresses(getEmailAddresses()).username(USERNAME).company(COMPANY).superSector(SUPER_SECTOR)
-				.sector(SECTOR).steriaDepartment(STERIA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER).build();
+				.sector(SECTOR).steriaDepartment(STERIA_DEPARTMENT).manager(IS_MANAGER).hasHRDash(IS_MANAGER).accountExpires(DATE_FIXED).build();
 	}
 
 	public static EmailAddresses getEmailAddresses() {
