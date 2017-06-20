@@ -18,7 +18,6 @@ import javax.management.InvalidAttributeValueException;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchResult;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

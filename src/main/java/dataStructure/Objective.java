@@ -59,7 +59,7 @@ public class Objective extends DBObject implements Comparable<Objective>
    */
   public Objective()
   {
-    this.setCreatedOn();
+    this.createdOn = getLastModifiedAsDate();
   }
 
   /**
@@ -91,12 +91,6 @@ public class Objective extends DBObject implements Comparable<Objective>
   public String getCreatedOn()
   {
     return dateToLocalDateTime(this.createdOn).toString();
-  }
-
-  /** @param createdOn The value to set. */
-  public void setCreatedOn()
-  {
-    this.createdOn = getLastModifiedAsDate();
   }
 
   /** @return the title. */

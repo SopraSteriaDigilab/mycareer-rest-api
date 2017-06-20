@@ -138,6 +138,6 @@ dependencies {
 	compile files('libs/US_export_policy.jar')
 	
 	//Test suits
-    testCompile("junit:junit")
+    testCompile("junit:junit:4.12")
     //testCompile("org.springframework.boot:spring-boot-starter-test")
 }
