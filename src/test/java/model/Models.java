@@ -73,7 +73,7 @@ public class Models {
 	public static final List<String> REPORTEES = Arrays.asList(FIRST_NAME, FIRST_NAME, FIRST_NAME);
 
 	/** TYPE Property|Constant - Represents|Indicates... */
-	public static final int ID = 675590;
+	public static final int DB_OBJECT_ID = 1;
 
 	/** TYPE Property|Constant - Represents|Indicates... */
 	public static final String TITLE = "Title";
@@ -127,7 +127,7 @@ public class Models {
 	 * @return
 	 */
 	public static Feedback getFeedback() {
-		return new Feedback(ID, EMAIL_ADDRESS, FULL_NAME, DESCRIPTION);
+		return new Feedback(DB_OBJECT_ID, EMAIL_ADDRESS, FULL_NAME, DESCRIPTION);
 	}
 
 	/**
@@ -145,7 +145,7 @@ public class Models {
 	 * @return
 	 */
 	public static Objective getObjective(){
-		return new Objective(ID, TITLE, DESCRIPTION, LOCALDATE_FIXED);
+		return new Objective(DB_OBJECT_ID, TITLE, DESCRIPTION, LOCALDATE_FIXED);
 	}
 	
 	/**
@@ -163,7 +163,7 @@ public class Models {
 	 * @return
 	 */
 	public static DevelopmentNeed getDevelopmentNeed(){
-		return new DevelopmentNeed(ID, TITLE, DESCRIPTION, LOCALDATE_FIXED, Category.CLASSROOM_TRAINING);
+		return new DevelopmentNeed(DB_OBJECT_ID, TITLE, DESCRIPTION, LOCALDATE_FIXED, Category.CLASSROOM_TRAINING);
 	}
 	
 }

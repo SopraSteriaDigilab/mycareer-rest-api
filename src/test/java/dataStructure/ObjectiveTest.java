@@ -1,19 +1,9 @@
 package dataStructure;
 
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static utils.Conversions.*;
-import static dataStructure.Objective.*;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.ZoneId;
-import java.util.Date;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -29,7 +19,6 @@ public class ObjectiveTest
 {
   private final String VALID_TITLE = "a valid title";
   private final String VALID_DESCRIPTION = "a valid description";
-  private final LocalDate PAST_DATE = LocalDate.now().minusMonths(6);
   private final LocalDate FUTURE_DATE = LocalDate.now().plusMonths(6);
 
   @InjectMocks
@@ -44,7 +33,7 @@ public class ObjectiveTest
   @Before
   public void setup() throws InvalidAttributeValueException
   {
-    unitUnderTest = new Objective(Models.ID, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
+    unitUnderTest = new Objective(Models.DB_OBJECT_ID, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
   }
 
   @Test
@@ -52,7 +41,7 @@ public class ObjectiveTest
   {
     final LocalDateTime expected = LocalDateTime.now();
 
-    unitUnderTest = new Objective(Models.ID, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
+    unitUnderTest = new Objective(Models.DB_OBJECT_ID, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
 
     final String createdOn = unitUnderTest.getCreatedOn();
     final LocalDateTime actual = LocalDateTime.parse(createdOn);
@@ -181,7 +170,7 @@ public class ObjectiveTest
   public void compareToBeforeTest()
   {
     final LocalDate beforeFutureDate = FUTURE_DATE.minusMonths(1);
-    final Objective beforeObjective = new Objective(Models.ID, VALID_TITLE, VALID_DESCRIPTION, beforeFutureDate);
+    final Objective beforeObjective = new Objective(Models.DB_OBJECT_ID, VALID_TITLE, VALID_DESCRIPTION, beforeFutureDate);
     final int comparison = unitUnderTest.compareTo(beforeObjective);
 
     assertTrue(comparison > 0);
@@ -191,7 +180,7 @@ public class ObjectiveTest
   public void compareToAfterTest()
   {
     final LocalDate afterFutureDate = FUTURE_DATE.plusMonths(1);
-    final Objective afterObjective = new Objective(Models.ID, VALID_TITLE, VALID_DESCRIPTION, afterFutureDate);
+    final Objective afterObjective = new Objective(Models.DB_OBJECT_ID, VALID_TITLE, VALID_DESCRIPTION, afterFutureDate);
     final int comparison = unitUnderTest.compareTo(afterObjective);
 
     assertTrue(comparison < 0);
@@ -201,7 +190,7 @@ public class ObjectiveTest
   public void compareToEqualTest()
   {
     final LocalDate sameFutureDate = FUTURE_DATE;
-    final Objective sameObjective = new Objective(Models.ID, VALID_TITLE, VALID_DESCRIPTION, sameFutureDate);
+    final Objective sameObjective = new Objective(Models.DB_OBJECT_ID, VALID_TITLE, VALID_DESCRIPTION, sameFutureDate);
     final int comparison = unitUnderTest.compareTo(sameObjective);
 
     assertTrue(comparison == 0);
@@ -210,7 +199,7 @@ public class ObjectiveTest
   @Test
   public void differencesNoneTest()
   {
-    final Objective otherObjective = new Objective(Models.ID, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
+    final Objective otherObjective = new Objective(Models.DB_OBJECT_ID, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
     final Document expected = new Document();
     final Document actual = unitUnderTest.differences(otherObjective);
 
@@ -221,7 +210,7 @@ public class ObjectiveTest
   public void differencesTitleTest()
   {
     final String differentTitle = "different title";
-    final Objective otherObjective = new Objective(Models.ID, differentTitle, VALID_DESCRIPTION, FUTURE_DATE);
+    final Objective otherObjective = new Objective(Models.DB_OBJECT_ID, differentTitle, VALID_DESCRIPTION, FUTURE_DATE);
     final Document expected = new Document("title", differentTitle);
     final Document actual = unitUnderTest.differences(otherObjective);
 
@@ -232,7 +221,7 @@ public class ObjectiveTest
   public void differencesDescriptionTest()
   {
     final String differentDescription = "different description";
-    final Objective otherObjective = new Objective(Models.ID, VALID_TITLE, differentDescription, FUTURE_DATE);
+    final Objective otherObjective = new Objective(Models.DB_OBJECT_ID, VALID_TITLE, differentDescription, FUTURE_DATE);
     final Document expected = new Document("description", differentDescription);
     final Document actual = unitUnderTest.differences(otherObjective);
 
@@ -243,7 +232,7 @@ public class ObjectiveTest
   public void differencesDueDateTest()
   {
     final LocalDate differentDueDate = FUTURE_DATE.minusMonths(1);
-    final Objective otherObjective = new Objective(Models.ID, VALID_TITLE, VALID_DESCRIPTION, differentDueDate);
+    final Objective otherObjective = new Objective(Models.DB_OBJECT_ID, VALID_TITLE, VALID_DESCRIPTION, differentDueDate);
     final Document expected = new Document("dueDate", differentDueDate.toString());
     final Document actual = unitUnderTest.differences(otherObjective);
 
@@ -255,7 +244,7 @@ public class ObjectiveTest
   {
     final String differentTitle = "different title";
     final String differentDescription = "different description";
-    final Objective otherObjective = new Objective(Models.ID, differentTitle, differentDescription, FUTURE_DATE);
+    final Objective otherObjective = new Objective(Models.DB_OBJECT_ID, differentTitle, differentDescription, FUTURE_DATE);
     final Document expected = new Document("title", differentTitle).append("description", differentDescription);
     final Document actual = unitUnderTest.differences(otherObjective);
 
@@ -268,7 +257,7 @@ public class ObjectiveTest
     final String differentTitle = "different title";
     final String differentDescription = "different description";
     final LocalDate differentDueDate = FUTURE_DATE.minusMonths(1);
-    final Objective otherObjective = new Objective(Models.ID, differentTitle, differentDescription, differentDueDate);
+    final Objective otherObjective = new Objective(Models.DB_OBJECT_ID, differentTitle, differentDescription, differentDueDate);
     final Document expected = new Document("title", differentTitle).append("description", differentDescription)
         .append("dueDate", differentDueDate.toString());
     final Document actual = unitUnderTest.differences(otherObjective);
@@ -290,28 +279,30 @@ public class ObjectiveTest
   @Test
   public void createActivityTest()
   {
-    unitUnderTest = new Objective(Models.ID, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
-
+    // arrange
+    unitUnderTest = new Objective(Models.DB_OBJECT_ID, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
     final Action action = Action.COMPLETE;
     final EmployeeProfile profile = Models.getProfile();
     final String description = "First Last completed objective #1: a valid title";
     final String timestamp = unitUnderTest.getCreatedOn();
     final Activity expected = new Activity(description, timestamp);
+    
+    // act
     final Activity actual = unitUnderTest.createActivity(action, profile);
 
     assertEquals(expected, actual);
   }
 
   @Test
-  public void isCurrentTestTrueNotComplete()
+  public void isCurrentTrueNotCompleteTest()
   {
     assertTrue(unitUnderTest.isCurrent());
   }
   
   @Test
-  public void isCurrentTestTrueModifiedRecently()
+  public void isCurrentTrueModifiedRecentlyTest()
   {
-    unitUnderTest = new Objective(Models.ID, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
+    unitUnderTest = new Objective(Models.DB_OBJECT_ID, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
     unitUnderTest.setProgress(Progress.COMPLETE);
     
     assertTrue(unitUnderTest.isCurrent());

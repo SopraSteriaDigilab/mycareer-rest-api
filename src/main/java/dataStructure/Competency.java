@@ -42,9 +42,8 @@ public class Competency extends DBObject implements Comparable<Competency>
    */
   public Competency(int id, CompetencyTitle title)
   {
-    this.setId(id);
-    this.setTitle(title);
-    this.setSelected(false);
+    setId(id);
+    this.title = title.getCompetencyTitleStr();
   }
 
   /** @return the title */
