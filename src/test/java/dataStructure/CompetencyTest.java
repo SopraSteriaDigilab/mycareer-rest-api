@@ -16,7 +16,6 @@ public class CompetencyTest
   private static final CompetencyTitle DEFAULT_TITLE = CompetencyTitle.ACCOUNTABILITY;
   private static final int DEFAULT_ID = 0;
 
-  @InjectMocks
   private Competency unitUnderTest;
 
   @Test

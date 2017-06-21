@@ -21,7 +21,6 @@ public class ObjectiveTest
   private static final String DEFAULT_DESCRIPTION = "a valid description";
   private static final LocalDate DEFAULT_DUE_DATE = LocalDate.now().plusMonths(6);
 
-  @InjectMocks
   private Objective unitUnderTest;
 
   /**

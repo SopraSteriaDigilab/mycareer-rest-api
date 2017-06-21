@@ -130,7 +130,10 @@ dependencies {
     //Add a logging library to log crucial events that happen in the system --> TO BE IMPLEMENTED
     //compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.7'
     
-    compile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
+    compile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
+    compile group: 'org.powermock', name: 'powermock-mockito-release-full', version: '1.6.4'
+    
+    
     
     //SSO with SPNEGO (Internal libraries)
     compile files('libs/spnego-r9.jar')
