@@ -290,6 +290,7 @@ public class ObjectiveTest
     // act
     final Activity actual = unitUnderTest.createActivity(action, profile);
 
+    // assert
     assertEquals(expected, actual);
   }
 
