@@ -26,7 +26,6 @@ import dataStructure.Objective;
  */
 public class TestModels
 {
-
   /** Long Constant - Represents a valid employee ID. */
   public static final long EMPLOYEE_ID = 666666;
 
