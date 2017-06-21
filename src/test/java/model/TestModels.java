@@ -12,8 +12,6 @@ import java.util.List;
 import javax.management.InvalidAttributeValueException;
 
 import dataStructure.Activity;
-import dataStructure.Competency;
-import dataStructure.Competency.CompetencyTitle;
 import dataStructure.DevelopmentNeed;
 import dataStructure.DevelopmentNeed.Category;
 import dataStructure.EmailAddresses;
@@ -163,17 +161,7 @@ public class TestModels
   {
     return new DevelopmentNeed(DB_OBJECT_ID, TITLE, DESCRIPTION, LOCALDATE_FIXED, Category.CLASSROOM_TRAINING);
   }
-  
-  /**
-   * Get a Competency
-   *
-   * @return
-   */
-  public static Competency newCompetency()
-  {
-    return new Competency(DB_OBJECT_ID, CompetencyTitle.ACCOUNTABILITY);
-  }
-  
+    
   /**
    * Get a Rating
    *

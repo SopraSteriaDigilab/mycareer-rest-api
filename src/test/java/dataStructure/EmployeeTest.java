@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 
+import dataStructure.Competency.CompetencyTitle;
 import dataStructure.Objective.Progress;
 import model.TestModels;
 
@@ -684,85 +685,16 @@ public class EmployeeTest {
 	///////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Unit test for the getLatestVersionCompetencies method.
+	 * Unit test for the getCompetency method.
 	 * 
 	 * @throws InvalidAttributeValueException
 	 */
-
-	/*
-	 * @Test public void testGetLatestVersionCompetenciesEmptyCompetencies()
-	 * throws InvalidAttributeValueException, IllegalArgumentException,
-	 * IllegalAccessException, NoSuchFieldException, SecurityException {
-	 * List<List<Competency>> compListList = new ArrayList<List<Competency>>();
-	 * 
-	 * Field f = unitUnderTest.getClass().getDeclaredField("competencies");
-	 * f.setAccessible(true); f.set(unitUnderTest, compListList);
-	 * assertEquals(unitUnderTest.getLatestVersionCompetencies(),
-	 * compListList.get(0)); }
-	 * 
-	 */
-	/*
-	 * /** Unit test for the getLatestVersionCompetencies method. valid
-	 * competency.
-	 * 
-	 * @throws InvalidAttributeValueException
-	 * 
-	 * 
-	 * @Test public void testGetLatestVersionCompetenciesValidCompetencies()
-	 * throws InvalidAttributeValueException, IllegalArgumentException,
-	 * IllegalAccessException, NoSuchFieldException, SecurityException {
-	 * Competency comp = TestModels.newCompetency(); List<Competency> compList =
-	 * Arrays.asList(comp); unitUnderTest.com
-	 * assertEquals(unitUnderTest.getLatestVersionCompetencies(), compList); }
-	 * 
-	 */
-
-	/**
-	 * Unit test for the getLatestVersionOfSpecificCompetency method : invalid
-	 * ID.
-	 * 
-	 * @throws InvalidAttributeValueException
-	 */
-	/*
-	 * @Test public void testGetLatestVersionOfSpecificCompetencyInvalidID()
-	 * throws InvalidAttributeValueException {
-	 * assertEquals(unitUnderTest.getLatestVersionOfSpecificCompetency(
-	 * INVALID_ID), null); }
-	 * 
-	 *//**
-		 * Unit test for the getLatestVersionOfSpecificCompetency method : valid
-		 * competency.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-
-	/*
-	 * @Test public void
-	 * testGetLatestVersionOfSpecificCompetencyValidCompetency() throws
-	 * InvalidAttributeValueException { Competency comp = new Competency(1,
-	 * true); List<Competency> compList = Arrays.asList(comp);
-	 * List<List<Competency>> compListList = Arrays.asList(compList);
-	 * unitUnderTest.setCompetenciesList(compListList);
-	 * assertEquals(unitUnderTest.getLatestVersionOfSpecificCompetency(1),
-	 * comp); }
-	 * 
-	 */
-
-	/**
-	 * Unit test for the updateCompetency method with valid competency.
-	 * 
-	 * @throws InvalidAttributeValueException
-	 */
-	/*
-	 * @Test public void testUpdateCompetencyWithValidCompetency() throws
-	 * InvalidAttributeValueException { Competency comp = new Competency(1,
-	 * true); List<Competency> compList = Arrays.asList(comp);
-	 * List<List<Competency>> compListList = Arrays.asList(compList);
-	 * unitUnderTest.setCompetenciesList(compListList);
-	 * assertEquals(unitUnderTest.updateCompetency(comp, "1"), true); }
-	 * 
-	 */
-
+	
+	@Test
+	public void testGetCompetency() throws InvalidAttributeValueException{
+		assertEquals(true, unitUnderTest.toggleCompetency(CompetencyTitle.ACCOUNTABILITY));
+	}
+	
 	///////////////////////////////////////////////////////////////////////////
 	//////////////////////// NOTES METHODS FOLLOW /////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
