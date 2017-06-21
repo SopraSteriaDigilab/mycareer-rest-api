@@ -27,7 +27,7 @@ import model.TestModels;
  */
 public class EmployeeTest {
 	/** TYPE Property|Constant - Represents|Indicates... */
-	private final int VALID_ID = 675590;
+	private final int VALID_DB_OBJECT_ID = 1;
 
 	/** TYPE Property|Constant - Represents|Indicates... */
 	private final int INVALID_ID = -675590;
@@ -341,7 +341,7 @@ public class EmployeeTest {
 		obj.isArchived(true);
 		List<Objective> objList = new ArrayList<Objective>(Arrays.asList(obj));
 		unitUnderTest.setObjectives(objList);
-		assertEquals(unitUnderTest.deleteObjective(VALID_ID), true);
+		assertEquals(unitUnderTest.deleteObjective(VALID_DB_OBJECT_ID), true);
 	}
 
 	/**
@@ -358,7 +358,7 @@ public class EmployeeTest {
 		Objective obj = TestModels.newObjective();
 		List<Objective> objList = new ArrayList<Objective>(Arrays.asList(obj));
 		unitUnderTest.setObjectives(objList);
-		unitUnderTest.deleteObjective(VALID_ID);
+		unitUnderTest.deleteObjective(VALID_DB_OBJECT_ID);
 	}
 
 	/**
@@ -375,7 +375,7 @@ public class EmployeeTest {
 		Objective obj = TestModels.newObjective();
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
-		assertEquals(unitUnderTest.updateObjectiveProgress(VALID_ID, Progress.COMPLETE), true);
+		assertEquals(unitUnderTest.updateObjectiveProgress(VALID_DB_OBJECT_ID, Progress.COMPLETE), true);
 	}
 
 	/**
@@ -392,7 +392,7 @@ public class EmployeeTest {
 		Objective obj = TestModels.newObjective();
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
-		unitUnderTest.updateObjectiveProgress(VALID_ID, Progress.PROPOSED);
+		unitUnderTest.updateObjectiveProgress(VALID_DB_OBJECT_ID, Progress.PROPOSED);
 	}
 
 	/**
@@ -410,7 +410,7 @@ public class EmployeeTest {
 		obj.setProgress(Progress.COMPLETE);
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
-		unitUnderTest.updateObjectiveProgress(VALID_ID, Progress.PROPOSED);
+		unitUnderTest.updateObjectiveProgress(VALID_DB_OBJECT_ID, Progress.PROPOSED);
 	}
 
 	/**
@@ -428,7 +428,7 @@ public class EmployeeTest {
 		obj.isArchived(true);
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
-		unitUnderTest.updateObjectiveProgress(VALID_ID, Progress.PROPOSED);
+		unitUnderTest.updateObjectiveProgress(VALID_DB_OBJECT_ID, Progress.PROPOSED);
 	}
 
 	/**
@@ -447,7 +447,7 @@ public class EmployeeTest {
 		obj.setProgress(Progress.COMPLETE);
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
-		unitUnderTest.updateObjectiveProgress(VALID_ID, Progress.PROPOSED);
+		unitUnderTest.updateObjectiveProgress(VALID_DB_OBJECT_ID, Progress.PROPOSED);
 	}
 
 	/**
@@ -462,7 +462,7 @@ public class EmployeeTest {
 		Objective obj = TestModels.newObjective();
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
-		assertEquals(unitUnderTest.toggleObjectiveArchive(VALID_ID), true);
+		assertEquals(unitUnderTest.toggleObjectiveArchive(VALID_DB_OBJECT_ID), true);
 	}
 
 	/**
@@ -478,7 +478,7 @@ public class EmployeeTest {
 		obj.isArchived(true);
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
-		assertEquals(unitUnderTest.toggleObjectiveArchive(VALID_ID), true);
+		assertEquals(unitUnderTest.toggleObjectiveArchive(VALID_DB_OBJECT_ID), true);
 	}
 
 	/**
@@ -491,7 +491,7 @@ public class EmployeeTest {
 		Objective obj = TestModels.newObjective();
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
-		assertEquals(unitUnderTest.getObjective(VALID_ID), obj);
+		assertEquals(unitUnderTest.getObjective(VALID_DB_OBJECT_ID), obj);
 	}
 
 	/**
@@ -629,7 +629,7 @@ public class EmployeeTest {
 		devNeed.isArchived(true);
 		List<DevelopmentNeed> devNeedList = new ArrayList<DevelopmentNeed>(Arrays.asList(devNeed));
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
-		assertEquals(unitUnderTest.deleteDevelopmentNeed(VALID_ID), true);
+		assertEquals(unitUnderTest.deleteDevelopmentNeed(VALID_DB_OBJECT_ID), true);
 	}
 
 	/**
@@ -646,7 +646,7 @@ public class EmployeeTest {
 		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		List<DevelopmentNeed> devNeedList = new ArrayList<DevelopmentNeed>(Arrays.asList(devNeed));
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
-		unitUnderTest.deleteDevelopmentNeed(VALID_ID);
+		unitUnderTest.deleteDevelopmentNeed(VALID_DB_OBJECT_ID);
 	}
 
 	/**
@@ -664,7 +664,7 @@ public class EmployeeTest {
 		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
-		assertEquals(unitUnderTest.updateDevelopmentNeedProgress(VALID_ID, Progress.COMPLETE), true);
+		assertEquals(unitUnderTest.updateDevelopmentNeedProgress(VALID_DB_OBJECT_ID, Progress.COMPLETE), true);
 	}
 
 	/**
@@ -681,7 +681,7 @@ public class EmployeeTest {
 		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
-		unitUnderTest.updateDevelopmentNeedProgress(VALID_ID, Progress.PROPOSED);
+		unitUnderTest.updateDevelopmentNeedProgress(VALID_DB_OBJECT_ID, Progress.PROPOSED);
 	}
 
 	/**
@@ -699,7 +699,7 @@ public class EmployeeTest {
 		devNeed.setProgress(Progress.COMPLETE);
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
-		unitUnderTest.updateDevelopmentNeedProgress(VALID_ID, Progress.PROPOSED);
+		unitUnderTest.updateDevelopmentNeedProgress(VALID_DB_OBJECT_ID, Progress.PROPOSED);
 	}
 
 	/**
@@ -717,7 +717,7 @@ public class EmployeeTest {
 		devNeed.isArchived(true);
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
-		unitUnderTest.updateDevelopmentNeedProgress(VALID_ID, Progress.PROPOSED);
+		unitUnderTest.updateDevelopmentNeedProgress(VALID_DB_OBJECT_ID, Progress.PROPOSED);
 	}
 
 	/**
@@ -736,7 +736,7 @@ public class EmployeeTest {
 		devNeed.setProgress(Progress.COMPLETE);
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
-		unitUnderTest.updateDevelopmentNeedProgress(VALID_ID, Progress.PROPOSED);
+		unitUnderTest.updateDevelopmentNeedProgress(VALID_DB_OBJECT_ID, Progress.PROPOSED);
 	}
 
 	/**
@@ -751,7 +751,7 @@ public class EmployeeTest {
 		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
-		assertEquals(unitUnderTest.toggleDevelopmentNeedArchive(VALID_ID), true);
+		assertEquals(unitUnderTest.toggleDevelopmentNeedArchive(VALID_DB_OBJECT_ID), true);
 	}
 
 	/**
@@ -767,7 +767,7 @@ public class EmployeeTest {
 		devNeed.isArchived(true);
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
-		assertEquals(unitUnderTest.toggleDevelopmentNeedArchive(VALID_ID), true);
+		assertEquals(unitUnderTest.toggleDevelopmentNeedArchive(VALID_DB_OBJECT_ID), true);
 	}
 
 	/**
@@ -780,7 +780,7 @@ public class EmployeeTest {
 		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
-		assertEquals(unitUnderTest.getDevelopmentNeed(VALID_ID), devNeed);
+		assertEquals(unitUnderTest.getDevelopmentNeed(VALID_DB_OBJECT_ID), devNeed);
 	}
 
 	/**
@@ -929,7 +929,7 @@ public class EmployeeTest {
 		Feedback feedback = TestModels.newFeedback();
 		List<Feedback> feedbackList = Arrays.asList(feedback);
 		unitUnderTest.setFeedback(feedbackList);
-		assertEquals(unitUnderTest.getFeedback(VALID_ID), feedback);
+		assertEquals(unitUnderTest.getFeedback(VALID_DB_OBJECT_ID), feedback);
 	}
 
 	/**
