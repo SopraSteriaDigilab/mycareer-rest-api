@@ -19,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import dataStructure.Objective.Progress;
-import model.Models;
+import model.TestModels;
 
 /**
  * Unit tests for the EmployeeTest class.
@@ -144,7 +144,7 @@ public class EmployeeTest {
 
 		Set<String> emailAddresses = new HashSet<>();
 		emailAddresses.add(VALID_EMAIL_ADDRESS);
-		profile = Models.getProfile();
+		profile = TestModels.newEmployeeProfile();
 		unitUnderTest = new Employee(profile);
 		unitUnderTestEmpty = new Employee();
 		MockitoAnnotations.initMocks(this);
@@ -243,7 +243,7 @@ public class EmployeeTest {
 	 */
 	@Test
 	public void testGetCurrentObjectives() {
-		List<Objective> objList = Arrays.asList(Models.getObjective());
+		List<Objective> objList = Arrays.asList(TestModels.newObjective());
 		unitUnderTest.setObjectives(objList);
 		assertEquals(unitUnderTest.getCurrentObjectives(), objList);
 	}
@@ -256,7 +256,7 @@ public class EmployeeTest {
 
 	@Test
 	public void testAddObjectiveWithValidObjective() throws InvalidAttributeValueException {
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		assertEquals(unitUnderTest.addObjective(obj), true);
 	}
 
@@ -288,7 +288,7 @@ public class EmployeeTest {
 	@Test
 	public void testEditObjectiveWithValidObjective() throws InvalidAttributeValueException {
 
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
 		assertEquals(unitUnderTest.editObjective(obj), true);
@@ -304,7 +304,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testEditObjectiveWithArchivedObjective() throws InvalidAttributeValueException {
 
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		obj.isArchived(true);
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
@@ -321,7 +321,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testEditObjectiveWithCompleteObjective() throws InvalidAttributeValueException {
 
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		obj.setProgress(Progress.COMPLETE);
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
@@ -337,7 +337,7 @@ public class EmployeeTest {
 	@Test
 	public void testDeleteObjectiveWithValidObjective() throws InvalidAttributeValueException {
 
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		obj.isArchived(true);
 		List<Objective> objList = new ArrayList<Objective>(Arrays.asList(obj));
 		unitUnderTest.setObjectives(objList);
@@ -355,7 +355,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testDeleteObjectiveWithInvalidObjective() throws InvalidAttributeValueException {
 
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		List<Objective> objList = new ArrayList<Objective>(Arrays.asList(obj));
 		unitUnderTest.setObjectives(objList);
 		unitUnderTest.deleteObjective(VALID_ID);
@@ -372,7 +372,7 @@ public class EmployeeTest {
 	@Test
 	public void testUpdateObjectiveProgressWithValidObjective() throws InvalidAttributeValueException {
 
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
 		assertEquals(unitUnderTest.updateObjectiveProgress(VALID_ID, Progress.COMPLETE), true);
@@ -389,7 +389,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testUpdateObjectiveProgressWithInvalidProgress() throws InvalidAttributeValueException {
 
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
 		unitUnderTest.updateObjectiveProgress(VALID_ID, Progress.PROPOSED);
@@ -406,7 +406,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testUpdateObjectiveProgressWithCompleteObjective() throws InvalidAttributeValueException {
 
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		obj.setProgress(Progress.COMPLETE);
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
@@ -424,7 +424,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testUpdateObjectiveProgressWithArchivedObjective() throws InvalidAttributeValueException {
 
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		obj.isArchived(true);
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
@@ -442,7 +442,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testUpdateObjectiveProgressWithArchivedAndComplete() throws InvalidAttributeValueException {
 
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		obj.isArchived(true);
 		obj.setProgress(Progress.COMPLETE);
 		List<Objective> objList = Arrays.asList(obj);
@@ -459,7 +459,7 @@ public class EmployeeTest {
 	@Test
 	public void testToggleObjectiveArchiveFalseWithValidObjective() throws InvalidAttributeValueException {
 
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
 		assertEquals(unitUnderTest.toggleObjectiveArchive(VALID_ID), true);
@@ -474,7 +474,7 @@ public class EmployeeTest {
 	@Test
 	public void testToggleObjectiveArchiveTrueWithValidObjective() throws InvalidAttributeValueException {
 
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		obj.isArchived(true);
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
@@ -488,7 +488,7 @@ public class EmployeeTest {
 	 */
 	@Test
 	public void testGetSpecificObjectiveValidObjective() throws InvalidAttributeValueException {
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
 		assertEquals(unitUnderTest.getObjective(VALID_ID), obj);
@@ -501,7 +501,7 @@ public class EmployeeTest {
 	 */
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testGetSpecificObjectiveInvalidObjective() throws InvalidAttributeValueException {
-		Objective obj = Models.getObjective();
+		Objective obj = TestModels.newObjective();
 		List<Objective> objList = Arrays.asList(obj);
 		unitUnderTest.setObjectives(objList);
 		assertEquals(unitUnderTest.getObjective(INVALID_ID), obj);
@@ -515,7 +515,7 @@ public class EmployeeTest {
 	@Test
 	public void testGetObjectivesValidObjectives() throws InvalidAttributeValueException, IllegalArgumentException,
 			IllegalAccessException, NoSuchFieldException, SecurityException {
-		List<Objective> objList = Arrays.asList(Models.getObjective());
+		List<Objective> objList = Arrays.asList(TestModels.newObjective());
 		unitUnderTest.setObjectives(objList);
 		assertEquals(unitUnderTest.getObjectives(), objList);
 	}
@@ -530,7 +530,7 @@ public class EmployeeTest {
 	 */
 	@Test
 	public void testGetCurrentDevelopmentNeeds() {
-		List<DevelopmentNeed> devNeedList = Arrays.asList(Models.getDevelopmentNeed());
+		List<DevelopmentNeed> devNeedList = Arrays.asList(TestModels.newDevelopmentNeed());
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
 		assertEquals(unitUnderTest.getCurrentDevelopmentNeeds(), devNeedList);
 	}
@@ -543,7 +543,7 @@ public class EmployeeTest {
 
 	@Test
 	public void testAddDevelopmentNeedWithValidDevelopmentNeed() throws InvalidAttributeValueException {
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		assertEquals(unitUnderTest.addDevelopmentNeed(devNeed), true);
 	}
 
@@ -576,7 +576,7 @@ public class EmployeeTest {
 	@Test
 	public void testEditDevelopmentNeedWithValidDevelopmentNeed() throws InvalidAttributeValueException {
 
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
 		assertEquals(unitUnderTest.editDevelopmentNeed(devNeed), true);
@@ -592,7 +592,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testEditDevelopmentNeedWithArchivedDevelopmentNeed() throws InvalidAttributeValueException {
 
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		devNeed.isArchived(true);
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
@@ -609,7 +609,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testEditDevelopmentNeedWithCompleteDevelopmentNeed() throws InvalidAttributeValueException {
 
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		devNeed.setProgress(Progress.COMPLETE);
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
@@ -625,7 +625,7 @@ public class EmployeeTest {
 	@Test
 	public void testDeleteDevelopmentNeedWithValidDevelopmentNeed() throws InvalidAttributeValueException {
 
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		devNeed.isArchived(true);
 		List<DevelopmentNeed> devNeedList = new ArrayList<DevelopmentNeed>(Arrays.asList(devNeed));
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
@@ -643,7 +643,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testDeleteDevelopmentNeedWithInvalidDevelopmentNeed() throws InvalidAttributeValueException {
 
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		List<DevelopmentNeed> devNeedList = new ArrayList<DevelopmentNeed>(Arrays.asList(devNeed));
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
 		unitUnderTest.deleteDevelopmentNeed(VALID_ID);
@@ -661,7 +661,7 @@ public class EmployeeTest {
 	@Test
 	public void testUpdateDevelopmentNeedProgressWithValidDevelopmentNeed() throws InvalidAttributeValueException {
 
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
 		assertEquals(unitUnderTest.updateDevelopmentNeedProgress(VALID_ID, Progress.COMPLETE), true);
@@ -678,7 +678,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testUpdateDevelopmentNeedProgressWithInvalidProgress() throws InvalidAttributeValueException {
 
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
 		unitUnderTest.updateDevelopmentNeedProgress(VALID_ID, Progress.PROPOSED);
@@ -695,7 +695,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testUpdateDevelopmentNeedProgressWithCompleteDevelopmentNeed() throws InvalidAttributeValueException {
 
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		devNeed.setProgress(Progress.COMPLETE);
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
@@ -713,7 +713,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testUpdateDevelopmentNeedProgressWithArchivedDevelopmentNeed() throws InvalidAttributeValueException {
 
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		devNeed.isArchived(true);
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
@@ -731,7 +731,7 @@ public class EmployeeTest {
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testUpdateDevelopmentNeedProgressWithArchivedAndComplete() throws InvalidAttributeValueException {
 
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		devNeed.isArchived(true);
 		devNeed.setProgress(Progress.COMPLETE);
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
@@ -748,7 +748,7 @@ public class EmployeeTest {
 	@Test
 	public void testToggleDevelopmentNeedArchiveFalseWithValidDevelopmentNeed() throws InvalidAttributeValueException {
 
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
 		assertEquals(unitUnderTest.toggleDevelopmentNeedArchive(VALID_ID), true);
@@ -763,7 +763,7 @@ public class EmployeeTest {
 	@Test
 	public void testToggleDevelopmentNeedArchiveTrueWithValidDevelopmentNeed() throws InvalidAttributeValueException {
 
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		devNeed.isArchived(true);
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
@@ -777,7 +777,7 @@ public class EmployeeTest {
 	 */
 	@Test
 	public void testGetSpecificDevelopmentNeedValidDevelopmentNeed() throws InvalidAttributeValueException {
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
 		assertEquals(unitUnderTest.getDevelopmentNeed(VALID_ID), devNeed);
@@ -790,7 +790,7 @@ public class EmployeeTest {
 	 */
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testGetSpecificDevelopmentNeedInvalidDevelopmentNeed() throws InvalidAttributeValueException {
-		DevelopmentNeed devNeed = Models.getDevelopmentNeed();
+		DevelopmentNeed devNeed = TestModels.newDevelopmentNeed();
 		List<DevelopmentNeed> devNeedList = Arrays.asList(devNeed);
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
 		assertEquals(unitUnderTest.getDevelopmentNeed(INVALID_ID), devNeed);
@@ -804,7 +804,7 @@ public class EmployeeTest {
 	@Test
 	public void testGetDevelopmentNeedsValidDevelopmentNeeds() throws InvalidAttributeValueException,
 			IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		List<DevelopmentNeed> devNeedList = Arrays.asList(Models.getDevelopmentNeed());
+		List<DevelopmentNeed> devNeedList = Arrays.asList(TestModels.newDevelopmentNeed());
 		unitUnderTest.setDevelopmentNeeds(devNeedList);
 		assertEquals(unitUnderTest.getDevelopmentNeeds(), devNeedList);
 	}
@@ -903,7 +903,7 @@ public class EmployeeTest {
 
 	@Test
 	public void testAddFeedbackWithValidFeedback() throws InvalidAttributeValueException {
-		Feedback feedback = Models.getFeedback();
+		Feedback feedback = TestModels.newFeedback();
 		assertEquals(unitUnderTest.addFeedback(feedback), true);
 	}
 
@@ -914,7 +914,7 @@ public class EmployeeTest {
 	 */
 	@Test
 	public void testSetFeedback() {
-		List<Feedback> feedbackList = Arrays.asList(Models.getFeedback());
+		List<Feedback> feedbackList = Arrays.asList(TestModels.newFeedback());
 		unitUnderTest.setFeedback(feedbackList);
 		assertEquals(unitUnderTest.getFeedback(), feedbackList);
 	}
@@ -926,7 +926,7 @@ public class EmployeeTest {
 	 */
 	@Test
 	public void testGetSpecificFeedbackWithValidID() throws InvalidAttributeValueException {
-		Feedback feedback = Models.getFeedback();
+		Feedback feedback = TestModels.newFeedback();
 		List<Feedback> feedbackList = Arrays.asList(feedback);
 		unitUnderTest.setFeedback(feedbackList);
 		assertEquals(unitUnderTest.getFeedback(VALID_ID), feedback);
@@ -939,7 +939,7 @@ public class EmployeeTest {
 	 */
 	@Test(expected = InvalidAttributeValueException.class)
 	public void testGetSpecificFeedbackWithNoFeedback() throws InvalidAttributeValueException {
-		Feedback feedback = Models.getFeedback();
+		Feedback feedback = TestModels.newFeedback();
 		List<Feedback> feedbackList = Arrays.asList(feedback);
 		unitUnderTest.setFeedback(feedbackList);
 		assertEquals(unitUnderTest.getFeedback(INVALID_ID), feedback);
@@ -963,7 +963,7 @@ public class EmployeeTest {
 	 */
 	@Test
 	public void testSetNotes() throws InvalidAttributeValueException {
-		List<Note> notesList = Arrays.asList(Models.getNote());
+		List<Note> notesList = Arrays.asList(TestModels.newNote());
 		unitUnderTest.setNotes(notesList);
 		assertEquals(unitUnderTest.getNotes(), notesList);
 	}

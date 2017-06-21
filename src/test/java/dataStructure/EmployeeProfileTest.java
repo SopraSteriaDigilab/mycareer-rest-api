@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 
-import model.Models;
+import model.TestModels;
 
 public class EmployeeProfileTest {
 	/** TYPE Property|Constant - Represents|Indicates... */
@@ -57,7 +57,7 @@ public class EmployeeProfileTest {
 	@Before
 	public void setup() throws InvalidAttributeValueException {
 		unitUnderTestEmpty = new EmployeeProfile();
-		unitUnderTest = Models.getProfile();
+		unitUnderTest = TestModels.newEmployeeProfile();
 		initMocks(this);
 	}
 
@@ -103,7 +103,7 @@ public class EmployeeProfileTest {
 	 */
 	@Test
 	public void testSetEmailAddressWithValidEmailAddress() throws InvalidAttributeValueException {
-		assertEquals(unitUnderTest.getEmailAddresses(), Models.getEmailAddresses());
+		assertEquals(unitUnderTest.getEmailAddresses(), TestModels.newEmailAddresses());
 	}
 
 	/**
@@ -418,7 +418,7 @@ public class EmployeeProfileTest {
 	@Test
 	public void differencesExistTest(){
 
-		EmployeeProfile differentEmployeeProfile= Models.getProfile();
+		EmployeeProfile differentEmployeeProfile= TestModels.newEmployeeProfile();
 		
 		differentEmployeeProfile.setEmployeeID(123456);
 		
@@ -431,7 +431,7 @@ public class EmployeeProfileTest {
 	
 	@Test
 	public void noDifferencesTest(){
-		EmployeeProfile differentEmployeeProfile= Models.getProfile();
+		EmployeeProfile differentEmployeeProfile= TestModels.newEmployeeProfile();
 		
 		Document expectedDocument=new Document();
 		

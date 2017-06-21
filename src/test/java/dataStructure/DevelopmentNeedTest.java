@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dataStructure.DevelopmentNeed.Category;
-import model.Models;
+import model.TestModels;
 
 public class DevelopmentNeedTest {
 	
@@ -37,7 +37,7 @@ public class DevelopmentNeedTest {
 	@Test
 	public void createActivitySuccessTest() {
 		Action activityType = Action.ADD;
-		EmployeeProfile profile = Models.getProfile();
+		EmployeeProfile profile = TestModels.newEmployeeProfile();
 
 		Activity actualActivity = unitUnderTest.createActivity(activityType, profile);
 

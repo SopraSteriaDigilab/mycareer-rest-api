@@ -128,7 +128,6 @@ public class FeedbackRequest implements Comparable<FeedbackRequest>, Serializabl
   }
 
   /**
-   * 
    * TODO: Describe this method.
    *
    * @param profile

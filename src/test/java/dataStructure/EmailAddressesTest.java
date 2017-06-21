@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import model.Models;
+import model.TestModels;
 
 public class EmailAddressesTest {
 
@@ -13,7 +13,7 @@ public class EmailAddressesTest {
 	@Test
 	public void getPreferredNullUserAddressTest() {
 
-		unitUnderTest = new EmailAddresses.Builder().mail(Models.EMAIL_ADDRESS).build();
+		unitUnderTest = new EmailAddresses.Builder().mail(TestModels.EMAIL_ADDRESS).build();
 
 		String expectedEmail = "a@b.c";
 
@@ -25,7 +25,7 @@ public class EmailAddressesTest {
 	@Test
 	public void getPreferredEmptyUserAddressTest() {
 
-		unitUnderTest = new EmailAddresses.Builder().mail(Models.EMAIL_ADDRESS).userAddress("").build();
+		unitUnderTest = new EmailAddresses.Builder().mail(TestModels.EMAIL_ADDRESS).userAddress("").build();
 
 		String expectedEmail = "a@b.c";
 
@@ -37,7 +37,7 @@ public class EmailAddressesTest {
 	@Test
 	public void getPrefferedUserAddressTest() {
 
-		unitUnderTest = new EmailAddresses.Builder().mail(Models.EMAIL_ADDRESS).userAddress("c@b.a").build();
+		unitUnderTest = new EmailAddresses.Builder().mail(TestModels.EMAIL_ADDRESS).userAddress("c@b.a").build();
 
 		String expectedEmail = "c@b.a";
 
