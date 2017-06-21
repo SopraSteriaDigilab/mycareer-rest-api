@@ -1,6 +1,7 @@
 package dataStructure;
 
 import static org.junit.Assert.assertEquals;
+import static utils.Utils.generateFeedbackRequestID;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -12,11 +13,10 @@ import java.util.Set;
 
 import javax.management.InvalidAttributeValueException;
 
+import org.bson.Document;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import dataStructure.Objective.Progress;
 import model.TestModels;
@@ -33,104 +33,16 @@ public class EmployeeTest {
 	private final int INVALID_ID = -675590;
 
 	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String VALID_GUID = "guid";
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String VALID_NAME = "b";
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String INVALID_NAME = "astringwithmorethan300charactersastringwithmorethan300charactersastringwithmorethan300charactersastringwithmorethan300charactersastringwithmorethan300charactersastringwithmorethan300charactersastringwithmorethan300charactersastringwithmorethan300charactersastringwithmorethan300charactersastringwithmorethan300characters";
+	private final int EMPLOYEE_ID = 666666;
 
 	/** TYPE Property|Constant - Represents|Indicates... */
 	private final String VALID_EMAIL_ADDRESS = "alexandre.brard@soprasteria.com";
 
 	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String INVALID_EMAIL_ADDRESS = "alexandre.brard$soprasteria.com";
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String VALID_USERNAME = "abrard";
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String INVALID_USERNAME = "astringwithmorethan50charactersastringwithmorethan50characters";
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String VALID_COMPANY = "sopra steria";
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String INVALID_COMPANY = "astringwithmorethan150charactersastringwithmorethan150charactersastringwithmorethan150charactersastringwithmorethan150charactersastringwithmorethan150characters";
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String VALID_SECTOR_SUPERSECTOR = "sector";
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String INVALID_SECTOR = "astringwithmorethan15characters";
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String INVALID_SUPERSECTOR = "astringwithmorethan150charactersastringwithmorethan150charactersastringwithmorethan150charactersastringwithmorethan150charactersastringwithmorethan150characters";
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String VALID_DEPARTMENT = "department";
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final String INVALID_DEPARTMENT = "astringwithmorethan150charactersastringwithmorethan150charactersastringwithmorethan150charactersastringwithmorethan150charactersastringwithmorethan150characters";
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final boolean HAS_HRDASH = false;
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-
-	private final boolean IS_MANAGER = false;
-	/** TYPE Property|Constant - Represents|Indicates... */
 	private Date date = new Date();
 
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private final List<String> VALID_REPORTEE_LIST = Arrays.asList("a");
-
-	@Mock
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private EmployeeProfile profile;
-
-	@Mock
-	/** TYPE Property|Constant - Represents|Indicates... */
-	private List<Feedback> mockFeedbackList;
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	@Mock
-	private List<List<Objective>> mockObjectiveList;
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	@Mock
-	private List<Note> mockNotesList;
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	@Mock
-	List<List<DevelopmentNeed>> mockDevelopmentNeedsList;
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	@Mock
-	private List<FeedbackRequest> mockFeedbackRequestsList;
-
-	/** TYPE Property|Constant - Represents|Indicates... */
-	@Mock
-	private List<List<Competency>> mockCompetenciesList;
-
-	@Mock
-	private Feedback mockFeedback;
-
-	@Mock
-	private Competency mockCompetency;
-
-	@Mock
-	private FeedbackRequest mockFeedbackRequest;
-
-	@Mock
-	private DevelopmentNeed mockDevelopmentNeed;
-
-	@Mock
-	private Note mockNote;
-
 	/** AppController Property - Represents the unit under test. */
-	@InjectMocks
+
 	private Employee unitUnderTest, unitUnderTestEmpty;
 
 	/**
@@ -144,10 +56,9 @@ public class EmployeeTest {
 
 		Set<String> emailAddresses = new HashSet<>();
 		emailAddresses.add(VALID_EMAIL_ADDRESS);
-		profile = TestModels.newEmployeeProfile();
+		EmployeeProfile profile = TestModels.newEmployeeProfile();
 		unitUnderTest = new Employee(profile);
 		unitUnderTestEmpty = new Employee();
-		MockitoAnnotations.initMocks(this);
 	}
 
 	/**
@@ -211,28 +122,6 @@ public class EmployeeTest {
 		setPrivateField("competencies", obj, null);
 	}
 
-	/*
-	 * /** Unit test for the getLatestVersionObjectives method : null
-	 * objectives.
-	 * 
-	 * @throws InvalidAttributeValueException
-	 * 
-	 * @throws IllegalAccessException
-	 * 
-	 * @throws IllegalArgumentException
-	 * 
-	 * @throws SecurityException
-	 * 
-	 * @throws NoSuchFieldException
-	 *
-	 * @Test public void testGetLatestVersionOfObjectivesNullCase() throws
-	 * InvalidAttributeValueException, IllegalArgumentException,
-	 * IllegalAccessException, NoSuchFieldException, SecurityException { Field f
-	 * = unitUnderTest.getClass().getDeclaredField("objectives");
-	 * f.setAccessible(true); f.set(unitUnderTest, null);
-	 * assertEquals(unitUnderTest.getObjectives(), null); }
-	 */
-
 	///////////////////////////////////////////////////////////////////////////
 	///////////////////// OBJECTIVES TEST METHODS FOLLOW //////////////////////
 	///////////////////////////////////////////////////////////////////////////
@@ -259,25 +148,6 @@ public class EmployeeTest {
 		Objective obj = TestModels.newObjective();
 		assertEquals(unitUnderTest.addObjective(obj), true);
 	}
-
-	/**
-	 * Unit test for the addObjective method : check if objectives is null.
-	 * 
-	 * @throws SecurityException
-	 * @throws NoSuchFieldException
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 * 
-	 */
-	/*
-	 * @Test public void testAddObjectiveCheckIfObjectivesIsNull() throws
-	 * InvalidAttributeValueException, IllegalArgumentException,
-	 * IllegalAccessException, NoSuchFieldException, SecurityException {
-	 * Objective obj = new Objective(1, 1, 1, "1", "1", "3010-01");
-	 * setPrivateField("objectives", unitUnderTest, null);
-	 * assertTrue(unitUnderTest.addObjective(obj)); }
-	 * 
-	 */
 
 	/**
 	 * Unit test for the editObjective method : valid objective.
@@ -809,23 +679,16 @@ public class EmployeeTest {
 		assertEquals(unitUnderTest.getDevelopmentNeeds(), devNeedList);
 	}
 
+	///////////////////////////////////////////////////////////////////////////
+	//////////////////// COMPETENCIES METHODS FOLLOW //////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
 	/**
-		 * Unit test for the getFeedbackRequest method : valid ID.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-	/*
-	 * @Test public void testGetFeedbackRequestValidID() throws
-	 * InvalidAttributeValueException { FeedbackRequest fbr = new
-	 * FeedbackRequest("1", "1"); List<FeedbackRequest> fbrList =
-	 * Arrays.asList(fbr); unitUnderTest.setFeedbackRequestsList(fbrList);
-	 * assertEquals(unitUnderTest.getFeedbackRequest("1"), fbr); }
+	 * Unit test for the getLatestVersionCompetencies method.
 	 * 
-	 *//**
-		 * Unit test for the getLatestVersionCompetencies method.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
+	 * @throws InvalidAttributeValueException
+	 */
+
 	/*
 	 * @Test public void testGetLatestVersionCompetenciesEmptyCompetencies()
 	 * throws InvalidAttributeValueException, IllegalArgumentException,
@@ -837,27 +700,29 @@ public class EmployeeTest {
 	 * assertEquals(unitUnderTest.getLatestVersionCompetencies(),
 	 * compListList.get(0)); }
 	 * 
-	 *//**
-		 * Unit test for the getLatestVersionCompetencies method. valid
-		 * competency.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
+	 */
 	/*
+	 * /** Unit test for the getLatestVersionCompetencies method. valid
+	 * competency.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 * 
+	 * 
 	 * @Test public void testGetLatestVersionCompetenciesValidCompetencies()
 	 * throws InvalidAttributeValueException, IllegalArgumentException,
 	 * IllegalAccessException, NoSuchFieldException, SecurityException {
-	 * Competency comp = new Competency(1, true); List<Competency> compList =
-	 * Arrays.asList(comp); List<List<Competency>> compListList =
-	 * Arrays.asList(compList); unitUnderTest.setCompetenciesList(compListList);
+	 * Competency comp = TestModels.newCompetency(); List<Competency> compList =
+	 * Arrays.asList(comp); unitUnderTest.com
 	 * assertEquals(unitUnderTest.getLatestVersionCompetencies(), compList); }
 	 * 
-	 *//**
-		 * Unit test for the getLatestVersionOfSpecificCompetency method :
-		 * invalid ID.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
+	 */
+
+	/**
+	 * Unit test for the getLatestVersionOfSpecificCompetency method : invalid
+	 * ID.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
 	/*
 	 * @Test public void testGetLatestVersionOfSpecificCompetencyInvalidID()
 	 * throws InvalidAttributeValueException {
@@ -884,15 +749,102 @@ public class EmployeeTest {
 	 */
 
 	/**
-	 * Unit test for the setLastLogon method.
+	 * Unit test for the updateCompetency method with valid competency.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	/*
+	 * @Test public void testUpdateCompetencyWithValidCompetency() throws
+	 * InvalidAttributeValueException { Competency comp = new Competency(1,
+	 * true); List<Competency> compList = Arrays.asList(comp);
+	 * List<List<Competency>> compListList = Arrays.asList(compList);
+	 * unitUnderTest.setCompetenciesList(compListList);
+	 * assertEquals(unitUnderTest.updateCompetency(comp, "1"), true); }
+	 * 
+	 */
+
+	///////////////////////////////////////////////////////////////////////////
+	//////////////////////// NOTES METHODS FOLLOW /////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Unit test for the geCurrentNotes method.
+	 * 
+	 */
+	@Test
+	public void testGetCurrentNotes() {
+
+		List<Note> notesList = Arrays.asList(TestModels.newNote());
+		unitUnderTest.setNotes(notesList);
+		assertEquals(unitUnderTest.getCurrentNotes(), notesList);
+	}
+
+	/**
+	 * Unit test for the addNote method.
+	 * 
+	 */
+	@Test
+	public void testAddNote() {
+		List<Note> notesList = new ArrayList<Note>(Arrays.asList(TestModels.newNote()));
+		unitUnderTest.setNotes(notesList);
+		assertEquals(unitUnderTest.addNote(TestModels.newNote()), true);
+	}
+
+	/**
+	 * Unit test for the getNote method : Valid note.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testGetNoteValidNote() throws InvalidAttributeValueException {
+		Note note = TestModels.newNote();
+		note.setId(1);
+		List<Note> notesList = Arrays.asList(note);
+		unitUnderTest.setNotes(notesList);
+		assertEquals(unitUnderTest.getNote(1), note);
+	}
+
+	/**
+	 * Unit test for the getNote method : Invalid note.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testGetNoteInvalidNote() throws InvalidAttributeValueException {
+		Note note = TestModels.newNote();
+		note.setId(1);
+		List<Note> notesList = Arrays.asList(note);
+		unitUnderTest.setNotes(notesList);
+		unitUnderTest.getNote(0);
+	}
+
+	/**
+	 * Unit test for the setNotes method.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testSetNotes() throws InvalidAttributeValueException {
+		List<Note> notesList = Arrays.asList(TestModels.newNote());
+		unitUnderTest.setNotes(notesList);
+		assertEquals(unitUnderTest.getNotes(), notesList);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	////////////////////// FEEDBACK METHODS FOLLOW ////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Unit test for the addFeedback method : valid feedback.
 	 * 
 	 * @throws InvalidAttributeValueException
 	 */
 
 	@Test
-	public void testSetLastLogon() throws InvalidAttributeValueException {
-		unitUnderTest.setLastLogon(date);
-		assertEquals(unitUnderTest.getLastLogon(), date);
+	public void getCurrentFeedback() {
+		List<Feedback> feedbackList = Arrays.asList(TestModels.newFeedback());
+		unitUnderTest.setFeedback(feedbackList);
+		assertEquals(unitUnderTest.getCurrentFeedback(), feedbackList);
 	}
 
 	/**
@@ -907,13 +859,19 @@ public class EmployeeTest {
 		assertEquals(unitUnderTest.addFeedback(feedback), true);
 	}
 
+	@Test
+	public void testNextFeedbackID() {
+		List<Feedback> feedbackList = Arrays.asList(TestModels.newFeedback());
+		unitUnderTest.setFeedback(feedbackList);
+		assertEquals(2, unitUnderTest.nextFeedbackID());
+	}
+
 	/**
-	 * Unit test for the setFeedback method.
+	 * Unit test for the getFeedback method.
 	 * 
-	 * @throws InvalidAttributeValueException
 	 */
 	@Test
-	public void testSetFeedback() {
+	public void testGetFeedback() {
 		List<Feedback> feedbackList = Arrays.asList(TestModels.newFeedback());
 		unitUnderTest.setFeedback(feedbackList);
 		assertEquals(unitUnderTest.getFeedback(), feedbackList);
@@ -938,34 +896,29 @@ public class EmployeeTest {
 	 * @throws InvalidAttributeValueException
 	 */
 	@Test(expected = InvalidAttributeValueException.class)
-	public void testGetSpecificFeedbackWithNoFeedback() throws InvalidAttributeValueException {
+	public void testGetSpecificFeedbackInvalidID() throws InvalidAttributeValueException {
 		Feedback feedback = TestModels.newFeedback();
 		List<Feedback> feedbackList = Arrays.asList(feedback);
 		unitUnderTest.setFeedback(feedbackList);
 		assertEquals(unitUnderTest.getFeedback(INVALID_ID), feedback);
 	}
 
+	///////////////////////////////////////////////////////////////////////////
+	////////////////// FEEDBACK REQUESTS METHODS FOLLOW ///////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
 	/**
-	 * Unit test for the addNote method.
+	 * Unit test for the addFeedbackRequest method : valid feedbackRequest.
 	 * 
 	 * @throws InvalidAttributeValueException
-	 */
-	/*
-	 * @Test public void testAddNote() throws InvalidAttributeValueException {
-	 * assertEquals(unitUnderTest.addNote(mockNote),
-	 * unitUnderTest.getNotes().add(mockNote)); }
 	 * 
 	 */
-	/**
-	 * Unit test for the setNotes method.
-	 * 
-	 * @throws InvalidAttributeValueException
-	 */
+
 	@Test
-	public void testSetNotes() throws InvalidAttributeValueException {
-		List<Note> notesList = Arrays.asList(TestModels.newNote());
-		unitUnderTest.setNotes(notesList);
-		assertEquals(unitUnderTest.getNotes(), notesList);
+	public void getCurrentFeedbackRequest() throws InvalidAttributeValueException {
+		List<FeedbackRequest> feedbackRequestList = Arrays.asList(TestModels.newFeedbackRequest());
+		unitUnderTest.setFeedbackRequests(feedbackRequestList);
+		assertEquals(unitUnderTest.getCurrentFeedbackRequests(), feedbackRequestList);
 	}
 
 	/**
@@ -973,41 +926,231 @@ public class EmployeeTest {
 	 * 
 	 * @throws InvalidAttributeValueException
 	 */
-	/*
-	 * @Test public void testAddFeedbackRequestWithValidFeedbackRequest() throws
-	 * InvalidAttributeValueException {
-	 * assertEquals(unitUnderTest.addFeedbackRequest(mockFeedbackRequest),
-	 * unitUnderTest.getFeedbackRequestsList().add(mockFeedbackRequest)); }
+
+	@Test
+	public void testAddFeedbackRequestWithValidFeedbackRequest() throws InvalidAttributeValueException {
+		assertEquals(unitUnderTest.addFeedbackRequest(TestModels.newFeedbackRequest()), true);
+	}
+
+	/**
+	 * Unit test for the addFeedbackRequest method : Invalid feedback request.
 	 * 
-	 *//**
-		 * Unit test for the updateCompetency method with valid competency.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-	/*
-	 * @Test public void testUpdateCompetencyWithValidCompetency() throws
-	 * InvalidAttributeValueException { Competency comp = new Competency(1,
-	 * true); List<Competency> compList = Arrays.asList(comp);
-	 * List<List<Competency>> compListList = Arrays.asList(compList);
-	 * unitUnderTest.setCompetenciesList(compListList);
-	 * assertEquals(unitUnderTest.updateCompetency(comp, "1"), true); }
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testAddFeedbackRequestWithInvalidFeedbackRequest() throws InvalidAttributeValueException {
+		unitUnderTest.addFeedbackRequest(null);
+	}
+
+	/**
+	 * Unit test for the dismissFeedbackRequest method : valid feedbackRequest.
 	 * 
-	 *//**
-		 * Unit test for the nextFeedbackID method.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 */
-	/*
-	 * @Test public void testNextFeedbackID() throws
-	 * InvalidAttributeValueException {
-	 * assertEquals(unitUnderTest.nextFeedbackID(),
-	 * unitUnderTest.getFeedback().size() + 1); }
+	 * @throws InvalidAttributeValueException
 	 * 
-	 *//**
-		 * Unit test for the setProfile method.
-		 * 
-		 * @throws InvalidAttributeValueException
-		 *//*
+	 */
+
+	@Test
+	public void testDismissFeedbackRequest() throws InvalidAttributeValueException {
+		List<FeedbackRequest> feedbackRequestList = Arrays.asList(TestModels.newFeedbackRequest());
+		unitUnderTest.setFeedbackRequests(feedbackRequestList);
+		assertEquals(unitUnderTest.dismissFeedbackRequest(generateFeedbackRequestID(EMPLOYEE_ID)), true);
+	}
+
+	/**
+	 * Unit test for the dismissFeedbackRequest method : valid feedbackRequest.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 * 
+	 */
+
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testDismissFeedbackRequestInvalid() throws InvalidAttributeValueException {
+		List<FeedbackRequest> feedbackRequestList = Arrays.asList(TestModels.newFeedbackRequest());
+		unitUnderTest.setFeedbackRequests(feedbackRequestList);
+		assertEquals(unitUnderTest.dismissFeedbackRequest(generateFeedbackRequestID(INVALID_ID)), true);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	/////////////////////// RATINGS METHODS FOLLOW ////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Unit test for the addManagerEvaluation method. Valid rating
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testAddManagerEvaluation() throws InvalidAttributeValueException {
+
+		unitUnderTest.addManagerEvaluation(2017, "evaluation", 5);
+		assertEquals(5, unitUnderTest.getRating(2017).getScore());
+	}
+
+	/**
+	 * Unit test for the addManagerEvaluation method. Invalid rating
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testAddManagerEvaluationInvalidManagerEvaluation() throws InvalidAttributeValueException {
+		Rating rating = TestModels.newRating();
+		rating.setManagerEvaluationSubmitted(true);
+		List<Rating> ratingsList = new ArrayList<Rating>(Arrays.asList(rating));
+		unitUnderTest.setRatings(ratingsList);
+
+		unitUnderTest.addManagerEvaluation(2017, "evaluation", 5);
+	}
+
+	/**
+	 * Unit test for the addSelfEvaluation method. Valid rating
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testAddSelfEvaluation() throws InvalidAttributeValueException {
+
+		unitUnderTest.addSelfEvaluation(2017, "self evaluation");
+		assertEquals("self evaluation", unitUnderTest.getRating(2017).getSelfEvaluation());
+	}
+
+	/**
+	 * Unit test for the addSelfEvaluation method. Invalid rating
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testAddSelfEvaluationInvalidManagerEvaluation() throws InvalidAttributeValueException {
+		Rating rating = TestModels.newRating();
+		rating.setManagerEvaluationSubmitted(true);
+		List<Rating> ratingsList = new ArrayList<Rating>(Arrays.asList(rating));
+		unitUnderTest.setRatings(ratingsList);
+
+		unitUnderTest.addSelfEvaluation(2017, "self evaluation");
+	}
+
+	/**
+	 * Unit test for the addSelfEvaluation method. Invalid rating
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testAddSelfEvaluationInvalidSelfEvaluation() throws InvalidAttributeValueException {
+		Rating rating = TestModels.newRating();
+		rating.setSelfEvaluationSubmitted(true);
+		List<Rating> ratingsList = new ArrayList<Rating>(Arrays.asList(rating));
+		unitUnderTest.setRatings(ratingsList);
+
+		unitUnderTest.addSelfEvaluation(2017, "self evaluation");
+	}
+
+	/**
+	 * Unit test for the submitSelfEvaluation method. Valid rating
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testSubmitSelfEvaluation() throws InvalidAttributeValueException {
+
+		unitUnderTest.submitSelfEvaluation(2017);
+		assertEquals(true, unitUnderTest.getRating(2017).isSelfEvaluationSubmitted());
+	}
+
+	/**
+	 * Unit test for the submitSelfEvaluation method. Invalid rating
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testSubmitSelfEvaluationInvalidManagerEvaluation() throws InvalidAttributeValueException {
+		Rating rating = TestModels.newRating();
+		rating.setManagerEvaluationSubmitted(true);
+		List<Rating> ratingsList = new ArrayList<Rating>(Arrays.asList(rating));
+		unitUnderTest.setRatings(ratingsList);
+
+		unitUnderTest.submitSelfEvaluation(2017);
+	}
+
+	/**
+	 * Unit test for the submitManagerEvaluation method. Valid rating
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test
+	public void testSubmitManagerEvaluationInvalid() throws InvalidAttributeValueException {
+		unitUnderTest.addManagerEvaluation(2017, "evaluation", 5);
+		unitUnderTest.submitManagerEvaluation(2017);
+		assertEquals(true, unitUnderTest.getRating(2017).isManagerEvaluationSubmitted());
+	}
+
+	/**
+	 * Unit test for the submitManagerEvaluation method. Invalid rating
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+	@Test(expected = InvalidAttributeValueException.class)
+	public void testSubmitManagerEvaluation() throws InvalidAttributeValueException {
+		unitUnderTest.addManagerEvaluation(2017, "evaluation", 0);
+		unitUnderTest.submitManagerEvaluation(2017);
+
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	////////////////////// LAST LOGON METHODS FOLLOW //////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Unit test for the setLastLogon method.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 */
+
+	@Test
+	public void testSetLastLogon() throws InvalidAttributeValueException {
+		unitUnderTest.setLastLogon(date);
+		assertEquals(unitUnderTest.getLastLogon(), date);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	//////////////////// ACTIVITY FEED METHODS FOLLOW /////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Unit test for addActivity method, filling feed.
+	 */
+	@Test
+	public void testAddActivityFullFeed() {
+		for (int i = 0; i < 20; i++) {
+			unitUnderTest.addActivity(TestModels.newActivity());
+		}
+		assertEquals(true, unitUnderTest.addActivity(TestModels.newActivity()));
+	}
+	
+	/**
+	 * Unit test for getActivityFeedAsDocument method
+	 */
+	@Test
+	public void testGetActivityFeedAsDocument() {
+		Activity activity=TestModels.newActivity();
+		unitUnderTest.addActivity(activity);
+		
+		List<Document> activityFeedList=new ArrayList<>();
+		activityFeedList.add(activity.toDocument());
+
+		Document expectedDocument=new Document("activityFeed", activityFeedList);
+		
+		Document actualDocument=unitUnderTest.getActivityFeedAsDocument();
+		
+		assertEquals(expectedDocument, actualDocument);
+	}
+
+	
+	
+	/**
+	 * Unit test for the setProfile method.
+	 * 
+	 * @throws InvalidAttributeValueException
+	 *//*
 		 * @Test public void testSetProfile() throws
 		 * InvalidAttributeValueException { unitUnderTest.setProfile(profile);
 		 * assertEquals(unitUnderTest.getProfile(), profile); }

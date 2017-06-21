@@ -1,6 +1,6 @@
 package model;
 
-import static utils.Utils.*;
+import static utils.Utils.generateFeedbackRequestID;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -11,6 +11,9 @@ import java.util.List;
 
 import javax.management.InvalidAttributeValueException;
 
+import dataStructure.Activity;
+import dataStructure.Competency;
+import dataStructure.Competency.CompetencyTitle;
 import dataStructure.DevelopmentNeed;
 import dataStructure.DevelopmentNeed.Category;
 import dataStructure.EmailAddresses;
@@ -19,6 +22,7 @@ import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
 import dataStructure.Note;
 import dataStructure.Objective;
+import dataStructure.Rating;
 
 /**
  * Models to be used in the tests.
@@ -158,6 +162,36 @@ public class TestModels
   public static DevelopmentNeed newDevelopmentNeed()
   {
     return new DevelopmentNeed(DB_OBJECT_ID, TITLE, DESCRIPTION, LOCALDATE_FIXED, Category.CLASSROOM_TRAINING);
+  }
+  
+  /**
+   * Get a Competency
+   *
+   * @return
+   */
+  public static Competency newCompetency()
+  {
+    return new Competency(DB_OBJECT_ID, CompetencyTitle.ACCOUNTABILITY);
+  }
+  
+  /**
+   * Get a Rating
+   *
+   * @return
+   */
+  public static Rating newRating()
+  {
+    return new Rating(2017);
+  }
+  
+  /**
+   * Get an Activity
+   *
+   * @return
+   */
+  public static Activity newActivity()
+  {
+    return new Activity(DESCRIPTION, DATE_FIXED);
   }
 
 }
