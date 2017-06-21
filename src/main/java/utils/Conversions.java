@@ -78,7 +78,7 @@ public class Conversions
    * @param localDateTime
    * @return
    */
-  public static Date localDateTimetoDate(LocalDateTime localDateTime)
+  public static Date localDateTimeToDate(LocalDateTime localDateTime)
   {
     LOGGER.debug("Converting java.time.LocalDateTime to a java.util.Date");
     

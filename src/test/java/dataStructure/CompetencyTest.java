@@ -22,7 +22,7 @@ public class CompetencyTest
   public void constructorTest()
   {
     // arrange + act
-    final Competency unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
+    unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
 
     // assert
     assertEquals(unitUnderTest.getTitle(), DEFAULT_TITLE.getCompetencyTitleStr());
@@ -33,7 +33,7 @@ public class CompetencyTest
   public void setTitleTest() throws InterruptedException
   {
     // arrange
-    final Competency unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
+    unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
     final CompetencyTitle newTitle = CompetencyTitle.BUSINESS_AWARENESS;
     final String before = unitUnderTest.getLastModified();
     Thread.sleep(1);
@@ -51,7 +51,7 @@ public class CompetencyTest
   public void setSelectedTest() throws InterruptedException
   {
     // arrange
-    final Competency unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
+    unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
     final boolean newSelected = true;
     final String before = unitUnderTest.getLastModified();
     Thread.sleep(1);
@@ -69,7 +69,7 @@ public class CompetencyTest
   public void compareToEqualFalseTest()
   {
     // arrange
-    final Competency unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
+    unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
     final Competency other = new Competency(DEFAULT_ID, DEFAULT_TITLE);
 
     // act
@@ -83,7 +83,7 @@ public class CompetencyTest
   public void compareToEqualTrueTest()
   {
     // arrange
-    final Competency unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
+    unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
     final Competency other = new Competency(DEFAULT_ID, DEFAULT_TITLE);
     unitUnderTest.setSelected(true);
     other.setSelected(true);
@@ -99,7 +99,7 @@ public class CompetencyTest
   public void compareToLessThanTest()
   {
     // arrange
-    final Competency unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
+    unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
     final Competency other = new Competency(DEFAULT_ID, DEFAULT_TITLE);
     unitUnderTest.setSelected(true);
 
@@ -114,7 +114,7 @@ public class CompetencyTest
   public void compareToGreaterThanTest()
   {
     // arrange
-    final Competency unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
+    unitUnderTest = new Competency(DEFAULT_ID, DEFAULT_TITLE);
     final Competency other = new Competency(DEFAULT_ID, DEFAULT_TITLE);
     other.setSelected(true);
 

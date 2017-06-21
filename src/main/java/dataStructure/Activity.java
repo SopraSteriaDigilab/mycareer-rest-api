@@ -2,7 +2,7 @@ package dataStructure;
 
 import static dataStructure.Employee.ACTIVITY_FEED;
 import static utils.Conversions.dateToLocalDateTime;
-import static utils.Conversions.localDateTimetoDate;
+import static utils.Conversions.localDateTimeToDate;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -76,7 +76,7 @@ public class Activity implements Serializable
   public Activity(final String description, final LocalDateTime timestamp)
   {
     this.description = description;
-    this.timestamp = localDateTimetoDate(timestamp);
+    this.timestamp = localDateTimeToDate(timestamp);
   }
 
   /**
@@ -90,7 +90,7 @@ public class Activity implements Serializable
   {
     this.description = description;
     LocalDateTime localDateTime = LocalDateTime.parse(timestamp);
-    this.timestamp = localDateTimetoDate(localDateTime);
+    this.timestamp = localDateTimeToDate(localDateTime);
   }
 
   /**

@@ -55,7 +55,7 @@ public abstract class DBObject implements Serializable
   /** Sets the last modified date/time of this DB object to the current moment. */
   public void setLastModified()
   {
-    lastModified = localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE));
+    lastModified = localDateTimeToDate(LocalDateTime.now(UK_TIMEZONE));
   }
 
   /** @return The last modified date/time */
