@@ -157,8 +157,10 @@ public class EmployeeController
   @RequestMapping(value = "/logMeIn", method = GET)
   public ResponseEntity<?> index(HttpServletRequest request)
   {
-    String username = request.getRemoteUser();
+//    String username = request.getRemoteUser();
+    String username = "shnagi";
     ResponseEntity<?> response = authenticateUserProfile(username.toLowerCase());
+    
     try
     {
       if (response.getStatusCode().equals(OK))
