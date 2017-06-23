@@ -30,7 +30,7 @@ import services.db.MorphiaOperations;
  * @see MongoOperations
  */
 @Configuration
-@PropertySource("${ENVIRONMENT}.properties")
+@PropertySource("classpath:${ENVIRONMENT}.properties")
 public class DBConfig
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(DBConfig.class);

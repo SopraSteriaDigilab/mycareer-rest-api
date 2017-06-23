@@ -29,7 +29,7 @@ import services.ad.ADSearchSettingsImpl;
  * @see services.ad
  */
 @Configuration
-@PropertySource("activeDirectory.properties")
+@PropertySource("classpath:activeDirectory.properties")
 public class ADConfig
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(ADConfig.class);

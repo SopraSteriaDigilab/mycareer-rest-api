@@ -56,7 +56,7 @@ import services.EmployeeService;
  */
 @CrossOrigin
 @RestController
-@PropertySource("${ENVIRONMENT}.properties")
+@PropertySource("classpath:${ENVIRONMENT}.properties")
 @Validated
 public class EmployeeController
 {

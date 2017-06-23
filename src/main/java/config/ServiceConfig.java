@@ -37,7 +37,7 @@ import services.ews.DistributionListService;
  * @see DistributionListService
  */
 @Configuration
-@PropertySource("${ENVIRONMENT}.properties")
+@PropertySource("classpath:${ENVIRONMENT}.properties")
 public class ServiceConfig
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceConfig.class);

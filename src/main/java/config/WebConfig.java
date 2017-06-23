@@ -20,7 +20,7 @@ import net.sourceforge.spnego.SpnegoHttpFilter;
  * Spring Configuration class for filter and authentication spring beans
  */
 @Configuration
-@PropertySource("${ENVIRONMENT}.properties")
+@PropertySource("classpath:${ENVIRONMENT}.properties")
 public class WebConfig extends OncePerRequestFilter
 {
   private final Logger LOGGER = LoggerFactory.getLogger(WebConfig.class);

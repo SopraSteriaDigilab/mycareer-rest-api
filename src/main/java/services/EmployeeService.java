@@ -59,7 +59,7 @@ import utils.Validate;
  *
  */
 @Component
-@PropertySource("${ENVIRONMENT}.properties")
+@PropertySource("classpath:${ENVIRONMENT}.properties")
 public class EmployeeService
 {
 
