@@ -1,6 +1,6 @@
 package dataStructure;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static utils.Utils.generateFeedbackRequestID;
 
 import java.lang.reflect.Field;
@@ -887,7 +887,7 @@ public class EmployeeTest {
 		List<FeedbackRequest> feedbackRequestList = Arrays.asList(TestModels.newFeedbackRequest());
 		unitUnderTest.setFeedbackRequests(feedbackRequestList);
 	
-		assertEquals(unitUnderTest.dismissFeedbackRequest(generateFeedbackRequestID(EMPLOYEE_ID)), true);
+		assertTrue(unitUnderTest.dismissFeedbackRequest(generateFeedbackRequestID(EMPLOYEE_ID)));
 	}
 
 	/**

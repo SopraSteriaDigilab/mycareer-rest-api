@@ -10,6 +10,8 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.management.InvalidAttributeValueException;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.SearchResult;
 
 import dataStructure.Activity;
 import dataStructure.DevelopmentNeed;
@@ -182,4 +184,10 @@ public class TestModels
     return new Activity(DESCRIPTION, DATE_FIXED);
   }
 
+  public static NamingEnumeration<SearchResult> hasHRDashNamingEnumeration()
+  {
+//    final NamingEnumeration<SearchResult> result = new NamingEnumeration<>();
+    
+    return null;
+  }
 }

@@ -92,7 +92,7 @@ public class ActivityTest
   }
   
   @Test
-  public void equalsTrueSameObjectTest()
+  public void equalsAndHashCodeTrueSameObjectTest()
   {
     // arrange
     unitUnderTest = new Activity(DEFAULT_DESCRIPTION, DEFAULT_TIMESTAMP);
@@ -103,10 +103,11 @@ public class ActivityTest
     
     // assert
     assertTrue(equals);
+    assertEquals(unitUnderTest.hashCode(), other.hashCode());
   }
   
   @Test
-  public void equalsTrueDifferentObjectTest()
+  public void equalsAndHashCodeTrueDifferentObjectTest()
   {
     // arrange
     unitUnderTest = new Activity(DEFAULT_DESCRIPTION, DEFAULT_TIMESTAMP);
@@ -117,6 +118,7 @@ public class ActivityTest
     
     // assert
     assertTrue(equals);
+    assertEquals(unitUnderTest.hashCode(), other.hashCode());
   }
   
   @Test
@@ -125,6 +127,20 @@ public class ActivityTest
     // arrange
     unitUnderTest = new Activity(DEFAULT_DESCRIPTION, DEFAULT_TIMESTAMP);
     final String other = "";
+    
+    // act
+    final boolean equals = unitUnderTest.equals(other);
+    
+    // assert
+    assertFalse(equals);
+  }
+  
+  @Test
+  public void equalsFalseNullTest()
+  {
+    // arrange
+    unitUnderTest = new Activity(DEFAULT_DESCRIPTION, DEFAULT_TIMESTAMP);
+    final Activity other = null;
     
     // act
     final boolean equals = unitUnderTest.equals(other);
