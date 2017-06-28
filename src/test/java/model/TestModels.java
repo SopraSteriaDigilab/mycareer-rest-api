@@ -17,6 +17,7 @@ import dataStructure.Activity;
 import dataStructure.DevelopmentNeed;
 import dataStructure.DevelopmentNeed.Category;
 import dataStructure.EmailAddresses;
+import dataStructure.Employee;
 import dataStructure.EmployeeProfile;
 import dataStructure.Feedback;
 import dataStructure.FeedbackRequest;
@@ -105,6 +106,19 @@ public class TestModels
         .surname(LAST_NAME).emailAddresses(newEmailAddresses()).username(USERNAME).company(COMPANY)
         .superSector(SUPER_SECTOR).sector(SECTOR).steriaDepartment(STERIA_DEPARTMENT).manager(IS_MANAGER)
         .hasHRDash(IS_MANAGER).accountExpires(DATE_FIXED).reporteeCNs(REPORTEES).build();
+  }
+  
+  public static Employee newEmployee() throws InvalidAttributeValueException
+  {
+    Employee employee= new Employee(newEmployeeProfile());
+    employee.addObjective(newObjective());
+    employee.addActivity(newActivity());
+    employee.addDevelopmentNeed(newDevelopmentNeed());
+    employee.addFeedback(newFeedback());
+    employee.addFeedbackRequest(newFeedbackRequest());
+    employee.addNote(newNote());
+    employee.setRatings(Arrays.asList(newRating()));
+    return employee;
   }
 
   public static EmailAddresses newEmailAddresses()

@@ -160,7 +160,6 @@ public class EmployeeController
 //    String username = request.getRemoteUser();
     String username = "shnagi";
     ResponseEntity<?> response = authenticateUserProfile(username.toLowerCase());
-    
     try
     {
       if (response.getStatusCode().equals(OK))

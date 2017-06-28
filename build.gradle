@@ -139,5 +139,8 @@ dependencies {
 	//Test suites
 	testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile group: 'org.powermock', name: 'powermock-mockito-release-full', version: '1.6.4'
+    testCompile group: 'org.testng', name: 'testng', version: '5.7'
+    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '2.41.0'
+    
 
 }
