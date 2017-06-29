@@ -75,6 +75,7 @@ test {
         destinationFile = file("$buildDir/reports/jacoco/jacocoTest.exec")
         classDumpFile = file("$buildDir/reports/jacoco/classpathdumps")
     }
+	systemProperty "ENVIRONMENT", "local"
 }
 
 sourceSets {
@@ -139,8 +140,12 @@ dependencies {
 	//Test suites
 	testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile group: 'org.powermock', name: 'powermock-mockito-release-full', version: '1.6.4'
-    testCompile group: 'org.testng', name: 'testng', version: '5.7'
+    testCompile group: 'org.testng', name: 'testng', version: '6.9.13.8'
     compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '2.41.0'
+	integrationTestCompile("org.springframework.boot:spring-boot-starter-test")
+	integrationTestCompile group: 'org.powermock', name: 'powermock-mockito-release-full', version: '1.6.4'
+    integrationTestCompile group: 'org.testng', name: 'testng', version: '6.9.13.8'
+	integrationTestCompile("org.springframework.boot:spring-boot-starter-web")
     
 
 }
