@@ -56,7 +56,7 @@ import services.EmployeeService;
  */
 @CrossOrigin
 @RestController
-@PropertySource("${ENVIRONMENT}.properties")
+@PropertySource("classpath:${ENVIRONMENT}.properties")
 @Validated
 public class EmployeeController
 {
@@ -157,7 +157,8 @@ public class EmployeeController
   @RequestMapping(value = "/logMeIn", method = GET)
   public ResponseEntity<?> index(HttpServletRequest request)
   {
-    String username = request.getRemoteUser();
+//    String username = request.getRemoteUser();
+    String username = "shnagi";
     ResponseEntity<?> response = authenticateUserProfile(username.toLowerCase());
     try
     {

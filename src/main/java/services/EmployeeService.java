@@ -59,7 +59,7 @@ import utils.Validate;
  *
  */
 @Component
-@PropertySource("${ENVIRONMENT}.properties")
+@PropertySource("classpath:${ENVIRONMENT}.properties")
 public class EmployeeService
 {
 
@@ -947,7 +947,7 @@ public class EmployeeService
   public void updateLastLoginDate(EmployeeProfile profile) throws EmployeeNotFoundException
   {
     Employee employee = getEmployee(profile.getEmployeeID());
-    employee.setLastLogon(localDateTimetoDate(LocalDateTime.now(UK_TIMEZONE)));
+    employee.setLastLogon(localDateTimeToDate(LocalDateTime.now(UK_TIMEZONE)));
     morphiaOperations.updateEmployee(profile.getEmployeeID(), LAST_LOGON, employee.getLastLogon());
   }
 

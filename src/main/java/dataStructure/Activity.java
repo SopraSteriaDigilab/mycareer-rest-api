@@ -1,11 +1,13 @@
 package dataStructure;
 
-import static dataStructure.Employee.*;
-import static utils.Conversions.*;
+import static dataStructure.Employee.ACTIVITY_FEED;
+import static utils.Conversions.dateToLocalDateTime;
+import static utils.Conversions.localDateTimeToDate;
 
-import java.util.Date;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Objects;
 
 import org.bson.Document;
 
@@ -74,7 +76,7 @@ public class Activity implements Serializable
   public Activity(final String description, final LocalDateTime timestamp)
   {
     this.description = description;
-    this.timestamp = localDateTimetoDate(timestamp);
+    this.timestamp = localDateTimeToDate(timestamp);
   }
 
   /**
@@ -88,7 +90,7 @@ public class Activity implements Serializable
   {
     this.description = description;
     LocalDateTime localDateTime = LocalDateTime.parse(timestamp);
-    this.timestamp = localDateTimetoDate(localDateTime);
+    this.timestamp = localDateTimeToDate(localDateTime);
   }
 
   /**
@@ -138,5 +140,29 @@ public class Activity implements Serializable
   public void setTimestamp(Date timestamp)
   {
     this.timestamp = timestamp;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return Objects.hash(description, timestamp);
+  }
+
+  @Override
+  public boolean equals(final Object o)
+  {
+    if (this == o)
+    {
+      return true;
+    }
+
+    if (!(o instanceof Activity))
+    {
+      return false;
+    }
+
+    final Activity other = (Activity) o;
+
+    return Objects.equals(description, other.description) && Objects.equals(timestamp, other.timestamp);
   }
 }

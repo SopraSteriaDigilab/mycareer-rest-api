@@ -55,7 +55,7 @@ import utils.Utils;
  */
 @CrossOrigin
 @RestController
-@PropertySource("${ENVIRONMENT}.properties")
+@PropertySource("classpath:${ENVIRONMENT}.properties")
 @Validated
 @RequestMapping("/manager")
 public class ManagerController

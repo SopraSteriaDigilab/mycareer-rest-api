@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="MyCareer test Suite" parallel="none" allow-return-values="true" preserve-order="true">
+
+	<test name="Open MyCareer test">
+		<classes>
+			<class name="automationFramework.TestConfig" />
+			<class name="automationFramework.OpenMyCareer" />
+		</classes>
+	</test>
+	<test name="My Objectives tests">
+		<classes>
+				<parameter name="objOrDN"  value="obj"/>
+			<class name="automationFramework.AddObj" />
+			<class name="automationFramework.EditObj" />	
+			<class name="automationFramework.UpdateStatusInProgress" />
+			<class name="automationFramework.UpdateStatusProposed" />
+			<class name="automationFramework.UpdateStatusComplete" />
+			<class name="automationFramework.ArchiveObj" />
+			<class name="automationFramework.DeleteObj" />
+			<class name="automationFramework.AddNote" />
+		</classes>
+	</test>
+	<test name="Competencies tests">
+		<classes>
+			<class name="automationFramework.SelectCompetency" />
+		</classes>
+	</test>
+	<!--  
+	<test name="My Feedback tests">
+		<classes>
+			<class name="automationFramework.SendFeedback" />
+			<class name="automationFramework.RequestFeedback" />
+		</classes>
+	</test>
+	-->
+	<test name="My Development Needs tests">
+		<classes>
+			<class name="automationFramework.AddDevNeed" />
+			<parameter name="objOrDN"  value="dev-need"/>
+			<class name="automationFramework.UpdateStatusInProgress" />
+			<class name="automationFramework.UpdateStatusProposed" />
+			<class name="automationFramework.UpdateStatusComplete" />
+			<class name="automationFramework.ArchiveDevNeed" />
+			<class name="automationFramework.DeleteDevNeed" />
+			<class name="automationFramework.AddNote" />
+		</classes>
+	</test>
+</suite>

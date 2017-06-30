@@ -154,7 +154,7 @@ public class DevelopmentNeed extends Objective
      * @return The {@code Category} instance whose full description is equal to the provided {@code categoryString}.
      * @throws IllegalArgumentException if the provided {@code categoryString} did not match a category description.
      */
-    public static Category getCategoryFromString(String categoryString) throws InvalidAttributeValueException
+    public static Category getCategoryFromString(String categoryString)
     {
       for (final Category category : values())
       {

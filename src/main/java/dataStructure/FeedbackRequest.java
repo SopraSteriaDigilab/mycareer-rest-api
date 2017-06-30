@@ -56,7 +56,7 @@ public class FeedbackRequest implements Comparable<FeedbackRequest>, Serializabl
   {
     this.id = id;
     this.recipient = recipient;
-    setTimestamp();
+    this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
   /**
@@ -121,14 +121,7 @@ public class FeedbackRequest implements Comparable<FeedbackRequest>, Serializabl
     return timestamp;
   }
 
-  /** Set timestamp to current time */
-  public void setTimestamp()
-  {
-    this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
-  }
-
   /**
-   * 
    * TODO: Describe this method.
    *
    * @param profile

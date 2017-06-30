@@ -50,7 +50,7 @@ import utils.Utils;
  * @see <a href="https://github.com/OfficeDev/ews-java-api">EWS Java API</a>
  */
 @Component
-@PropertySource("${ENVIRONMENT}.properties")
+@PropertySource("classpath:${ENVIRONMENT}.properties")
 public class EmailService
 {
   /** Logger Property - Represents an implementation of the Logger interface that may be used here.. */

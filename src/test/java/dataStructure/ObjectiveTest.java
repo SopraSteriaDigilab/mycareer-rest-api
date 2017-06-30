@@ -1,423 +1,310 @@
+package dataStructure;
 
-//  TODO Commented code to be reviewed
+import static org.junit.Assert.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import javax.management.InvalidAttributeValueException;
+
+import org.bson.Document;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+
+import dataStructure.Objective.Progress;
+import model.TestModels;
+
+public class ObjectiveTest
+{
+  private static final String DEFAULT_TITLE = "a valid title";
+  private static final String DEFAULT_DESCRIPTION = "a valid description";
+  private static final LocalDate DEFAULT_DUE_DATE = LocalDate.now().plusMonths(6);
+
+  private Objective unitUnderTest;
+
+  /**
+   * Setup method that runs once before each test method.
+   * 
+   * @throws InvalidAttributeValueException
+   * 
+   */
+  @Before
+  public void setup() throws InvalidAttributeValueException
+  {
+    unitUnderTest = new Objective(TestModels.DB_OBJECT_ID, DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_DUE_DATE);
+  }
+
+  @Test
+  public void getCreatedOnTest()
+  {
+    final LocalDateTime expected = LocalDateTime.now();
+
+    unitUnderTest = new Objective(TestModels.DB_OBJECT_ID, DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_DUE_DATE);
+
+    final String createdOn = unitUnderTest.getCreatedOn();
+    final LocalDateTime actual = LocalDateTime.parse(createdOn);
+    final boolean sameOrBefore = expected.isBefore(actual) || expected.equals(actual);
+    final boolean after10Forward = expected.plusSeconds(10).isAfter(actual);
+
+    assertTrue(sameOrBefore && after10Forward);
+  }
+
+  @Test
+  public void setTitleTest() throws InterruptedException
+  {
+    // arrange
+    final String newTitle = "new title";
+    final String before = unitUnderTest.getLastModified();
+    Thread.sleep(1);
+
+    // act
+    unitUnderTest.setTitle(newTitle);
+    final String after = unitUnderTest.getLastModified();
+
+    // assert
+
+    assertNotEquals(before, after);
+    assertEquals(newTitle, unitUnderTest.getTitle());
+  }
+
+  @Test
+  public void setDescriptionTest() throws InterruptedException
+  {
+    // arrange
+    final String newDescription = "new description";
+    final String before = unitUnderTest.getLastModified();
+    Thread.sleep(1);
+
+    // act
+    unitUnderTest.setDescription(newDescription);
+    final String after = unitUnderTest.getLastModified();
+
+    // assert
+
+    assertNotEquals(before, after);
+    assertEquals(newDescription, unitUnderTest.getDescription());
+  }
+
+  @Test
+  public void getDueDateTest()
+  {
+    final String dueDate = unitUnderTest.getDueDate();
+    final LocalDate actual = LocalDate.parse(dueDate);
+
+    assertEquals(DEFAULT_DUE_DATE, actual);
+  }
+
+  @Test
+  public void setDueDateTest() throws InterruptedException
+  {
+    // arrange
+    final LocalDate newDueDate = LocalDate.now().plusMonths(12);
+    final String before = unitUnderTest.getLastModified();
+    Thread.sleep(1);
+
+    // act
+    unitUnderTest.setDueDate(newDueDate);
+    final String after = unitUnderTest.getLastModified();
+    final LocalDate actual = LocalDate.parse(unitUnderTest.getDueDate());
+
+    // assert
+    assertNotEquals(before, after);
+    assertEquals(newDueDate, actual);
+  }
+
+  @Test
+  public void setProposedByTest() throws InterruptedException
+  {
+    // arrange
+    final String newProposedBy = "new entity";
+    final String before = unitUnderTest.getLastModified();
+    Thread.sleep(1);
+
+    // act
+    unitUnderTest.setProposedBy(newProposedBy);
+    final String after = unitUnderTest.getLastModified();
+
+    // assert
+    assertNotEquals(before, after);
+    assertEquals(newProposedBy, unitUnderTest.getProposedBy());
+  }
+
+  @Test
+  public void setProgressTest() throws InterruptedException
+  {
+    // arrange
+    final Progress newProgress = Progress.COMPLETE;
+    final String before = unitUnderTest.getLastModified();
+    Thread.sleep(1);
+
+    // act
+    unitUnderTest.setProgress(newProgress);
+    final String after = unitUnderTest.getLastModified();
+
+    // assert
+
+    assertNotEquals(before, after);
+    assertEquals(newProgress.getProgressStr(), unitUnderTest.getProgress());
+  }
+
+  @Test
+  public void isArchivedTest() throws InterruptedException
+  {
+    // arrange
+    final boolean newIsArchived = true;
+    final String before = unitUnderTest.getLastModified();
+    Thread.sleep(1);
+
+    // act
+    unitUnderTest.isArchived(newIsArchived);
+    final String after = unitUnderTest.getLastModified();
+
+    // assert
+    assertNotEquals(before, after);
+    assertEquals(newIsArchived, unitUnderTest.getArchived());
+  }
+
+  @Test
+  public void compareToBeforeTest()
+  {
+    final LocalDate beforeFutureDate = DEFAULT_DUE_DATE.minusMonths(1);
+    final Objective beforeObjective = new Objective(TestModels.DB_OBJECT_ID, DEFAULT_TITLE, DEFAULT_DESCRIPTION, beforeFutureDate);
+    final int comparison = unitUnderTest.compareTo(beforeObjective);
+
+    assertTrue(comparison > 0);
+  }
+
+  @Test
+  public void compareToAfterTest()
+  {
+    final LocalDate afterFutureDate = DEFAULT_DUE_DATE.plusMonths(1);
+    final Objective afterObjective = new Objective(TestModels.DB_OBJECT_ID, DEFAULT_TITLE, DEFAULT_DESCRIPTION, afterFutureDate);
+    final int comparison = unitUnderTest.compareTo(afterObjective);
+
+    assertTrue(comparison < 0);
+  }
+
+  @Test
+  public void compareToEqualTest()
+  {
+    final LocalDate sameFutureDate = DEFAULT_DUE_DATE;
+    final Objective sameObjective = new Objective(TestModels.DB_OBJECT_ID, DEFAULT_TITLE, DEFAULT_DESCRIPTION, sameFutureDate);
+    final int comparison = unitUnderTest.compareTo(sameObjective);
+
+    assertTrue(comparison == 0);
+  }
+
+  @Test
+  public void differencesNoneTest()
+  {
+    final Objective otherObjective = new Objective(TestModels.DB_OBJECT_ID, DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_DUE_DATE);
+    final Document expected = new Document();
+    final Document actual = unitUnderTest.differences(otherObjective);
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void differencesTitleTest()
+  {
+    final String differentTitle = "different title";
+    final Objective otherObjective = new Objective(TestModels.DB_OBJECT_ID, differentTitle, DEFAULT_DESCRIPTION, DEFAULT_DUE_DATE);
+    final Document expected = new Document("title", differentTitle);
+    final Document actual = unitUnderTest.differences(otherObjective);
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void differencesDescriptionTest()
+  {
+    final String differentDescription = "different description";
+    final Objective otherObjective = new Objective(TestModels.DB_OBJECT_ID, DEFAULT_TITLE, differentDescription, DEFAULT_DUE_DATE);
+    final Document expected = new Document("description", differentDescription);
+    final Document actual = unitUnderTest.differences(otherObjective);
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void differencesDueDateTest()
+  {
+    final LocalDate differentDueDate = DEFAULT_DUE_DATE.minusMonths(1);
+    final Objective otherObjective = new Objective(TestModels.DB_OBJECT_ID, DEFAULT_TITLE, DEFAULT_DESCRIPTION, differentDueDate);
+    final Document expected = new Document("dueDate", differentDueDate.toString());
+    final Document actual = unitUnderTest.differences(otherObjective);
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void differencesTitleDescriptionTest()
+  {
+    final String differentTitle = "different title";
+    final String differentDescription = "different description";
+    final Objective otherObjective = new Objective(TestModels.DB_OBJECT_ID, differentTitle, differentDescription, DEFAULT_DUE_DATE);
+    final Document expected = new Document("title", differentTitle).append("description", differentDescription);
+    final Document actual = unitUnderTest.differences(otherObjective);
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void differencesAllTest()
+  {
+    final String differentTitle = "different title";
+    final String differentDescription = "different description";
+    final LocalDate differentDueDate = DEFAULT_DUE_DATE.minusMonths(1);
+    final Objective otherObjective = new Objective(TestModels.DB_OBJECT_ID, differentTitle, differentDescription, differentDueDate);
+    final Document expected = new Document("title", differentTitle).append("description", differentDescription)
+        .append("dueDate", differentDueDate.toString());
+    final Document actual = unitUnderTest.differences(otherObjective);
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void differencesIrrelevantTest()
+  {
+    final int differentID = -1;
+    final Objective otherObjective = new Objective(differentID, DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_DUE_DATE);
+    final Document expected = new Document();
+    final Document actual = unitUnderTest.differences(otherObjective);
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void createActivityTest()
+  {
+    // arrange
+    unitUnderTest = new Objective(TestModels.DB_OBJECT_ID, DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_DUE_DATE);
+    final Action action = Action.COMPLETE;
+    final EmployeeProfile profile = TestModels.newEmployeeProfile();
+    final String description = "First Last completed objective #1: a valid title";
+    final String timestamp = unitUnderTest.getCreatedOn();
+    final Activity expected = new Activity(description, timestamp);
+    
+    // act
+    final Activity actual = unitUnderTest.createActivity(action, profile);
+
+    // assert
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void isCurrentTrueNotCompleteTest()
+  {
+    assertTrue(unitUnderTest.isCurrent());
+  }
   
-//package dataStructure;
-//
-//import static dataStructure.Constants.UK_TIMEZONE;
-//import static org.junit.Assert.assertEquals;
-//import static org.junit.Assert.assertTrue;
-//import static org.mockito.MockitoAnnotations.initMocks;
-//import static org.mockito.Mockito.when;
-//import static org.mockito.Mockito.mock;
-//
-//import java.lang.reflect.Field;
-//import java.lang.reflect.Method;
-//import java.time.LocalDateTime;
-//import java.time.YearMonth;
-//import java.time.ZoneId;
-//
-//import javax.management.InvalidAttributeValueException;
-//
-//import org.junit.Before;
-//import org.junit.Test;
-//import org.mockito.InjectMocks;
-//
-//
-//import com.google.gson.Gson;
-//
-//public class ObjectiveTest
-//{
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final int INVALID_EMPLOYEE_ID = -675590;
-//  
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final int VALID_EMPLOYEE_ID = 675590;
-//  
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final int INVALID_PROGRESS =3;
-//  
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final int VALID_PROGRESS =2;
-//  
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final String VALID_NAME = "Alexandre Brard";
-//  
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final int INVALID_PERFORMANCE = 3;
-//  
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final int VALID_PERFORMANCE =2;
-//  
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final String INVALID_TITLE = "atitlewithmorethan150charactersatitlewithmorethan150charactersatitlewithmorethan150charactersatitlewithmorethan150charactersatitlewithmorethan150characters";;
-//  
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final String VALID_TITLE = "a valid title";
-//  
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final String INVALID_DESCRIPTION = "adescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000charactersadescriptionwithmorethan2000characters";
-//  
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final String VALID_DESCRIPTION = "a valid description";
-//  
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final String PAST_DATE = "2010-01";
-//  
-//  /** TYPE Property|Constant - Represents|Indicates... */
-//  private final String FUTURE_DATE = "3010-01";
-//  
-//  @InjectMocks
-//  private Objective_OLD unitUnderTest, unitUnderTest2, unitUnderTest3, unitUnderTest4;
-//  
-//  /**
-//   * Setup method that runs once before each test method.
-//   * @throws InvalidAttributeValueException 
-//   * 
-//   */
-//  @Before
-//  public void setup() throws InvalidAttributeValueException
-//  {
-//   initMocks(this);
-//   unitUnderTest = new Objective_OLD();
-//   unitUnderTest2 = new Objective_OLD(VALID_EMPLOYEE_ID, VALID_PROGRESS, VALID_PERFORMANCE, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
-//   unitUnderTest3 = new Objective_OLD(unitUnderTest2);
-//   unitUnderTest4 = new Objective_OLD(VALID_PROGRESS, VALID_PERFORMANCE, VALID_TITLE, VALID_DESCRIPTION, FUTURE_DATE);
-//  }
-//  
-//  /**
-//   * For unit tests.
-//   * 
-//   */
-//  public void setPrivateField(String field, Object obj, Object newValue) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException 
-//  {
-//    Field f = obj.getClass().getDeclaredField(field);
-//    f.setAccessible(true);
-//    f.set(obj,newValue);
-//  }
-//  
-//  /**
-//   * Unit test for the setID method : Invalid ID
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetIDwithInvalidID() throws InvalidAttributeValueException
-//  {  
-//    unitUnderTest.setID(INVALID_EMPLOYEE_ID);
-//  }
-//      
-//  /**
-//   * Unit test for the setID method : Valid ID.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testSetIDwithValidID() throws InvalidAttributeValueException
-//  {  
-//    unitUnderTest.setID(VALID_EMPLOYEE_ID);
-//    assertEquals(unitUnderTest.getID(),VALID_EMPLOYEE_ID);
-//  }
-//  
-//  /**
-//   * Unit test for the getProgress method.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testGetProgress() throws InvalidAttributeValueException
-//  {  
-//    unitUnderTest.setProgress(2);
-//    assertEquals(unitUnderTest.getProgress(),2);
-//  }
-//  
-//  /**
-//   * Unit test for the setProgress method : invalid progress.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetProgresswithInvalidProgress() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setProgress(INVALID_PROGRESS);
-//  }
-//  
-//  /**
-//   * Unit test for the setProgress method : valid progress.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testSetProgresswithValidProgress() throws InvalidAttributeValueException
-//  {
-//    for (int i = -1 ; i < 3 ; i++){
-//      unitUnderTest.setProgress(i);
-//      assertEquals(unitUnderTest.getProgress(),i);
-//    }
-//  }
-//  
-//  /**
-//   * Unit test for the setProbosedBy method : null.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetProposedBywithInvalidName() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setProposedBy(null);
-//  }
-//   
-//  /**
-//   * Unit test for the setProbosedBy method : valid name.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testSetProposedBywithValidName() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setProposedBy(VALID_NAME);
-//   assertEquals(unitUnderTest.getProposedBy(),VALID_NAME);
-//  }
-//   
-//  /**
-//   * Unit test for the setPerformance method : invalid performance.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetPerformancewithInvalidPerformance() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setPerformance(INVALID_PERFORMANCE);
-//  }
-//  
-//  /**
-//   * Unit test for the setPerformance method : valid performance.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testSetPerformancewithValidPerformance() throws InvalidAttributeValueException
-//  {
-//    for (int i = 0 ; i < 3 ; i++){
-//      unitUnderTest.setPerformance(i);
-//      assertEquals(unitUnderTest.getPerformance(),i);
-//    }
-//  }
-//  
-//  /**
-//   * Unit test for the getIsArchived method.
-//   * 
-//   */
-//  @Test
-//  public void testGetIsArchived()
-//  {  
-//    unitUnderTest.setIsArchived(true);
-//    assertEquals(unitUnderTest.getIsArchived(),true);
-//  }
-//  
-//  /**
-//   * Unit test for the setTitle method : null.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetTitleWithNullTitle() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setTitle(null);
-//  }
-//  
-//  /**
-//   * Unit test for the setTitle method : empty string.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetTitleWithEmptyString() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setTitle("");
-//  }
-//  
-//  /**
-//   * Unit test for the setTitle method invalid title.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetTitleWithInvalidTitle() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setTitle(INVALID_TITLE);
-//  }
-//  
-//  /**
-//   * Unit test for the setTitle method : valid title.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testSetTitleWithValidTitle() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setTitle(VALID_TITLE);
-//      assertEquals(unitUnderTest.getTitle(),VALID_TITLE);
-//  }
-//  
-//  /**
-//   * Unit test for the setDescription method : null.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetDescriptionWithNullDescription() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setDescription(null);
-//  }
-//  
-//  /**
-//   * Unit test for the setDescription method : empty string.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetDescriptionWithEmptyString() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setDescription("");
-//  }
-//  
-//  /**
-//   * Unit test for the setDescription method : invalid description.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetDescriptionWithInvalidDescription() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setDescription(INVALID_DESCRIPTION);
-//  }
-//   
-//  /**
-//   * Unit test for the setDescription method : valid description.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testSetDescriptionWithValidDescription() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setDescription(VALID_DESCRIPTION);
-//    assertEquals(unitUnderTest.getDescription(),VALID_DESCRIPTION);
-//  }
-//  
-//  /**
-//   * Unit test for the updateArchiveStatus method.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testUpdateArchiveStatusTrue() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.updateArchiveStatus(true);
-//    assertEquals(unitUnderTest.getIsArchived(),true);
-//  }
-//  
-//  /**
-//   * Unit test for the setTimeToCompleteBy method : empty string.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetTimeToCompleteByWithEmptyString() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setTimeToCompleteBy("");
-//  }
-//   
-//  /**
-//   * Unit test for the setTimeToCompleteBy method : past date.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test(expected= InvalidAttributeValueException.class)
-//  public void testSetTimeToCompleteByWithPastDate() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setTimeToCompleteBy(PAST_DATE);
-//  }  
-//    
-//  /**
-//   * Unit test for the setTimeToCompleteBy method : valid date.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testSetTimeToCompleteByWithValidDate() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setTimeToCompleteBy(FUTURE_DATE);
-//  }
-//   
-//  /**
-//   * Unit test for the getTimeToCompleteBy method.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testGetTimeToCompleteByWithValidDate() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setTimeToCompleteBy(FUTURE_DATE);
-//    assertEquals(unitUnderTest.getTimeToCompleteBy(),FUTURE_DATE);
-//  }
-//  
-//  /**
-//   * Unit test for the getTimeToCompleteByYearMonth method.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testGetTimeToCompleteByYearMonth() throws InvalidAttributeValueException
-//  {
-//    unitUnderTest.setTimeToCompleteBy(FUTURE_DATE);
-//    assertEquals(unitUnderTest.getTimeToCompleteByYearMonth(),YearMonth.parse(FUTURE_DATE));
-//  }
-// 
-//  /**
-//   * Unit test for the isObjectiveValid and isObjectiveValidWithoutID  methods : valid objective.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testIsObjectiveValidWithValidObjective() throws InvalidAttributeValueException
-//  {
-//    assertEquals(unitUnderTest2.isObjectiveValid(),true);
-//    assertEquals(unitUnderTest2.isObjectiveValidWithoutID(),false);
-//  }
-//  
-//  /**
-//   * Unit test for the isObjectiveValid and isObjectiveValidWithoutID methods : invalid objective.
-//   * 
-//   * @throws InvalidAttributeValueException
-//   */
-//  @Test
-//  public void testIsObjectiveValidWithInvalidObjective() throws InvalidAttributeValueException
-//  {
-//    assertEquals(unitUnderTest.isObjectiveValid(),false);
-//    assertEquals(unitUnderTest.isObjectiveValidWithoutID(),false);
-//  }
-//  
-//  /**
-//   * Unit test for the toGson method.
-//   * 
-//   */
-//  @Test
-//  public void testToGson()
-//  {
-//    Gson gsonData = new Gson();
-//    assertEquals(unitUnderTest.toGson(),gsonData.toJson(unitUnderTest));
-//  }
-//   
-//  /**
-//   * Unit test for the toString method.
-//   * 
-//   */
-//  @Test
-//  public void testToString()
-//  {
-//    assertEquals(unitUnderTest2.toString(), "ID " + unitUnderTest2.getID() + "\n" + "Progress " + unitUnderTest2.getProgress() + "\n" + "Performance " + unitUnderTest2.getPerformance() + "\n"
-//        + "Is Archived  " + unitUnderTest2.getIsArchived() + "\n" + "Title " + unitUnderTest2.getTitle() + "\n" + "Description " + unitUnderTest2.getDescription()
-//        + "\n" + "TimeStamp " + unitUnderTest2.getTimeStamp() + "\n" + "TimeToCompleteBy " + unitUnderTest2.getTimeToCompleteBy() + "\n"
-//        + "ProposedBy " + unitUnderTest2.getProposedBy() + "\n");
-//  }
-//}
+  @Test
+  public void isCurrentTrueModifiedRecentlyTest()
+  {
+    unitUnderTest = new Objective(TestModels.DB_OBJECT_ID, DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_DUE_DATE);
+    unitUnderTest.setProgress(Progress.COMPLETE);
+    
+    assertTrue(unitUnderTest.isCurrent());
+  }
+}
