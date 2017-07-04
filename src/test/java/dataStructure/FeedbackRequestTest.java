@@ -1,33 +1,21 @@
 package dataStructure;
 
-import static org.mockito.MockitoAnnotations.*;
-import static dataStructure.Constants.UK_TIMEZONE;
 import static org.junit.Assert.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static model.TestModels.*;
+import static utils.Utils.*;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-
-import javax.management.InvalidAttributeValueException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-
 
 public class FeedbackRequestTest
-{  
-  /** TYPE Property|Constant - Represents|Indicates... */
-  private final String VALID_RECIPIENT = "alexandre.brard@soprasteria.com";
-  
-  /** TYPE Property|Constant - Represents|Indicates... */
-  private final String VALID_ID = "675590";
-  
-  @InjectMocks
-  private FeedbackRequest unitUnderTest, unitUnderTestEmpty;
-  
+{
+  private static final String DEFAULT_ID = generateFeedbackRequestID(EMPLOYEE_ID);
+  private static final String DEFAULT_RECIPIENT = EMAIL_ADDRESS;
+
+  private FeedbackRequest unitUnderTest;
+
   /**
    * Setup method that runs once before each test method.
    * 
@@ -35,56 +23,153 @@ public class FeedbackRequestTest
   @Before
   public void setup()
   {
-   initMocks(this);
-   unitUnderTest = new FeedbackRequest(VALID_ID, VALID_RECIPIENT);
-   unitUnderTestEmpty = new FeedbackRequest();
   }
-  
-  
-  /**
-   * Unit test for the setID method.
-   * 
-   * @throws InvalidAttributeValueException
-   */
+
   @Test
-  public void testSetID() throws InvalidAttributeValueException
-  {  
-    unitUnderTest.setId(VALID_ID);
-    assertEquals(unitUnderTest.getId(), VALID_ID);
-  }
-  
-  /**
-   * Unit test for the setRecipient method.
-   * 
-   * @throws InvalidAttributeValueException
-   */
-  @Test
-  public void testSetRecipient() throws InvalidAttributeValueException
-  {  
-    unitUnderTest.setRecipient(VALID_RECIPIENT);
-    assertEquals(unitUnderTest.getRecipient(), VALID_RECIPIENT);
-  }
-  
-  /**
-   * Unit test for the ReplyReceived method.
-   * 
-   * @throws InvalidAttributeValueException
-   */
-  @Test
-  public void testReplyReceived() throws InvalidAttributeValueException
-  {  
-    unitUnderTest.setReplyReceived(true);
-    assertEquals(unitUnderTest.isReplyReceived(), true);
-  }
-  
-  /**
-   * Unit test for the getTimestamp method.
-   * 
-   * @throws InvalidAttributeValueException
-   */
-  @Test
-  public void testGetTimestamp() throws InvalidAttributeValueException
+  public void constructorTest()
   {
-    assertEquals(unitUnderTest.getTimestamp(),LocalDateTime.now(UK_TIMEZONE).toString());
+    // arrange
+    final LocalDateTime closeToExpectedTimestamp = LocalDateTime.now();
+    final LocalDateTime afterExpectedTimestamp = closeToExpectedTimestamp.plusSeconds(10);
+
+    // act
+    unitUnderTest = new FeedbackRequest(DEFAULT_ID, DEFAULT_RECIPIENT);
+
+    // assert
+    final String actual = unitUnderTest.getTimestamp();
+    final LocalDateTime actualTimestamp = LocalDateTime.parse(actual);
+
+    assertEquals(unitUnderTest.getId(), DEFAULT_ID);
+    assertEquals(unitUnderTest.getRecipient(), DEFAULT_RECIPIENT);
+    assertFalse(unitUnderTest.isDismissed());
+    assertFalse(unitUnderTest.isReplyReceived());
+    assertFalse(actualTimestamp.isBefore(closeToExpectedTimestamp));
+    assertTrue(actualTimestamp.isBefore(afterExpectedTimestamp));
+  }
+
+  @Test
+  public void dismissTest()
+  {
+    // arrange
+    unitUnderTest = new FeedbackRequest(DEFAULT_ID, DEFAULT_RECIPIENT);
+
+    // act
+    unitUnderTest.dismiss();
+
+    // assert
+    assertTrue(unitUnderTest.isDismissed());
+  }
+
+  @Test
+  public void dismissIdempotenceTest()
+  {
+    // arrange
+    unitUnderTest = new FeedbackRequest(DEFAULT_ID, DEFAULT_RECIPIENT);
+
+    // act
+    unitUnderTest.dismiss();
+    unitUnderTest.dismiss();
+
+    // assert
+    assertTrue(unitUnderTest.isDismissed());
+  }
+
+  @Test
+  public void createActivityTest()
+  {
+    // arrange
+    unitUnderTest = new FeedbackRequest(DEFAULT_ID, DEFAULT_RECIPIENT);
+    final EmployeeProfile profile = newEmployeeProfile();
+    final String description = "First Last requested feedback from ".concat(DEFAULT_RECIPIENT);
+    final String timestamp = unitUnderTest.getTimestamp();
+    final Activity expected = new Activity(description, timestamp);
+
+    // act
+    final Activity actual = unitUnderTest.createActivity(profile);
+
+    // assert
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void isCurrentTrueTest()
+  {
+    // arrange
+    unitUnderTest = new FeedbackRequest(DEFAULT_ID, DEFAULT_RECIPIENT);
+
+    // act
+    final boolean isCurrent = unitUnderTest.isCurrent();
+
+    // assert
+    assertTrue(isCurrent);
+  }
+
+  @Test
+  public void isCurrentReplyReceivedFalseTest()
+  {
+    // arrange
+    unitUnderTest = new FeedbackRequest(DEFAULT_ID, DEFAULT_RECIPIENT);
+    unitUnderTest.setReplyReceived(true);
+    // act
+    final boolean isCurrent = unitUnderTest.isCurrent();
+
+    // assert
+    assertFalse(isCurrent);
+  }
+
+  @Test
+  public void isCurrentDismissedFalseTest()
+  {
+    // arrange
+    unitUnderTest = new FeedbackRequest(DEFAULT_ID, DEFAULT_RECIPIENT);
+    unitUnderTest.dismiss();
+    // act
+    final boolean isCurrent = unitUnderTest.isCurrent();
+
+    // assert
+    assertFalse(isCurrent);
+  }
+
+  @Test
+  public void compareToEqual()
+  {
+    // arrange
+    unitUnderTest = new FeedbackRequest(DEFAULT_ID, DEFAULT_RECIPIENT);
+
+    // act
+    final int comparison = unitUnderTest.compareTo(unitUnderTest);
+
+    // assert
+    assertTrue(comparison == 0);
+  }
+
+  @Test
+  public void compareToLessThan() throws InterruptedException
+  {
+    // arrange
+    final FeedbackRequest other = new FeedbackRequest(DEFAULT_ID, DEFAULT_RECIPIENT);
+    Thread.sleep(1);
+    unitUnderTest = new FeedbackRequest(DEFAULT_ID, DEFAULT_RECIPIENT);
+
+    // act
+    final int comparison = unitUnderTest.compareTo(other);
+
+    // assert
+    assertTrue(comparison > 0);
+  }
+
+  @Test
+  public void compareToGreaterThan() throws InterruptedException
+  {
+    // arrange
+    unitUnderTest = new FeedbackRequest(DEFAULT_ID, DEFAULT_RECIPIENT);
+    Thread.sleep(1);
+    final FeedbackRequest other = new FeedbackRequest(DEFAULT_ID, DEFAULT_RECIPIENT);
+
+    // act
+    final int comparison = unitUnderTest.compareTo(other);
+
+    // assert
+    assertTrue(comparison < 0);
   }
 }

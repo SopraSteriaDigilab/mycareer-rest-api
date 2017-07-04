@@ -1,143 +1,136 @@
 package dataStructure;
 
-import static dataStructure.Constants.*;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-
-import javax.management.InvalidAttributeValueException;
-import org.mongodb.morphia.annotations.Embedded;
-import com.google.gson.Gson;
-
 /**
- * This class contains the definition of the Competency object
- *
+ * An employee's competency from the Sopra Steria <a
+ * href=http://portal.corp.sopra/hr/HR_IN_ST/MyPath/Competency_Framework/Pages/default.aspx>competency framework</a>.
+ * All employee's have all competencies, but they may choose which ones to focus upon.
+ * 
+ * @see Employee
+ * @see DBObject
  */
-@Embedded
-public class Competency implements Serializable
+public class Competency extends DBObject implements Comparable<Competency>
 {
+  private static final long serialVersionUID = 1L;
 
-  private static final long serialVersionUID = -1186038518710616207L;
-  private int id;
-  private boolean isSelected;
+  /** TODO describe */
+  public static final String ID = "competencies.id";
+
+  /** TODO describe */
+  public static final String LAST_MODIFIED = "competencies.lastModified";
+
+  /** TODO describe */
+  public static final String TITLE = "competencies.title";
+
+  /** TODO describe */
+  public static final String IS_SELECTED = "competencies.isSelected";
+
   private String title;
-  private String description;
-  private String timeStamp;
+  private boolean isSelected;
 
-  // Empty constructor
+  /**
+   * Competency Constructor - No-args constructor provided for use by Morphia. Should not be used in application code.
+   */
   public Competency()
   {
-    this.id = Constants.INVALID_INT;
-    this.isSelected = false;
-    this.title = Constants.INVALID_STRING;
-    this.description = Constants.INVALID_STRING;
-    this.timeStamp = null;
-  }
-
-  // Constructor with Parameters
-  public Competency(int id, boolean status)
-  {
-    this.id = id;
-    this.isSelected = status;
-    this.title = "";
-    this.description = "";
-    this.timeStamp = null;
-    this.setTimeStamp();
-  }
-
-  // Method to set ID
-  public void setID(int id) throws InvalidAttributeValueException
-  {
-    if (id > 0) this.id = id;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
-  }
-
-  // Method returning ID
-  public int getID()
-  {
-    return this.id;
-  }
-
-  // Method returning selected Competency based on true or false
-  public boolean getIsSelected()
-  {
-    return isSelected;
   }
 
   /**
-   * 
-   * This method saves the current DateTime inside the timeStamp object only if the object does not contain anything yet
+   * Competency Constructor - Responsible for initialising this object.
+   *
+   * @param id The id number of this competency.
+   * @param title The title of this competency.
    */
-  private void setTimeStamp()
+  public Competency(int id, CompetencyTitle title)
   {
-    if (this.timeStamp == null) this.timeStamp = LocalDateTime.now(UK_TIMEZONE).toString();
+    setId(id);
+    this.title = title.getCompetencyTitleStr();
   }
 
-  public String getTimeStamp()
-  {
-    return this.timeStamp;
-  }
-
-  /**
-   * 
-   * This method sets the Competency based on a valid id as well as returning true for IsSelected method
-   * 
-   * @throws InvalidAttributeValueException
-   */
-  public void setTitle(int compId) throws InvalidAttributeValueException
-  {
-    if (compId >= 0 && compId < Constants.COMPETENCY_NAMES.length) this.title = Constants.COMPETENCY_NAMES[compId];
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_TITLE);
-  }
-
-  // Method to return Competency Name
+  /** @return the title */
   public String getTitle()
   {
     return title;
   }
 
+  /** @param title The value to set. */
+  public void setTitle(CompetencyTitle title)
+  {
+    this.title = title.getCompetencyTitleStr();
+    this.setLastModified();
+  }
+
+  /** @return isSelected - {@code true} if this competency is being focussed upon. */
+  public boolean isSelected()
+  {
+    return isSelected;
+  }
+
+  /** @param isSelected The value to set. */
+  public void setSelected(boolean isSelected)
+  {
+    this.isSelected = isSelected;
+    this.setLastModified();
+  }
+
   /**
+   * Override of compareTo method.
    * 
-   * This method sets the competency Description based on a valid id & returning true for IsSelected method
-   * 
-   * @throws InvalidAttributeValueException
+   * Compares the negated focus of this competency with the negated focus of the other competency. Ignores all other
+   * aspects of the two competencies.
+   *
+   * @see isSelected()
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   * @see Boolean#compare
+   *
+   * @return {@code Boolean.compare(!this.isSelected(), !competency.isSelected());}
    */
-  public void setDescription(int compId) throws InvalidAttributeValueException
+  @Override
+  public int compareTo(Competency competency)
   {
-    if (compId >= 0 && compId < Constants.COMPETENCY_NAMES.length)
-      this.description = Constants.COMPETENCY_DESCRIPTIONS[compId];
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_DESCRIPTION);
+    return Boolean.compare(!this.isSelected(), !competency.isSelected());
   }
 
-  // Method to return Competency Description
-  public String getCompentencyDescription()
+  /**
+   * The names and titles of the competencies in the Sopra Steria <a
+   * href=http://portal.corp.sopra/hr/HR_IN_ST/MyPath/Competency_Framework/Pages/default.aspx>competency framework</a>
+   */
+  public enum CompetencyTitle
   {
-    return description;
-  }
+    ACCOUNTABILITY("Accountability"), EFFECTIVE_COMMUNICATION("Effective Communication"), LEADERSHIP(
+        "Leadership"), SERVICE_EXCELLENCE("Service Excellence"), BUSINESS_AWARENESS(
+            "Business Awareness"), FUTURE_ORIENTATION(
+                "Future Orientation"), INNOVATION_AND_CHANGE("Innovation and Change"), TEAMWORK("Teamwork");
 
-  // returns boolean result determining if TimeStamp is valid
-  public boolean isValid()
-  {
-    return this.getTimeStamp() != null && this.getID() >= 0;
-  }
+    private String competencyTitleStr;
 
-  // Converts data type from Gson to Json
-  public String toGson()
-  {
-    Gson gsonData = new Gson();
-    return gsonData.toJson(this);
-  }
+    private CompetencyTitle(String competencyTitleStr)
+    {
+      this.competencyTitleStr = competencyTitleStr;
+    }
 
-  // toString method returning objects details
-  public String toString(int index)
-  {
-    String s = "";
-    s += "ID: " + id + "\n";
-    s += "Is Selected: " + isSelected + "\n";
-    s += "Title: " + Constants.COMPETENCY_NAMES[index] + "\n";
-    s += "Description: " + Constants.COMPETENCY_DESCRIPTIONS[index] + "\n";
-    s += "Time Stamp: " + timeStamp + "\n";
-    return s;
-  }
+    /** @return The title string of this {@code CompetencyTitle} */
+    public String getCompetencyTitleStr()
+    {
+      return competencyTitleStr;
+    }
 
-}// Competencies
+    /**
+     * @param competencyTitleStr The title of a competency
+     * @return The {@code CompetencyTitle} instance whose title is equal to the provided {@code competencyTitleStr}.
+     * @throws IllegalArgumentException if the provided {@code competencyTitleStr} did not match a competency title.
+     */
+    public static CompetencyTitle getCompetencyTitleFromString(final String competencyTitleStr)
+        throws IllegalArgumentException
+    {
+      for (final CompetencyTitle competencyTitle : values())
+      {
+        if (competencyTitle.competencyTitleStr.equals(competencyTitleStr))
+        {
+          return competencyTitle;
+        }
+      }
+
+      throw new IllegalArgumentException("This enum string does not exist");
+    }
+  }
+}

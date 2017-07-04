@@ -1,12 +1,7 @@
 package services.ad;
 
-import static javax.naming.directory.SearchControls.*;
-
-import java.util.Hashtable;
-
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
@@ -15,12 +10,13 @@ import javax.naming.directory.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import services.ad.ADSearchSettingsImpl.LdapPort;
+
 /**
  * Represents a connection to an active directory.
  * 
- * ADConnection instances are created with specific environment settings which may not
- * be changed once instantiated.  The connection is made in a lazy way, i.e. is only
- * instantiated after the first call to {@code searchAD()}.
+ * ADConnection instances are created with specific environment settings which may not be changed once instantiated. The
+ * connection is made in a lazy way, i.e. is only instantiated after the first call to {@code searchAD()}.
  *
  */
 public class ADConnectionImpl implements ADConnection
@@ -33,12 +29,11 @@ public class ADConnectionImpl implements ADConnection
 
   private DirContext connection;
   private final ADSearchSettings adSearchSettings;
-  
+
   /**
    * Constructs a new {@code ADConnection} using the given environment settings.
    *
-   * @param ldapEnvironmentSettings The environment settings to be used with this
-   * {@code ADConnection} instance.
+   * @param ldapEnvironmentSettings The environment settings to be used with this {@code ADConnection} instance.
    */
   public ADConnectionImpl(final ADSearchSettings adSearchSettings)
   {
@@ -58,34 +53,33 @@ public class ADConnectionImpl implements ADConnection
     this(adSearchSettings);
     this.connection = connection;
   }
-  
+
   /**
    * Performs a search of the active directory.
    *
-   * @param searchCtls The search controls to use for the search (note that if returning
-   * attributes and/or search scope are already set, they will be overridden by this method). 
+   * @param searchCtls The search controls to use for the search (note that if returning attributes and/or search scope
+   *          are already set, they will be overridden by this method).
    * @param returningAttributes The attributes to return from the search.
    * @param searchTree The directory/directories on the target AD to search.
    * @param searchFilter A search filter.
    * @return An {@code Attributes} instance containing the results of the search.
-   * @throws ADConnectionException If an exception occurred while trying to connect to or
-   * search the AD.
-   * @throws NamingException If an exception occurred while attempting to access the first
-   * result of the search.
+   * @throws ADConnectionException If an exception occurred while trying to connect to or search the AD.
+   * @throws NamingException If an exception occurred while attempting to access the first result of the search.
    * @throws NoSuchElementException If the search produced no results.
    */
   @Override
-  public NamingEnumeration<SearchResult> searchAD(final String searchTree, final String searchFilter) throws ADConnectionException, NamingException
+  public NamingEnumeration<SearchResult> searchAD(final String searchTree, final String searchFilter,
+      final LdapPort ldapPort) throws ADConnectionException, NamingException
   {
     final NamingEnumeration<SearchResult> result;
-    
-    establishConnection();
-    result = search(searchTree, searchFilter, adSearchSettings.getSearchControls());
+
+    establishConnection(ldapPort);
+    result = search(searchTree, searchFilter, adSearchSettings.getSearchControls(), ldapPort);
 
     return result;
   }
 
-  private void establishConnection() throws ADConnectionException
+  private void establishConnection(final LdapPort ldapPort) throws ADConnectionException
   {
     if (connection != null)
     {
@@ -94,17 +88,17 @@ public class ADConnectionImpl implements ADConnection
 
     try
     {
-      connection = new InitialDirContext(adSearchSettings.getEnvironmentSettings());
+      connection = new InitialDirContext(adSearchSettings.getEnvironmentSettings(ldapPort));
     }
     catch (final NamingException | RuntimeException ex)
     {
-      LOGGER.error(CONNECTION_EXCEPTION_MSG.concat(adSearchSettings.getEnvironmentSettings().toString()), ex);
+      LOGGER.error(CONNECTION_EXCEPTION_MSG.concat(adSearchSettings.getEnvironmentSettings(ldapPort).toString()), ex);
       throw new ADConnectionException(CONNECTION_EXCEPTION_MSG, ex);
     }
   }
 
   private NamingEnumeration<SearchResult> search(final String searchTree, final String searchFilter,
-      final SearchControls searchCtls) throws ADConnectionException
+      final SearchControls searchCtls, final LdapPort ldapPort) throws ADConnectionException
   {
     try
     {
@@ -112,11 +106,21 @@ public class ADConnectionImpl implements ADConnection
     }
     catch (final NamingException | RuntimeException ex)
     {
-      LOGGER.error(SEARCH_EXCEPTION_MSG.concat(adSearchSettings.getEnvironmentSettings().toString()), ex);
+      LOGGER.error(SEARCH_EXCEPTION_MSG.concat("Query: " + searchFilter + ", Environment settings: "
+          + adSearchSettings.getEnvironmentSettings(ldapPort).toString()), ex);
       throw new ADConnectionException(SEARCH_EXCEPTION_MSG, ex);
     }
   }
 
+  /**
+   * 
+   * Override of NAME method.
+   *
+   * TODO: Describe this method.
+   *
+   * @see services.ad.ADConnection#close()
+   *
+   */
   @Override
   public void close()
   {

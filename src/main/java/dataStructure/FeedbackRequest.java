@@ -1,48 +1,70 @@
 package dataStructure;
 
-import static dataStructure.Constants.UK_TIMEZONE;
+import static utils.Conversions.*;
+import static dataStructure.Action.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 /**
- * FeedbackRequest object for MyCareer.
  * 
+ * TODO: Describe this TYPE.
+ *
  */
-public class FeedbackRequest implements Serializable
+public class FeedbackRequest implements Comparable<FeedbackRequest>, Serializable
 {
+  private static final long serialVersionUID = 1L;
 
-  private static final long serialVersionUID = 5904650249033682895L;
+  /** TODO describe */
+  public static final String ID = "feedbackRequests.id";
 
-  /** Unique ID for the object. */
+  /** TODO describe */
+  public static final String RECIPIENT = "feedbackRequests.recipient";
+
+  /** TODO describe */
+  public static final String REPLY_RECEIVED = "feedbackRequests.replyReceived";
+
+  /** TODO describe */
+  public static final String DISMISSED = "feedbackRequests.dismissed";
+
+  /** TODO describe */
+  public static final String TIMESTAMP = "feedbackRequests.timestamp";
+
   private String id;
-
-  /** Email of recipient */
   private String recipient;
-
-  /** State of whether feedback has been given */
   private boolean replyReceived;
-
-  /** Time stamp of feedback request */
+  private boolean dismissed;
   private String timestamp;
 
-  /** Empty Constructor */
+  /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
+   */
   public FeedbackRequest()
   {
   }
 
   /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
    * @param id
    * @param recipient
    */
   public FeedbackRequest(String id, String recipient)
   {
-    super();
     this.id = id;
     this.recipient = recipient;
-    setReplyReceived(false);
-    setTimestamp();
+    this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
+  }
+
+  /**
+   * Dismisses this feedback request.
+   */
+  public void dismiss()
+  {
+    dismissed = true;
   }
 
   /** @return the id */
@@ -75,6 +97,18 @@ public class FeedbackRequest implements Serializable
     return replyReceived;
   }
 
+  /** @param dismissed set whether this feedback request has been dismissed */
+  public void setDismissed(boolean dismissed)
+  {
+    this.dismissed = dismissed;
+  }
+
+  /** @return {@code true} if this feedback request has been dismissed */
+  public boolean isDismissed()
+  {
+    return dismissed;
+  }
+
   /** @param replyReceived the replyReceived to set */
   public void setReplyReceived(boolean replyReceived)
   {
@@ -87,10 +121,55 @@ public class FeedbackRequest implements Serializable
     return timestamp;
   }
 
-  /** Set timestamp to current time */
-  public void setTimestamp()
+  /**
+   * TODO: Describe this method.
+   *
+   * @param profile
+   * @return
+   */
+  public Activity createActivity(final EmployeeProfile profile)
   {
-    this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
+    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(REQUEST.getVerb())
+        .append(" feedback from ").append(recipient).toString();
+
+    return new Activity(activityString, timestamp);
   }
 
+  /**
+   * @return {@code true} if this feedback request has not been dismissed by the requester, has not had a response from
+   *         the recipient, and was sent within the last year.
+   */
+  public boolean isCurrent()
+  {
+    if (replyReceived || dismissed)
+    {
+      return false;
+    }
+
+    final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
+    final LocalDateTime added = LocalDateTime.parse(timestamp);
+    final boolean isCurrent = added.isAfter(cutOffDate);
+
+    return isCurrent;
+  }
+
+  /**
+   * 
+   * Override of NAME method.
+   *
+   * TODO: Describe this method.
+   *
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   *
+   * @param other
+   * @return
+   */
+  @Override
+  public int compareTo(final FeedbackRequest other)
+  {
+    final LocalDateTime thisTimestamp = LocalDateTime.parse(timestamp);
+    final LocalDateTime otherTimestamp = LocalDateTime.parse(other.timestamp);
+
+    return thisTimestamp.compareTo(otherTimestamp);
+  }
 }

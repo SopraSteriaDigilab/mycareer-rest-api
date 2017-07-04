@@ -1,36 +1,64 @@
 package dataStructure;
 
-import static dataStructure.Constants.UK_TIMEZONE;
+import static utils.Conversions.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class contains the definition of the Note object
  */
-// TODO Add the spring validation here, (see the annotations in the employeeController) Then change the constructor to
-// take in a Note object.
-public class Note implements Serializable
+public class Note implements Serializable, Comparable<Note>
 {
+  private static final long serialVersionUID = 1L;
 
-  /** long Constant - Represents serialVersionUID... */
-  private static final long serialVersionUID = -7758646259468792018L;
+  /** TODO describe */
+  public static final String ID = "notes.id";
 
-  /** int Property - Represents Unique ID for the object. */
+  /** TODO describe */
+  public static final String PROVIDER_NAME = "notes.providerName";
+
+  /** TODO describe */
+  public static final String DESCRIPTION = "notes.noteDescription";
+
+  /** TODO describe */
+  public static final String TAGGED_OBJECTIVES = "notes.taggedObjectiveIds";
+
+  /** TODO describe */
+  public static final String TAGGED_DEVELOPMENT_NEEDS = "notes.taggedDevelopmentNeedIds";
+
+  /** TODO describe */
+  public static final String TIMESTAMP = "notes.timestamp";
+
+  private static final String NOTE = "note";
+
+  /* int Property - Represents Unique ID for the object. */
   private int id;
 
-  /** String Property - Represents name of the not provider. */
+  /* String Property - Represents name of the note provider. */
   private String providerName;
 
-  /** String Property - Represents the description of the note. */
+  /* String Property - Represents the description of the note. */
   private String noteDescription;
 
-  /** String Property - Represents the timestamp of the note. */
+  /* The objective ids tagged */
+  private Set<Integer> taggedObjectiveIds;
+
+  /* The development need ids tagged */
+  private Set<Integer> taggedDevelopmentNeedIds;
+
+  /* String Property - Represents the timestamp of the note. */
   private String timestamp;
 
-  /** Default Constructor - Responsible for initialising this object. */
+  /**
+   * No-args constructor - Responsible for initialising this object.
+   */
   public Note()
   {
+    taggedObjectiveIds = new HashSet<>();
+    taggedDevelopmentNeedIds = new HashSet<>();
   }
 
   /**
@@ -43,6 +71,8 @@ public class Note implements Serializable
     this.setProviderName(providerName);
     this.setNoteDescription(noteDescription);
     this.setTimestamp();
+    taggedObjectiveIds = new HashSet<>();
+    taggedDevelopmentNeedIds = new HashSet<>();
   }
 
   /** @return the id */
@@ -81,6 +111,30 @@ public class Note implements Serializable
     this.noteDescription = noteDescription;
   }
 
+  /** @return the taggedObjectiveIds */
+  public Set<Integer> getTaggedObjectiveIds()
+  {
+    return taggedObjectiveIds;
+  }
+
+  /** @param taggedObjectiveIds The value to set. */
+  public void setTaggedObjectiveIds(Set<Integer> taggedObjectiveIds)
+  {
+    this.taggedObjectiveIds = taggedObjectiveIds;
+  }
+
+  /** @return the taggedDevelopmentNeedIds */
+  public Set<Integer> getTaggedDevelopmentNeedIds()
+  {
+    return taggedDevelopmentNeedIds;
+  }
+
+  /** @param taggedDevelopmentNeedIds The value to set. */
+  public void setTaggedDevelopmentNeedIds(Set<Integer> taggedDevelopmentNeedIds)
+  {
+    this.taggedDevelopmentNeedIds = taggedDevelopmentNeedIds;
+  }
+
   /** @return the timestamp */
   public String getTimestamp()
   {
@@ -93,4 +147,77 @@ public class Note implements Serializable
     this.timestamp = LocalDateTime.now(UK_TIMEZONE).toString();
   }
 
+  /**
+   * Removes a development need from taggedDevelopmentNeedIds.
+   *
+   * @param id
+   * @return {@code true} if the developmentNeedId existed in the map and was succesfully removed. {@code false}
+   *         otherwise.
+   */
+  public boolean removeDevelopmentNeedTag(final Integer id)
+  {
+    return taggedDevelopmentNeedIds.remove(id);
+  }
+
+  /**
+   * Removes an objective from taggedObjectiveIds.
+   *
+   * @param id
+   * @return {@code true} if the objectiveId existed in the map and was succesfully removed. {@code false} otherwise.
+   */
+  public boolean removeObjectiveTag(final Integer id)
+  {
+    return taggedObjectiveIds.remove(id);
+  }
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param activityType
+   * @param profile
+   * @return
+   */
+  public Activity createActivity(final Action activityType, final EmployeeProfile profile)
+  {
+    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb())
+        .append(" ").append(NOTE).append(" #").append(getId()).append(": ").append(noteDescription).toString();
+
+    return new Activity(activityString, timestamp);
+  }
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
+  public boolean isCurrent()
+  {
+    final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
+    final LocalDateTime added = LocalDateTime.parse(timestamp);
+    final boolean isCurrent = added.isAfter(cutOffDate);
+
+    return isCurrent;
+  }
+
+  /**
+   * 
+   * Override of NAME method.
+   *
+   * TODO: Describe this method.
+   *
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   *
+   * @param other
+   * @return
+   */
+  @Override
+  public int compareTo(final Note other)
+  {
+    final LocalDateTime thisTimestamp = LocalDateTime.parse(timestamp);
+    final LocalDateTime otherTimestamp = LocalDateTime.parse(other.timestamp);
+
+    return thisTimestamp.compareTo(otherTimestamp);
+  }
 }

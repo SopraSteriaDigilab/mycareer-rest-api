@@ -69,10 +69,12 @@ public class GlobalExceptionHandler
   {
     return Collections.singletonMap("error", message);
   }
-  
+
   /** Bean - Allows for parameter validation */
   @Bean
-    public MethodValidationPostProcessor methodValidationPostProcessor() {
-         return new MethodValidationPostProcessor();
-    }
+  public MethodValidationPostProcessor methodValidationPostProcessor()
+  {
+    return new MethodValidationPostProcessor();
+  }
+
 }

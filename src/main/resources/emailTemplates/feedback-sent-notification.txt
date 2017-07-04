@@ -1,0 +1,15 @@
+Hello,
+ 
+You have sent some feedback using MyCareer. See below for further details.
+
+To:
+
+{0}.
+
+Feedback:
+
+"{1}"
+
+Regards,
+
+The MyCareer Team

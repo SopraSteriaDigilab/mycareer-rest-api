@@ -1,327 +1,319 @@
 package dataStructure;
 
-import static dataStructure.Constants.UK_TIMEZONE;
+import static utils.Conversions.*;
 
-import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.ZoneId;
+import java.util.Date;
 
-import javax.management.InvalidAttributeValueException;
-
-import org.mongodb.morphia.annotations.Embedded;
-
-import com.google.gson.Gson;
+import org.bson.Document;
 
 /**
- * This class contains the definition of the Objective object
+ * 
+ * TODO: Describe this TYPE.
  *
  */
-@Embedded
-public class Objective implements Serializable
+public class Objective extends DBObject implements Comparable<Objective>
 {
+  private static final long serialVersionUID = -8210647573312345743L;
 
-  private static final long serialVersionUID = -274154678364673992L;
-  // Global Variables
-  private int id, progress, performance;
+  /** TODO describe */
+  public static final String ID = "objectives.id";
+
+  /** TODO describe */
+  public static final String LAST_MODIFIED = "objectives.lastModified";
+
+  /** TODO describe */
+  public static final String CREATED_ON = "objectives.createdOn";
+
+  /** TODO describe */
+  public static final String TITLE = "objectives.title";
+
+  /** TODO describe */
+  public static final String DESCRIPTION = "objectives.description";
+
+  /** TODO describe */
+  public static final String DUE_DATE = "objectives.dueDate";
+
+  /** TODO describe */
+  public static final String PROPOSED_BY = "objectives.proposedBy";
+
+  /** TODO describe */
+  public static final String PROGRESS = "objectives.progress";
+
+  /** TODO describe */
+  public static final String IS_ARCHIVED = "objectives.isArchived";
+
+  private static final String OBJECTIVE = "objective";
+
+  private Date createdOn;
+  private String title;
+  private String description;
+  private Date dueDate;
+  private String proposedBy;
+  private String progress;
   private boolean isArchived;
-  private String title, description, timeStamp, timeToCompleteBy, proposedBy;
 
-  // Empty Constructor
+  /**
+   * No-args Constructor - Responsible for initialising this object.
+   */
   public Objective()
   {
-    this.id = Constants.INVALID_INT;
-    this.progress = Constants.INVALID_INT;
-    this.performance = Constants.INVALID_INT;
-    this.isArchived = false;
-    this.title = Constants.INVALID_STRING;
-    this.description = Constants.INVALID_STRING;
-    this.proposedBy = "";
-    this.timeStamp = null;
-    this.timeToCompleteBy = null;
-  }
-
-  // Constructor with Parameters
-  public Objective(int id, int prog, int perf, String title, String descr, String dateToCompleteBy)
-      throws InvalidAttributeValueException
-  {
-    this.setID(id);
-    this.setProgress(prog);
-    this.setPerformance(perf);
-    this.isArchived = false;
-    this.setTitle(title);
-    this.setDescription(descr);
-    this.timeStamp = null;
-    this.setTimeStamp();
-    this.setTimeToCompleteBy(dateToCompleteBy);
-    // this.feedback=new ArrayList<Feedback>();
-    this.proposedBy = "";
-  }
-
-  // Constructor with Parameters
-  public Objective(Objective o) throws InvalidAttributeValueException
-  {
-    this.setID(o.getID());
-    this.setProgress(o.getProgress());
-    this.setPerformance(o.getPerformance());
-    this.isArchived = false;
-    this.setTitle(o.getTitle());
-    this.setDescription(o.getDescription());
-    this.timeStamp = null;
-    this.setTimeStamp();
-    this.setTimeToCompleteBy(o.getTimeToCompleteBy());
-    // this.feedback=o.getFeedback();
-    this.proposedBy = o.getProposedBy();
-  }
-
-  // Constructor with Parameters
-  public Objective(int prog, int perf, String title, String descr, String dateToCompleteBy)
-      throws InvalidAttributeValueException
-  {
-    this.setProgress(prog);
-    this.setPerformance(perf);
-    this.setTitle(title);
-    this.setDescription(descr);
-    this.timeStamp = null;
-    this.setTimeStamp();
-    this.setTimeToCompleteBy(dateToCompleteBy);
-    // feedback=new ArrayList<Feedback>();
-    this.proposedBy = "";
-  }
-
-  public void setID(int id) throws InvalidAttributeValueException
-  {
-    if (id > 0) this.id = id;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_USERID);
-  }
-
-  public int getID()
-  {
-    return this.id;
+    this.createdOn = getLastModifiedAsDate();
   }
 
   /**
-   * 
-   * @param progress This variable can assume only 4 values: -1 => Deleted 0 => Proposed 1 => Started 2 => Completed
+   * Objective Constructor - Responsible for initialising this object.
+   *
    */
-  public void setProgress(int progress) throws InvalidAttributeValueException
+  public Objective(String title, String description, LocalDate dueDate)
   {
-    if (progress >= -1 && progress <= 2) this.progress = progress;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_PROGRESS);
+    this();
+    this.title = title;
+    this.description = description;
+    this.dueDate = localDatetoDate(dueDate);
+    this.proposedBy = "";
+    this.progress = Progress.PROPOSED.getProgressStr();
   }
 
-  public int getProgress()
+  /**
+   * Objective Constructor - Responsible for initialising this object.
+   *
+   */
+  public Objective(int id, String title, String description, LocalDate dueDate)
   {
-    return this.progress;
+    this(title, description, dueDate);
+    this.setId(id);
   }
 
-  public void setProposedBy(String name) throws InvalidAttributeValueException
+  /** @return the createdOn */
+  public String getCreatedOn()
   {
-    if (name != null) this.proposedBy = name;
-    else throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE_PROPOSEDBY);
+    return dateToLocalDateTime(this.createdOn).toString();
   }
 
+  /** @return the title. */
+  public String getTitle()
+  {
+    return title;
+  }
+
+  /** @param title The value to set the named property to. */
+  public void setTitle(String title)
+  {
+    this.title = title;
+    this.setLastModified();
+  }
+
+  /** @return the description. */
+  public String getDescription()
+  {
+    return description;
+  }
+
+  /** @param description The value to set the named property to. */
+  public void setDescription(String description)
+  {
+    this.description = description;
+    this.setLastModified();
+  }
+
+  /** @return the dueDate. */
+  public String getDueDate()
+  {
+    return dateToLocalDate(this.dueDate).toString();
+  }
+
+  /** @param dueDate The value to set the named property to. */
+  public void setDueDate(LocalDate dueDate)
+  {
+    this.dueDate = localDatetoDate(dueDate);
+    this.setLastModified();
+  }
+
+  /** @return the proposedBy. */
   public String getProposedBy()
   {
-    return this.proposedBy;
+    return proposedBy;
+  }
+
+  /** @param proposedBy The value to set the named property to. */
+  public void setProposedBy(String proposedBy)
+  {
+    this.proposedBy = proposedBy;
+    this.setLastModified();
+  }
+
+  /** @return the progress. */
+  public String getProgress()
+  {
+    return progress;
   }
 
   /**
-   * 
-   * @param performance This variable can assume only 3 values: 0 => Green 1 => Amber 2 => Red
+   * @param progress The value to set the named property to. Must be one of the following: Proposed, InProgress,
+   *          Complete;
    */
-  public void setPerformance(int performance) throws InvalidAttributeValueException
+  public void setProgress(Progress progress)
   {
-    if (performance >= 0 && performance <= 2) this.performance = performance;
-    else throw new InvalidAttributeValueException(Constants.INVALID_OBJECTIVE_PERFORMANCE);
+    this.progress = progress.getProgressStr();
+    this.setLastModified();
   }
 
-  public int getPerformance()
-  {
-    return this.performance;
-  }
-
-  public void setIsArchived(boolean val)
-  {
-    this.isArchived = val;
-  }
-
-  public boolean getIsArchived()
+  /** @return the isArchived */
+  public boolean getArchived()
   {
     return isArchived;
   }
 
-  /**
-   * 
-   * @param title The title of the object cannot exceed the 150 characters
-   */
-  public void setTitle(String title) throws InvalidAttributeValueException
+  /** @param isArchived The value to set the named property to. */
+  public void isArchived(boolean isArchived)
   {
-    if (title != null && title.length() > 0 && title.length() < 151) this.title = title;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_TITLE);
-  }
-
-  public String getTitle()
-  {
-    return this.title;
-  }
-
-  /**
-   * 
-   * @param description The description of the objective cannot exceed the 1000 characters
-   */
-  public void setDescription(String description) throws InvalidAttributeValueException
-  {
-    if (description != null && description.length() > 0 && description.length() < 2001) this.description = description;
-    else throw new InvalidAttributeValueException(Constants.INVALID_CONTEXT_DESCRIPTION);
-  }
-
-  public String getDescription()
-  {
-    return this.description;
-  }
-
-  /**
-   * This method creates a timestamp when the object is created
-   */
-  private void setTimeStamp()
-  {
-    // Check if the timeStamp has already a value assigned
-    if (timeStamp == null) this.timeStamp = LocalDateTime.now(UK_TIMEZONE).toString();
-  }
-
-  public String getTimeStamp()
-  {
-    return this.timeStamp;
-  }
-
-  public boolean updateArchiveStatus(boolean isArchived)
-  {
-    timeStamp = LocalDateTime.now(UK_TIMEZONE).toString();
     this.isArchived = isArchived;
-
-    return this.isArchived;
+    this.setLastModified();
   }
 
   /**
    * 
-   * @param date the date of when the objective needs to be completed by
-   * @throws InvalidAttributeValueException
+   * Override of NAME method.
+   *
+   * TODO: Describe this method.
+   *
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   *
+   * @param objective
+   * @return
    */
-  public void setTimeToCompleteBy(String date) throws InvalidAttributeValueException
-  {
-    if (date.equals(""))
-    {
-      throw new InvalidAttributeValueException(Constants.INVALID_DATEFORMAT);
-    }
-
-    YearMonth temp = YearMonth.parse(date, Constants.YEAR_MONTH_FORMAT);
-    YearMonth now = YearMonth.now(UK_TIMEZONE);
-    boolean pastDate = temp.isBefore(now);
-
-    if (!pastDate)
-    {
-      timeToCompleteBy = date;
-    }
-    else
-    {
-      throw new InvalidAttributeValueException(Constants.INVALID_PASTDATE);
-    }
-  }
-
-  public String getTimeToCompleteBy()
-  {
-    YearMonth temp = YearMonth.parse(this.timeToCompleteBy, Constants.YEAR_MONTH_FORMAT);
-    return temp.format(Constants.YEAR_MONTH_FORMAT);
-  }
-
-  public YearMonth getTimeToCompleteByYearMonth()
-  {
-    return YearMonth.parse(this.timeToCompleteBy, Constants.YEAR_MONTH_FORMAT);
-  }
-
-  // /**
-  // *
-  // * @param listData the list of feedback that is going to be assigned to this objective
-  // * @throws InvalidClassException
-  // * @throws InvalidAttributeValueException
-  // */
-  // public void setFeedback(List<Feedback> listData) throws InvalidAttributeValueException{
-  // if(listData!=null){
-  // //Create a counter that keeps count of the error produced
-  // int errorCounter=0;
-  // this.feedback=new ArrayList<Feedback>();
-  // //Check if the feedback objects inside the list are valid
-  // for(Feedback temp:listData){
-  // if(temp.isFeedbackValid())
-  // this.feedback.add(temp);
-  // else
-  // errorCounter++;
-  // }
-  // //Verify if there has been any error
-  // if(errorCounter!=0)
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACKLIST);
-  // }
-  // else
-  // throw new InvalidAttributeValueException(Constants.NULL_FEEDBACKLIST);
-  // }
-
-  // public List<Feedback> getFeedback(){
-  // List<Feedback> data=new ArrayList<Feedback>();
-  // for(Feedback temp: this.feedback){
-  // data.add(temp);
-  // }
-  // return data;
-  // }
-
-  // /**
-  // * This method adds a feedback to this objective
-  // *
-  // * @param obj feedback data
-  // * @return
-  // * @throws InvalidAttributeValueException
-  // */
-  // public boolean addFeedback(Feedback obj) throws InvalidAttributeValueException{
-  // if(feedback==null)
-  // feedback=new ArrayList<Feedback>();
-  // //Validate the feedback
-  // if(obj==null)
-  // throw new InvalidAttributeValueException(Constants.NULL_FEEDBACK);
-  // if(obj.isFeedbackValid())
-  // return feedback.add(obj);
-  // throw new InvalidAttributeValueException(Constants.INVALID_FEEDBACK);
-  // }
-
-  public boolean isObjectiveValid()
-  {
-    return (this.getID() > 0 && !this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid")
-        && this.getTimeStamp() != null && this.getTimeToCompleteBy() != null);
-  }
-
-  public boolean isObjectiveValidWithoutID()
-  {
-    return (this.getTitle().contains("Invalid") && !this.getDescription().contains("Invalid")
-        && this.getTimeStamp() != null && this.getTimeToCompleteBy() != null);
-  }
-
-  public String toGson()
-  {
-    Gson gsonData = new Gson();
-    return gsonData.toJson(this);
-  }
-
   @Override
-  public String toString()
+  public int compareTo(Objective objective)
   {
-    String s = "";
-    s += "ID " + this.id + "\n" + "Progress " + this.progress + "\n" + "Performance " + this.performance + "\n"
-        + "Is Archived  " + this.isArchived + "\n" + "Title " + this.title + "\n" + "Description " + this.description
-        + "\n" + "TimeStamp " + this.getTimeStamp() + "\n" + "TimeToCompleteBy " + this.getTimeToCompleteBy() + "\n"
-        + "ProposedBy " + this.getProposedBy() + "\n";
-    // for(Feedback temp: this.feedback){
-    // s+=temp.toString();
-    // }
-    return s;
+    LocalDate ld1 = LocalDate.parse(this.getDueDate());
+    LocalDate ld2 = LocalDate.parse(objective.getDueDate());
+
+    return (ld1.equals(ld2)) ? 0 : (ld1.isBefore(ld2) ? -1 : 1);
   }
 
+  /**
+   * Returns a document containing the differences (only title, description & dueDate) of the objectives.
+   *
+   * @param objective
+   * @return a new document
+   */
+  public Document differences(Objective objective)
+  {
+    Document differences = new Document();
+    if (!this.getTitle().equals(objective.getTitle()))
+    {
+      differences.append("title", objective.getTitle());
+    }
+    if (!this.getDescription().equals(objective.getDescription()))
+    {
+      differences.append("description", objective.getDescription());
+    }
+    if (!this.getDueDate().equals(objective.getDueDate()))
+    {
+      differences.append("dueDate", objective.getDueDate());
+    }
+    return differences;
+  }
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
+  public Date getCreatedOnAsDate()
+  {
+    return createdOn;
+  }
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
+  public Date getDueDateAsDate()
+  {
+    return dueDate;
+  }
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param activityType
+   * @param profile
+   * @return
+   */
+  public Activity createActivity(final Action activityType, final EmployeeProfile profile)
+  {
+    final String activityString = new StringBuilder(profile.getFullName()).append(" ").append(activityType.getVerb())
+        .append(" ").append(OBJECTIVE).append(" #").append(getId()).append(": ").append(title).toString();
+
+    return new Activity(activityString, getLastModified());
+  }
+
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @return
+   */
+  public boolean isCurrent()
+  {
+    final LocalDateTime cutOffDate = LocalDateTime.now(UK_TIMEZONE).minusYears(1);
+    final LocalDateTime lastModified = dateToLocalDateTime(getLastModifiedAsDate());
+    final LocalDateTime dueDate = dateToLocalDateTime(this.dueDate);
+    final boolean isCurrent = !progress.equals(Progress.COMPLETE.getProgressStr()) || lastModified.isAfter(cutOffDate)
+        || dueDate.isAfter(cutOffDate);
+
+    return isCurrent;
+  }
+
+  /** Represents progress of any Objective object. */
+  public enum Progress
+  {
+    PROPOSED("Proposed"), IN_PROGRESS("In-Progress"), COMPLETE("Complete");
+
+    private String progressStr;
+
+    private Progress(String progressStr)
+    {
+      this.progressStr = progressStr;
+    }
+
+    /**
+     * 
+     * TODO: Describe this method.
+     *
+     * @return
+     */
+    public String getProgressStr()
+    {
+      return this.progressStr;
+    }
+
+    /**
+     * 
+     * TODO: Describe this method.
+     *
+     * @param progressString
+     * @return
+     */
+    public static Progress getProgressFromString(String progressString)
+    {
+      switch (progressString)
+      {
+        case "Proposed":
+          return Progress.PROPOSED;
+        case "In-Progress":
+          return Progress.IN_PROGRESS;
+        case "Complete":
+          return Progress.COMPLETE;
+      }
+      throw new IllegalArgumentException("The String provided does not match a valid Progress enum");
+    }
+  }
 }

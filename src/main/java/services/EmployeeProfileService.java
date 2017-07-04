@@ -1,16 +1,28 @@
 package services;
 
+import static services.ad.ADSearchSettingsImpl.LdapPort.*;
+
+import static dataStructure.EmployeeProfile.*;
+import static dataStructure.EmailAddresses.*;
 import static services.ad.ADOperations.*;
 import static services.mappers.EmployeeProfileMapper.*;
+import static com.mongodb.client.model.Filters.*;
+import static utils.Validate.*;
+import static services.ad.query.LDAPQueries.*;
 
 import javax.naming.directory.SearchResult;
 
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mongodb.MongoException;
+
+import dataStructure.EmailAddresses;
 import dataStructure.EmployeeProfile;
 import services.ad.ADConnectionException;
 import services.ad.ADSearchSettings;
+import services.db.MongoOperations;
 import services.db.MorphiaOperations;
 
 /**
@@ -23,31 +35,35 @@ public class EmployeeProfileService
   private final static Logger LOGGER = LoggerFactory.getLogger(EmployeeProfileService.class);
 
   // Exception messages
-  private static final String TOO_MANY_RESULTS = "More than one match was found in the database";
-  private static final String INVALID_EMPLOYEE_ID = "Employee ID cannot be a negative number";
-  private static final String INVALID_USERNAME_OR_EMAIL_ADDRESS = "Not a valid username or email address";
   private static final String INVALID_EMAIL_ADDRESS = "Not a valid email address";
   private static final String INVALID_USERNAME = "Not a valid username";
-  private static final String EMPLOYEE_NOT_FOUND_LOG = "Employee not found based on the criteria: {} {} ";
+  private static final String DUPLICATE_EMAIL_ADDRESS = "Employee with ID {} attempted to add an email addresss which already exists: {}";
+  private static final String EMAIL_ADDRESS_NOT_FOUND_LOG = "Employee not found based on the email address: {}";
+  private static final String EMPLOYEE_NOT_FOUND_LOG = "Employee not found based on the criteria: {} {}";
   private static final String EMPLOYEE_NOT_FOUND = "Employee not found based on the criteria: ";
+  private static final String ADD_EMAIL_EXCEPTION = "Exception caught while updating user email address.";
   private static final String HR_PERMISSION_EXCEPTION = "Exception caught while trying to find HR Dashboard Permission for employee with ID {}";
 
   // Sopra AD Details
   private static final String AD_SOPRA_TREE = "ou=usersemea,DC=emea,DC=msad,DC=sopra";
-  private static final String AD_SOPRA_HR_DASH = "SSG UK_HR MyCareer Dash";
-
-  // DB fields
-  private static final String EMPLOYEE_ID = "profile.employeeID";
-  private static final String USERNAME = "profile.username";
-  private static final String EMAIL_ADDRESS = "profile.emailAddress";
-
 
   private final ADSearchSettings sopraADSearchSettings;
   private final MorphiaOperations morphiaOperations;
+  private final MongoOperations employeeOperations;
 
-  public EmployeeProfileService(final MorphiaOperations morphiaOperations, final ADSearchSettings sopraADSearchSettings)
+  /**
+   * 
+   * TYPE Constructor - Responsible for initialising this object.
+   *
+   * @param morphiaOperations
+   * @param employeeOperations
+   * @param sopraADSearchSettings
+   */
+  public EmployeeProfileService(final MorphiaOperations morphiaOperations, final MongoOperations employeeOperations,
+      final ADSearchSettings sopraADSearchSettings)
   {
     this.morphiaOperations = morphiaOperations;
+    this.employeeOperations = employeeOperations;
     this.sopraADSearchSettings = sopraADSearchSettings;
   }
 
@@ -59,8 +75,7 @@ public class EmployeeProfileService
    * @throws EmployeeNotFoundException if the given employee ID could not be found in the database
    * @throws ADConnectionException if the employee could not be
    */
-  public EmployeeProfile fetchEmployeeProfile(final long employeeID)
-      throws EmployeeNotFoundException
+  public EmployeeProfile fetchEmployeeProfile(final long employeeID) throws EmployeeNotFoundException
   {
     final EmployeeProfile profile = fetchEmployeeProfile(EMPLOYEE_ID, employeeID);
     setHasHRDash(profile);
@@ -83,11 +98,6 @@ public class EmployeeProfileService
   public EmployeeProfile fetchEmployeeProfile(final String usernameEmail)
       throws EmployeeNotFoundException, IllegalArgumentException
   {
-    if (usernameEmail == null || usernameEmail.isEmpty())
-    {
-      throw new IllegalArgumentException(INVALID_USERNAME_OR_EMAIL_ADDRESS);
-    }
-    
     EmployeeProfile profile;
 
     if (usernameEmail.contains("@"))
@@ -139,30 +149,64 @@ public class EmployeeProfileService
       throw new IllegalArgumentException(INVALID_EMAIL_ADDRESS);
     }
 
-    final EmployeeProfile profile = fetchEmployeeProfile(EMAIL_ADDRESS, emailAddress);
+    EmployeeProfile profile = null;
+
+    try
+    {
+      profile = morphiaOperations.getEmployeeFromEmailAddress(emailAddress).getProfile();
+    }
+    catch (final NullPointerException e)
+    {
+      LOGGER.error(EMAIL_ADDRESS_NOT_FOUND_LOG, emailAddress);
+      throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND.concat(emailAddress));
+    }
+
     setHasHRDash(profile);
 
     return profile;
   }
 
-  private <T> EmployeeProfile fetchEmployeeProfile(final String field, final T value) throws EmployeeNotFoundException
+  /**
+   * Adds a user provided email address to the given user profile.
+   * 
+   * The email address is added to the "profile.emailAddresses.userAddress" field and overwrites any existing value in
+   * that field.
+   *
+   * @param employeeId The employee ID of the user profile to amend
+   * @param emailAddress The email address to add, provided by the user
+   * @throws DuplicateEmailAddressException
+   */
+  public boolean editUserEmailAddress(final Long employeeId, final String emailAddress)
+      throws DuplicateEmailAddressException
   {
-    EmployeeProfile profile = null;
+    if (!isUniqueEmailAddress(emailAddress))
+    {
+      LOGGER.info(DUPLICATE_EMAIL_ADDRESS, employeeId, emailAddress);
+      throw new DuplicateEmailAddressException();
+    }
+
+    boolean updated = false;
 
     try
     {
-      profile = morphiaOperations.getEmployeeProfile(field, value);
+      updated = stringNotEmptyNotNull(emailAddress) ? setUserEmailAddress(employeeId, emailAddress)
+          : unsetUserEmailAddress(employeeId);
     }
-    catch (final NullPointerException e)
+    catch (final MongoException me)
     {
-      LOGGER.error(EMPLOYEE_NOT_FOUND_LOG, field, value);
-      throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + value);
+      LOGGER.error(ADD_EMAIL_EXCEPTION, me);
     }
 
-    return profile;
+    return updated;
   }
 
-  private void setHasHRDash(final EmployeeProfile profile)
+  /**
+   * 
+   * TODO: Describe this method.
+   *
+   * @param profile
+   */
+  public void setHasHRDash(final EmployeeProfile profile)
   {
     try
     {
@@ -175,10 +219,55 @@ public class EmployeeProfileService
     }
   }
 
+  private boolean isUniqueEmailAddress(String emailAddress)
+  {
+    final String[] emailFields = { EmailAddresses.MAIL, EmailAddresses.TARGET_ADDRESS, USER_ADDRESS };
+    boolean unique = false;
+
+    for (final String field : emailFields)
+    {
+      unique = !employeeOperations.valueExists(field, emailAddress);
+
+      if (!unique)
+      {
+        break;
+      }
+    }
+
+    return unique;
+  }
+
+  private boolean setUserEmailAddress(final long employeeId, final String emailAddress)
+  {
+    return employeeOperations.setFields(eq(EMPLOYEE_ID, employeeId), new Document(USER_ADDRESS, emailAddress));
+  }
+
+  private boolean unsetUserEmailAddress(final long employeeId)
+  {
+    return employeeOperations.unsetFields(eq(EMPLOYEE_ID, employeeId), new Document(USER_ADDRESS, ""));
+  }
+
+  private <T> EmployeeProfile fetchEmployeeProfile(final String field, final T value) throws EmployeeNotFoundException
+  {
+    EmployeeProfile profile = null;
+
+    try
+    {
+      profile = morphiaOperations.getEmployeeProfile(field, value);
+    }
+    catch (final NullPointerException e)
+    {
+      LOGGER.warn(EMPLOYEE_NOT_FOUND_LOG, field, value);
+      throw new EmployeeNotFoundException(EMPLOYEE_NOT_FOUND + value);
+    }
+
+    return profile;
+  }
+
   private boolean hasHRDash(final long employeeID) throws ADConnectionException
   {
-    final String filter = "(extensionAttribute7=s" + employeeID + ")";
-    final SearchResult result = searchADSingleResult(sopraADSearchSettings, AD_SOPRA_TREE, filter);
+    final String filter = basicQuery(EXTENSION_ATTRIBUTE_7, "s" + employeeID).get();
+    final SearchResult result = searchADSingleResult(sopraADSearchSettings, AD_SOPRA_TREE, filter, LOCAL);
 
     return mapHRPermission(result.getAttributes());
   }

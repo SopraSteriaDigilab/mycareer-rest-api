@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-@PropertySource("${ENVIRONMENT}.properties")
+@PropertySource("classpath:${ENVIRONMENT}.properties")
 public class Template
 {
 
