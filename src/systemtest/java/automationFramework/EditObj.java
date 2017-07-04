@@ -65,12 +65,12 @@ public class EditObj extends TestConfig{
 
 		//enter title
 		WebElement objTitle = driver.findElement(By.id("objective-title"));
-		objTitle.sendKeys(" - edited");
+		objTitle.sendKeys(" - updated correctly");
 		Thread.sleep(500);
 
 		// enter text
 		WebElement objText = driver.findElement(By.id("objective-text"));
-		objText.sendKeys(" - edited");
+		objText.sendKeys(" - updated correctly");
 		Thread.sleep(1000);
 		
 		// get number of current toasters as required by getLatest
@@ -83,7 +83,7 @@ public class EditObj extends TestConfig{
 		// get toaster text
 		String actualToastText = ToastContainer.getLatest(noOfToasters);
 		// define expected text for this toaster
-		String expectedToastText = "Objective edited"; // incorrect toaster message
+		String expectedToastText = "Objective updated correctly"; // incorrect toaster message
 
 		// Test for correct toaster text
 		Assert.assertEquals(actualToastText,expectedToastText);

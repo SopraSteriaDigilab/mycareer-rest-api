@@ -21,7 +21,7 @@ public class TestConfig {
 	public WebDriver startDriver(){
 		
 		// start chrome driver		
-		String exePath = "D:\\drivers\\chromedriver.exe";
+		String exePath = "C:\\tools\\drivers\\chromedriver.exe";
 		System.setProperty("webdriver.chrome.driver", exePath);
 		ChromeOptions options = new ChromeOptions(); options.addArguments("disable-infobars");
 		driver=new ChromeDriver(options);
