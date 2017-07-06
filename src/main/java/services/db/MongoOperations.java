@@ -30,7 +30,7 @@ import com.mongodb.client.result.UpdateResult;
  */
 public class MongoOperations
 {
-  private static final String DB_NAME = "Development";
+  private static final String DB_NAME = "development";
   private static final String ID = "_id";
   private static final String EMPLOYEE_ID = "employeeID";
   private static final String OBJECTIVE_ID = "objectiveID";
