@@ -882,13 +882,13 @@ public class EmployeeTest {
 	 * 
 	 */
 
-	@Test
-	public void testDismissFeedbackRequest() throws InvalidAttributeValueException {
-		List<FeedbackRequest> feedbackRequestList = Arrays.asList(TestModels.newFeedbackRequest());
-		unitUnderTest.setFeedbackRequests(feedbackRequestList);
-	
-		assertTrue(unitUnderTest.dismissFeedbackRequest(generateFeedbackRequestID(EMPLOYEE_ID)));
-	}
+//	@Test
+//	public void testDismissFeedbackRequest() throws InvalidAttributeValueException {
+//		List<FeedbackRequest> feedbackRequestList = Arrays.asList(TestModels.newFeedbackRequest());
+//		unitUnderTest.setFeedbackRequests(feedbackRequestList);
+//	
+//		assertTrue(unitUnderTest.dismissFeedbackRequest(generateFeedbackRequestID(EMPLOYEE_ID)));
+//	}
 
 	/**
 	 * Unit test for the dismissFeedbackRequest method : valid feedbackRequest.
