@@ -146,8 +146,8 @@ public class DBConfig
     MongoClientOptions options = MongoClientOptions.builder().maxWaitTime(10_000).connectTimeout(10_000).build();
     List<ServerAddress> serverList = new ArrayList<>();
     serverList.add(new ServerAddress(env.getProperty("db.host1"), Integer.parseInt(env.getProperty("db.host1.port"))));
-    serverList.add(new ServerAddress(env.getProperty("db.host2"), Integer.parseInt(env.getProperty("db.host2.port"))));
-    serverList.add(new ServerAddress(env.getProperty("db.host3"), Integer.parseInt(env.getProperty("db.host3.port"))));
+//    serverList.add(new ServerAddress(env.getProperty("db.host2"), Integer.parseInt(env.getProperty("db.host2.port"))));
+//    serverList.add(new ServerAddress(env.getProperty("db.host3"), Integer.parseInt(env.getProperty("db.host3.port"))));
     MongoCredential credentials = MongoCredential.createCredential(env.getProperty("db.username"),
         env.getProperty("db.name"), env.getProperty("db.password").toCharArray());
     List<MongoCredential> credentialList = new ArrayList<>();
