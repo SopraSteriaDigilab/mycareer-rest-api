@@ -99,7 +99,7 @@ public class UtilsTest
     Set<String> expected2 = new HashSet<>(Arrays.asList(EMAIL_STRING_1));
 
     assertEquals(expected1, Utils.stringEmailsToHashSet(EMAILS_STRING));
-    assertEquals(expected2, Utils.stringEmailsToHashSet(EMAIL_STRING_1));
+    assertEquals(expected2, Utils.stringEmailsToHashSet(EMAIL_STRING_2));
     assertFalse(expected1.equals(Utils.stringEmailsToHashSet(EMAIL_STRING_3)));
   }
 
